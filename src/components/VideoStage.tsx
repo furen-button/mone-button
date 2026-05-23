@@ -1,5 +1,7 @@
 import type { RefObject } from 'react'
 import type { FloatingStageClip } from '../voiceData'
+import { t } from '../i18n'
+import { useLocale } from '../i18n'
 
 type VideoStageProps = {
   floatingClips: FloatingStageClip[]
@@ -10,6 +12,8 @@ type VideoStageProps = {
 }
 
 export function VideoStage({ floatingClips, stageRef, volume, isStopping, onClipEnded }: VideoStageProps) {
+  const locale = useLocale()
+
   return (
     <section className="video-stage-wrap" aria-live="polite">
       <div className={`video-stage ${isStopping ? 'is-stopping' : ''}`} ref={stageRef}>
@@ -42,7 +46,7 @@ export function VideoStage({ floatingClips, stageRef, volume, isStopping, onClip
             </article>
           ))
         ) : (
-          <p className="video-placeholder">カードを押すとここに動画がランダム表示されます</p>
+          <p className="video-placeholder">{t('video.placeholder', {}, locale)}</p>
         )}
       </div>
     </section>

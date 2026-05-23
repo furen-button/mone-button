@@ -1,3 +1,6 @@
+import { t } from '../i18n'
+import { useLocale } from '../i18n'
+
 type PlaybackControlsProps = {
   sparkKey: number
   garageyaKey: number
@@ -17,25 +20,27 @@ export function PlaybackControls({
   onStop,
   onToggleSequentialMode,
 }: PlaybackControlsProps) {
+  const locale = useLocale()
+
   return (
-    <section className="control-panel" aria-label="ボイス再生コントロール">
+    <section className="control-panel" aria-label={t('playback.controls', {}, locale)}>
       <button type="button" className="voice-launch" onClick={onPlayRandom}>
         <span className="voice-launch-icon" key={sparkKey} aria-hidden="true">
-          ドドーン♪
+          {t('playback.random.icon', {}, locale)}
         </span>
-        ランダム再生
+        {t('playback.random.label', {}, locale)}
       </button>
       <button type="button" className="voice-garageya" onClick={onPlayGarageya}>
         <span className="voice-launch-icon" key={garageyaKey} aria-hidden="true">
-          わいわい
+          {t('playback.garageya.icon', {}, locale)}
         </span>
-        ガヤガヤ再生
+        {t('playback.garageya.label', {}, locale)}
       </button>
-      <button type="button" className="voice-stop" onClick={onStop} aria-label="再生を停止">
+      <button type="button" className="voice-stop" onClick={onStop} aria-label={t('playback.stop.ariaLabel', {}, locale)}>
         <span className="voice-stop-icon" aria-hidden="true">
           ■
         </span>
-        停止
+        {t('playback.stop.label', {}, locale)}
       </button>
       <button
         type="button"
@@ -43,7 +48,7 @@ export function PlaybackControls({
         aria-pressed={isSequentialMode}
         onClick={onToggleSequentialMode}
       >
-        ⇄ 連続再生 {isSequentialMode ? 'ON' : 'OFF'}
+        ⇄ {t('playback.sequential.label', { state: isSequentialMode ? t('playback.sequential.on', {}, locale) : t('playback.sequential.off', {}, locale) }, locale)}
       </button>
     </section>
   )

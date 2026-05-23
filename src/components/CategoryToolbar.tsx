@@ -1,4 +1,6 @@
 import type { ChangeEventHandler } from 'react'
+import { t } from '../i18n'
+import { useLocale } from '../i18n'
 
 type CategoryToolbarProps = {
   categoryOptions: string[]
@@ -17,17 +19,19 @@ export function CategoryToolbar({
   onClearAll,
   onToggleCategory,
 }: CategoryToolbarProps) {
+  const locale = useLocale()
+
   const handleChange = (category: string): ChangeEventHandler<HTMLInputElement> => {
     return () => onToggleCategory(category)
   }
 
   return (
-    <section className="category-toolbar" aria-label="カテゴリフィルター">
+    <section className="category-toolbar" aria-label={t('category.toolbar', {}, locale)}>
       <button type="button" className="category-filter-action" onClick={onSelectAll}>
-        ⊕ 全選択
+        ⊕ {t('category.selectAll', {}, locale)}
       </button>
       <button type="button" className="category-filter-action" onClick={onClearAll}>
-        ⊖ 全解除
+        ⊖ {t('category.clearAll', {}, locale)}
       </button>
       <div className="category-filter-list">
         {categoryOptions.map((category) => {
@@ -40,7 +44,7 @@ export function CategoryToolbar({
                 {checked ? '✓' : ' '}
               </span>
               <span className="category-chip-name">{category}</span>
-              <span className="category-chip-count" aria-label={`${category} の件数`}>
+              <span className="category-chip-count" aria-label={t('category.countAria', { category }, locale)}>
                 {categoryCounts[category] ?? 0}
               </span>
             </label>

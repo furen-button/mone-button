@@ -1,4 +1,6 @@
 import type { SortType } from '../voiceData'
+import { t } from '../i18n'
+import { useLocale } from '../i18n'
 
 type SortToolbarProps = {
   sortType: SortType
@@ -6,17 +8,19 @@ type SortToolbarProps = {
 }
 
 export function SortToolbar({ sortType, onChangeSortType }: SortToolbarProps) {
+  const locale = useLocale()
+
   return (
-    <section className="sort-toolbar" aria-label="ソートコントロール">
-      <span className="sort-toolbar-label">並び順</span>
-      <div className="sort-controls" role="group" aria-label="ソートコントロール">
+    <section className="sort-toolbar" aria-label={t('sort.toolbar', {}, locale)}>
+      <span className="sort-toolbar-label">{t('sort.label', {}, locale)}</span>
+      <div className="sort-controls" role="group" aria-label={t('sort.toolbar', {}, locale)}>
         <button
           type="button"
           className={`sort-chip ${sortType === 'reading' ? 'is-active' : ''}`}
           onClick={() => onChangeSortType('reading')}
           aria-pressed={sortType === 'reading'}
         >
-          あ 読み順
+          {t('sort.readingPrefix', {}, locale)} {t('sort.reading', {}, locale)}
         </button>
         <button
           type="button"
@@ -24,7 +28,7 @@ export function SortToolbar({ sortType, onChangeSortType }: SortToolbarProps) {
           onClick={() => onChangeSortType('stream-desc')}
           aria-pressed={sortType === 'stream-desc'}
         >
-          ↓ 配信日(新しい順)
+          ↓ {t('sort.streamDesc', {}, locale)}
         </button>
         <button
           type="button"
@@ -32,7 +36,7 @@ export function SortToolbar({ sortType, onChangeSortType }: SortToolbarProps) {
           onClick={() => onChangeSortType('stream-asc')}
           aria-pressed={sortType === 'stream-asc'}
         >
-          ↑ 配信日(古い順)
+          ↑ {t('sort.streamAsc', {}, locale)}
         </button>
       </div>
     </section>

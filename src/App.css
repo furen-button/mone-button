@@ -77,6 +77,40 @@
   margin-bottom: 20px;
 }
 
+.app-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.language-switch {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.language-chip {
+  border: 1px solid rgba(255, 248, 242, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 248, 242, 0.08);
+  color: #fff8f2;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.language-chip.is-active {
+  border-color: rgba(255, 198, 226, 0.9);
+  background: rgba(255, 198, 226, 0.2);
+}
+
+.language-chip:focus-visible {
+  outline: 2px solid rgba(255, 198, 226, 0.88);
+  outline-offset: 1px;
+}
+
 .app-kicker {
   margin: 0;
   color: rgba(255, 248, 242, 0.74);
@@ -701,6 +735,11 @@
 @media (max-width: 768px) {
   .app-shell {
     padding: 18px 12px 102px;
+  }
+
+  .app-header-top {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .video-stage {

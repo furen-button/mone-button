@@ -7,6 +7,7 @@ import { SortToolbar } from './components/SortToolbar'
 import { VideoStage } from './components/VideoStage'
 import { VoiceList } from './components/VoiceList'
 import { VolumeDock } from './components/VolumeDock'
+import { LocaleProvider, localeOptions, t, type Locale } from './i18n'
 import {
   GARAGEYA_PATTERNS,
   VOLUME_STORAGE_KEY,
@@ -21,7 +22,18 @@ import {
   voiceClips,
 } from './voiceData'
 
+const LOCALE_STORAGE_KEY = 'mone-button-locale'
+
 function App() {
+  const [locale, setLocale] = useState<Locale>(() => {
+    const saved = window.localStorage.getItem(LOCALE_STORAGE_KEY)
+
+    if (saved === 'ja' || saved === 'en') {
+      return saved
+    }
+
+    return 'ja'
+  })
   const [floatingClips, setFloatingClips] = useState<FloatingStageClip[]>([])
   const [isStopping, setIsStopping] = useState(false)
   const [sparkKey, setSparkKey] = useState(0)
@@ -73,6 +85,11 @@ function App() {
       })),
     [],
   )
+
+  useEffect(() => {
+    document.documentElement.lang = locale
+    window.localStorage.setItem(LOCALE_STORAGE_KEY, locale)
+  }, [locale])
 
   useEffect(() => {
     window.localStorage.setItem(VOLUME_STORAGE_KEY, String(volume))
@@ -382,51 +399,68 @@ function App() {
       </div>
 
       <header className="app-header">
-        <p className="app-kicker">Mone Button</p>
-        <h1>ボイスカード</h1>
-        <p className="app-copy">ボタンを押すと、ランダムな名言クリップを再生します。</p>
+        <div className="app-header-top">
+          <p className="app-kicker">Mone Button</p>
+          <div className="language-switch" role="group" aria-label={t('app.language.label', {}, locale)}>
+            {localeOptions.map((option) => (
+              <button
+                key={option}
+                type="button"
+                className={`language-chip ${locale === option ? 'is-active' : ''}`}
+                onClick={() => setLocale(option)}
+                aria-pressed={locale === option}
+              >
+                {t(`app.language.${option}`, {}, locale)}
+              </button>
+            ))}
+          </div>
+        </div>
+        <h1>{t('app.title', {}, locale)}</h1>
+        <p className="app-copy">{t('app.copy', {}, locale)}</p>
       </header>
 
-      <PlaybackControls
-        sparkKey={sparkKey}
-        garageyaKey={garageyaKey}
-        isSequentialMode={isSequentialMode}
-        onPlayRandom={playRandomClip}
-        onPlayGarageya={playGarageya}
-        onStop={stopPlayback}
-        onToggleSequentialMode={() => setIsSequentialMode((prev) => !prev)}
-      />
+      <LocaleProvider value={locale}>
+        <PlaybackControls
+          sparkKey={sparkKey}
+          garageyaKey={garageyaKey}
+          isSequentialMode={isSequentialMode}
+          onPlayRandom={playRandomClip}
+          onPlayGarageya={playGarageya}
+          onStop={stopPlayback}
+          onToggleSequentialMode={() => setIsSequentialMode((prev) => !prev)}
+        />
 
-      <VideoStage
-        floatingClips={floatingClips}
-        stageRef={stageRef}
-        volume={volume}
-        isStopping={isStopping}
-        onClipEnded={handleSequentialEnded}
-      />
+        <VideoStage
+          floatingClips={floatingClips}
+          stageRef={stageRef}
+          volume={volume}
+          isStopping={isStopping}
+          onClipEnded={handleSequentialEnded}
+        />
 
-      <CategoryToolbar
-        categoryOptions={categoryOptions}
-        categoryCounts={categoryCounts}
-        selectedCategories={selectedCategories}
-        onSelectAll={selectAllCategories}
-        onClearAll={clearAllCategories}
-        onToggleCategory={toggleCategory}
-      />
+        <CategoryToolbar
+          categoryOptions={categoryOptions}
+          categoryCounts={categoryCounts}
+          selectedCategories={selectedCategories}
+          onSelectAll={selectAllCategories}
+          onClearAll={clearAllCategories}
+          onToggleCategory={toggleCategory}
+        />
 
-      <SortToolbar sortType={sortType} onChangeSortType={setSortType} />
+        <SortToolbar sortType={sortType} onChangeSortType={setSortType} />
 
-      <VoiceList
-        sortType={sortType}
-        sortedClips={sortedClips}
-        streamGroups={streamGroups}
-        onPlayClip={showClip}
-        onOpenInfo={setInfoClip}
-      />
+        <VoiceList
+          sortType={sortType}
+          sortedClips={sortedClips}
+          streamGroups={streamGroups}
+          onPlayClip={showClip}
+          onOpenInfo={setInfoClip}
+        />
 
-      {infoClip ? <InfoModal clip={infoClip} onClose={() => setInfoClip(null)} /> : null}
+        {infoClip ? <InfoModal clip={infoClip} onClose={() => setInfoClip(null)} /> : null}
 
-      <VolumeDock volume={volume} onChangeVolume={setVolume} />
+        <VolumeDock volume={volume} onChangeVolume={setVolume} />
+      </LocaleProvider>
     </main>
   )
 }

@@ -1,4 +1,6 @@
 import type { VoiceClip, SortType, StreamGroup } from '../voiceData'
+import { t } from '../i18n'
+import { useLocale } from '../i18n'
 
 type VoiceListProps = {
   sortType: SortType
@@ -17,6 +19,8 @@ function VoiceCard({
   onPlayClip: (clip: VoiceClip) => void
   onOpenInfo: (clip: VoiceClip) => void
 }) {
+  const locale = useLocale()
+
   return (
     <article className="voice-card">
       <button type="button" className="voice-card-play" onClick={() => onPlayClip(clip)}>
@@ -26,7 +30,7 @@ function VoiceCard({
       <button
         type="button"
         className="voice-card-info"
-        aria-label="元動画情報を表示"
+        aria-label={t('voiceCard.infoAria', {}, locale)}
         onClick={() => onOpenInfo(clip)}
       >
         i
@@ -36,22 +40,24 @@ function VoiceCard({
 }
 
 export function VoiceList({ sortType, sortedClips, streamGroups, onPlayClip, onOpenInfo }: VoiceListProps) {
+  const locale = useLocale()
+
   if (sortType === 'reading') {
     return (
-      <section className="voice-grid" aria-label="ボイスカード一覧">
+      <section className="voice-grid" aria-label={t('voiceList.cardsAria', {}, locale)}>
         {sortedClips.length > 0 ? (
           sortedClips.map((clip) => (
             <VoiceCard key={clip.fileBaseName} clip={clip} onPlayClip={onPlayClip} onOpenInfo={onOpenInfo} />
           ))
         ) : (
-          <p className="empty-state">選択中のカテゴリに該当するボイスがありません。</p>
+          <p className="empty-state">{t('voiceList.emptyClips', {}, locale)}</p>
         )}
       </section>
     )
   }
 
   return (
-    <section className="stream-groups" aria-label="配信別ボイスカード一覧">
+    <section className="stream-groups" aria-label={t('voiceList.streamGroupsAria', {}, locale)}>
       {streamGroups.length > 0 ? (
         streamGroups.map((group) => (
           <article className="stream-group" key={group.key}>
@@ -59,7 +65,7 @@ export function VoiceList({ sortType, sortedClips, streamGroups, onPlayClip, onO
               <a className="stream-group-link" href={group.url} target="_blank" rel="noreferrer">
                 {group.title}
               </a>
-              <p className="stream-group-date">{group.uploadDate}</p>
+              <p className="stream-group-date">{t('streamGroup.dateLabel', {}, locale)}: {group.uploadDate}</p>
             </header>
             <div className="voice-grid">
               {group.clips.map((clip) => (
@@ -69,7 +75,7 @@ export function VoiceList({ sortType, sortedClips, streamGroups, onPlayClip, onO
           </article>
         ))
       ) : (
-        <p className="empty-state">選択中のカテゴリに該当する配信がありません。</p>
+        <p className="empty-state">{t('voiceList.emptyGroups', {}, locale)}</p>
       )}
     </section>
   )

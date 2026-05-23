@@ -1,0 +1,74 @@
+{
+  "app": {
+    "title": "Voice Cards",
+    "copy": "Press a button to play a random quote clip.",
+    "language": {
+      "label": "Language",
+      "ja": "Japanese",
+      "en": "English"
+    }
+  },
+  "playback": {
+    "controls": "Playback controls",
+    "random": {
+      "icon": "Boom!",
+      "label": "Play Random"
+    },
+    "garageya": {
+      "icon": "Hype",
+      "label": "Play Multi"
+    },
+    "stop": {
+      "label": "Stop",
+      "ariaLabel": "Stop playback"
+    },
+    "sequential": {
+      "on": "ON",
+      "off": "OFF",
+      "label": "Sequential {{state}}"
+    }
+  },
+  "category": {
+    "toolbar": "Category filter",
+    "selectAll": "Select all",
+    "clearAll": "Clear all",
+    "countAria": "{{category}} count"
+  },
+  "sort": {
+    "toolbar": "Sort controls",
+    "label": "Order",
+    "readingPrefix": "A-Z",
+    "reading": "Reading",
+    "streamDesc": "Stream date (newest)",
+    "streamAsc": "Stream date (oldest)"
+  },
+  "video": {
+    "placeholder": "Press a card and a random clip will appear here."
+  },
+  "voiceList": {
+    "cardsAria": "Voice card list",
+    "streamGroupsAria": "Stream-grouped voice card list",
+    "emptyClips": "No voice clips match the selected categories.",
+    "emptyGroups": "No streams match the selected categories."
+  },
+  "voiceCard": {
+    "infoAria": "Show source video details"
+  },
+  "streamGroup": {
+    "dateLabel": "Date"
+  },
+  "infoModal": {
+    "title": "Source Video Info",
+    "uploadDate": "Date: {{date}}",
+    "serif": "Line",
+    "ruby": "Reading",
+    "category": "Category",
+    "openClip": "Open this clip at start time",
+    "openVideo": "Open source video page",
+    "close": "Close"
+  },
+  "volume": {
+    "section": "Volume control",
+    "label": "Playback volume"
+  }
+}
