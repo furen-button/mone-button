@@ -40,6 +40,14 @@ interface StreamGroup {
   clips: VoiceClip[]
 }
 
+interface FloatingStageClip {
+  id: string
+  clip: VoiceClip
+  left: number
+  top: number
+  width: number
+}
+
 type SortType = 'reading' | 'stream-desc' | 'stream-asc'
 
 const dataModules = import.meta.glob<VoiceData>('../public/data/*.json', {
@@ -74,10 +82,10 @@ const formatUploadDate = (uploadDate: string): string => {
 }
 
 function App() {
-  const [activeClip, setActiveClip] = useState<VoiceClip | null>(null)
+  const [floatingClips, setFloatingClips] = useState<FloatingStageClip[]>([])
   const [sparkKey, setSparkKey] = useState(0)
+  const [garageyaKey, setGarageyaKey] = useState(0)
   const [sortType, setSortType] = useState<SortType>('reading')
-  const [position, setPosition] = useState({ left: 20, top: 20 })
   const stageRef = useRef<HTMLDivElement>(null)
 
   const sortedClips = useMemo(
@@ -128,21 +136,26 @@ function App() {
     }, [])
   }, [sortType, sortedClips])
 
-  const showClip = useCallback((nextClip: VoiceClip) => {
+  const createFloatingClip = useCallback((nextClip: VoiceClip, width: number) => {
     const stage = stageRef.current
 
-    const cardWidth = 320
-    const cardHeight = 190
-    const maxX = Math.max((stage?.clientWidth ?? 700) - cardWidth, 0)
+    const cardHeight = Math.round(width * 0.6)
+    const maxX = Math.max((stage?.clientWidth ?? 700) - width, 0)
     const maxY = Math.max((stage?.clientHeight ?? 380) - cardHeight, 0)
 
-    setPosition({
+    return {
+      id: `${nextClip.fileBaseName}-${Math.random().toString(36).slice(2, 8)}`,
+      clip: nextClip,
       left: Math.random() * maxX,
       top: Math.random() * maxY,
-    })
-    setActiveClip(nextClip)
-    setSparkKey((prev) => prev + 1)
+      width,
+    }
   }, [])
+
+  const showClip = useCallback((nextClip: VoiceClip) => {
+    setFloatingClips([createFloatingClip(nextClip, 320)])
+    setSparkKey((prev) => prev + 1)
+  }, [createFloatingClip])
 
   const playRandomClip = useCallback(() => {
     if (sortedClips.length === 0) {
@@ -152,6 +165,26 @@ function App() {
     const randomIndex = Math.floor(Math.random() * sortedClips.length)
     showClip(sortedClips[randomIndex])
   }, [showClip, sortedClips])
+
+  const playGarageya = useCallback(() => {
+    if (sortedClips.length === 0) {
+      return
+    }
+
+    const pool = [...sortedClips]
+    for (let i = pool.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[pool[i], pool[j]] = [pool[j], pool[i]]
+    }
+
+    const count = Math.min(4, pool.length)
+    const nextFloating = pool
+      .slice(0, count)
+      .map((clip, index) => createFloatingClip(clip, 230 + index * 16))
+
+    setFloatingClips(nextFloating)
+    setGarageyaKey((prev) => prev + 1)
+  }, [createFloatingClip, sortedClips])
 
   return (
     <main className="app-shell">
@@ -167,6 +200,12 @@ function App() {
             ドドーン♪
           </span>
           ランダム再生
+        </button>
+        <button type="button" className="voice-garageya" onClick={playGarageya}>
+          <span className="voice-launch-icon" key={garageyaKey} aria-hidden="true">
+            わいわい
+          </span>
+          ガヤガヤ再生
         </button>
         <div className="sort-controls" role="group" aria-label="ソートコントロール">
           <button
@@ -198,20 +237,28 @@ function App() {
 
       <section className="video-stage-wrap" aria-live="polite">
         <div className="video-stage" ref={stageRef}>
-          {activeClip ? (
-            <article
-              className="floating-clip"
-              style={{ left: `${position.left}px`, top: `${position.top}px` }}
-            >
-              <video
-                key={activeClip.fileBaseName}
-                className="clip-video"
-                src={activeClip.videoPath}
-                controls
-                autoPlay
-              />
-              <p className="clip-serif">{activeClip.serif}</p>
-            </article>
+          {floatingClips.length > 0 ? (
+            floatingClips.map((stageClip, index) => (
+              <article
+                className="floating-clip"
+                key={stageClip.id}
+                style={{
+                  left: `${stageClip.left}px`,
+                  top: `${stageClip.top}px`,
+                  width: `${stageClip.width}px`,
+                  zIndex: index + 1,
+                }}
+              >
+                <video
+                  key={stageClip.clip.fileBaseName}
+                  className="clip-video"
+                  src={stageClip.clip.videoPath}
+                  controls
+                  autoPlay
+                />
+                <p className="clip-serif">{stageClip.clip.serif}</p>
+              </article>
+            ))
           ) : (
             <p className="video-placeholder">カードを押すとここに動画がランダム表示されます</p>
           )}
