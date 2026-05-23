@@ -1,121 +1,149 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import './App.css'
 
+interface VoiceData {
+  videoId: string
+  serif: string
+  ruby: string
+  categories: string[]
+  clipUrl: string
+  memo: string
+  trimming: {
+    startTime: number
+    endTime: number
+    duration: number
+  }
+  videoFile: {
+    metadata: {
+      videoId: string
+      title: string
+      duration: number
+      thumbnail: string
+      uploader: string
+      uploadDate: string
+      viewCount: number
+      url: string
+    }
+  }
+}
+
+interface VoiceClip extends VoiceData {
+  fileBaseName: string
+  videoPath: string
+}
+
+const dataModules = import.meta.glob<VoiceData>('../public/data/*.json', {
+  eager: true,
+  import: 'default',
+})
+
+const baseUrl = import.meta.env.BASE_URL
+
+const voiceClips: VoiceClip[] = Object.entries(dataModules)
+  .map(([path, data]) => {
+    const filename = path.split('/').pop()
+    if (!filename) {
+      return null
+    }
+
+    const fileBaseName = filename.replace(/\.json$/i, '')
+    return {
+      ...data,
+      fileBaseName,
+      videoPath: `${baseUrl}videos/${fileBaseName}.mp4`,
+    }
+  })
+  .filter((clip): clip is VoiceClip => clip !== null)
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [activeClip, setActiveClip] = useState<VoiceClip | null>(null)
+  const [sparkKey, setSparkKey] = useState(0)
+  const [position, setPosition] = useState({ left: 20, top: 20 })
+  const stageRef = useRef<HTMLDivElement>(null)
+
+  const sortedClips = useMemo(
+    () => [...voiceClips].sort((a, b) => a.serif.localeCompare(b.serif, 'ja')),
+    [],
+  )
+
+  const showClip = useCallback((nextClip: VoiceClip) => {
+    const stage = stageRef.current
+
+    const cardWidth = 320
+    const cardHeight = 190
+    const maxX = Math.max((stage?.clientWidth ?? 700) - cardWidth, 0)
+    const maxY = Math.max((stage?.clientHeight ?? 380) - cardHeight, 0)
+
+    setPosition({
+      left: Math.random() * maxX,
+      top: Math.random() * maxY,
+    })
+    setActiveClip(nextClip)
+    setSparkKey((prev) => prev + 1)
+  }, [])
+
+  const playRandomClip = useCallback(() => {
+    if (sortedClips.length === 0) {
+      return
+    }
+
+    const randomIndex = Math.floor(Math.random() * sortedClips.length)
+    showClip(sortedClips[randomIndex])
+  }, [showClip, sortedClips])
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
+    <main className="app-shell">
+      <header className="app-header">
+        <p className="app-kicker">Mone Button</p>
+        <h1>ボイスカード</h1>
+        <p className="app-copy">ボタンを押すと、ランダムな名言クリップを再生します。</p>
+      </header>
+
+      <section className="control-panel" aria-label="ボイス再生コントロール">
+        <button type="button" className="voice-launch" onClick={playRandomClip}>
+          <span className="voice-launch-icon" key={sparkKey} aria-hidden="true">
+            ドドーン♪
+          </span>
+          ランダム再生
         </button>
       </section>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
+      <section className="video-stage-wrap" aria-live="polite">
+        <div className="video-stage" ref={stageRef}>
+          {activeClip ? (
+            <article
+              className="floating-clip"
+              style={{ left: `${position.left}px`, top: `${position.top}px` }}
+            >
+              <video
+                key={activeClip.fileBaseName}
+                className="clip-video"
+                src={activeClip.videoPath}
+                controls
+                autoPlay
+              />
+              <p className="clip-serif">{activeClip.serif}</p>
+            </article>
+          ) : (
+            <p className="video-placeholder">カードを押すとここに動画がランダム表示されます</p>
+          )}
         </div>
       </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <section className="voice-grid" aria-label="ボイスカード一覧">
+        {sortedClips.map((clip) => (
+          <button
+            type="button"
+            className="voice-card"
+            key={clip.fileBaseName}
+            onClick={() => showClip(clip)}
+          >
+            <span className="voice-card-text">{clip.serif}</span>
+            <span className="voice-card-sub">{clip.categories.join(' / ')}</span>
+          </button>
+        ))}
+      </section>
+    </main>
   )
 }
 
