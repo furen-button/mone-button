@@ -85,6 +85,8 @@ function App() {
   const [floatingClips, setFloatingClips] = useState<FloatingStageClip[]>([])
   const [sparkKey, setSparkKey] = useState(0)
   const [garageyaKey, setGarageyaKey] = useState(0)
+  const [isSequentialMode, setIsSequentialMode] = useState(false)
+  const [sequentialIndex, setSequentialIndex] = useState<number | null>(null)
   const [sortType, setSortType] = useState<SortType>('reading')
   const stageRef = useRef<HTMLDivElement>(null)
 
@@ -136,6 +138,11 @@ function App() {
     }, [])
   }, [sortType, sortedClips])
 
+  const clipIndexMap = useMemo(
+    () => new Map(sortedClips.map((clip, index) => [clip.fileBaseName, index])),
+    [sortedClips],
+  )
+
   const createFloatingClip = useCallback((nextClip: VoiceClip, width: number) => {
     const stage = stageRef.current
 
@@ -152,10 +159,23 @@ function App() {
     }
   }, [])
 
-  const showClip = useCallback((nextClip: VoiceClip) => {
+  const playClipAtIndex = useCallback((index: number) => {
+    if (sortedClips.length === 0) {
+      return
+    }
+
+    const normalized = ((index % sortedClips.length) + sortedClips.length) % sortedClips.length
+    const nextClip = sortedClips[normalized]
+
     setFloatingClips([createFloatingClip(nextClip, 320)])
+    setSequentialIndex(normalized)
     setSparkKey((prev) => prev + 1)
-  }, [createFloatingClip])
+  }, [createFloatingClip, sortedClips])
+
+  const showClip = useCallback((nextClip: VoiceClip) => {
+    const index = clipIndexMap.get(nextClip.fileBaseName) ?? 0
+    playClipAtIndex(index)
+  }, [clipIndexMap, playClipAtIndex])
 
   const playRandomClip = useCallback(() => {
     if (sortedClips.length === 0) {
@@ -163,8 +183,8 @@ function App() {
     }
 
     const randomIndex = Math.floor(Math.random() * sortedClips.length)
-    showClip(sortedClips[randomIndex])
-  }, [showClip, sortedClips])
+    playClipAtIndex(randomIndex)
+  }, [playClipAtIndex, sortedClips])
 
   const playGarageya = useCallback(() => {
     if (sortedClips.length === 0) {
@@ -183,8 +203,17 @@ function App() {
       .map((clip, index) => createFloatingClip(clip, 230 + index * 16))
 
     setFloatingClips(nextFloating)
+    setSequentialIndex(null)
     setGarageyaKey((prev) => prev + 1)
   }, [createFloatingClip, sortedClips])
+
+  const handleSequentialEnded = useCallback(() => {
+    if (!isSequentialMode || sequentialIndex === null || sortedClips.length === 0) {
+      return
+    }
+
+    playClipAtIndex(sequentialIndex + 1)
+  }, [isSequentialMode, playClipAtIndex, sequentialIndex, sortedClips.length])
 
   return (
     <main className="app-shell">
@@ -206,6 +235,14 @@ function App() {
             わいわい
           </span>
           ガヤガヤ再生
+        </button>
+        <button
+          type="button"
+          className={`voice-sequential ${isSequentialMode ? 'is-active' : ''}`}
+          aria-pressed={isSequentialMode}
+          onClick={() => setIsSequentialMode((prev) => !prev)}
+        >
+          ⇄ 連続再生 {isSequentialMode ? 'ON' : 'OFF'}
         </button>
         <div className="sort-controls" role="group" aria-label="ソートコントロール">
           <button
@@ -255,6 +292,9 @@ function App() {
                   src={stageClip.clip.videoPath}
                   controls
                   autoPlay
+                  onEnded={
+                    floatingClips.length === 1 && index === 0 ? handleSequentialEnded : undefined
+                  }
                 />
                 <p className="clip-serif">{stageClip.clip.serif}</p>
               </article>

@@ -76,6 +76,34 @@
   outline-offset: 2px;
 }
 
+.voice-sequential {
+  border: 1px solid #d9c8b5;
+  border-radius: 999px;
+  padding: 13px 22px;
+  background: #fff7ed;
+  color: #4f2f1a;
+  font-family: var(--heading);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.voice-sequential:hover {
+  transform: translateY(-2px);
+}
+
+.voice-sequential.is-active {
+  border-color: #aa4f1b;
+  background: #ffc79c;
+  color: #3d1700;
+  box-shadow: 0 10px 20px rgba(170, 79, 27, 0.25);
+}
+
+.voice-sequential:focus-visible {
+  outline: 3px solid #4f2f1a;
+  outline-offset: 2px;
+}
+
 .voice-launch:focus-visible {
   outline: 3px solid #271100;
   outline-offset: 2px;
