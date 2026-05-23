@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 
 interface VoiceData {
@@ -56,6 +56,7 @@ const dataModules = import.meta.glob<VoiceData>('../public/data/*.json', {
 })
 
 const baseUrl = import.meta.env.BASE_URL
+const VOLUME_STORAGE_KEY = 'mone-button-volume'
 
 const voiceClips: VoiceClip[] = Object.entries(dataModules)
   .map(([path, data]) => {
@@ -89,7 +90,28 @@ function App() {
   const [sequentialIndex, setSequentialIndex] = useState<number | null>(null)
   const [infoClip, setInfoClip] = useState<VoiceClip | null>(null)
   const [sortType, setSortType] = useState<SortType>('reading')
+  const [volume, setVolume] = useState<number>(() => {
+    const saved = window.localStorage.getItem(VOLUME_STORAGE_KEY)
+    if (!saved) {
+      return 0.7
+    }
+
+    const parsed = Number(saved)
+    if (Number.isNaN(parsed)) {
+      return 0.7
+    }
+
+    return Math.min(1, Math.max(0, parsed))
+  })
   const stageRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    window.localStorage.setItem(VOLUME_STORAGE_KEY, String(volume))
+    const videos = stageRef.current?.querySelectorAll('video') ?? []
+    videos.forEach((video) => {
+      video.volume = volume
+    })
+  }, [volume, floatingClips])
 
   const sortedClips = useMemo(
     () => {
@@ -316,6 +338,11 @@ function App() {
                   src={stageClip.clip.videoPath}
                   controls
                   autoPlay
+                  ref={(video) => {
+                    if (video) {
+                      video.volume = volume
+                    }
+                  }}
                   onEnded={
                     floatingClips.length === 1 && index === 0 ? handleSequentialEnded : undefined
                   }
@@ -410,6 +437,22 @@ function App() {
           </section>
         </div>
       ) : null}
+
+      <section className="volume-dock" aria-label="音量調整">
+        <span className="volume-icon" aria-hidden="true">
+          🔊
+        </span>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={Math.round(volume * 100)}
+          onChange={(event) => setVolume(Number(event.target.value) / 100)}
+          className="volume-slider"
+          aria-label="再生音量"
+        />
+        <span className="volume-value">{Math.round(volume * 100)}%</span>
+      </section>
     </main>
   )
 }
