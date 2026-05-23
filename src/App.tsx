@@ -7,7 +7,7 @@ import { SortToolbar } from './components/SortToolbar'
 import { VideoStage } from './components/VideoStage'
 import { VoiceList } from './components/VoiceList'
 import { VolumeDock } from './components/VolumeDock'
-import { LocaleProvider, localeOptions, t, type Locale } from './i18n'
+import { LocaleProvider, loadLocale, localeOptions, t, type Locale } from './i18n'
 import {
   GARAGEYA_PATTERNS,
   VOLUME_STORAGE_KEY,
@@ -34,6 +34,7 @@ function App() {
 
     return 'ja'
   })
+  const [isLocaleReady, setIsLocaleReady] = useState(false)
   const [floatingClips, setFloatingClips] = useState<FloatingStageClip[]>([])
   const [isStopping, setIsStopping] = useState(false)
   const [sparkKey, setSparkKey] = useState(0)
@@ -59,6 +60,7 @@ function App() {
   })
   const stageRef = useRef<HTMLDivElement>(null)
   const stopTimerRef = useRef<number | null>(null)
+  const localeChangeRequestRef = useRef(0)
 
   const petals = useMemo(
     () =>
@@ -87,9 +89,33 @@ function App() {
   )
 
   useEffect(() => {
+    let isActive = true
+
+    void loadLocale(locale)
+      .then(() => {
+        if (isActive) {
+          setIsLocaleReady(true)
+        }
+      })
+      .catch(() => {
+        if (isActive) {
+          setIsLocaleReady(true)
+        }
+      })
+
+    return () => {
+      isActive = false
+    }
+  }, [locale])
+
+  useEffect(() => {
+    if (!isLocaleReady) {
+      return
+    }
+
     document.documentElement.lang = locale
     window.localStorage.setItem(LOCALE_STORAGE_KEY, locale)
-  }, [locale])
+  }, [isLocaleReady, locale])
 
   useEffect(() => {
     window.localStorage.setItem(VOLUME_STORAGE_KEY, String(volume))
@@ -115,6 +141,24 @@ function App() {
 
     setIsStopping(false)
   }, [])
+
+  const handleLocaleChange = useCallback(
+    async (nextLocale: Locale) => {
+      if (nextLocale === locale) {
+        return
+      }
+
+      const requestId = ++localeChangeRequestRef.current
+      await loadLocale(nextLocale)
+
+      if (localeChangeRequestRef.current !== requestId) {
+        return
+      }
+
+      setLocale(nextLocale)
+    },
+    [locale],
+  )
 
   const visibleClips = useMemo(
     () => voiceClips.filter((clip) => clip.categories.some((category) => selectedCategories.includes(category))),
@@ -367,6 +411,14 @@ function App() {
 
   return (
     <main className="app-shell">
+      {!isLocaleReady ? (
+        <p className="app-copy" aria-busy="true">
+          {locale === 'en' ? 'Loading...' : '読み込み中…'}
+        </p>
+      ) : null}
+
+      {isLocaleReady ? (
+        <>
       <div className="ambient-layer" aria-hidden="true">
         {petals.map((petal) => (
           <span
@@ -407,7 +459,9 @@ function App() {
                 key={option}
                 type="button"
                 className={`language-chip ${locale === option ? 'is-active' : ''}`}
-                onClick={() => setLocale(option)}
+                onClick={() => {
+                  void handleLocaleChange(option)
+                }}
                 aria-pressed={locale === option}
               >
                 {t(`app.language.${option}`, {}, locale)}
@@ -461,6 +515,8 @@ function App() {
 
         <VolumeDock volume={volume} onChangeVolume={setVolume} />
       </LocaleProvider>
+          </>
+        ) : null}
     </main>
   )
 }
