@@ -125,6 +125,11 @@ function App() {
   const [playbackMode, setPlaybackMode] = useState<PlaybackMode>('single')
   const [infoClip, setInfoClip] = useState<VoiceClip | null>(null)
   const [sortType, setSortType] = useState<SortType>('reading')
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
+    return Array.from(new Set(voiceClips.flatMap((clip) => clip.categories))).sort((a, b) =>
+      a.localeCompare(b, 'ja'),
+    )
+  })
   const [volume, setVolume] = useState<number>(() => {
     const saved = window.localStorage.getItem(VOLUME_STORAGE_KEY)
     if (!saved) {
@@ -148,9 +153,28 @@ function App() {
     })
   }, [volume, floatingClips])
 
+  const categoryOptions = useMemo(
+    () => Array.from(new Set(voiceClips.flatMap((clip) => clip.categories))).sort((a, b) => a.localeCompare(b, 'ja')),
+    [],
+  )
+
+  const categoryCounts = useMemo(() => {
+    return voiceClips.reduce<Record<string, number>>((counts, clip) => {
+      clip.categories.forEach((category) => {
+        counts[category] = (counts[category] ?? 0) + 1
+      })
+      return counts
+    }, {})
+  }, [])
+
+  const visibleClips = useMemo(
+    () => voiceClips.filter((clip) => clip.categories.some((category) => selectedCategories.includes(category))),
+    [selectedCategories],
+  )
+
   const sortedClips = useMemo(
     () => {
-      const clips = [...voiceClips]
+      const clips = [...visibleClips]
 
       if (sortType === 'reading') {
         return clips.sort((a, b) => a.ruby.localeCompare(b.ruby, 'ja'))
@@ -168,7 +192,7 @@ function App() {
         return a.serif.localeCompare(b.serif, 'ja')
       })
     },
-    [sortType],
+    [sortType, visibleClips],
   )
 
   const streamGroups = useMemo(() => {
@@ -200,6 +224,24 @@ function App() {
     () => new Map(sortedClips.map((clip, index) => [clip.fileBaseName, index])),
     [sortedClips],
   )
+
+  const toggleCategory = useCallback((category: string) => {
+    setSelectedCategories((current) => {
+      if (current.includes(category)) {
+        return current.filter((item) => item !== category)
+      }
+
+      return [...current, category].sort((a, b) => a.localeCompare(b, 'ja'))
+    })
+  }, [])
+
+  const selectAllCategories = useCallback(() => {
+    setSelectedCategories(categoryOptions)
+  }, [categoryOptions])
+
+  const clearAllCategories = useCallback(() => {
+    setSelectedCategories([])
+  }, [])
 
   const createFloatingClip = useCallback((nextClip: VoiceClip, width: number) => {
     const stage = stageRef.current
@@ -390,32 +432,6 @@ function App() {
         >
           ⇄ 連続再生 {isSequentialMode ? 'ON' : 'OFF'}
         </button>
-        <div className="sort-controls" role="group" aria-label="ソートコントロール">
-          <button
-            type="button"
-            className={`sort-chip ${sortType === 'reading' ? 'is-active' : ''}`}
-            onClick={() => setSortType('reading')}
-            aria-pressed={sortType === 'reading'}
-          >
-            あ 読み順
-          </button>
-          <button
-            type="button"
-            className={`sort-chip ${sortType === 'stream-desc' ? 'is-active' : ''}`}
-            onClick={() => setSortType('stream-desc')}
-            aria-pressed={sortType === 'stream-desc'}
-          >
-            ↓ 配信日(新しい順)
-          </button>
-          <button
-            type="button"
-            className={`sort-chip ${sortType === 'stream-asc' ? 'is-active' : ''}`}
-            onClick={() => setSortType('stream-asc')}
-            aria-pressed={sortType === 'stream-asc'}
-          >
-            ↑ 配信日(古い順)
-          </button>
-        </div>
       </section>
 
       <section className="video-stage-wrap" aria-live="polite">
@@ -456,30 +472,99 @@ function App() {
         </div>
       </section>
 
+      <section className="category-toolbar" aria-label="カテゴリフィルター">
+        <button type="button" className="category-filter-action" onClick={selectAllCategories}>
+          ⊕ 全選択
+        </button>
+        <button type="button" className="category-filter-action" onClick={clearAllCategories}>
+          ⊖ 全解除
+        </button>
+        <div className="category-filter-list">
+          {categoryOptions.map((category) => {
+            const checked = selectedCategories.includes(category)
+
+            return (
+              <label className="category-chip" key={category}>
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => toggleCategory(category)}
+                />
+                <span className="category-chip-icon" aria-hidden="true">
+                  {checked ? '◉' : '○'}
+                </span>
+                <span className="category-chip-name">{category}</span>
+                <span className="category-chip-count" aria-label={`${category} の件数`}>
+                  {categoryCounts[category] ?? 0}
+                </span>
+              </label>
+            )
+          })}
+        </div>
+      </section>
+
+      <section className="sort-toolbar" aria-label="ソートコントロール">
+        <span className="sort-toolbar-label">並び順</span>
+        <div className="sort-controls" role="group" aria-label="ソートコントロール">
+          <button
+            type="button"
+            className={`sort-chip ${sortType === 'reading' ? 'is-active' : ''}`}
+            onClick={() => setSortType('reading')}
+            aria-pressed={sortType === 'reading'}
+          >
+            あ 読み順
+          </button>
+          <button
+            type="button"
+            className={`sort-chip ${sortType === 'stream-desc' ? 'is-active' : ''}`}
+            onClick={() => setSortType('stream-desc')}
+            aria-pressed={sortType === 'stream-desc'}
+          >
+            ↓ 配信日(新しい順)
+          </button>
+          <button
+            type="button"
+            className={`sort-chip ${sortType === 'stream-asc' ? 'is-active' : ''}`}
+            onClick={() => setSortType('stream-asc')}
+            aria-pressed={sortType === 'stream-asc'}
+          >
+            ↑ 配信日(古い順)
+          </button>
+        </div>
+      </section>
+
       {sortType === 'reading' ? (
         <section className="voice-grid" aria-label="ボイスカード一覧">
-          {sortedClips.map((clip) => renderVoiceCard(clip))}
+          {sortedClips.length > 0 ? (
+            sortedClips.map((clip) => renderVoiceCard(clip))
+          ) : (
+            <p className="empty-state">選択中のカテゴリに該当するボイスがありません。</p>
+          )}
         </section>
       ) : (
         <section className="stream-groups" aria-label="配信別ボイスカード一覧">
-          {streamGroups.map((group) => (
-            <article className="stream-group" key={group.key}>
-              <header className="stream-group-header">
-                <a
-                  className="stream-group-link"
-                  href={group.url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {group.title}
-                </a>
-                <p className="stream-group-date">{formatUploadDate(group.uploadDate)}</p>
-              </header>
-              <div className="voice-grid">
-                {group.clips.map((clip) => renderVoiceCard(clip))}
-              </div>
-            </article>
-          ))}
+          {streamGroups.length > 0 ? (
+            streamGroups.map((group) => (
+              <article className="stream-group" key={group.key}>
+                <header className="stream-group-header">
+                  <a
+                    className="stream-group-link"
+                    href={group.url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {group.title}
+                  </a>
+                  <p className="stream-group-date">{formatUploadDate(group.uploadDate)}</p>
+                </header>
+                <div className="voice-grid">
+                  {group.clips.map((clip) => renderVoiceCard(clip))}
+                </div>
+              </article>
+            ))
+          ) : (
+            <p className="empty-state">選択中のカテゴリに該当する配信がありません。</p>
+          )}
         </section>
       )}
 
