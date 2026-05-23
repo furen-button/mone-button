@@ -5,17 +5,18 @@ type VideoStageProps = {
   floatingClips: FloatingStageClip[]
   stageRef: RefObject<HTMLDivElement | null>
   volume: number
+  isStopping: boolean
   onClipEnded: (clipId: string) => void
 }
 
-export function VideoStage({ floatingClips, stageRef, volume, onClipEnded }: VideoStageProps) {
+export function VideoStage({ floatingClips, stageRef, volume, isStopping, onClipEnded }: VideoStageProps) {
   return (
     <section className="video-stage-wrap" aria-live="polite">
-      <div className="video-stage" ref={stageRef}>
+      <div className={`video-stage ${isStopping ? 'is-stopping' : ''}`} ref={stageRef}>
         {floatingClips.length > 0 ? (
           floatingClips.map((stageClip, index) => (
             <article
-              className="floating-clip"
+              className={`floating-clip ${isStopping ? 'is-stopping' : ''}`}
               key={stageClip.id}
               style={{
                 left: `${stageClip.left}px`,

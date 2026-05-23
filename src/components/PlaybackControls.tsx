@@ -4,6 +4,7 @@ type PlaybackControlsProps = {
   isSequentialMode: boolean
   onPlayRandom: () => void
   onPlayGarageya: () => void
+  onStop: () => void
   onToggleSequentialMode: () => void
 }
 
@@ -13,6 +14,7 @@ export function PlaybackControls({
   isSequentialMode,
   onPlayRandom,
   onPlayGarageya,
+  onStop,
   onToggleSequentialMode,
 }: PlaybackControlsProps) {
   return (
@@ -28,6 +30,12 @@ export function PlaybackControls({
           わいわい
         </span>
         ガヤガヤ再生
+      </button>
+      <button type="button" className="voice-stop" onClick={onStop} aria-label="再生を停止">
+        <span className="voice-stop-icon" aria-hidden="true">
+          ■
+        </span>
+        停止
       </button>
       <button
         type="button"

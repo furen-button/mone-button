@@ -23,6 +23,7 @@ import {
 
 function App() {
   const [floatingClips, setFloatingClips] = useState<FloatingStageClip[]>([])
+  const [isStopping, setIsStopping] = useState(false)
   const [sparkKey, setSparkKey] = useState(0)
   const [garageyaKey, setGarageyaKey] = useState(0)
   const [isSequentialMode, setIsSequentialMode] = useState(false)
@@ -45,6 +46,7 @@ function App() {
     return Math.min(1, Math.max(0, parsed))
   })
   const stageRef = useRef<HTMLDivElement>(null)
+  const stopTimerRef = useRef<number | null>(null)
 
   const petals = useMemo(
     () =>
@@ -80,6 +82,23 @@ function App() {
     })
   }, [volume, floatingClips])
 
+  useEffect(() => {
+    return () => {
+      if (stopTimerRef.current !== null) {
+        window.clearTimeout(stopTimerRef.current)
+      }
+    }
+  }, [])
+
+  const cancelStopAnimation = useCallback(() => {
+    if (stopTimerRef.current !== null) {
+      window.clearTimeout(stopTimerRef.current)
+      stopTimerRef.current = null
+    }
+
+    setIsStopping(false)
+  }, [])
+
   const visibleClips = useMemo(
     () => voiceClips.filter((clip) => clip.categories.some((category) => selectedCategories.includes(category))),
     [selectedCategories],
@@ -100,6 +119,15 @@ function App() {
 
         if (dateA !== dateB) {
           return dateA > dateB ? direction : -direction
+        }
+
+        if (a.videoId !== b.videoId) {
+          return a.videoId.localeCompare(b.videoId, 'ja')
+        }
+
+        const startTimeDiff = a.trimming.startTime - b.trimming.startTime
+        if (startTimeDiff !== 0) {
+          return startTimeDiff
         }
 
         return a.serif.localeCompare(b.serif, 'ja')
@@ -214,6 +242,8 @@ function App() {
       return
     }
 
+    cancelStopAnimation()
+
     const normalized = ((index % sortedClips.length) + sortedClips.length) % sortedClips.length
     const nextClip = sortedClips[normalized]
 
@@ -221,7 +251,7 @@ function App() {
     setSequentialIndex(normalized)
     setPlaybackMode('single')
     setSparkKey((prev) => prev + 1)
-  }, [createFloatingClip, sortedClips])
+  }, [cancelStopAnimation, createFloatingClip, sortedClips])
 
   const showClip = useCallback((nextClip: VoiceClip) => {
     const index = clipIndexMap.get(nextClip.fileBaseName) ?? 0
@@ -242,6 +272,8 @@ function App() {
       return
     }
 
+    cancelStopAnimation()
+
     const pool = [...sortedClips]
     for (let i = pool.length - 1; i > 0; i -= 1) {
       const j = Math.floor(Math.random() * (i + 1))
@@ -259,7 +291,7 @@ function App() {
     setSequentialIndex(null)
     setPlaybackMode('garageya')
     setGarageyaKey((prev) => prev + 1)
-  }, [createGarageyaFloatingClip, sortedClips])
+  }, [cancelStopAnimation, createGarageyaFloatingClip, sortedClips])
 
   const handleSequentialEnded = useCallback((endedClipId?: string) => {
     if (!isSequentialMode || sortedClips.length === 0) {
@@ -292,6 +324,29 @@ function App() {
       return
     }
   }, [createFloatingClip, getRandomClip, isSequentialMode, playClipAtIndex, playbackMode, sequentialIndex, sortedClips.length])
+
+  const stopPlayback = useCallback(() => {
+    if (stopTimerRef.current !== null) {
+      window.clearTimeout(stopTimerRef.current)
+    }
+
+    const videos = stageRef.current?.querySelectorAll('video') ?? []
+    videos.forEach((video) => {
+      video.pause()
+      video.currentTime = 0
+    })
+
+    setIsSequentialMode(false)
+    setSequentialIndex(null)
+    setPlaybackMode('single')
+    setIsStopping(true)
+
+    stopTimerRef.current = window.setTimeout(() => {
+      setFloatingClips([])
+      setIsStopping(false)
+      stopTimerRef.current = null
+    }, 180)
+  }, [])
 
   return (
     <main className="app-shell">
@@ -338,6 +393,7 @@ function App() {
         isSequentialMode={isSequentialMode}
         onPlayRandom={playRandomClip}
         onPlayGarageya={playGarageya}
+        onStop={stopPlayback}
         onToggleSequentialMode={() => setIsSequentialMode((prev) => !prev)}
       />
 
@@ -345,6 +401,7 @@ function App() {
         floatingClips={floatingClips}
         stageRef={stageRef}
         volume={volume}
+        isStopping={isStopping}
         onClipEnded={handleSequentialEnded}
       />
 
