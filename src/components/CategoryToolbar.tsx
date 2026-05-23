@@ -34,10 +34,10 @@ export function CategoryToolbar({
           const checked = selectedCategories.includes(category)
 
           return (
-            <label className="category-chip" key={category}>
+            <label className={`category-chip ${checked ? 'is-checked' : ''}`} key={category}>
               <input type="checkbox" checked={checked} onChange={handleChange(category)} />
               <span className="category-chip-icon" aria-hidden="true">
-                {checked ? '◉' : '○'}
+                {checked ? '✓' : ' '}
               </span>
               <span className="category-chip-name">{category}</span>
               <span className="category-chip-count" aria-label={`${category} の件数`}>

@@ -3,18 +3,103 @@
   margin: 0 auto;
   padding: 32px 20px 118px;
   box-sizing: border-box;
+  position: relative;
+  isolation: isolate;
+}
+
+.ambient-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.petal,
+.sparkle {
+  position: absolute;
+  border-radius: 999px;
+  will-change: transform, opacity;
+}
+
+.petal {
+  background: linear-gradient(135deg, rgba(255, 198, 226, 0.88), rgba(255, 244, 246, 0.12));
+  box-shadow: 0 0 18px rgba(255, 198, 226, 0.24);
+  filter: blur(0.2px);
+  animation-name: petalFloat;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.petal::before {
+  content: '';
+  position: absolute;
+  inset: 15% 35% 15% 35%;
+  border-radius: 999px 999px 40% 40%;
+  background: rgba(255, 244, 246, 0.5);
+  transform: rotate(18deg);
+}
+
+.sparkle {
+  background: radial-gradient(circle, rgba(255, 248, 242, 0.98) 0%, rgba(222, 205, 252, 0.36) 45%, transparent 72%);
+  box-shadow: 0 0 16px rgba(222, 205, 252, 0.36);
+  animation-name: sparkleDrift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.app-shell::before,
+.app-shell::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  z-index: -2;
+  filter: blur(10px);
+}
+
+.app-shell::before {
+  inset: 60px auto auto -120px;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 198, 226, 0.16), rgba(255, 198, 226, 0));
+}
+
+.app-shell::after {
+  inset: 180px -100px auto auto;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(222, 205, 252, 0.14), rgba(222, 205, 252, 0));
 }
 
 .app-header {
   margin-bottom: 20px;
 }
 
+.app-kicker {
+  margin: 0;
+  color: rgba(255, 248, 242, 0.74);
+  letter-spacing: 0.12em;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.app-copy {
+  max-width: 600px;
+  margin: 0 auto;
+  color: rgba(255, 248, 242, 0.76);
+}
+
 .category-toolbar {
   margin: 0 0 18px;
-  padding: 12px 14px;
-  border: 1px solid #eadfce;
-  border-radius: 18px;
-  background: rgba(255, 250, 244, 0.92);
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 248, 242, 0.16);
+  border-radius: 22px;
+  background: rgba(255, 248, 242, 0.06);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-wrap: wrap;
   gap: 10px 12px;
@@ -30,14 +115,15 @@
 }
 
 .category-filter-action {
-  border: 1px dashed #d8c3ae;
+  border: 1px solid rgba(255, 198, 226, 0.28);
   border-radius: 999px;
   padding: 8px 12px;
-  background: #fff9f2;
-  color: #69462d;
+  background: rgba(255, 198, 226, 0.12);
+  color: #ffe8f2;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .category-filter-action:hover {
@@ -45,7 +131,7 @@
 }
 
 .category-filter-action:focus-visible {
-  outline: 3px solid #69462d;
+  outline: 3px solid rgba(255, 198, 226, 0.88);
   outline-offset: 2px;
 }
 
@@ -53,12 +139,17 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid #e3d7c9;
+  border: 1px solid rgba(255, 248, 242, 0.14);
   border-radius: 999px;
   padding: 8px 12px;
-  background: #fff;
+  background: rgba(255, 250, 244, 0.08);
   cursor: pointer;
   user-select: none;
+  transition:
+    transform 0.18s ease,
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .category-chip input {
@@ -73,16 +164,17 @@
   display: inline-grid;
   place-items: center;
   border-radius: 999px;
-  border: 1px solid #cdb69f;
-  color: #7b5841;
+  border: 1px solid rgba(255, 198, 226, 0.5);
+  color: transparent;
   font-size: 11px;
-  background: #fff7f0;
+  background: rgba(255, 198, 226, 0.08);
+  box-shadow: inset 0 0 0 2px rgba(255, 248, 242, 0.08);
 }
 
 .category-chip-name {
   font-size: 13px;
   font-weight: 700;
-  color: #4d3524;
+  color: #fff8f2;
 }
 
 .category-chip-count {
@@ -92,31 +184,42 @@
   display: inline-grid;
   place-items: center;
   border-radius: 999px;
-  background: #ffc7a3;
-  color: #422112;
+  background: linear-gradient(135deg, rgba(255, 198, 226, 0.28), rgba(222, 205, 252, 0.28));
+  color: #fff8f2;
   font-size: 12px;
   font-weight: 700;
 }
 
 .category-chip:has(input:checked) {
-  border-color: #b77445;
-  background: #fff4e8;
+  border-color: rgba(255, 198, 226, 0.88);
+  background: linear-gradient(135deg, rgba(255, 198, 226, 0.34), rgba(222, 205, 252, 0.24));
+  box-shadow: 0 10px 24px rgba(255, 198, 226, 0.14);
 }
 
 .category-chip:has(input:checked) .category-chip-icon {
-  border-color: #9f5c2f;
-  background: #ffddb8;
-  color: #51260d;
+  border-color: rgba(255, 248, 242, 0.9);
+  background: #ffc6e2;
+  color: #1f1320;
+  font-weight: 800;
+  box-shadow: 0 0 0 2px rgba(255, 198, 226, 0.18);
+}
+
+.category-chip.is-checked .category-chip-name {
+  color: #fff8f2;
 }
 
 .category-chip:focus-within {
-  outline: 3px solid #69462d;
+  outline: 3px solid rgba(255, 198, 226, 0.88);
   outline-offset: 2px;
+}
+
+.category-chip:hover {
+  transform: translateY(-1px);
 }
 
 .app-kicker {
   margin: 0;
-  color: #6c4f3d;
+  color: rgba(255, 248, 242, 0.74);
   letter-spacing: 0.12em;
   font-size: 13px;
   font-weight: 700;
@@ -126,6 +229,7 @@
 .app-copy {
   max-width: 600px;
   margin: 0 auto;
+  color: rgba(255, 248, 242, 0.76);
 }
 
 .control-panel {
@@ -146,7 +250,7 @@
 }
 
 .sort-toolbar-label {
-  color: #6b4c37;
+  color: rgba(255, 248, 242, 0.72);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -511,6 +615,54 @@
   font-weight: 700;
   padding: 9px 14px;
   cursor: pointer;
+}
+
+@keyframes petalFloat {
+  0% {
+    transform: translate3d(0, -12vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.88;
+  }
+  50% {
+    transform: translate3d(3vw, 55vh, 0) rotate(150deg);
+    opacity: 0.72;
+  }
+  100% {
+    transform: translate3d(-2vw, 120vh, 0) rotate(300deg);
+    opacity: 0;
+  }
+}
+
+@keyframes sparkleDrift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(0.92);
+    opacity: 0.25;
+  }
+  50% {
+    transform: translate3d(0, -18px, 0) scale(1.12);
+    opacity: 0.98;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-shell {
+    padding: 18px 12px 102px;
+  }
+
+  .video-stage {
+    height: 320px;
+  }
+
+  .petal {
+    opacity: 0.72;
+  }
+
+  .sparkle {
+    opacity: 0.78;
+  }
 }
 
 .volume-dock {
