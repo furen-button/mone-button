@@ -16,10 +16,17 @@ mone-button/
 │   ├── videos/          # 動画ファイル
 │   └── data/            # JSON 加工データ
 ├── src/
-│   ├── api/            # データ API
-│   ├── components/     # React コンポーネント
-│   ├── hooks/          # カスタムフック
-│   └── styles/         # グローバルスタイル
+│   ├── App.tsx         # 状態管理と画面全体の組み立て
+│   ├── voiceData.ts    # ボイスデータ型とデータ読み込み
+│   ├── components/     # UI コンポーネント群
+│   │   ├── CategoryToolbar.tsx
+│   │   ├── InfoModal.tsx
+│   │   ├── PlaybackControls.tsx
+│   │   ├── SortToolbar.tsx
+│   │   ├── VideoStage.tsx
+│   │   ├── VoiceList.tsx
+│   │   └── VolumeDock.tsx
+│   └── App.css         # 画面全体のスタイル
 ├── docs/               # ドキュメント
 └── raw/                # 元データ
 ```
@@ -33,6 +40,8 @@ mone-button/
 ### React Hook
 - useMemo でデータ計算
 - useCallback でイベント
+- UI は責務ごとにコンポーネントへ分割する
+- データ定義と読み込みは `src/voiceData.ts` にまとめる
 
 ### ファイル命名
 - コンポーネント：PascalCase
