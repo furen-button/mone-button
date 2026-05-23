@@ -48,7 +48,41 @@ interface FloatingStageClip {
   width: number
 }
 
+interface GarageyaSlot {
+  x: number
+  y: number
+  width: number
+}
+
 type SortType = 'reading' | 'stream-desc' | 'stream-asc'
+type PlaybackMode = 'single' | 'garageya'
+
+const GARAGEYA_PATTERNS: GarageyaSlot[][] = [
+  [
+    { x: 1 / 8, y: 1 / 8, width: 0.26 },
+    { x: 5 / 8, y: 1 / 4, width: 0.24 },
+    { x: 2 / 8, y: 5 / 8, width: 0.27 },
+    { x: 7 / 8, y: 7 / 8, width: 0.23 },
+  ],
+  [
+    { x: 1 / 6, y: 1 / 5, width: 0.24 },
+    { x: 4 / 6, y: 1 / 8, width: 0.25 },
+    { x: 2 / 6, y: 5 / 8, width: 0.28 },
+    { x: 5 / 6, y: 4 / 5, width: 0.22 },
+  ],
+  [
+    { x: 1 / 10, y: 2 / 5, width: 0.23 },
+    { x: 3 / 8, y: 1 / 8, width: 0.26 },
+    { x: 6 / 8, y: 3 / 8, width: 0.24 },
+    { x: 7 / 8, y: 3 / 4, width: 0.24 },
+  ],
+  [
+    { x: 1 / 8, y: 3 / 4, width: 0.24 },
+    { x: 3 / 8, y: 1 / 4, width: 0.27 },
+    { x: 6 / 8, y: 1 / 8, width: 0.23 },
+    { x: 7 / 8, y: 1 / 2, width: 0.25 },
+  ],
+]
 
 const dataModules = import.meta.glob<VoiceData>('../public/data/*.json', {
   eager: true,
@@ -88,6 +122,7 @@ function App() {
   const [garageyaKey, setGarageyaKey] = useState(0)
   const [isSequentialMode, setIsSequentialMode] = useState(false)
   const [sequentialIndex, setSequentialIndex] = useState<number | null>(null)
+  const [playbackMode, setPlaybackMode] = useState<PlaybackMode>('single')
   const [infoClip, setInfoClip] = useState<VoiceClip | null>(null)
   const [sortType, setSortType] = useState<SortType>('reading')
   const [volume, setVolume] = useState<number>(() => {
@@ -182,6 +217,43 @@ function App() {
     }
   }, [])
 
+  const createGarageyaFloatingClip = useCallback(
+    (nextClip: VoiceClip, slot: GarageyaSlot) => {
+      const stage = stageRef.current
+      const stageWidth = stage?.clientWidth ?? 700
+      const stageHeight = stage?.clientHeight ?? 380
+
+      const width = Math.round(stageWidth * slot.width)
+      const height = Math.round(width * 0.6)
+      const left = Math.min(Math.max(stageWidth * slot.x - width / 2, 0), Math.max(stageWidth - width, 0))
+      const top = Math.min(Math.max(stageHeight * slot.y - height / 2, 0), Math.max(stageHeight - height, 0))
+
+      return {
+        id: `${nextClip.fileBaseName}-${Math.random().toString(36).slice(2, 8)}`,
+        clip: nextClip,
+        left,
+        top,
+        width,
+      }
+    },
+    [],
+  )
+
+  const getRandomClip = useCallback(
+    (excludeFileBaseName?: string) => {
+      const candidates = excludeFileBaseName
+        ? sortedClips.filter((clip) => clip.fileBaseName !== excludeFileBaseName)
+        : sortedClips
+
+      if (candidates.length === 0) {
+        return null
+      }
+
+      return candidates[Math.floor(Math.random() * candidates.length)]
+    },
+    [sortedClips],
+  )
+
   const playClipAtIndex = useCallback((index: number) => {
     if (sortedClips.length === 0) {
       return
@@ -192,6 +264,7 @@ function App() {
 
     setFloatingClips([createFloatingClip(nextClip, 320)])
     setSequentialIndex(normalized)
+    setPlaybackMode('single')
     setSparkKey((prev) => prev + 1)
   }, [createFloatingClip, sortedClips])
 
@@ -221,22 +294,49 @@ function App() {
     }
 
     const count = Math.min(4, pool.length)
-    const nextFloating = pool
-      .slice(0, count)
-      .map((clip, index) => createFloatingClip(clip, 230 + index * 16))
+    const pattern = GARAGEYA_PATTERNS[Math.floor(Math.random() * GARAGEYA_PATTERNS.length)]
+    const nextFloating = pool.slice(0, count).map((clip, index) => {
+      const slot = pattern[index % pattern.length]
+      return createGarageyaFloatingClip(clip, slot)
+    })
 
     setFloatingClips(nextFloating)
     setSequentialIndex(null)
+    setPlaybackMode('garageya')
     setGarageyaKey((prev) => prev + 1)
-  }, [createFloatingClip, sortedClips])
+  }, [createGarageyaFloatingClip, sortedClips])
 
-  const handleSequentialEnded = useCallback(() => {
-    if (!isSequentialMode || sequentialIndex === null || sortedClips.length === 0) {
+  const handleSequentialEnded = useCallback((endedClipId?: string) => {
+    if (!isSequentialMode || sortedClips.length === 0) {
       return
     }
 
-    playClipAtIndex(sequentialIndex + 1)
-  }, [isSequentialMode, playClipAtIndex, sequentialIndex, sortedClips.length])
+    if (playbackMode === 'single') {
+      if (sequentialIndex === null) {
+        return
+      }
+
+      playClipAtIndex(sequentialIndex + 1)
+      return
+    }
+
+    if (playbackMode === 'garageya') {
+      setFloatingClips((currentClips) => {
+        const endedClip = currentClips.find((clip) => clip.id === endedClipId) ?? currentClips[0]
+        const remainingClips = endedClipId
+          ? currentClips.filter((clip) => clip.id !== endedClipId)
+          : currentClips.slice(1)
+        const nextClip = getRandomClip(endedClip?.clip.fileBaseName)
+
+        if (!nextClip) {
+          return remainingClips
+        }
+
+        return [...remainingClips, createFloatingClip(nextClip, 320)]
+      })
+      return
+    }
+  }, [createFloatingClip, getRandomClip, isSequentialMode, playClipAtIndex, playbackMode, sequentialIndex, sortedClips.length])
 
   const renderVoiceCard = useCallback(
     (clip: VoiceClip) => (
@@ -343,9 +443,9 @@ function App() {
                       video.volume = volume
                     }
                   }}
-                  onEnded={
-                    floatingClips.length === 1 && index === 0 ? handleSequentialEnded : undefined
-                  }
+                  onEnded={() => {
+                    handleSequentialEnded(stageClip.id)
+                  }}
                 />
                 <p className="clip-serif">{stageClip.clip.serif}</p>
               </article>
