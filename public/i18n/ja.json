@@ -2,6 +2,18 @@
   "app": {
     "title": "もねボタン",
     "copy": "魔法のボタンを押すと名言クリップを再生します。",
+    "guide": {
+      "section": "ページ案内",
+      "channel": "梢桃音 YouTube チャンネル",
+      "infoHint": "「i」アイコンクリックで元動画、クリップのリンクが確認できます。",
+      "homageLead": "このページは",
+      "ushiumiButton": "宇志海ボタン",
+      "homageMiddle": "様をはじめ、",
+      "variousButtons": "様々なボタン",
+      "homageTrail": "のオマージュです。",
+      "anycolorGuideline": "ANYCOLOR二次創作ガイドライン",
+      "guidelineNote": "に基づき、ライバーの活動に敬意を払い、創作性のあるまとめができることを目指しています。"
+    },
     "language": {
       "label": "言語",
       "ja": "日本語",

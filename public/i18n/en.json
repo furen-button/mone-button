@@ -2,6 +2,18 @@
   "app": {
     "title": "Voice Cards",
     "copy": "Press a button to play a random quote clip.",
+    "guide": {
+      "section": "Page guide",
+      "channel": "Kozue Mone YouTube Channel",
+      "infoHint": "Click the \"i\" icon to check links to the source video and clip.",
+      "homageLead": "This page is an homage to ",
+      "ushiumiButton": "宇志海ボタン (Ushiumi Button)",
+      "homageMiddle": " and other ",
+      "variousButtons": "fan-made buttons",
+      "homageTrail": ".",
+      "anycolorGuideline": "ANYCOLOR Derivative Works Guidelines",
+      "guidelineNote": ", with respect for the liver's activities and a focus on creative curation."
+    },
     "language": {
       "label": "Language",
       "ja": "Japanese",

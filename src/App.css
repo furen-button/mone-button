@@ -802,6 +802,37 @@
   color: #8d7561;
 }
 
+.app-guide {
+  margin: 22px 0 10px;
+  padding: 16px;
+  border: 1px solid rgba(255, 248, 242, 0.22);
+  border-radius: 16px;
+  background: rgba(255, 248, 242, 0.08);
+  text-align: left;
+}
+
+.app-guide-line {
+  margin: 0;
+  color: rgba(255, 248, 242, 0.82);
+  line-height: 1.75;
+}
+
+.app-guide-line + .app-guide-line {
+  margin-top: 6px;
+}
+
+.app-guide-link {
+  color: #ffd6ea;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.app-guide-link:focus-visible {
+  outline: 2px solid rgba(255, 248, 242, 0.92);
+  outline-offset: 2px;
+}
+
 @keyframes burst {
   0% {
     transform: scale(0.4) rotate(-8deg);
