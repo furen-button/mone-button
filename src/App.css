@@ -244,16 +244,11 @@
 }
 
 .voice-card {
+  position: relative;
   border: 1px solid #e5dbcf;
   background: #fff;
   border-radius: 14px;
-  text-align: left;
-  padding: 14px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-height: 98px;
+  min-height: 112px;
   box-shadow: 0 5px 10px rgba(53, 36, 22, 0.08);
   transition:
     transform 0.18s ease,
@@ -265,9 +260,126 @@
   box-shadow: 0 12px 24px rgba(53, 36, 22, 0.16);
 }
 
-.voice-card:focus-visible {
+.voice-card-play {
+  border: 0;
+  background: transparent;
+  width: 100%;
+  height: 100%;
+  min-height: 112px;
+  text-align: left;
+  padding: 14px 44px 14px 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.voice-card-play:focus-visible {
   outline: 3px solid #342113;
   outline-offset: 2px;
+}
+
+.voice-card-info {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid #cdb69f;
+  background: #fff7ee;
+  color: #5f3a20;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.voice-card-info:focus-visible {
+  outline: 2px solid #342113;
+  outline-offset: 1px;
+}
+
+.info-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(27, 18, 11, 0.38);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 200;
+}
+
+.info-modal {
+  width: min(560px, 100%);
+  border-radius: 16px;
+  background: #fffaf4;
+  border: 1px solid #e6d8c7;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.2);
+  padding: 18px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-modal-title {
+  margin: 0;
+  font-size: 20px;
+}
+
+.info-modal-video-title {
+  margin: 0;
+  color: #3e2514;
+  font-weight: 700;
+}
+
+.info-modal-date {
+  margin: 0;
+  color: #725844;
+  font-size: 13px;
+}
+
+.info-modal-meta {
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.info-modal-row {
+  display: grid;
+  grid-template-columns: 86px 1fr;
+  gap: 8px;
+}
+
+.info-modal-row dt {
+  color: #7a5a44;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.info-modal-row dd {
+  margin: 0;
+  color: #3e2514;
+}
+
+.info-modal-link {
+  color: #7444d3;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.info-modal-link:hover {
+  text-decoration: underline;
+}
+
+.info-modal-close {
+  align-self: flex-end;
+  border: 1px solid #d5c2ab;
+  border-radius: 999px;
+  background: #fff;
+  color: #402614;
+  font-weight: 700;
+  padding: 9px 14px;
+  cursor: pointer;
 }
 
 .voice-card-text {

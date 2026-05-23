@@ -87,6 +87,7 @@ function App() {
   const [garageyaKey, setGarageyaKey] = useState(0)
   const [isSequentialMode, setIsSequentialMode] = useState(false)
   const [sequentialIndex, setSequentialIndex] = useState<number | null>(null)
+  const [infoClip, setInfoClip] = useState<VoiceClip | null>(null)
   const [sortType, setSortType] = useState<SortType>('reading')
   const stageRef = useRef<HTMLDivElement>(null)
 
@@ -215,6 +216,29 @@ function App() {
     playClipAtIndex(sequentialIndex + 1)
   }, [isSequentialMode, playClipAtIndex, sequentialIndex, sortedClips.length])
 
+  const renderVoiceCard = useCallback(
+    (clip: VoiceClip) => (
+      <article className="voice-card" key={clip.fileBaseName}>
+        <button type="button" className="voice-card-play" onClick={() => showClip(clip)}>
+          <span className="voice-card-text">{clip.serif}</span>
+          <span className="voice-card-sub">{clip.categories.join(' / ')}</span>
+        </button>
+        <button
+          type="button"
+          className="voice-card-info"
+          aria-label="元動画情報を表示"
+          onClick={(event) => {
+            event.stopPropagation()
+            setInfoClip(clip)
+          }}
+        >
+          i
+        </button>
+      </article>
+    ),
+    [showClip],
+  )
+
   return (
     <main className="app-shell">
       <header className="app-header">
@@ -307,17 +331,7 @@ function App() {
 
       {sortType === 'reading' ? (
         <section className="voice-grid" aria-label="ボイスカード一覧">
-          {sortedClips.map((clip) => (
-            <button
-              type="button"
-              className="voice-card"
-              key={clip.fileBaseName}
-              onClick={() => showClip(clip)}
-            >
-              <span className="voice-card-text">{clip.serif}</span>
-              <span className="voice-card-sub">{clip.categories.join(' / ')}</span>
-            </button>
-          ))}
+          {sortedClips.map((clip) => renderVoiceCard(clip))}
         </section>
       ) : (
         <section className="stream-groups" aria-label="配信別ボイスカード一覧">
@@ -335,22 +349,67 @@ function App() {
                 <p className="stream-group-date">{formatUploadDate(group.uploadDate)}</p>
               </header>
               <div className="voice-grid">
-                {group.clips.map((clip) => (
-                  <button
-                    type="button"
-                    className="voice-card"
-                    key={clip.fileBaseName}
-                    onClick={() => showClip(clip)}
-                  >
-                    <span className="voice-card-text">{clip.serif}</span>
-                    <span className="voice-card-sub">{clip.categories.join(' / ')}</span>
-                  </button>
-                ))}
+                {group.clips.map((clip) => renderVoiceCard(clip))}
               </div>
             </article>
           ))}
         </section>
       )}
+
+      {infoClip ? (
+        <div
+          className="info-modal-backdrop"
+          role="presentation"
+          onClick={() => setInfoClip(null)}
+        >
+          <section
+            className="info-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="元動画情報"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h2 className="info-modal-title">元動画情報</h2>
+            <p className="info-modal-video-title">{infoClip.videoFile.metadata.title}</p>
+            <p className="info-modal-date">
+              配信日: {formatUploadDate(infoClip.videoFile.metadata.uploadDate)}
+            </p>
+            <dl className="info-modal-meta">
+              <div className="info-modal-row">
+                <dt>セリフ</dt>
+                <dd>{infoClip.serif}</dd>
+              </div>
+              <div className="info-modal-row">
+                <dt>ルビ</dt>
+                <dd>{infoClip.ruby}</dd>
+              </div>
+              <div className="info-modal-row">
+                <dt>カテゴリー</dt>
+                <dd>{infoClip.categories.join(' / ')}</dd>
+              </div>
+            </dl>
+            <a
+              className="info-modal-link"
+              href={infoClip.clipUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              このボイスの開始位置を開く
+            </a>
+            <a
+              className="info-modal-link"
+              href={infoClip.videoFile.metadata.url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              元動画ページを開く
+            </a>
+            <button type="button" className="info-modal-close" onClick={() => setInfoClip(null)}>
+              閉じる
+            </button>
+          </section>
+        </div>
+      ) : null}
     </main>
   )
 }
