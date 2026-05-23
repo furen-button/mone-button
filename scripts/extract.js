@@ -7,9 +7,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const parentDir = path.dirname(__dirname);
 
-// スクリプトの親ディレクトリにある 'raw' と 'data' を指定
+// スクリプトの親ディレクトリにある 'raw' と 'public/data' を指定
 const inputDir = path.join(parentDir, 'raw');
-const outputDir = path.join(parentDir, 'data');
+const outputDir = path.join(parentDir, 'public/data');
 
 if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir, { recursive: true });
