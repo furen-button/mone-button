@@ -32,6 +32,16 @@ interface VoiceClip extends VoiceData {
   videoPath: string
 }
 
+interface StreamGroup {
+  key: string
+  title: string
+  uploadDate: string
+  url: string
+  clips: VoiceClip[]
+}
+
+type SortType = 'reading' | 'stream-desc' | 'stream-asc'
+
 const dataModules = import.meta.glob<VoiceData>('../public/data/*.json', {
   eager: true,
   import: 'default',
@@ -55,16 +65,68 @@ const voiceClips: VoiceClip[] = Object.entries(dataModules)
   })
   .filter((clip): clip is VoiceClip => clip !== null)
 
+const formatUploadDate = (uploadDate: string): string => {
+  if (/^\d{8}$/.test(uploadDate)) {
+    return `${uploadDate.slice(0, 4)}-${uploadDate.slice(4, 6)}-${uploadDate.slice(6, 8)}`
+  }
+
+  return uploadDate
+}
+
 function App() {
   const [activeClip, setActiveClip] = useState<VoiceClip | null>(null)
   const [sparkKey, setSparkKey] = useState(0)
+  const [sortType, setSortType] = useState<SortType>('reading')
   const [position, setPosition] = useState({ left: 20, top: 20 })
   const stageRef = useRef<HTMLDivElement>(null)
 
   const sortedClips = useMemo(
-    () => [...voiceClips].sort((a, b) => a.serif.localeCompare(b.serif, 'ja')),
-    [],
+    () => {
+      const clips = [...voiceClips]
+
+      if (sortType === 'reading') {
+        return clips.sort((a, b) => a.ruby.localeCompare(b.ruby, 'ja'))
+      }
+
+      const direction = sortType === 'stream-desc' ? -1 : 1
+      return clips.sort((a, b) => {
+        const dateA = a.videoFile.metadata.uploadDate
+        const dateB = b.videoFile.metadata.uploadDate
+
+        if (dateA !== dateB) {
+          return dateA > dateB ? direction : -direction
+        }
+
+        return a.serif.localeCompare(b.serif, 'ja')
+      })
+    },
+    [sortType],
   )
+
+  const streamGroups = useMemo(() => {
+    if (sortType === 'reading') {
+      return []
+    }
+
+    return sortedClips.reduce<StreamGroup[]>((groups, clip) => {
+      const key = clip.videoId
+      const lastGroup = groups[groups.length - 1]
+
+      if (lastGroup && lastGroup.key === key) {
+        lastGroup.clips.push(clip)
+        return groups
+      }
+
+      groups.push({
+        key,
+        title: clip.videoFile.metadata.title,
+        uploadDate: clip.videoFile.metadata.uploadDate,
+        url: clip.videoFile.metadata.url,
+        clips: [clip],
+      })
+      return groups
+    }, [])
+  }, [sortType, sortedClips])
 
   const showClip = useCallback((nextClip: VoiceClip) => {
     const stage = stageRef.current
@@ -106,6 +168,32 @@ function App() {
           </span>
           ランダム再生
         </button>
+        <div className="sort-controls" role="group" aria-label="ソートコントロール">
+          <button
+            type="button"
+            className={`sort-chip ${sortType === 'reading' ? 'is-active' : ''}`}
+            onClick={() => setSortType('reading')}
+            aria-pressed={sortType === 'reading'}
+          >
+            あ 読み順
+          </button>
+          <button
+            type="button"
+            className={`sort-chip ${sortType === 'stream-desc' ? 'is-active' : ''}`}
+            onClick={() => setSortType('stream-desc')}
+            aria-pressed={sortType === 'stream-desc'}
+          >
+            ↓ 配信日(新しい順)
+          </button>
+          <button
+            type="button"
+            className={`sort-chip ${sortType === 'stream-asc' ? 'is-active' : ''}`}
+            onClick={() => setSortType('stream-asc')}
+            aria-pressed={sortType === 'stream-asc'}
+          >
+            ↑ 配信日(古い順)
+          </button>
+        </div>
       </section>
 
       <section className="video-stage-wrap" aria-live="polite">
@@ -130,19 +218,52 @@ function App() {
         </div>
       </section>
 
-      <section className="voice-grid" aria-label="ボイスカード一覧">
-        {sortedClips.map((clip) => (
-          <button
-            type="button"
-            className="voice-card"
-            key={clip.fileBaseName}
-            onClick={() => showClip(clip)}
-          >
-            <span className="voice-card-text">{clip.serif}</span>
-            <span className="voice-card-sub">{clip.categories.join(' / ')}</span>
-          </button>
-        ))}
-      </section>
+      {sortType === 'reading' ? (
+        <section className="voice-grid" aria-label="ボイスカード一覧">
+          {sortedClips.map((clip) => (
+            <button
+              type="button"
+              className="voice-card"
+              key={clip.fileBaseName}
+              onClick={() => showClip(clip)}
+            >
+              <span className="voice-card-text">{clip.serif}</span>
+              <span className="voice-card-sub">{clip.categories.join(' / ')}</span>
+            </button>
+          ))}
+        </section>
+      ) : (
+        <section className="stream-groups" aria-label="配信別ボイスカード一覧">
+          {streamGroups.map((group) => (
+            <article className="stream-group" key={group.key}>
+              <header className="stream-group-header">
+                <a
+                  className="stream-group-link"
+                  href={group.url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {group.title}
+                </a>
+                <p className="stream-group-date">{formatUploadDate(group.uploadDate)}</p>
+              </header>
+              <div className="voice-grid">
+                {group.clips.map((clip) => (
+                  <button
+                    type="button"
+                    className="voice-card"
+                    key={clip.fileBaseName}
+                    onClick={() => showClip(clip)}
+                  >
+                    <span className="voice-card-text">{clip.serif}</span>
+                    <span className="voice-card-sub">{clip.categories.join(' / ')}</span>
+                  </button>
+                ))}
+              </div>
+            </article>
+          ))}
+        </section>
+      )}
     </main>
   )
 }
