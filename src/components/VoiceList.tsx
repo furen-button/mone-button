@@ -8,6 +8,7 @@ type VoiceListProps = {
   streamGroups: StreamGroup[]
   onPlayClip: (clip: VoiceClip) => void
   onOpenInfo: (clip: VoiceClip) => void
+  onClickStreamGroupLink: (group: StreamGroup) => void
 }
 
 function VoiceCard({
@@ -39,7 +40,14 @@ function VoiceCard({
   )
 }
 
-export function VoiceList({ sortType, sortedClips, streamGroups, onPlayClip, onOpenInfo }: VoiceListProps) {
+export function VoiceList({
+  sortType,
+  sortedClips,
+  streamGroups,
+  onPlayClip,
+  onOpenInfo,
+  onClickStreamGroupLink,
+}: VoiceListProps) {
   const locale = useLocale()
 
   if (sortType === 'reading') {
@@ -62,7 +70,13 @@ export function VoiceList({ sortType, sortedClips, streamGroups, onPlayClip, onO
         streamGroups.map((group) => (
           <article className="stream-group" key={group.key}>
             <header className="stream-group-header">
-              <a className="stream-group-link" href={group.url} target="_blank" rel="noreferrer">
+              <a
+                className="stream-group-link"
+                href={group.url}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => onClickStreamGroupLink(group)}
+              >
                 {group.title}
               </a>
               <p className="stream-group-date">{t('streamGroup.dateLabel', {}, locale)}: {group.uploadDate}</p>
