@@ -2,7 +2,7 @@ import type { PlaybackMode, SortType, VoiceClip } from '../voiceData'
 
 export const ANALYTICS_CONSENT_STORAGE_KEY = 'mone-button-analytics-consent'
 
-type AnalyticsConsent = 'granted' | 'denied' | 'unknown'
+export type AnalyticsConsent = 'granted' | 'denied' | 'unknown'
 type AnalyticsParam = string | number | boolean
 type AnalyticsParams = Record<string, AnalyticsParam | undefined>
 
@@ -30,8 +30,12 @@ function getMeasurementId(): string | null {
   return measurementId ? measurementId : null
 }
 
+export function isAnalyticsConfigured(): boolean {
+  return !import.meta.env.DEV && getMeasurementId() !== null
+}
+
 function canTrack(): boolean {
-  return !import.meta.env.DEV && typeof window !== 'undefined' && getMeasurementId() !== null
+  return isAnalyticsConfigured() && typeof window !== 'undefined'
 }
 
 function sanitizeParams(params: AnalyticsParams): Record<string, AnalyticsParam> {
@@ -122,7 +126,14 @@ export function trackEvent(eventName: string, params: AnalyticsParams = {}): voi
 }
 
 export function trackPageView(path: string): void {
-  trackEvent('page_view', { page_path: path })
+  const pagePath = path || window.location.pathname
+  const pageLocation = new URL(pagePath, window.location.origin).toString()
+
+  trackEvent('page_view', {
+    page_path: pagePath,
+    page_location: pageLocation,
+    page_title: document.title,
+  })
 }
 
 export function trackPlaybackStart(clip: VoiceClip, playbackMode: PlaybackMode, sourceAction: PlaybackStartSource): void {
