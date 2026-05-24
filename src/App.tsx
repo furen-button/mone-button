@@ -56,7 +56,6 @@ function App() {
   const [sparkKey, setSparkKey] = useState(0)
   const [garageyaKey, setGarageyaKey] = useState(0)
   const [isSequentialMode, setIsSequentialMode] = useState(false)
-  const [sequentialIndex, setSequentialIndex] = useState<number | null>(null)
   const [playbackMode, setPlaybackMode] = useState<PlaybackMode>('single')
   const [infoClip, setInfoClip] = useState<VoiceClip | null>(null)
   const [sortType, setSortType] = useState<SortType>('reading')
@@ -353,7 +352,11 @@ function App() {
     [sortedClips],
   )
 
-  const playClipAtIndex = useCallback((index: number, sourceAction: PlaybackStartSource = 'voice_card') => {
+  const playClipAtIndex = useCallback((
+    index: number,
+    sourceAction: PlaybackStartSource = 'voice_card',
+    replaceCurrent = false,
+  ) => {
     if (sortedClips.length === 0) {
       return
     }
@@ -364,8 +367,10 @@ function App() {
     const nextClip = sortedClips[normalized]
 
     trackPlaybackStart(nextClip, 'single', sourceAction)
-    setFloatingClips((current) => [...current, createFloatingClip(nextClip, 320)])
-    setSequentialIndex(normalized)
+    setFloatingClips((current) => {
+      const nextFloatingClip = createFloatingClip(nextClip, 320)
+      return replaceCurrent ? [nextFloatingClip] : [...current, nextFloatingClip]
+    })
     setPlaybackMode('single')
     setSparkKey((prev) => prev + 1)
   }, [cancelStopAnimation, createFloatingClip, sortedClips])
@@ -409,55 +414,44 @@ function App() {
     })
 
     setFloatingClips(nextFloating)
-    setSequentialIndex(null)
     setPlaybackMode('garageya')
     setGarageyaKey((prev) => prev + 1)
   }, [cancelStopAnimation, createGarageyaFloatingClip, sortedClips])
 
   const handleSequentialEnded = useCallback((endedClipId?: string) => {
-    if (endedClipId) {
-      setFloatingClips((currentClips) => currentClips.filter((clip) => clip.id !== endedClipId))
-    }
-
-    if (!isSequentialMode || sortedClips.length === 0) {
+    if (!endedClipId) {
       return
     }
 
-    if (playbackMode === 'single') {
-      if (sequentialIndex === null) {
-        return
+    setFloatingClips((currentClips) => {
+      const endedClip = currentClips.find((clip) => clip.id === endedClipId)
+
+      // Ignore duplicated ended notifications for already-removed clips.
+      if (!endedClip) {
+        return currentClips
       }
 
-      const nextIndex = sequentialIndex + 1
-      const normalized = ((nextIndex % sortedClips.length) + sortedClips.length) % sortedClips.length
-      const fromClip = sortedClips[sequentialIndex]
-      const toClip = sortedClips[normalized]
-      if (fromClip && toClip) {
-        trackSequentialAdvance('single', fromClip.fileBaseName, toClip.fileBaseName)
+      const remainingClips = currentClips.filter((clip) => clip.id !== endedClipId)
+
+      if (!isSequentialMode || sortedClips.length === 0) {
+        return remainingClips
       }
 
-      playClipAtIndex(nextIndex, 'sequential_single')
-      return
-    }
+      const nextClip = getRandomClip(endedClip?.clip.fileBaseName)
+      if (!nextClip) {
+        return remainingClips
+      }
 
-    if (playbackMode === 'garageya') {
-      setFloatingClips((currentClips) => {
-        const endedClip = currentClips.find((clip) => clip.id === endedClipId)
-        const remainingClips = endedClipId ? currentClips.filter((clip) => clip.id !== endedClipId) : currentClips
-        const nextClip = getRandomClip(endedClip?.clip.fileBaseName)
+      trackSequentialAdvance(playbackMode, endedClip?.clip.fileBaseName ?? '', nextClip.fileBaseName)
+      trackPlaybackStart(
+        nextClip,
+        playbackMode,
+        playbackMode === 'garageya' ? 'sequential_garageya' : 'sequential_single',
+      )
 
-        if (!nextClip) {
-          return remainingClips
-        }
-
-        trackSequentialAdvance('garageya', endedClip?.clip.fileBaseName ?? '', nextClip.fileBaseName)
-        trackPlaybackStart(nextClip, 'garageya', 'sequential_garageya')
-
-        return [...remainingClips, createFloatingClip(nextClip, 320)]
-      })
-      return
-    }
-  }, [createFloatingClip, getRandomClip, isSequentialMode, playClipAtIndex, playbackMode, sequentialIndex, sortedClips])
+      return [...remainingClips, createFloatingClip(nextClip, 320)]
+    })
+  }, [createFloatingClip, getRandomClip, isSequentialMode, playbackMode, sortedClips.length])
 
   const handleToastClose = useCallback((clipId: string) => {
     setFloatingClips((currentClips) => currentClips.filter((clip) => clip.id !== clipId))
@@ -475,7 +469,6 @@ function App() {
     })
 
     setIsSequentialMode(false)
-    setSequentialIndex(null)
     setPlaybackMode('single')
     setIsStopping(true)
 
