@@ -25,12 +25,10 @@ import {
   type PlaybackStartSource,
 } from './lib/analytics'
 import {
-  GARAGEYA_PATTERNS,
   VOLUME_STORAGE_KEY,
   categoryCounts,
   categoryOptions,
   type FloatingStageClip,
-  type GarageyaSlot,
   type PlaybackMode,
   type SortType,
   type StreamGroup,
@@ -308,35 +306,6 @@ function App() {
     }
   }, [])
 
-  const createGarageyaFloatingClip = useCallback(
-    (nextClip: VoiceClip, slot: GarageyaSlot) => {
-      const stageWidth = appShellRef.current?.clientWidth ?? Math.min(window.innerWidth, 700)
-      const stageHeight = Math.max(window.innerHeight - 240, 320)
-      const safeSidePadding = 20
-      const safeTopPadding = 84
-
-      const width = Math.round((stageWidth - safeSidePadding * 2) * slot.width)
-      const height = Math.round(width * 0.6)
-      const left = Math.min(
-        Math.max((stageWidth - safeSidePadding * 2) * slot.x - width / 2 + safeSidePadding, safeSidePadding),
-        Math.max(stageWidth - width - safeSidePadding, safeSidePadding),
-      )
-      const top = Math.min(
-        Math.max(stageHeight * slot.y - height / 2 + safeTopPadding, safeTopPadding),
-        Math.max(stageHeight - height + safeTopPadding, safeTopPadding),
-      )
-
-      return {
-        id: `${nextClip.fileBaseName}-${Math.random().toString(36).slice(2, 8)}`,
-        clip: nextClip,
-        left,
-        top,
-        width,
-      }
-    },
-    [],
-  )
-
   const getRandomClip = useCallback(
     (excludeFileBaseName?: string) => {
       const candidates = excludeFileBaseName
@@ -394,29 +363,13 @@ function App() {
       return
     }
 
-    cancelStopAnimation()
-
-    const pool = [...sortedClips]
-    for (let i = pool.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[pool[i], pool[j]] = [pool[j], pool[i]]
+    for (let i = 0; i < 4; i += 1) {
+      const randomIndex = Math.floor(Math.random() * sortedClips.length)
+      playClipAtIndex(randomIndex, 'garageya_button')
     }
 
-    const count = Math.min(4, pool.length)
-    const pattern = GARAGEYA_PATTERNS[Math.floor(Math.random() * GARAGEYA_PATTERNS.length)]
-    const nextFloating = pool.slice(0, count).map((clip, index) => {
-      const slot = pattern[index % pattern.length]
-      return createGarageyaFloatingClip(clip, slot)
-    })
-
-    nextFloating.forEach((stageClip) => {
-      trackPlaybackStart(stageClip.clip, 'garageya', 'garageya_button')
-    })
-
-    setFloatingClips(nextFloating)
-    setPlaybackMode('garageya')
     setGarageyaKey((prev) => prev + 1)
-  }, [cancelStopAnimation, createGarageyaFloatingClip, sortedClips])
+  }, [playClipAtIndex, sortedClips])
 
   const handleSequentialEnded = useCallback((endedClipId?: string) => {
     if (!endedClipId) {
