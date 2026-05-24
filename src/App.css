@@ -120,12 +120,6 @@
   text-transform: uppercase;
 }
 
-.app-copy {
-  max-width: 600px;
-  margin: 8px auto 0;
-  color: rgba(255, 248, 242, 0.76);
-}
-
 .category-toolbar {
   margin: 0 0 18px;
   padding: 14px 16px;
@@ -262,7 +256,7 @@
 
 .app-copy {
   max-width: 600px;
-  margin: 8px auto 0;
+  margin: 14px auto 0;
   color: rgba(255, 248, 242, 0.76);
 }
 
