@@ -539,7 +539,7 @@ function App() {
 
       <header className="app-header">
         <div className="app-header-top">
-          <p className="app-kicker">Mone Button</p>
+          <p className="app-kicker">{t('app.siteName', {}, locale)}</p>
           <div className="language-switch" role="group" aria-label={t('app.language.label', {}, locale)}>
             {localeOptions.map((option) => (
               <button
@@ -643,6 +643,17 @@ function App() {
               {t('app.guide.anycolorGuideline', {}, locale)}
             </a>
             {t('app.guide.guidelineNote', {}, locale)}
+          </p>
+          <p className="app-guide-line">
+            {t('app.guide.relatedLead', {}, locale)}
+            <a className="app-guide-link" href="https://www.youtube.com/@master-j-abc" target="_blank" rel="noreferrer">
+              YouTube
+            </a>
+            ,{' '}
+            <a className="app-guide-link" href="https://twitter.com/hero_master_j" target="_blank" rel="noreferrer">
+              Twitter(X)
+            </a>
+            {t('app.guide.relatedTrail', {}, locale)}
           </p>
         </section>
 

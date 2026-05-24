@@ -1,6 +1,7 @@
 {
   "app": {
     "title": "Voice Cards",
+    "siteName": "Mone Button",
     "copy": "Press a button to play a random quote clip.",
     "guide": {
       "section": "Page guide",
@@ -12,7 +13,9 @@
       "variousButtons": "fan-made buttons",
       "homageTrail": ".",
       "anycolorGuideline": "ANYCOLOR Derivative Works Guidelines",
-      "guidelineNote": ", with respect for the liver's activities and a focus on creative curation."
+      "guidelineNote": ", with respect for the liver's activities and a focus on creative curation.",
+      "relatedLead": "Related account: \"コーヴァスのなきごえ\" (",
+      "relatedTrail": ")"
     },
     "language": {
       "label": "Language",

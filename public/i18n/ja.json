@@ -1,6 +1,7 @@
 {
   "app": {
     "title": "もねボタン",
+    "siteName": "もねぼたん",
     "copy": "魔法のボタンを押すと名言クリップを再生します。",
     "guide": {
       "section": "ページ案内",
@@ -12,7 +13,9 @@
       "variousButtons": "様々なボタン",
       "homageTrail": "のオマージュです。",
       "anycolorGuideline": "ANYCOLOR二次創作ガイドライン",
-      "guidelineNote": "に基づき、ライバーの活動に敬意を払い、創作性のあるまとめができることを目指しています。"
+      "guidelineNote": "に基づき、ライバーの活動に敬意を払い、創作性のあるまとめができることを目指しています。",
+      "relatedLead": "関連アカウント: 『コーヴァスのなきごえ』（",
+      "relatedTrail": "）"
     },
     "language": {
       "label": "言語",
