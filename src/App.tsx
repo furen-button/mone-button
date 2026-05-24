@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
+import { AnalyticsConsentBanner } from './components/AnalyticsConsentBanner'
 import { CategoryToolbar } from './components/CategoryToolbar'
 import { InfoModal } from './components/InfoModal'
 import { PlaybackControls } from './components/PlaybackControls'
@@ -8,6 +9,19 @@ import { VideoStage } from './components/VideoStage'
 import { VoiceList } from './components/VoiceList'
 import { VolumeDock } from './components/VolumeDock'
 import { LocaleProvider, loadLocale, localeOptions, t, type Locale } from './i18n'
+import {
+  getAnalyticsConsent,
+  initializeAnalytics,
+  setAnalyticsConsent,
+  trackCategoryToggle,
+  trackPageView,
+  trackPlaybackStart,
+  trackSequentialAdvance,
+  trackSequentialToggle,
+  trackSortChange,
+  trackYoutubeLinkClick,
+  type PlaybackStartSource,
+} from './lib/analytics'
 import {
   GARAGEYA_PATTERNS,
   VOLUME_STORAGE_KEY,
@@ -44,6 +58,7 @@ function App() {
   const [playbackMode, setPlaybackMode] = useState<PlaybackMode>('single')
   const [infoClip, setInfoClip] = useState<VoiceClip | null>(null)
   const [sortType, setSortType] = useState<SortType>('reading')
+  const [analyticsConsent, setAnalyticsConsentState] = useState<'granted' | 'denied' | 'unknown'>(() => getAnalyticsConsent())
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => categoryOptions)
   const [volume, setVolume] = useState<number>(() => {
     const saved = window.localStorage.getItem(VOLUME_STORAGE_KEY)
@@ -61,6 +76,7 @@ function App() {
   const stageRef = useRef<HTMLDivElement>(null)
   const stopTimerRef = useRef<number | null>(null)
   const localeChangeRequestRef = useRef(0)
+  const pageViewSentRef = useRef(false)
 
   const petals = useMemo(
     () =>
@@ -132,6 +148,20 @@ function App() {
       }
     }
   }, [])
+
+  useEffect(() => {
+    if (analyticsConsent !== 'granted') {
+      return
+    }
+
+    const initialized = initializeAnalytics()
+    if (!initialized || pageViewSentRef.current) {
+      return
+    }
+
+    trackPageView(`${window.location.pathname}${window.location.search}`)
+    pageViewSentRef.current = true
+  }, [analyticsConsent])
 
   const cancelStopAnimation = useCallback(() => {
     if (stopTimerRef.current !== null) {
@@ -230,9 +260,11 @@ function App() {
   const toggleCategory = useCallback((category: string) => {
     setSelectedCategories((current) => {
       if (current.includes(category)) {
+        trackCategoryToggle(category, false)
         return current.filter((item) => item !== category)
       }
 
+      trackCategoryToggle(category, true)
       return [...current, category].sort((a, b) => a.localeCompare(b, 'ja'))
     })
   }, [])
@@ -298,7 +330,7 @@ function App() {
     [sortedClips],
   )
 
-  const playClipAtIndex = useCallback((index: number) => {
+  const playClipAtIndex = useCallback((index: number, sourceAction: PlaybackStartSource = 'voice_card') => {
     if (sortedClips.length === 0) {
       return
     }
@@ -308,6 +340,7 @@ function App() {
     const normalized = ((index % sortedClips.length) + sortedClips.length) % sortedClips.length
     const nextClip = sortedClips[normalized]
 
+    trackPlaybackStart(nextClip, 'single', sourceAction)
     setFloatingClips([createFloatingClip(nextClip, 320)])
     setSequentialIndex(normalized)
     setPlaybackMode('single')
@@ -316,7 +349,7 @@ function App() {
 
   const showClip = useCallback((nextClip: VoiceClip) => {
     const index = clipIndexMap.get(nextClip.fileBaseName) ?? 0
-    playClipAtIndex(index)
+    playClipAtIndex(index, 'voice_card')
   }, [clipIndexMap, playClipAtIndex])
 
   const playRandomClip = useCallback(() => {
@@ -325,7 +358,7 @@ function App() {
     }
 
     const randomIndex = Math.floor(Math.random() * sortedClips.length)
-    playClipAtIndex(randomIndex)
+    playClipAtIndex(randomIndex, 'random_button')
   }, [playClipAtIndex, sortedClips])
 
   const playGarageya = useCallback(() => {
@@ -348,6 +381,10 @@ function App() {
       return createGarageyaFloatingClip(clip, slot)
     })
 
+    nextFloating.forEach((stageClip) => {
+      trackPlaybackStart(stageClip.clip, 'garageya', 'garageya_button')
+    })
+
     setFloatingClips(nextFloating)
     setSequentialIndex(null)
     setPlaybackMode('garageya')
@@ -364,7 +401,15 @@ function App() {
         return
       }
 
-      playClipAtIndex(sequentialIndex + 1)
+      const nextIndex = sequentialIndex + 1
+      const normalized = ((nextIndex % sortedClips.length) + sortedClips.length) % sortedClips.length
+      const fromClip = sortedClips[sequentialIndex]
+      const toClip = sortedClips[normalized]
+      if (fromClip && toClip) {
+        trackSequentialAdvance('single', fromClip.fileBaseName, toClip.fileBaseName)
+      }
+
+      playClipAtIndex(nextIndex, 'sequential_single')
       return
     }
 
@@ -379,6 +424,9 @@ function App() {
         if (!nextClip) {
           return remainingClips
         }
+
+        trackSequentialAdvance('garageya', endedClip?.clip.fileBaseName ?? '', nextClip.fileBaseName)
+        trackPlaybackStart(nextClip, 'garageya', 'sequential_garageya')
 
         return [...remainingClips, createFloatingClip(nextClip, 320)]
       })
@@ -407,6 +455,42 @@ function App() {
       setIsStopping(false)
       stopTimerRef.current = null
     }, 180)
+  }, [])
+
+  const handleToggleSequentialMode = useCallback(() => {
+    setIsSequentialMode((prev) => {
+      const nextValue = !prev
+      trackSequentialToggle(nextValue, playbackMode)
+      return nextValue
+    })
+  }, [playbackMode])
+
+  const handleSortChange = useCallback((nextSortType: SortType) => {
+    setSortType(nextSortType)
+    trackSortChange(nextSortType)
+  }, [])
+
+  const handleConsentAccept = useCallback(() => {
+    setAnalyticsConsent(true)
+    setAnalyticsConsentState('granted')
+  }, [])
+
+  const handleConsentDecline = useCallback(() => {
+    setAnalyticsConsent(false)
+    setAnalyticsConsentState('denied')
+  }, [])
+
+  const handleInfoModalLinkClick = useCallback((linkType: 'clip' | 'source_video', clip: VoiceClip) => {
+    const targetUrl = linkType === 'clip' ? clip.clipUrl : clip.videoFile.metadata.url
+    trackYoutubeLinkClick(linkType, 'info_modal', targetUrl, clip.videoId)
+  }, [])
+
+  const handleStreamGroupLinkClick = useCallback((group: StreamGroup) => {
+    trackYoutubeLinkClick('source_video', 'voice_group', group.url, group.key)
+  }, [])
+
+  const handleGuideChannelClick = useCallback(() => {
+    trackYoutubeLinkClick('channel', 'app_guide', 'https://www.youtube.com/@KozueMone')
   }, [])
 
   return (
@@ -481,7 +565,7 @@ function App() {
           onPlayRandom={playRandomClip}
           onPlayGarageya={playGarageya}
           onStop={stopPlayback}
-          onToggleSequentialMode={() => setIsSequentialMode((prev) => !prev)}
+          onToggleSequentialMode={handleToggleSequentialMode}
         />
 
         <VideoStage
@@ -501,7 +585,7 @@ function App() {
           onToggleCategory={toggleCategory}
         />
 
-        <SortToolbar sortType={sortType} onChangeSortType={setSortType} />
+        <SortToolbar sortType={sortType} onChangeSortType={handleSortChange} />
 
         <VoiceList
           sortType={sortType}
@@ -509,6 +593,7 @@ function App() {
           streamGroups={streamGroups}
           onPlayClip={showClip}
           onOpenInfo={setInfoClip}
+          onClickStreamGroupLink={handleStreamGroupLinkClick}
         />
 
         <section className="app-guide" aria-label={t('app.guide.section', {}, locale)}>
@@ -518,6 +603,7 @@ function App() {
               href="https://www.youtube.com/@KozueMone"
               target="_blank"
               rel="noreferrer"
+              onClick={handleGuideChannelClick}
             >
               {t('app.guide.channel', {}, locale)}
             </a>
@@ -557,7 +643,18 @@ function App() {
           </p>
         </section>
 
-        {infoClip ? <InfoModal clip={infoClip} onClose={() => setInfoClip(null)} /> : null}
+        {infoClip ? (
+          <InfoModal
+            clip={infoClip}
+            onClose={() => setInfoClip(null)}
+            onClickClipLink={handleInfoModalLinkClick}
+            onClickSourceVideoLink={handleInfoModalLinkClick}
+          />
+        ) : null}
+
+        {analyticsConsent === 'unknown' ? (
+          <AnalyticsConsentBanner onAccept={handleConsentAccept} onDecline={handleConsentDecline} />
+        ) : null}
 
         <VolumeDock volume={volume} onChangeVolume={setVolume} />
       </LocaleProvider>

@@ -79,6 +79,12 @@
     "openVideo": "Open source video page",
     "close": "Close"
   },
+  "analyticsConsent": {
+    "title": "About analytics",
+    "message": "This site uses Google Analytics to improve the experience. Do you agree to data collection?",
+    "accept": "Agree",
+    "decline": "Decline"
+  },
   "volume": {
     "section": "Volume control",
     "label": "Playback volume"

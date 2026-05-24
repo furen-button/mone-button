@@ -73,3 +73,30 @@ export default defineConfig([
   },
 ])
 ```
+
+## Google Analytics (GA4)
+
+### 設定
+
+1. `.env.local` を作成し、測定IDを設定します。
+
+```bash
+VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+```
+
+2. 本番ビルドで配信してください（開発環境では送信しません）。
+
+### 実装仕様
+
+- 初回アクセス時に同意バナーを表示します。
+- 同意前は GA の初期化・イベント送信を行いません。
+- 同意後のみ `page_view` と各種イベントを送信します。
+
+### 送信イベント
+
+- `playback_start`
+- `sequential_toggle`
+- `sequential_advance`
+- `youtube_link_click`
+- `category_toggle`
+- `sort_change`

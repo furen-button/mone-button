@@ -6,9 +6,11 @@ import { useLocale } from '../i18n'
 type InfoModalProps = {
   clip: VoiceClip
   onClose: () => void
+  onClickClipLink: (linkType: 'clip', clip: VoiceClip) => void
+  onClickSourceVideoLink: (linkType: 'source_video', clip: VoiceClip) => void
 }
 
-export function InfoModal({ clip, onClose }: InfoModalProps) {
+export function InfoModal({ clip, onClose, onClickClipLink, onClickSourceVideoLink }: InfoModalProps) {
   const locale = useLocale()
 
   return (
@@ -37,7 +39,13 @@ export function InfoModal({ clip, onClose }: InfoModalProps) {
             <dd>{clip.categories.join(' / ')}</dd>
           </div>
         </dl>
-        <a className="info-modal-link" href={clip.clipUrl} target="_blank" rel="noreferrer">
+        <a
+          className="info-modal-link"
+          href={clip.clipUrl}
+          target="_blank"
+          rel="noreferrer"
+          onClick={() => onClickClipLink('clip', clip)}
+        >
           {t('infoModal.openClip', {}, locale)}
         </a>
         <a
@@ -45,6 +53,7 @@ export function InfoModal({ clip, onClose }: InfoModalProps) {
           href={clip.videoFile.metadata.url}
           target="_blank"
           rel="noreferrer"
+          onClick={() => onClickSourceVideoLink('source_video', clip)}
         >
           {t('infoModal.openVideo', {}, locale)}
         </a>

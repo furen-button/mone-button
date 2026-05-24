@@ -79,6 +79,12 @@
     "openVideo": "元動画ページを開く",
     "close": "閉じる"
   },
+  "analyticsConsent": {
+    "title": "アクセス解析について",
+    "message": "サイト改善のためGoogle Analyticsを使用します。データ送信に同意しますか？",
+    "accept": "同意する",
+    "decline": "同意しない"
+  },
   "volume": {
     "section": "音量調整",
     "label": "再生音量"
