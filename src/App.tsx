@@ -459,6 +459,10 @@ function App() {
     }
   }, [createFloatingClip, getRandomClip, isSequentialMode, playClipAtIndex, playbackMode, sequentialIndex, sortedClips])
 
+  const handleToastClose = useCallback((clipId: string) => {
+    setFloatingClips((currentClips) => currentClips.filter((clip) => clip.id !== clipId))
+  }, [])
+
   const stopPlayback = useCallback(() => {
     if (stopTimerRef.current !== null) {
       window.clearTimeout(stopTimerRef.current)
@@ -598,6 +602,7 @@ function App() {
           volume={volume}
           isStopping={isStopping}
           onClipEnded={handleSequentialEnded}
+          onCloseClip={handleToastClose}
         />
 
         <CategoryToolbar

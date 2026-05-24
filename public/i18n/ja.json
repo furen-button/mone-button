@@ -88,5 +88,8 @@
   "volume": {
     "section": "音量調整",
     "label": "再生音量"
+  },
+  "toast": {
+    "close": "トーストを閉じる"
   }
 }

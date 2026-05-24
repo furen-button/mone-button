@@ -88,5 +88,8 @@
   "volume": {
     "section": "Volume control",
     "label": "Playback volume"
+  },
+  "toast": {
+    "close": "Close toast"
   }
 }

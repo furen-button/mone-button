@@ -454,12 +454,40 @@
   border-radius: 14px;
   background: #ffffff;
   box-shadow: 0 18px 34px rgba(88, 52, 21, 0.22);
-  animation: drift 3.8s ease-in-out infinite;
+  animation:
+    toastScaleIn 0.18s ease-out both,
+    drift 3.8s ease-in-out 0.18s infinite;
   pointer-events: auto;
 }
 
+.floating-clip.is-exiting,
 .floating-clip.is-stopping {
-  animation: stopSink 0.18s ease-in forwards;
+  animation: toastScaleOut 0.18s ease-in forwards;
+}
+
+.floating-clip-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(92, 56, 28, 0.4);
+  border-radius: 999px;
+  background: rgba(255, 252, 249, 0.92);
+  color: #633d22;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.floating-clip-close:hover {
+  transform: scale(1.06);
+}
+
+.floating-clip-close:focus-visible {
+  outline: 2px solid #5c381c;
+  outline-offset: 1px;
 }
 
 .clip-video {
@@ -712,6 +740,28 @@
   }
 }
 
+@keyframes toastScaleIn {
+  0% {
+    transform: scale(0.84);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes toastScaleOut {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.84);
+    opacity: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .app-shell {
     padding: 18px 12px 102px;
@@ -890,13 +940,13 @@
 
 @keyframes drift {
   0% {
-    transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate3d(0, -10px, 0);
+    transform: translate3d(0, -10px, 0) scale(1);
   }
   100% {
-    transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
