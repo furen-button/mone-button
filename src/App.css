@@ -175,9 +175,10 @@
   user-select: none;
   transition:
     transform 0.18s ease,
-    background-color 0.18s ease,
-    border-color 0.18s ease,
-    box-shadow 0.18s ease;
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    background-color 0.22s ease;
+  box-shadow: none;
 }
 
 .category-chip input {
@@ -197,6 +198,10 @@
   font-size: 11px;
   background: rgba(255, 198, 226, 0.08);
   box-shadow: inset 0 0 0 2px rgba(255, 248, 242, 0.08);
+  transition:
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    background-color 0.22s ease;
 }
 
 .category-chip-name {
@@ -218,31 +223,46 @@
   font-weight: 700;
 }
 
-.category-chip:has(input:checked) {
-  border-color: rgba(255, 198, 226, 0.88);
+.category-chip:has(input:checked),
+.category-chip.is-checked {
+  border-color: transparent;
   background: linear-gradient(135deg, rgba(255, 198, 226, 0.34), rgba(222, 205, 252, 0.24));
   box-shadow: 0 10px 24px rgba(255, 198, 226, 0.14);
 }
 
-.category-chip:has(input:checked) .category-chip-icon {
-  border-color: rgba(255, 248, 242, 0.9);
+.category-chip:has(input:checked) .category-chip-icon,
+.category-chip.is-checked .category-chip-icon {
+  border-color: transparent;
   background: #ffc6e2;
   color: #1f1320;
   font-weight: 800;
-  box-shadow: 0 0 0 2px rgba(255, 198, 226, 0.18);
+  box-shadow: none;
 }
 
 .category-chip.is-checked .category-chip-name {
   color: #fff8f2;
 }
 
-.category-chip:focus-within {
+.category-chip:has(input:focus-visible) {
   outline: 3px solid rgba(255, 198, 226, 0.88);
   outline-offset: 2px;
 }
 
+.category-chip:active {
+  animation: categoryChipBorderFadeOut 220ms ease-out;
+}
+
 .category-chip:hover {
   transform: translateY(-1px);
+}
+
+@keyframes categoryChipBorderFadeOut {
+  from {
+    border-color: rgba(255, 198, 226, 0.88);
+  }
+  to {
+    border-color: transparent;
+  }
 }
 
 .app-kicker {
