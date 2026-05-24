@@ -57,9 +57,6 @@
     "streamDesc": "配信日(新しい順)",
     "streamAsc": "配信日(古い順)"
   },
-  "video": {
-    "placeholder": "カードを押すとここに動画がランダム表示されます"
-  },
   "voiceList": {
     "cardsAria": "ボイスカード一覧",
     "streamGroupsAria": "配信別ボイスカード一覧",

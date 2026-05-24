@@ -439,37 +439,15 @@
   outline-offset: 1px;
 }
 
-.video-stage-wrap {
-  margin-bottom: 28px;
-}
-
-.video-stage {
-  position: relative;
-  height: 390px;
-  border-radius: 20px;
-  border: 1px solid #e7ddd2;
-  background:
-    radial-gradient(circle at 12% 18%, rgba(255, 193, 141, 0.35), transparent 42%),
-    radial-gradient(circle at 85% 80%, rgba(252, 168, 176, 0.3), transparent 38%),
-    #fffaf4;
-  overflow: hidden;
-}
-
-.video-stage.is-stopping .floating-clip {
-  animation: stopSink 0.18s ease-in forwards;
-}
-
-.video-placeholder {
-  margin: 0;
-  position: absolute;
+.toast-layer {
+  position: fixed;
   inset: 0;
-  display: grid;
-  place-items: center;
-  color: #7f7063;
+  pointer-events: none;
+  z-index: 120;
 }
 
 .floating-clip {
-  position: absolute;
+  position: fixed;
   width: 320px;
   max-width: calc(100% - 16px);
   padding: 8px;
@@ -477,6 +455,7 @@
   background: #ffffff;
   box-shadow: 0 18px 34px rgba(88, 52, 21, 0.22);
   animation: drift 3.8s ease-in-out infinite;
+  pointer-events: auto;
 }
 
 .floating-clip.is-stopping {
@@ -741,10 +720,6 @@
   .app-header-top {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .video-stage {
-    height: 320px;
   }
 
   .petal {

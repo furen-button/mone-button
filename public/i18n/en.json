@@ -57,9 +57,6 @@
     "streamDesc": "Stream date (newest)",
     "streamAsc": "Stream date (oldest)"
   },
-  "video": {
-    "placeholder": "Press a card and a random clip will appear here."
-  },
   "voiceList": {
     "cardsAria": "Voice card list",
     "streamGroupsAria": "Stream-grouped voice card list",

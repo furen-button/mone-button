@@ -5,7 +5,7 @@ import { CategoryToolbar } from './components/CategoryToolbar'
 import { InfoModal } from './components/InfoModal'
 import { PlaybackControls } from './components/PlaybackControls'
 import { SortToolbar } from './components/SortToolbar'
-import { VideoStage } from './components/VideoStage'
+import { ToastLayer } from './components/ToastLayer'
 import { VoiceList } from './components/VoiceList'
 import { VolumeDock } from './components/VolumeDock'
 import { LocaleProvider, loadLocale, localeOptions, t, type Locale } from './i18n'
@@ -75,7 +75,7 @@ function App() {
 
     return Math.min(1, Math.max(0, parsed))
   })
-  const stageRef = useRef<HTMLDivElement>(null)
+  const appShellRef = useRef<HTMLElement>(null)
   const stopTimerRef = useRef<number | null>(null)
   const localeChangeRequestRef = useRef(0)
   const pageViewSentRef = useRef(false)
@@ -146,7 +146,7 @@ function App() {
 
   useEffect(() => {
     window.localStorage.setItem(VOLUME_STORAGE_KEY, String(volume))
-    const videos = stageRef.current?.querySelectorAll('video') ?? []
+    const videos = appShellRef.current?.querySelectorAll('video') ?? []
     videos.forEach((video) => {
       video.volume = volume
     })
@@ -289,31 +289,43 @@ function App() {
   }, [])
 
   const createFloatingClip = useCallback((nextClip: VoiceClip, width: number) => {
-    const stage = stageRef.current
+    const shellWidth = appShellRef.current?.clientWidth ?? Math.min(window.innerWidth, 700)
+    const viewportHeight = window.innerHeight
+    const safeSidePadding = 20
+    const safeTopPadding = 84
+    const safeBottomPadding = 140
+    const clampedWidth = Math.min(width, Math.max(shellWidth - safeSidePadding * 2, 220))
 
-    const cardHeight = Math.round(width * 0.6)
-    const maxX = Math.max((stage?.clientWidth ?? 700) - width, 0)
-    const maxY = Math.max((stage?.clientHeight ?? 380) - cardHeight, 0)
+    const cardHeight = Math.round(clampedWidth * 0.6)
+    const maxX = Math.max(shellWidth - clampedWidth - safeSidePadding * 2, 0)
+    const maxY = Math.max(viewportHeight - cardHeight - safeTopPadding - safeBottomPadding, 0)
 
     return {
       id: `${nextClip.fileBaseName}-${Math.random().toString(36).slice(2, 8)}`,
       clip: nextClip,
-      left: Math.random() * maxX,
-      top: Math.random() * maxY,
-      width,
+      left: safeSidePadding + Math.random() * maxX,
+      top: safeTopPadding + Math.random() * maxY,
+      width: clampedWidth,
     }
   }, [])
 
   const createGarageyaFloatingClip = useCallback(
     (nextClip: VoiceClip, slot: GarageyaSlot) => {
-      const stage = stageRef.current
-      const stageWidth = stage?.clientWidth ?? 700
-      const stageHeight = stage?.clientHeight ?? 380
+      const stageWidth = appShellRef.current?.clientWidth ?? Math.min(window.innerWidth, 700)
+      const stageHeight = Math.max(window.innerHeight - 240, 320)
+      const safeSidePadding = 20
+      const safeTopPadding = 84
 
-      const width = Math.round(stageWidth * slot.width)
+      const width = Math.round((stageWidth - safeSidePadding * 2) * slot.width)
       const height = Math.round(width * 0.6)
-      const left = Math.min(Math.max(stageWidth * slot.x - width / 2, 0), Math.max(stageWidth - width, 0))
-      const top = Math.min(Math.max(stageHeight * slot.y - height / 2, 0), Math.max(stageHeight - height, 0))
+      const left = Math.min(
+        Math.max((stageWidth - safeSidePadding * 2) * slot.x - width / 2 + safeSidePadding, safeSidePadding),
+        Math.max(stageWidth - width - safeSidePadding, safeSidePadding),
+      )
+      const top = Math.min(
+        Math.max(stageHeight * slot.y - height / 2 + safeTopPadding, safeTopPadding),
+        Math.max(stageHeight - height + safeTopPadding, safeTopPadding),
+      )
 
       return {
         id: `${nextClip.fileBaseName}-${Math.random().toString(36).slice(2, 8)}`,
@@ -352,7 +364,7 @@ function App() {
     const nextClip = sortedClips[normalized]
 
     trackPlaybackStart(nextClip, 'single', sourceAction)
-    setFloatingClips([createFloatingClip(nextClip, 320)])
+    setFloatingClips((current) => [...current, createFloatingClip(nextClip, 320)])
     setSequentialIndex(normalized)
     setPlaybackMode('single')
     setSparkKey((prev) => prev + 1)
@@ -403,6 +415,10 @@ function App() {
   }, [cancelStopAnimation, createGarageyaFloatingClip, sortedClips])
 
   const handleSequentialEnded = useCallback((endedClipId?: string) => {
+    if (endedClipId) {
+      setFloatingClips((currentClips) => currentClips.filter((clip) => clip.id !== endedClipId))
+    }
+
     if (!isSequentialMode || sortedClips.length === 0) {
       return
     }
@@ -426,10 +442,8 @@ function App() {
 
     if (playbackMode === 'garageya') {
       setFloatingClips((currentClips) => {
-        const endedClip = currentClips.find((clip) => clip.id === endedClipId) ?? currentClips[0]
-        const remainingClips = endedClipId
-          ? currentClips.filter((clip) => clip.id !== endedClipId)
-          : currentClips.slice(1)
+        const endedClip = currentClips.find((clip) => clip.id === endedClipId)
+        const remainingClips = endedClipId ? currentClips.filter((clip) => clip.id !== endedClipId) : currentClips
         const nextClip = getRandomClip(endedClip?.clip.fileBaseName)
 
         if (!nextClip) {
@@ -443,14 +457,14 @@ function App() {
       })
       return
     }
-  }, [createFloatingClip, getRandomClip, isSequentialMode, playClipAtIndex, playbackMode, sequentialIndex, sortedClips.length])
+  }, [createFloatingClip, getRandomClip, isSequentialMode, playClipAtIndex, playbackMode, sequentialIndex, sortedClips])
 
   const stopPlayback = useCallback(() => {
     if (stopTimerRef.current !== null) {
       window.clearTimeout(stopTimerRef.current)
     }
 
-    const videos = stageRef.current?.querySelectorAll('video') ?? []
+    const videos = appShellRef.current?.querySelectorAll('video') ?? []
     videos.forEach((video) => {
       video.pause()
       video.currentTime = 0
@@ -505,7 +519,7 @@ function App() {
   }, [])
 
   return (
-    <main className="app-shell">
+    <main className="app-shell" ref={appShellRef}>
       {!isLocaleReady ? (
         <p className="app-copy" aria-busy="true">
           {locale === 'en' ? 'Loading...' : '読み込み中…'}
@@ -579,9 +593,8 @@ function App() {
           onToggleSequentialMode={handleToggleSequentialMode}
         />
 
-        <VideoStage
+        <ToastLayer
           floatingClips={floatingClips}
-          stageRef={stageRef}
           volume={volume}
           isStopping={isStopping}
           onClipEnded={handleSequentialEnded}
