@@ -137,6 +137,14 @@ function App() {
   }, [isLocaleReady, locale])
 
   useEffect(() => {
+    if (!isLocaleReady) {
+      return
+    }
+
+    document.title = t('app.title', {}, locale)
+  }, [isLocaleReady, locale])
+
+  useEffect(() => {
     window.localStorage.setItem(VOLUME_STORAGE_KEY, String(volume))
     const videos = stageRef.current?.querySelectorAll('video') ?? []
     videos.forEach((video) => {
