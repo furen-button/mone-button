@@ -40,9 +40,7 @@ export function CategoryToolbar({
           return (
             <label className={`category-chip ${checked ? 'is-checked' : ''}`} key={category}>
               <input type="checkbox" checked={checked} onChange={handleChange(category)} />
-              <span className="category-chip-icon" aria-hidden="true">
-                {checked ? '✓' : ' '}
-              </span>
+              <span className="category-chip-icon" aria-hidden="true" />
               <span className="category-chip-name">{category}</span>
               <span className="category-chip-count" aria-label={t('category.countAria', { category }, locale)}>
                 {categoryCounts[category] ?? 0}
