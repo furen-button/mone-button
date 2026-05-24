@@ -8,10 +8,11 @@ type AnalyticsConsentBannerProps = {
 
 export function AnalyticsConsentBanner({ onAccept, onDecline }: AnalyticsConsentBannerProps) {
   const locale = useLocale()
+  const titleId = 'analytics-consent-title'
 
   return (
-    <section className="analytics-consent" role="dialog" aria-modal="false" aria-label={t('analyticsConsent.title', {}, locale)}>
-      <p className="analytics-consent-title">{t('analyticsConsent.title', {}, locale)}</p>
+    <section className="analytics-consent" role="region" aria-labelledby={titleId}>
+      <p id={titleId} className="analytics-consent-title">{t('analyticsConsent.title', {}, locale)}</p>
       <p className="analytics-consent-text">{t('analyticsConsent.message', {}, locale)}</p>
       <div className="analytics-consent-actions">
         <button type="button" className="analytics-consent-accept" onClick={onAccept}>

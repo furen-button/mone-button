@@ -11,6 +11,7 @@ import { VolumeDock } from './components/VolumeDock'
 import { LocaleProvider, loadLocale, localeOptions, t, type Locale } from './i18n'
 import {
   getAnalyticsConsent,
+  isAnalyticsConfigured,
   initializeAnalytics,
   setAnalyticsConsent,
   trackCategoryToggle,
@@ -20,6 +21,7 @@ import {
   trackSequentialToggle,
   trackSortChange,
   trackYoutubeLinkClick,
+  type AnalyticsConsent,
   type PlaybackStartSource,
 } from './lib/analytics'
 import {
@@ -58,7 +60,7 @@ function App() {
   const [playbackMode, setPlaybackMode] = useState<PlaybackMode>('single')
   const [infoClip, setInfoClip] = useState<VoiceClip | null>(null)
   const [sortType, setSortType] = useState<SortType>('reading')
-  const [analyticsConsent, setAnalyticsConsentState] = useState<'granted' | 'denied' | 'unknown'>(() => getAnalyticsConsent())
+  const [analyticsConsent, setAnalyticsConsentState] = useState<AnalyticsConsent>(() => getAnalyticsConsent())
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => categoryOptions)
   const [volume, setVolume] = useState<number>(() => {
     const saved = window.localStorage.getItem(VOLUME_STORAGE_KEY)
@@ -77,6 +79,7 @@ function App() {
   const stopTimerRef = useRef<number | null>(null)
   const localeChangeRequestRef = useRef(0)
   const pageViewSentRef = useRef(false)
+  const shouldShowAnalyticsConsentBanner = isAnalyticsConfigured() && analyticsConsent === 'unknown'
 
   const petals = useMemo(
     () =>
@@ -652,7 +655,7 @@ function App() {
           />
         ) : null}
 
-        {analyticsConsent === 'unknown' ? (
+        {shouldShowAnalyticsConsentBanner ? (
           <AnalyticsConsentBanner onAccept={handleConsentAccept} onDecline={handleConsentDecline} />
         ) : null}
 
