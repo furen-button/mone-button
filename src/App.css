@@ -239,10 +239,6 @@
   box-shadow: none;
 }
 
-.category-chip.is-checked .category-chip-name {
-  color: #fff8f2;
-}
-
 .category-chip:has(input:focus-visible) {
   outline: 3px solid rgba(255, 198, 226, 0.88);
   outline-offset: 2px;
@@ -263,15 +259,6 @@
   to {
     border-color: transparent;
   }
-}
-
-.app-kicker {
-  margin: 0;
-  color: rgba(255, 248, 242, 0.74);
-  letter-spacing: 0.12em;
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
 }
 
 .app-copy {
@@ -939,20 +926,12 @@
 }
 
 @media (max-width: 768px) {
-  .app-shell {
-    padding: 18px 12px 102px;
-  }
-
   .category-toolbar {
     padding: 10px 10px;
   }
 
   .sort-toolbar {
     margin-bottom: 18px;
-  }
-
-  .video-stage {
-    height: 320px;
   }
 
   .floating-clip {
