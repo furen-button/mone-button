@@ -526,8 +526,8 @@
 
 .stream-group {
   border: 1px solid #eadfce;
-  border-radius: 14px;
-  background: #fff9f2;
+  border-radius: 14px;  
+  background: rgba(255, 250, 244, 0.90);
   padding: 12px;
 }
 
@@ -561,7 +561,7 @@
 .voice-card {
   position: relative;
   border: 1px solid #e5dbcf;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 14px;
   min-height: 112px;
   box-shadow: 0 5px 10px rgba(53, 36, 22, 0.08);
