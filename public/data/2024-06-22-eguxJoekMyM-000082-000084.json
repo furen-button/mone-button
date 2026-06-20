@@ -1,0 +1,27 @@
+{
+  "videoId": "eguxJoekMyM",
+  "serif": "みなさん、はじめまして",
+  "ruby": "みなさんはじめまして",
+  "categories": [
+    "あいさつ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=eguxJoekMyM&t=82s",
+  "memo": "",
+  "trimming": {
+    "startTime": 82.42398240998236,
+    "endTime": 84.15987512876647,
+    "duration": 1.7358927187841147
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "eguxJoekMyM",
+      "title": "【初配信】これはきっと運命の出会い【梢桃音/にじさんじ】",
+      "duration": 1746,
+      "thumbnail": "https://i.ytimg.com/vi/eguxJoekMyM/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240622",
+      "viewCount": 246867,
+      "url": "https://www.youtube.com/watch?v=eguxJoekMyM"
+    }
+  }
+}
