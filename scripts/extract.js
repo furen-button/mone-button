@@ -33,6 +33,9 @@ try {
   } else {
     console.log(`🚀 ${jsonFiles.length} 件のファイルを処理します...\n`);
 
+    let created = 0;
+    let skipped = 0;
+
     jsonFiles.forEach(file => {
       const inputFilePath = path.join(inputDir, file);
 
@@ -59,6 +62,13 @@ try {
         // 新しいファイル名を組み立て (YYYY-MM-DD-<videoId>-<startTime>-<endTime>.json)
         const newFileName = `${formattedDate}-${videoId}-${startFormat}-${endFormat}.json`;
         const outputFilePath = path.join(outputDir, newFileName);
+
+        // 既に整形済みデータが存在する場合はスキップ（手入力した serif/ruby/categories を保護）
+        if (fs.existsSync(outputFilePath)) {
+          console.log(`⏭️ 既存スキップ: ${newFileName}`);
+          skipped++;
+          return;
+        }
 
         // --- 2. 要素の抽出 ---
         const extractedData = {
@@ -90,13 +100,14 @@ try {
         // --- 3. 新しいファイル名で出力 ---
         fs.writeFileSync(outputFilePath, JSON.stringify(extractedData, null, 2));
         console.log(`✅ ${file} -> ${newFileName}`);
+        created++;
 
       } catch (err) {
         console.error(`❌ エラー (${file}):`, err.message);
       }
     });
 
-    console.log('\n--- すべての処理が完了しました！ ---');
+    console.log(`\n--- すべての処理が完了しました！ 生成 ${created} 件 / スキップ ${skipped} 件 ---`);
   }
 
 } catch (error) {
