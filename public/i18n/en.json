@@ -21,7 +21,8 @@
       "label": "Language",
       "ja": "Japanese",
       "en": "English"
-    }
+    },
+    "totalPlays": "{{count}} total plays"
   },
   "playback": {
     "controls": "Playback controls",
@@ -55,7 +56,8 @@
     "readingPrefix": "A-Z",
     "reading": "Reading",
     "streamDesc": "Stream date (newest)",
-    "streamAsc": "Stream date (oldest)"
+    "streamAsc": "Stream date (oldest)",
+    "playCount": "Play count"
   },
   "voiceList": {
     "cardsAria": "Voice card list",
@@ -64,7 +66,9 @@
     "emptyGroups": "No streams match the selected categories."
   },
   "voiceCard": {
-    "infoAria": "Show source video details"
+    "infoAria": "Show source video details",
+    "playCount": "{{count}} plays",
+    "playCountAria": "{{count}} plays"
   },
   "streamGroup": {
     "dateLabel": "Date"

@@ -51,7 +51,7 @@ export interface GarageyaSlot {
   width: number
 }
 
-export type SortType = 'reading' | 'stream-desc' | 'stream-asc'
+export type SortType = 'reading' | 'stream-desc' | 'stream-asc' | 'play-count'
 export type PlaybackMode = 'single' | 'garageya'
 
 const dataModules = import.meta.glob<VoiceData>('../public/data/*.json', {

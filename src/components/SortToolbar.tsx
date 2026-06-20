@@ -38,6 +38,14 @@ export function SortToolbar({ sortType, onChangeSortType }: SortToolbarProps) {
         >
           ↑ {t('sort.streamAsc', {}, locale)}
         </button>
+        <button
+          type="button"
+          className={`sort-chip ${sortType === 'play-count' ? 'is-active' : ''}`}
+          onClick={() => onChangeSortType('play-count')}
+          aria-pressed={sortType === 'play-count'}
+        >
+          ↓ {t('sort.playCount', {}, locale)}
+        </button>
       </div>
     </section>
   )

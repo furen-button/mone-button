@@ -6,6 +6,7 @@ type VoiceListProps = {
   sortType: SortType
   sortedClips: VoiceClip[]
   streamGroups: StreamGroup[]
+  playCounts: Record<string, number>
   onPlayClip: (clip: VoiceClip) => void
   onOpenInfo: (clip: VoiceClip) => void
   onClickStreamGroupLink: (group: StreamGroup) => void
@@ -13,10 +14,12 @@ type VoiceListProps = {
 
 function VoiceCard({
   clip,
+  playCount,
   onPlayClip,
   onOpenInfo,
 }: {
   clip: VoiceClip
+  playCount: number
   onPlayClip: (clip: VoiceClip) => void
   onOpenInfo: (clip: VoiceClip) => void
 }) {
@@ -28,6 +31,9 @@ function VoiceCard({
         <span className="voice-card-text">{clip.serif}</span>
         <span className="voice-card-sub">{clip.categories.join(' / ')}</span>
       </button>
+      <span className="voice-card-count" aria-label={t('voiceCard.playCountAria', { count: playCount }, locale)}>
+        {t('voiceCard.playCount', { count: playCount.toLocaleString() }, locale)}
+      </span>
       <button
         type="button"
         className="voice-card-info"
@@ -44,18 +50,25 @@ export function VoiceList({
   sortType,
   sortedClips,
   streamGroups,
+  playCounts,
   onPlayClip,
   onOpenInfo,
   onClickStreamGroupLink,
 }: VoiceListProps) {
   const locale = useLocale()
 
-  if (sortType === 'reading') {
+  if (sortType === 'reading' || sortType === 'play-count') {
     return (
       <section className="voice-grid" aria-label={t('voiceList.cardsAria', {}, locale)}>
         {sortedClips.length > 0 ? (
           sortedClips.map((clip) => (
-            <VoiceCard key={clip.fileBaseName} clip={clip} onPlayClip={onPlayClip} onOpenInfo={onOpenInfo} />
+            <VoiceCard
+              key={clip.fileBaseName}
+              clip={clip}
+              playCount={playCounts[clip.fileBaseName] ?? 0}
+              onPlayClip={onPlayClip}
+              onOpenInfo={onOpenInfo}
+            />
           ))
         ) : (
           <p className="empty-state">{t('voiceList.emptyClips', {}, locale)}</p>
@@ -83,7 +96,13 @@ export function VoiceList({
             </header>
             <div className="voice-grid">
               {group.clips.map((clip) => (
-                <VoiceCard key={clip.fileBaseName} clip={clip} onPlayClip={onPlayClip} onOpenInfo={onOpenInfo} />
+                <VoiceCard
+                  key={clip.fileBaseName}
+                  clip={clip}
+                  playCount={playCounts[clip.fileBaseName] ?? 0}
+                  onPlayClip={onPlayClip}
+                  onOpenInfo={onOpenInfo}
+                />
               ))}
             </div>
           </article>

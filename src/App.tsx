@@ -24,6 +24,7 @@ import {
   type AnalyticsConsent,
   type PlaybackStartSource,
 } from './lib/analytics'
+import { incrementPlayCount, subscribePerClipCounts, subscribePlayCount } from './lib/playCount'
 import {
   VOLUME_STORAGE_KEY,
   categoryCounts,
@@ -56,6 +57,8 @@ function App() {
   const [isSequentialMode, setIsSequentialMode] = useState(false)
   const [playbackMode, setPlaybackMode] = useState<PlaybackMode>('single')
   const [infoClip, setInfoClip] = useState<VoiceClip | null>(null)
+  const [totalPlays, setTotalPlays] = useState<number | null>(null)
+  const [playCounts, setPlayCounts] = useState<Record<string, number>>({})
   const [sortType, setSortType] = useState<SortType>('reading')
   const [analyticsConsent, setAnalyticsConsentState] = useState<AnalyticsConsent>(() => getAnalyticsConsent())
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => categoryOptions)
@@ -158,6 +161,15 @@ function App() {
   }, [])
 
   useEffect(() => {
+    const unsubscribeTotal = subscribePlayCount(setTotalPlays)
+    const unsubscribePerClip = subscribePerClipCounts(setPlayCounts)
+    return () => {
+      unsubscribeTotal()
+      unsubscribePerClip()
+    }
+  }, [])
+
+  useEffect(() => {
     if (analyticsConsent !== 'granted') {
       return
     }
@@ -211,6 +223,17 @@ function App() {
         return clips.sort((a, b) => a.ruby.localeCompare(b.ruby, 'ja'))
       }
 
+      if (sortType === 'play-count') {
+        return clips.sort((a, b) => {
+          const countDiff = (playCounts[b.fileBaseName] ?? 0) - (playCounts[a.fileBaseName] ?? 0)
+          if (countDiff !== 0) {
+            return countDiff
+          }
+
+          return a.ruby.localeCompare(b.ruby, 'ja')
+        })
+      }
+
       const direction = sortType === 'stream-desc' ? -1 : 1
       return clips.sort((a, b) => {
         const dateA = a.videoFile.metadata.uploadDate
@@ -232,11 +255,11 @@ function App() {
         return a.serif.localeCompare(b.serif, 'ja')
       })
     },
-    [sortType, visibleClips],
+    [sortType, visibleClips, playCounts],
   )
 
   const streamGroups = useMemo(() => {
-    if (sortType === 'reading') {
+    if (sortType !== 'stream-desc' && sortType !== 'stream-asc') {
       return []
     }
 
@@ -336,6 +359,7 @@ function App() {
     const nextClip = sortedClips[normalized]
 
     trackPlaybackStart(nextClip, 'single', sourceAction)
+    incrementPlayCount(nextClip.fileBaseName)
     setFloatingClips((current) => {
       const nextFloatingClip = createFloatingClip(nextClip, 320)
       return replaceCurrent ? [nextFloatingClip] : [...current, nextFloatingClip]
@@ -401,6 +425,7 @@ function App() {
         playbackMode,
         playbackMode === 'garageya' ? 'sequential_garageya' : 'sequential_single',
       )
+      incrementPlayCount(nextClip.fileBaseName)
 
       return [...remainingClips, createFloatingClip(nextClip, 320)]
     })
@@ -530,6 +555,9 @@ function App() {
         </div>
         <h1>{t('app.title', {}, locale)}</h1>
         <p className="app-copy">{t('app.copy', {}, locale)}</p>
+        {totalPlays !== null ? (
+          <p className="app-total-plays">{t('app.totalPlays', { count: totalPlays.toLocaleString() }, locale)}</p>
+        ) : null}
       </header>
 
       <LocaleProvider value={locale}>
@@ -566,6 +594,7 @@ function App() {
           sortType={sortType}
           sortedClips={sortedClips}
           streamGroups={streamGroups}
+          playCounts={playCounts}
           onPlayClip={showClip}
           onOpenInfo={setInfoClip}
           onClickStreamGroupLink={handleStreamGroupLinkClick}
