@@ -493,6 +493,16 @@ function App() {
     trackYoutubeLinkClick('channel', 'app_guide', 'https://www.youtube.com/@KozueMone')
   }, [])
 
+  const totalPlaysParts = useMemo(() => {
+    if (totalPlays === null) {
+      return null
+    }
+
+    const countText = totalPlays.toLocaleString()
+    const [before = '', after = ''] = t('app.totalPlays', { count: countText }, locale).split(countText)
+    return { countText, before, after }
+  }, [totalPlays, locale])
+
   return (
     <main className="app-shell" ref={appShellRef}>
       {!isLocaleReady ? (
@@ -555,8 +565,14 @@ function App() {
         </div>
         <h1>{t('app.title', {}, locale)}</h1>
         <p className="app-copy">{t('app.copy', {}, locale)}</p>
-        {totalPlays !== null ? (
-          <p className="app-total-plays">{t('app.totalPlays', { count: totalPlays.toLocaleString() }, locale)}</p>
+        {totalPlaysParts ? (
+          <p className="app-total-plays">
+            {totalPlaysParts.before}
+            <span className="app-total-plays-count" key={totalPlaysParts.countText}>
+              {totalPlaysParts.countText}
+            </span>
+            {totalPlaysParts.after}
+          </p>
         ) : null}
       </header>
 

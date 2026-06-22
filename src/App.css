@@ -713,11 +713,43 @@
 }
 
 .app-total-plays {
-  margin: 8px 0 0;
+  margin: 12px 0 0;
+  text-align: center;
   color: rgba(255, 248, 242, 0.82);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.04em;
+}
+
+.app-total-plays-count {
+  display: inline-block;
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+  color: #ffd9ec;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 18px rgba(255, 198, 226, 0.5);
+  transform-origin: center bottom;
+  animation: totalPlaysPop 520ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes totalPlaysPop {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.22);
+    text-shadow: 0 0 26px rgba(255, 198, 226, 0.85);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-total-plays-count {
+    animation: none;
+  }
 }
 
 .voice-card-count {
