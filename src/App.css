@@ -75,6 +75,21 @@
 
 .app-header {
   margin-bottom: 20px;
+  --app-title-height: 96px;
+}
+
+.app-header h1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--app-title-height);
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .app-header {
+    --app-title-height: 72px;
+  }
 }
 
 .app-header-top {
