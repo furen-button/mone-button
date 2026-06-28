@@ -300,17 +300,17 @@ function main() {
   const showSerif = getBool(opts, 'serif', true);
   const showTime = getBool(opts, 'time', true);
 
-  const titleAlign = resolveAlign(getOpt(opts, 'title-pos', 'top-center'), '--title-pos');
-  const dateAlign = resolveAlign(getOpt(opts, 'date-pos', 'top-right'), '--date-pos');
+  const titleAlign = resolveAlign(getOpt(opts, 'title-pos', 'top-left'), '--title-pos');
+  const dateAlign = resolveAlign(getOpt(opts, 'date-pos', 'top-left'), '--date-pos');
   const serifAlign = resolveAlign(getOpt(opts, 'serif-pos', 'bottom-center'), '--serif-pos');
-  const timeAlign = resolveAlign(getOpt(opts, 'time-pos', 'bottom-right'), '--time-pos');
+  const timeAlign = resolveAlign(getOpt(opts, 'time-pos', 'bottom-left'), '--time-pos');
 
   // 解像度基準のフォントサイズ・余白
   const sizes = {
-    title: Math.round(height * 0.060),
-    date: Math.round(height * 0.042),
+    title: Math.round(height * 0.030),
+    date: Math.round(height * 0.030),
     time: Math.round(height * 0.042),
-    serif: Math.round(height * 0.058),
+    serif: Math.round(height * 0.080),
   };
   const marginV = Math.round(height * 0.045);
   const marginH = Math.round(width * 0.035);
