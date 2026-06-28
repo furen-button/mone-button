@@ -12,7 +12,8 @@
     "sync": "node scripts/sync.js",
     "extract": "node scripts/extract.js",
     "download": "node scripts/download.js",
-    "import": "npm run sync && npm run extract && npm run download"
+    "import": "npm run sync && npm run extract && npm run download",
+    "createVideo": "node scripts/create-video.js"
   },
   "dependencies": {
     "firebase": "^12.15.0",
