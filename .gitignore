@@ -27,3 +27,7 @@ raw/*
 !raw/.gitkeep
 
 tmp
+
+# createVideo の高画質キャッシュと生成物
+cache
+output

@@ -74,6 +74,40 @@ npm run import   # sync → extract → download を一括実行
 
 詳細は docs/tasks/06-19-clip-import.md を参照。
 
+## クリップ結合（createVideo）
+
+指定した videoId の全クリップを 1 本の動画に結合し、テロップ（タイトル / 日付 / セリフ / 元動画タイムスタンプ）を焼き込む。
+
+```
+npm run createVideo -- --videoId gr9WJDYS_u0
+```
+
+- 対象クリップは `public/data/` のファイル名に `-<videoId>-` を含む JSON を `trimming.startTime` 昇順で結合する。
+- 出力は `output/<YYYY-MM-DD>-<videoId>-combined.mp4`（`--out` で上書き可）。`cache/` と `output/` は .gitignore 済み。
+- 実装は `scripts/create-video.js`。テロップは全要素を 1 つの `.ass` 字幕にまとめ `subtitles=`(libass) で焼き込む。長文は表示幅で自動折り返しする。
+
+### オプション
+
+| オプション | 既定 | 説明 |
+|---|---|---|
+| `--videoId <id>` | （必須） | 対象 videoId |
+| `--source <existing\|cache>` | `existing` | `existing`=既存 `public/videos/*.mp4`(200p)を再利用 / `cache`=高画質DLして `cache/createVideo/<videoId>/` に保存し再実行時は再利用 |
+| `--title <text>` / `--no-title` | メタタイトル（絵文字除去） | タイトル文言 / 非表示 |
+| `--date` / `--no-date` | 表示 | 日付の有無 |
+| `--serif` / `--no-serif` | 表示 | セリフの有無 |
+| `--time` / `--no-time` | 表示 | 時間（元動画タイムスタンプ）の有無 |
+| `--title-pos` / `--date-pos` / `--serif-pos` / `--time-pos` | 上中央 / 右上 / 下中央 / 右下 | 9 分割位置 |
+| `--out <path>` | `output/...` | 出力先 |
+| `--resolution <WxH>` | `1280x720` | 出力解像度 |
+| `--font <name>` | `Hiragino Sans` | テロップフォント（fontconfig 名） |
+
+`<anchor>` は `top-left, top-center, top-right, middle-left, center, middle-right, bottom-left, bottom-center, bottom-right`。
+
+注意:
+- npm の仕様上、引数は `--` の後に渡す（`--videoId=...` 形式の `npm_config_*` フォールバックにも対応）。
+- テロップ焼き込みには `subtitles`(libass) 対応の ffmpeg が必要。通常の Homebrew `ffmpeg` は非対応のため `brew install ffmpeg-full` を導入する（keg-only。既存 ffmpeg は壊さない）。スクリプトが `/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg` を自動検出し、`FFMPEG_BIN` 環境変数で上書きも可。
+- 高画質DLには yt-dlp が必要。
+
 ## ドキュメント管理
 
 - docs/draft.md - 仕様元
