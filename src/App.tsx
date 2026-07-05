@@ -1,6 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import './App.css'
+import { AmbientLayer } from './components/AmbientLayer'
 import { AnalyticsConsentBanner } from './components/AnalyticsConsentBanner'
+import { AppGuide } from './components/AppGuide'
+import { AppHeader } from './components/AppHeader'
 import { CategoryToolbar } from './components/CategoryToolbar'
 import { InfoModal } from './components/InfoModal'
 import { ClipEditModal } from './components/dev/ClipEditModal'
@@ -9,493 +12,51 @@ import { SortToolbar } from './components/SortToolbar'
 import { ToastLayer } from './components/ToastLayer'
 import { VoiceList } from './components/VoiceList'
 import { VolumeDock } from './components/VolumeDock'
-import { LocaleProvider, loadLocale, localeOptions, t, type Locale } from './i18n'
+import { useAnalyticsConsent } from './hooks/useAnalyticsConsent'
+import { useCategoryFilter } from './hooks/useCategoryFilter'
+import { useClipCollection } from './hooks/useClipCollection'
+import { useLocaleController } from './hooks/useLocaleController'
+import { usePlayback } from './hooks/usePlayback'
+import { usePlayCounts } from './hooks/usePlayCounts'
+import { useVolume } from './hooks/useVolume'
+import { LocaleProvider } from './i18n'
+import { trackSortChange, trackYoutubeLinkClick } from './lib/analytics'
 import {
-  getAnalyticsConsent,
-  isAnalyticsConfigured,
-  initializeAnalytics,
-  setAnalyticsConsent,
-  trackCategoryToggle,
-  trackPageView,
-  trackPlaybackStart,
-  trackSequentialAdvance,
-  trackSequentialToggle,
-  trackSortChange,
-  trackYoutubeLinkClick,
-  type AnalyticsConsent,
-  type PlaybackStartSource,
-} from './lib/analytics'
-import { incrementPlayCount, subscribePerClipCounts, subscribePlayCount } from './lib/playCount'
-import {
-  VOLUME_STORAGE_KEY,
   categoryCounts,
   categoryOptions,
-  type FloatingStageClip,
-  type PlaybackMode,
   type SortType,
   type StreamGroup,
   type VoiceClip,
   type VoiceData,
-  voiceClips,
 } from './voiceData'
-
-const LOCALE_STORAGE_KEY = 'mone-button-locale'
 
 // npm run dev のときだけ有効なクリップ編集機能のフラグ。本番ビルドでは false に畳まれ、
 // ClipEditModal を含む編集 UI は tree-shake で除去される。
 const enableDevEditor = import.meta.env.DEV
 
 function App() {
-  const [locale, setLocale] = useState<Locale>(() => {
-    const saved = window.localStorage.getItem(LOCALE_STORAGE_KEY)
+  const appShellRef = useRef<HTMLElement>(null)
 
-    if (saved === 'ja' || saved === 'en') {
-      return saved
-    }
+  const { locale, isLocaleReady, changeLocale } = useLocaleController()
+  const { totalPlays, playCounts } = usePlayCounts()
+  const { shouldShowBanner, acceptConsent, declineConsent } = useAnalyticsConsent()
+  const { selectedCategories, toggleCategory, selectAllCategories, clearAllCategories } = useCategoryFilter()
 
-    return 'ja'
+  const [sortType, setSortType] = useState<SortType>('reading')
+  const { sortedClips, streamGroups, clipIndexMap, applyClipOverride } = useClipCollection({
+    selectedCategories,
+    sortType,
+    playCounts,
   })
-  const [isLocaleReady, setIsLocaleReady] = useState(false)
-  const [floatingClips, setFloatingClips] = useState<FloatingStageClip[]>([])
-  const [isStopping, setIsStopping] = useState(false)
-  const [sparkKey, setSparkKey] = useState(0)
-  const [garageyaKey, setGarageyaKey] = useState(0)
-  const [isSequentialMode, setIsSequentialMode] = useState(false)
-  const [playbackMode, setPlaybackMode] = useState<PlaybackMode>('single')
+  const playback = usePlayback({ sortedClips, clipIndexMap, appShellRef })
+  const { volume, setVolume } = useVolume(appShellRef, playback.floatingClips)
+
   const [infoClip, setInfoClip] = useState<VoiceClip | null>(null)
   const [editClip, setEditClip] = useState<VoiceClip | null>(null)
-  const [clipOverrides, setClipOverrides] = useState<Record<string, VoiceData>>({})
-  const [totalPlays, setTotalPlays] = useState<number | null>(null)
-  const [playCounts, setPlayCounts] = useState<Record<string, number>>({})
-  const [sortType, setSortType] = useState<SortType>('reading')
-  const [analyticsConsent, setAnalyticsConsentState] = useState<AnalyticsConsent>(() => getAnalyticsConsent())
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(() => categoryOptions)
-  const [volume, setVolume] = useState<number>(() => {
-    const saved = window.localStorage.getItem(VOLUME_STORAGE_KEY)
-    if (!saved) {
-      return 0.7
-    }
-
-    const parsed = Number(saved)
-    if (Number.isNaN(parsed)) {
-      return 0.7
-    }
-
-    return Math.min(1, Math.max(0, parsed))
-  })
-  const appShellRef = useRef<HTMLElement>(null)
-  const stopTimerRef = useRef<number | null>(null)
-  const localeChangeRequestRef = useRef(0)
-  const pageViewSentRef = useRef(false)
-  const shouldShowAnalyticsConsentBanner = isAnalyticsConfigured() && analyticsConsent === 'unknown'
-
-  const petals = useMemo(
-    () =>
-      Array.from({ length: 10 }, (_, index) => ({
-        id: `petal-${index}`,
-        left: `${(index * 11 + 7) % 100}%`,
-        top: `${(index * 13 + 9) % 100}%`,
-        size: `${12 + (index % 4) * 4}px`,
-        delay: `${-index * 0.8}s`,
-        duration: `${10 + (index % 3) * 2}s`,
-      })),
-    [],
-  )
-
-  const sparkles = useMemo(
-    () =>
-      Array.from({ length: 8 }, (_, index) => ({
-        id: `sparkle-${index}`,
-        left: `${(index * 17 + 12) % 100}%`,
-        top: `${(index * 19 + 8) % 100}%`,
-        size: `${6 + (index % 3) * 3}px`,
-        delay: `${-index * 0.6}s`,
-        duration: `${7 + (index % 4)}s`,
-      })),
-    [],
-  )
-
-  useEffect(() => {
-    let isActive = true
-
-    void loadLocale(locale)
-      .then(() => {
-        if (isActive) {
-          setIsLocaleReady(true)
-        }
-      })
-      .catch(() => {
-        if (isActive) {
-          setIsLocaleReady(true)
-        }
-      })
-
-    return () => {
-      isActive = false
-    }
-  }, [locale])
-
-  useEffect(() => {
-    if (!isLocaleReady) {
-      return
-    }
-
-    document.documentElement.lang = locale
-    window.localStorage.setItem(LOCALE_STORAGE_KEY, locale)
-  }, [isLocaleReady, locale])
-
-  useEffect(() => {
-    if (!isLocaleReady) {
-      return
-    }
-
-    document.title = t('app.title', {}, locale)
-  }, [isLocaleReady, locale])
-
-  useEffect(() => {
-    window.localStorage.setItem(VOLUME_STORAGE_KEY, String(volume))
-    const videos = appShellRef.current?.querySelectorAll('video') ?? []
-    videos.forEach((video) => {
-      video.volume = volume
-    })
-  }, [volume, floatingClips])
-
-  useEffect(() => {
-    return () => {
-      if (stopTimerRef.current !== null) {
-        window.clearTimeout(stopTimerRef.current)
-      }
-    }
-  }, [])
-
-  useEffect(() => {
-    const unsubscribeTotal = subscribePlayCount(setTotalPlays)
-    const unsubscribePerClip = subscribePerClipCounts(setPlayCounts)
-    return () => {
-      unsubscribeTotal()
-      unsubscribePerClip()
-    }
-  }, [])
-
-  useEffect(() => {
-    if (analyticsConsent !== 'granted') {
-      return
-    }
-
-    const initialized = initializeAnalytics()
-    if (!initialized || pageViewSentRef.current) {
-      return
-    }
-
-    trackPageView(`${window.location.pathname}${window.location.search}`)
-    pageViewSentRef.current = true
-  }, [analyticsConsent])
-
-  const cancelStopAnimation = useCallback(() => {
-    if (stopTimerRef.current !== null) {
-      window.clearTimeout(stopTimerRef.current)
-      stopTimerRef.current = null
-    }
-
-    setIsStopping(false)
-  }, [])
-
-  const handleLocaleChange = useCallback(
-    async (nextLocale: Locale) => {
-      if (nextLocale === locale) {
-        return
-      }
-
-      const requestId = ++localeChangeRequestRef.current
-      await loadLocale(nextLocale)
-
-      if (localeChangeRequestRef.current !== requestId) {
-        return
-      }
-
-      setLocale(nextLocale)
-    },
-    [locale],
-  )
-
-  // dev 編集で保存した内容をその場で反映するため、voiceClips に override をマージした一覧を使う。
-  const clips = useMemo(
-    () =>
-      voiceClips.map((clip) => {
-        const override = clipOverrides[clip.fileBaseName]
-        return override ? { ...clip, ...override } : clip
-      }),
-    [clipOverrides],
-  )
-
-  const visibleClips = useMemo(
-    () => clips.filter((clip) => clip.categories.some((category) => selectedCategories.includes(category))),
-    [clips, selectedCategories],
-  )
-
-  const sortedClips = useMemo(
-    () => {
-      const clips = [...visibleClips]
-
-      if (sortType === 'reading') {
-        return clips.sort((a, b) => a.ruby.localeCompare(b.ruby, 'ja'))
-      }
-
-      if (sortType === 'play-count') {
-        return clips.sort((a, b) => {
-          const countDiff = (playCounts[b.fileBaseName] ?? 0) - (playCounts[a.fileBaseName] ?? 0)
-          if (countDiff !== 0) {
-            return countDiff
-          }
-
-          return a.ruby.localeCompare(b.ruby, 'ja')
-        })
-      }
-
-      const direction = sortType === 'stream-desc' ? -1 : 1
-      return clips.sort((a, b) => {
-        const dateA = a.videoFile.metadata.uploadDate
-        const dateB = b.videoFile.metadata.uploadDate
-
-        if (dateA !== dateB) {
-          return dateA > dateB ? direction : -direction
-        }
-
-        if (a.videoId !== b.videoId) {
-          return a.videoId.localeCompare(b.videoId, 'ja')
-        }
-
-        const startTimeDiff = a.trimming.startTime - b.trimming.startTime
-        if (startTimeDiff !== 0) {
-          return startTimeDiff
-        }
-
-        return a.serif.localeCompare(b.serif, 'ja')
-      })
-    },
-    [sortType, visibleClips, playCounts],
-  )
-
-  const streamGroups = useMemo(() => {
-    if (sortType !== 'stream-desc' && sortType !== 'stream-asc') {
-      return []
-    }
-
-    return sortedClips.reduce<StreamGroup[]>((groups, clip) => {
-      const key = clip.videoId
-      const lastGroup = groups[groups.length - 1]
-
-      if (lastGroup && lastGroup.key === key) {
-        lastGroup.clips.push(clip)
-        return groups
-      }
-
-      groups.push({
-        key,
-        title: clip.videoFile.metadata.title,
-        uploadDate: clip.videoFile.metadata.uploadDate,
-        url: clip.videoFile.metadata.url,
-        clips: [clip],
-      })
-      return groups
-    }, [])
-  }, [sortType, sortedClips])
-
-  const clipIndexMap = useMemo(
-    () => new Map(sortedClips.map((clip, index) => [clip.fileBaseName, index])),
-    [sortedClips],
-  )
-
-  const toggleCategory = useCallback((category: string) => {
-    setSelectedCategories((current) => {
-      if (current.includes(category)) {
-        trackCategoryToggle(category, false)
-        return current.filter((item) => item !== category)
-      }
-
-      trackCategoryToggle(category, true)
-      return [...current, category].sort((a, b) => a.localeCompare(b, 'ja'))
-    })
-  }, [])
-
-  const selectAllCategories = useCallback(() => {
-    setSelectedCategories(categoryOptions)
-  }, [])
-
-  const clearAllCategories = useCallback(() => {
-    setSelectedCategories([])
-  }, [])
-
-  const createFloatingClip = useCallback((nextClip: VoiceClip, width: number) => {
-    const shellWidth = appShellRef.current?.clientWidth ?? Math.min(window.innerWidth, 700)
-    const viewportHeight = window.innerHeight
-    const safeSidePadding = 20
-    const safeTopPadding = 84
-    const safeBottomPadding = 140
-    const clampedWidth = Math.min(width, Math.max(shellWidth - safeSidePadding * 2, 220))
-
-    const cardHeight = Math.round(clampedWidth * 0.6)
-    const maxX = Math.max(shellWidth - clampedWidth - safeSidePadding * 2, 0)
-    const maxY = Math.max(viewportHeight - cardHeight - safeTopPadding - safeBottomPadding, 0)
-
-    return {
-      id: `${nextClip.fileBaseName}-${Math.random().toString(36).slice(2, 8)}`,
-      clip: nextClip,
-      left: safeSidePadding + Math.random() * maxX,
-      top: safeTopPadding + Math.random() * maxY,
-      width: clampedWidth,
-    }
-  }, [])
-
-  const getRandomClip = useCallback(
-    (excludeFileBaseName?: string) => {
-      const candidates = excludeFileBaseName
-        ? sortedClips.filter((clip) => clip.fileBaseName !== excludeFileBaseName)
-        : sortedClips
-
-      if (candidates.length === 0) {
-        return null
-      }
-
-      return candidates[Math.floor(Math.random() * candidates.length)]
-    },
-    [sortedClips],
-  )
-
-  const playClipAtIndex = useCallback((
-    index: number,
-    sourceAction: PlaybackStartSource = 'voice_card',
-    replaceCurrent = false,
-  ) => {
-    if (sortedClips.length === 0) {
-      return
-    }
-
-    cancelStopAnimation()
-
-    const normalized = ((index % sortedClips.length) + sortedClips.length) % sortedClips.length
-    const nextClip = sortedClips[normalized]
-
-    trackPlaybackStart(nextClip, 'single', sourceAction)
-    incrementPlayCount(nextClip.fileBaseName)
-    setFloatingClips((current) => {
-      const nextFloatingClip = createFloatingClip(nextClip, 320)
-      return replaceCurrent ? [nextFloatingClip] : [...current, nextFloatingClip]
-    })
-    setPlaybackMode('single')
-    setSparkKey((prev) => prev + 1)
-  }, [cancelStopAnimation, createFloatingClip, sortedClips])
-
-  const showClip = useCallback((nextClip: VoiceClip) => {
-    const index = clipIndexMap.get(nextClip.fileBaseName) ?? 0
-    playClipAtIndex(index, 'voice_card')
-  }, [clipIndexMap, playClipAtIndex])
-
-  const playRandomClip = useCallback(() => {
-    if (sortedClips.length === 0) {
-      return
-    }
-
-    const randomIndex = Math.floor(Math.random() * sortedClips.length)
-    playClipAtIndex(randomIndex, 'random_button')
-  }, [playClipAtIndex, sortedClips])
-
-  const playGarageya = useCallback(() => {
-    if (sortedClips.length === 0) {
-      return
-    }
-
-    for (let i = 0; i < 4; i += 1) {
-      const randomIndex = Math.floor(Math.random() * sortedClips.length)
-      playClipAtIndex(randomIndex, 'garageya_button')
-    }
-
-    setGarageyaKey((prev) => prev + 1)
-  }, [playClipAtIndex, sortedClips])
-
-  const handleSequentialEnded = useCallback((endedClipId?: string) => {
-    if (!endedClipId) {
-      return
-    }
-
-    setFloatingClips((currentClips) => {
-      const endedClip = currentClips.find((clip) => clip.id === endedClipId)
-
-      // Ignore duplicated ended notifications for already-removed clips.
-      if (!endedClip) {
-        return currentClips
-      }
-
-      const remainingClips = currentClips.filter((clip) => clip.id !== endedClipId)
-
-      if (!isSequentialMode || sortedClips.length === 0) {
-        return remainingClips
-      }
-
-      const nextClip = getRandomClip(endedClip?.clip.fileBaseName)
-      if (!nextClip) {
-        return remainingClips
-      }
-
-      trackSequentialAdvance(playbackMode, endedClip?.clip.fileBaseName ?? '', nextClip.fileBaseName)
-      trackPlaybackStart(
-        nextClip,
-        playbackMode,
-        playbackMode === 'garageya' ? 'sequential_garageya' : 'sequential_single',
-      )
-      incrementPlayCount(nextClip.fileBaseName)
-
-      return [...remainingClips, createFloatingClip(nextClip, 320)]
-    })
-  }, [createFloatingClip, getRandomClip, isSequentialMode, playbackMode, sortedClips.length])
-
-  const handleToastClose = useCallback((clipId: string) => {
-    setFloatingClips((currentClips) => currentClips.filter((clip) => clip.id !== clipId))
-  }, [])
-
-  const stopPlayback = useCallback(() => {
-    if (stopTimerRef.current !== null) {
-      window.clearTimeout(stopTimerRef.current)
-    }
-
-    const videos = appShellRef.current?.querySelectorAll('video') ?? []
-    videos.forEach((video) => {
-      video.pause()
-      video.currentTime = 0
-    })
-
-    setIsSequentialMode(false)
-    setPlaybackMode('single')
-    setIsStopping(true)
-
-    stopTimerRef.current = window.setTimeout(() => {
-      setFloatingClips([])
-      setIsStopping(false)
-      stopTimerRef.current = null
-    }, 180)
-  }, [])
-
-  const handleToggleSequentialMode = useCallback(() => {
-    setIsSequentialMode((prev) => {
-      const nextValue = !prev
-      trackSequentialToggle(nextValue, playbackMode)
-      return nextValue
-    })
-  }, [playbackMode])
 
   const handleSortChange = useCallback((nextSortType: SortType) => {
     setSortType(nextSortType)
     trackSortChange(nextSortType)
-  }, [])
-
-  const handleConsentAccept = useCallback(() => {
-    setAnalyticsConsent(true)
-    setAnalyticsConsentState('granted')
-  }, [])
-
-  const handleConsentDecline = useCallback(() => {
-    setAnalyticsConsent(false)
-    setAnalyticsConsentState('denied')
   }, [])
 
   const handleInfoModalLinkClick = useCallback((linkType: 'clip' | 'source_video', clip: VoiceClip) => {
@@ -503,31 +64,20 @@ function App() {
     trackYoutubeLinkClick(linkType, 'info_modal', targetUrl, clip.videoId)
   }, [])
 
-  // dev 編集の保存結果をローカル state へ反映（一覧・情報モーダルに即時反映）。
-  const handleClipSaved = useCallback((fileBaseName: string, updated: VoiceData) => {
-    setClipOverrides((current) => ({ ...current, [fileBaseName]: updated }))
-    setInfoClip((current) =>
-      current && current.fileBaseName === fileBaseName ? { ...current, ...updated } : current,
-    )
-  }, [])
-
   const handleStreamGroupLinkClick = useCallback((group: StreamGroup) => {
     trackYoutubeLinkClick('source_video', 'voice_group', group.url, group.key)
   }, [])
 
-  const handleGuideChannelClick = useCallback(() => {
-    trackYoutubeLinkClick('channel', 'app_guide', 'https://www.youtube.com/@KozueMone')
-  }, [])
-
-  const totalPlaysParts = useMemo(() => {
-    if (totalPlays === null) {
-      return null
-    }
-
-    const countText = totalPlays.toLocaleString()
-    const [before = '', after = ''] = t('app.totalPlays', { count: countText }, locale).split(countText)
-    return { countText, before, after }
-  }, [totalPlays, locale])
+  // dev 編集の保存結果をローカル state へ反映（一覧・情報モーダルに即時反映）。
+  const handleClipSaved = useCallback(
+    (fileBaseName: string, updated: VoiceData) => {
+      applyClipOverride(fileBaseName, updated)
+      setInfoClip((current) =>
+        current && current.fileBaseName === fileBaseName ? { ...current, ...updated } : current,
+      )
+    },
+    [applyClipOverride],
+  )
 
   return (
     <main className="app-shell" ref={appShellRef}>
@@ -539,194 +89,79 @@ function App() {
 
       {isLocaleReady ? (
         <>
-      <div className="ambient-layer" aria-hidden="true">
-        {petals.map((petal) => (
-          <span
-            className="petal"
-            key={petal.id}
-            style={{
-              left: petal.left,
-              top: petal.top,
-              width: petal.size,
-              height: petal.size,
-              animationDelay: petal.delay,
-              animationDuration: petal.duration,
-            }}
-          />
-        ))}
-        {sparkles.map((sparkle) => (
-          <span
-            className="sparkle"
-            key={sparkle.id}
-            style={{
-              left: sparkle.left,
-              top: sparkle.top,
-              width: sparkle.size,
-              height: sparkle.size,
-              animationDelay: sparkle.delay,
-              animationDuration: sparkle.duration,
-            }}
-          />
-        ))}
-      </div>
+          <AmbientLayer />
 
-      <header className="app-header">
-        <div className="app-header-top">
-          <p className="app-kicker">{t('app.siteName', {}, locale)}</p>
-          <div className="language-switch" role="group" aria-label={t('app.language.label', {}, locale)}>
-            {localeOptions.map((option) => (
-              <button
-                key={option}
-                type="button"
-                className={`language-chip ${locale === option ? 'is-active' : ''}`}
-                onClick={() => {
-                  void handleLocaleChange(option)
-                }}
-                aria-pressed={locale === option}
-              >
-                {t(`app.language.${option}`, {}, locale)}
-              </button>
-            ))}
-          </div>
-        </div>
-        <h1>{t('app.title', {}, locale)}</h1>
-        <p className="app-copy">{t('app.copy', {}, locale)}</p>
-        {totalPlaysParts ? (
-          <p className="app-total-plays">
-            {totalPlaysParts.before}
-            <span className="app-total-plays-count" key={totalPlaysParts.countText}>
-              {totalPlaysParts.countText}
-            </span>
-            {totalPlaysParts.after}
-          </p>
-        ) : null}
-      </header>
+          <AppHeader locale={locale} onChangeLocale={changeLocale} totalPlays={totalPlays} />
 
-      <LocaleProvider value={locale}>
-        <PlaybackControls
-          sparkKey={sparkKey}
-          garageyaKey={garageyaKey}
-          isSequentialMode={isSequentialMode}
-          onPlayRandom={playRandomClip}
-          onPlayGarageya={playGarageya}
-          onStop={stopPlayback}
-          onToggleSequentialMode={handleToggleSequentialMode}
-        />
+          <LocaleProvider value={locale}>
+            <PlaybackControls
+              sparkKey={playback.sparkKey}
+              garageyaKey={playback.garageyaKey}
+              isSequentialMode={playback.isSequentialMode}
+              onPlayRandom={playback.playRandom}
+              onPlayGarageya={playback.playGarageya}
+              onStop={playback.stop}
+              onToggleSequentialMode={playback.toggleSequential}
+            />
 
-        <ToastLayer
-          floatingClips={floatingClips}
-          volume={volume}
-          isStopping={isStopping}
-          onClipEnded={handleSequentialEnded}
-          onCloseClip={handleToastClose}
-        />
+            <ToastLayer
+              floatingClips={playback.floatingClips}
+              volume={volume}
+              isStopping={playback.isStopping}
+              onClipEnded={playback.handleSequentialEnded}
+              onCloseClip={playback.handleToastClose}
+            />
 
-        <CategoryToolbar
-          categoryOptions={categoryOptions}
-          categoryCounts={categoryCounts}
-          selectedCategories={selectedCategories}
-          onSelectAll={selectAllCategories}
-          onClearAll={clearAllCategories}
-          onToggleCategory={toggleCategory}
-        />
+            <CategoryToolbar
+              categoryOptions={categoryOptions}
+              categoryCounts={categoryCounts}
+              selectedCategories={selectedCategories}
+              onSelectAll={selectAllCategories}
+              onClearAll={clearAllCategories}
+              onToggleCategory={toggleCategory}
+            />
 
-        <SortToolbar sortType={sortType} onChangeSortType={handleSortChange} />
+            <SortToolbar sortType={sortType} onChangeSortType={handleSortChange} />
 
-        <VoiceList
-          sortType={sortType}
-          sortedClips={sortedClips}
-          streamGroups={streamGroups}
-          playCounts={playCounts}
-          onPlayClip={showClip}
-          onOpenInfo={setInfoClip}
-          onClickStreamGroupLink={handleStreamGroupLinkClick}
-        />
+            <VoiceList
+              sortType={sortType}
+              sortedClips={sortedClips}
+              streamGroups={streamGroups}
+              playCounts={playCounts}
+              onPlayClip={playback.playClip}
+              onOpenInfo={setInfoClip}
+              onClickStreamGroupLink={handleStreamGroupLinkClick}
+            />
 
-        <section className="app-guide" aria-label={t('app.guide.section', {}, locale)}>
-          <p className="app-guide-line">
-            <a
-              className="app-guide-link"
-              href="https://www.youtube.com/@KozueMone"
-              target="_blank"
-              rel="noreferrer"
-              onClick={handleGuideChannelClick}
-            >
-              {t('app.guide.channel', {}, locale)}
-            </a>
-          </p>
-          <p className="app-guide-line">{t('app.guide.infoHint', {}, locale)}</p>
-          <p className="app-guide-line">
-            {t('app.guide.homageLead', {}, locale)}
-            <a
-              className="app-guide-link"
-              href="http://ushiumi.ichiya-boshi.net"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {t('app.guide.ushiumiButton', {}, locale)}
-            </a>
-            {t('app.guide.homageMiddle', {}, locale)}
-            <a
-              className="app-guide-link"
-              href="https://wikiwiki.jp/nijisanji/%E2%97%8B%E2%97%8B%E3%83%9C%E3%82%BF%E3%83%B3"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {t('app.guide.variousButtons', {}, locale)}
-            </a>
-            {t('app.guide.homageTrail', {}, locale)}
-          </p>
-          <p className="app-guide-line">
-            <a
-              className="app-guide-link"
-              href="https://www.anycolor.co.jp/guidelines/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {t('app.guide.anycolorGuideline', {}, locale)}
-            </a>
-            {t('app.guide.guidelineNote', {}, locale)}
-          </p>
-          <p className="app-guide-line">
-            {t('app.guide.relatedLead', {}, locale)}
-            <a className="app-guide-link" href="https://www.youtube.com/@master-j-abc" target="_blank" rel="noreferrer">
-              YouTube
-            </a>
-            ,{' '}
-            <a className="app-guide-link" href="https://twitter.com/hero_master_j" target="_blank" rel="noreferrer">
-              Twitter(X)
-            </a>
-            {t('app.guide.relatedTrail', {}, locale)}
-          </p>
-        </section>
+            <AppGuide />
 
-        {infoClip ? (
-          <InfoModal
-            clip={infoClip}
-            onClose={() => setInfoClip(null)}
-            onClickClipLink={handleInfoModalLinkClick}
-            onClickSourceVideoLink={handleInfoModalLinkClick}
-            onEdit={enableDevEditor ? setEditClip : undefined}
-          />
-        ) : null}
+            {infoClip ? (
+              <InfoModal
+                clip={infoClip}
+                onClose={() => setInfoClip(null)}
+                onClickClipLink={handleInfoModalLinkClick}
+                onClickSourceVideoLink={handleInfoModalLinkClick}
+                onEdit={enableDevEditor ? setEditClip : undefined}
+              />
+            ) : null}
 
-        {enableDevEditor && editClip ? (
-          <ClipEditModal
-            clip={editClip}
-            categorySuggestions={categoryOptions}
-            onClose={() => setEditClip(null)}
-            onSaved={handleClipSaved}
-          />
-        ) : null}
+            {enableDevEditor && editClip ? (
+              <ClipEditModal
+                clip={editClip}
+                categorySuggestions={categoryOptions}
+                onClose={() => setEditClip(null)}
+                onSaved={handleClipSaved}
+              />
+            ) : null}
 
-        {shouldShowAnalyticsConsentBanner ? (
-          <AnalyticsConsentBanner onAccept={handleConsentAccept} onDecline={handleConsentDecline} />
-        ) : null}
+            {shouldShowBanner ? (
+              <AnalyticsConsentBanner onAccept={acceptConsent} onDecline={declineConsent} />
+            ) : null}
 
-        <VolumeDock volume={volume} onChangeVolume={setVolume} />
-      </LocaleProvider>
-          </>
-        ) : null}
+            <VolumeDock volume={volume} onChangeVolume={setVolume} />
+          </LocaleProvider>
+        </>
+      ) : null}
     </main>
   )
 }
