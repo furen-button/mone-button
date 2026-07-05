@@ -3,6 +3,7 @@ import './App.css'
 import { AnalyticsConsentBanner } from './components/AnalyticsConsentBanner'
 import { CategoryToolbar } from './components/CategoryToolbar'
 import { InfoModal } from './components/InfoModal'
+import { ClipEditModal } from './components/dev/ClipEditModal'
 import { PlaybackControls } from './components/PlaybackControls'
 import { SortToolbar } from './components/SortToolbar'
 import { ToastLayer } from './components/ToastLayer'
@@ -34,10 +35,15 @@ import {
   type SortType,
   type StreamGroup,
   type VoiceClip,
+  type VoiceData,
   voiceClips,
 } from './voiceData'
 
 const LOCALE_STORAGE_KEY = 'mone-button-locale'
+
+// npm run dev のときだけ有効なクリップ編集機能のフラグ。本番ビルドでは false に畳まれ、
+// ClipEditModal を含む編集 UI は tree-shake で除去される。
+const enableDevEditor = import.meta.env.DEV
 
 function App() {
   const [locale, setLocale] = useState<Locale>(() => {
@@ -57,6 +63,8 @@ function App() {
   const [isSequentialMode, setIsSequentialMode] = useState(false)
   const [playbackMode, setPlaybackMode] = useState<PlaybackMode>('single')
   const [infoClip, setInfoClip] = useState<VoiceClip | null>(null)
+  const [editClip, setEditClip] = useState<VoiceClip | null>(null)
+  const [clipOverrides, setClipOverrides] = useState<Record<string, VoiceData>>({})
   const [totalPlays, setTotalPlays] = useState<number | null>(null)
   const [playCounts, setPlayCounts] = useState<Record<string, number>>({})
   const [sortType, setSortType] = useState<SortType>('reading')
@@ -210,9 +218,19 @@ function App() {
     [locale],
   )
 
+  // dev 編集で保存した内容をその場で反映するため、voiceClips に override をマージした一覧を使う。
+  const clips = useMemo(
+    () =>
+      voiceClips.map((clip) => {
+        const override = clipOverrides[clip.fileBaseName]
+        return override ? { ...clip, ...override } : clip
+      }),
+    [clipOverrides],
+  )
+
   const visibleClips = useMemo(
-    () => voiceClips.filter((clip) => clip.categories.some((category) => selectedCategories.includes(category))),
-    [selectedCategories],
+    () => clips.filter((clip) => clip.categories.some((category) => selectedCategories.includes(category))),
+    [clips, selectedCategories],
   )
 
   const sortedClips = useMemo(
@@ -485,6 +503,14 @@ function App() {
     trackYoutubeLinkClick(linkType, 'info_modal', targetUrl, clip.videoId)
   }, [])
 
+  // dev 編集の保存結果をローカル state へ反映（一覧・情報モーダルに即時反映）。
+  const handleClipSaved = useCallback((fileBaseName: string, updated: VoiceData) => {
+    setClipOverrides((current) => ({ ...current, [fileBaseName]: updated }))
+    setInfoClip((current) =>
+      current && current.fileBaseName === fileBaseName ? { ...current, ...updated } : current,
+    )
+  }, [])
+
   const handleStreamGroupLinkClick = useCallback((group: StreamGroup) => {
     trackYoutubeLinkClick('source_video', 'voice_group', group.url, group.key)
   }, [])
@@ -680,6 +706,16 @@ function App() {
             onClose={() => setInfoClip(null)}
             onClickClipLink={handleInfoModalLinkClick}
             onClickSourceVideoLink={handleInfoModalLinkClick}
+            onEdit={enableDevEditor ? setEditClip : undefined}
+          />
+        ) : null}
+
+        {enableDevEditor && editClip ? (
+          <ClipEditModal
+            clip={editClip}
+            categorySuggestions={categoryOptions}
+            onClose={() => setEditClip(null)}
+            onSaved={handleClipSaved}
           />
         ) : null}
 

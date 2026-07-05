@@ -712,6 +712,244 @@
   cursor: pointer;
 }
 
+.info-modal-edit {
+  align-self: flex-start;
+  border: 1px dashed #b78bd8;
+  border-radius: 999px;
+  background: #f6efff;
+  color: #6a3fb0;
+  font-weight: 700;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.info-modal-edit:hover {
+  background: #efe3ff;
+}
+
+/* dev 限定: クリップ編集モーダル（本番ビルドには含まれない） */
+.clip-edit-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(27, 18, 11, 0.45);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 300;
+}
+
+.clip-edit-modal {
+  width: min(560px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 16px;
+  background: #fffaf4;
+  border: 1px solid #e6d8c7;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.25);
+  padding: 18px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.clip-edit-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.clip-edit-title {
+  margin: 0;
+  font-size: 19px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.clip-edit-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6a3fb0;
+  background: #f0e6ff;
+  border: 1px solid #d9c2f2;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.clip-edit-filename {
+  margin: 0;
+  color: #8a6a52;
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.clip-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.clip-edit-label {
+  color: #7a5a44;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.clip-edit-input,
+.clip-edit-textarea {
+  width: 100%;
+  border: 1px solid #d5c2ab;
+  border-radius: 10px;
+  background: #fff;
+  color: #3e2514;
+  font-size: 15px;
+  padding: 9px 11px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.clip-edit-textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.clip-edit-input:focus,
+.clip-edit-textarea:focus {
+  outline: none;
+  border-color: #b78bd8;
+  box-shadow: 0 0 0 3px rgba(183, 139, 216, 0.25);
+}
+
+.clip-edit-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.clip-edit-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fdf0e2;
+  border: 1px solid #e6c9a8;
+  border-radius: 999px;
+  color: #6b4423;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 6px 4px 12px;
+}
+
+.clip-edit-chip-remove {
+  border: none;
+  background: #e6c9a8;
+  color: #6b4423;
+  border-radius: 999px;
+  width: 18px;
+  height: 18px;
+  line-height: 1;
+  cursor: pointer;
+  font-size: 13px;
+  display: grid;
+  place-items: center;
+}
+
+.clip-edit-chips-empty {
+  color: #a08a78;
+  font-size: 13px;
+}
+
+.clip-edit-category-add {
+  display: flex;
+  gap: 8px;
+}
+
+.clip-edit-add-button {
+  flex-shrink: 0;
+  border: 1px solid #d5c2ab;
+  border-radius: 10px;
+  background: #fff;
+  color: #402614;
+  font-weight: 700;
+  padding: 0 14px;
+  cursor: pointer;
+}
+
+.clip-edit-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.clip-edit-suggestions-label {
+  color: #a08a78;
+  font-size: 12px;
+}
+
+.clip-edit-suggestion {
+  border: 1px dashed #d5c2ab;
+  border-radius: 999px;
+  background: transparent;
+  color: #7a5a44;
+  font-size: 12px;
+  padding: 3px 9px;
+  cursor: pointer;
+}
+
+.clip-edit-suggestion:hover {
+  background: #fdf0e2;
+}
+
+.clip-edit-status {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 9px 11px;
+}
+
+.clip-edit-status.is-saved {
+  background: #e8f6ea;
+  color: #2f7a3e;
+}
+
+.clip-edit-status.is-error {
+  background: #fbe9e7;
+  color: #b3402b;
+}
+
+.clip-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.clip-edit-cancel {
+  border: 1px solid #d5c2ab;
+  border-radius: 999px;
+  background: #fff;
+  color: #402614;
+  font-weight: 700;
+  padding: 9px 16px;
+  cursor: pointer;
+}
+
+.clip-edit-save {
+  border: none;
+  border-radius: 999px;
+  background: #7444d3;
+  color: #fff;
+  font-weight: 700;
+  padding: 9px 20px;
+  cursor: pointer;
+}
+
+.clip-edit-save:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 .app-total-plays {
   margin: 12px 0 0;
   text-align: center;

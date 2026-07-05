@@ -8,9 +8,11 @@ type InfoModalProps = {
   onClose: () => void
   onClickClipLink: (linkType: 'clip', clip: VoiceClip) => void
   onClickSourceVideoLink: (linkType: 'source_video', clip: VoiceClip) => void
+  // dev 限定: 指定された場合のみ「編集」ボタンを表示する（本番では未指定）。
+  onEdit?: (clip: VoiceClip) => void
 }
 
-export function InfoModal({ clip, onClose, onClickClipLink, onClickSourceVideoLink }: InfoModalProps) {
+export function InfoModal({ clip, onClose, onClickClipLink, onClickSourceVideoLink, onEdit }: InfoModalProps) {
   const locale = useLocale()
 
   return (
@@ -57,6 +59,11 @@ export function InfoModal({ clip, onClose, onClickClipLink, onClickSourceVideoLi
         >
           {t('infoModal.openVideo', {}, locale)}
         </a>
+        {onEdit ? (
+          <button type="button" className="info-modal-edit" onClick={() => onEdit(clip)}>
+            🔧 編集（DEV）
+          </button>
+        ) : null}
         <button type="button" className="info-modal-close" onClick={onClose}>
           {t('infoModal.close', {}, locale)}
         </button>
