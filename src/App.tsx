@@ -96,10 +96,10 @@ function App() {
           <LocaleProvider value={locale}>
             <PlaybackControls
               sparkKey={playback.sparkKey}
-              garageyaKey={playback.garageyaKey}
+              waiwaiKey={playback.waiwaiKey}
               isSequentialMode={playback.isSequentialMode}
               onPlayRandom={playback.playRandom}
-              onPlayGarageya={playback.playGarageya}
+              onPlayWaiwai={playback.playWaiwai}
               onStop={playback.stop}
               onToggleSequentialMode={playback.toggleSequential}
             />

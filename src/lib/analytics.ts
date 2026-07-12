@@ -9,9 +9,9 @@ type AnalyticsParams = Record<string, AnalyticsParam | undefined>
 export type PlaybackStartSource =
   | 'voice_card'
   | 'random_button'
-  | 'garageya_button'
+  | 'waiwai_button'
   | 'sequential_single'
-  | 'sequential_garageya'
+  | 'sequential_waiwai'
 
 export type LinkClickFrom = 'info_modal' | 'voice_group' | 'app_guide'
 export type LinkType = 'clip' | 'source_video' | 'channel'

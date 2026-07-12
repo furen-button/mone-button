@@ -14,13 +14,13 @@ type UsePlaybackArgs = {
   appShellRef: RefObject<HTMLElement | null>
 }
 
-// 再生エンジン（フローティングクリップの生成/除去・単発/ランダム/がらがや/連続再生・
+// 再生エンジン（フローティングクリップの生成/除去・単発/ランダム/わいわい/連続再生・
 // 停止アニメーション）をまとめたフック。
 export function usePlayback({ sortedClips, clipIndexMap, appShellRef }: UsePlaybackArgs) {
   const [floatingClips, setFloatingClips] = useState<FloatingStageClip[]>([])
   const [isStopping, setIsStopping] = useState(false)
   const [sparkKey, setSparkKey] = useState(0)
-  const [garageyaKey, setGarageyaKey] = useState(0)
+  const [waiwaiKey, setWaiwaiKey] = useState(0)
   const [isSequentialMode, setIsSequentialMode] = useState(false)
   const [playbackMode, setPlaybackMode] = useState<PlaybackMode>('single')
   const stopTimerRef = useRef<number | null>(null)
@@ -121,17 +121,17 @@ export function usePlayback({ sortedClips, clipIndexMap, appShellRef }: UsePlayb
     playClipAtIndex(randomIndex, 'random_button')
   }, [playClipAtIndex, sortedClips])
 
-  const playGarageya = useCallback(() => {
+  const playWaiwai = useCallback(() => {
     if (sortedClips.length === 0) {
       return
     }
 
     for (let i = 0; i < 4; i += 1) {
       const randomIndex = Math.floor(Math.random() * sortedClips.length)
-      playClipAtIndex(randomIndex, 'garageya_button')
+      playClipAtIndex(randomIndex, 'waiwai_button')
     }
 
-    setGarageyaKey((prev) => prev + 1)
+    setWaiwaiKey((prev) => prev + 1)
   }, [playClipAtIndex, sortedClips])
 
   const handleSequentialEnded = useCallback(
@@ -163,7 +163,7 @@ export function usePlayback({ sortedClips, clipIndexMap, appShellRef }: UsePlayb
         trackPlaybackStart(
           nextClip,
           playbackMode,
-          playbackMode === 'garageya' ? 'sequential_garageya' : 'sequential_single',
+          playbackMode === 'waiwai' ? 'sequential_waiwai' : 'sequential_single',
         )
         incrementPlayCount(nextClip.fileBaseName)
 
@@ -211,11 +211,11 @@ export function usePlayback({ sortedClips, clipIndexMap, appShellRef }: UsePlayb
     floatingClips,
     isStopping,
     sparkKey,
-    garageyaKey,
+    waiwaiKey,
     isSequentialMode,
     playClip,
     playRandom,
-    playGarageya,
+    playWaiwai,
     stop,
     toggleSequential,
     handleSequentialEnded,

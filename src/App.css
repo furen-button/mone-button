@@ -326,7 +326,7 @@
   transform: translateY(-2px);
 }
 
-.voice-garageya {
+.voice-waiwai {
   border: 0;
   border-radius: 999px;
   padding: 14px 24px;
@@ -342,11 +342,11 @@
   box-shadow: 0 10px 26px rgba(90, 187, 232, 0.3);
 }
 
-.voice-garageya:hover {
+.voice-waiwai:hover {
   transform: translateY(-2px);
 }
 
-.voice-garageya:focus-visible {
+.voice-waiwai:focus-visible {
   outline: 3px solid #0d3134;
   outline-offset: 2px;
 }

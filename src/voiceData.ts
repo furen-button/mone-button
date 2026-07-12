@@ -45,14 +45,14 @@ export interface FloatingStageClip {
   width: number
 }
 
-export interface GarageyaSlot {
+export interface WaiwaiSlot {
   x: number
   y: number
   width: number
 }
 
 export type SortType = 'reading' | 'stream-desc' | 'stream-asc' | 'play-count'
-export type PlaybackMode = 'single' | 'garageya'
+export type PlaybackMode = 'single' | 'waiwai'
 
 const dataModules = import.meta.glob<VoiceData>('../public/data/*.json', {
   eager: true,
@@ -88,7 +88,7 @@ export const categoryCounts = voiceClips.reduce<Record<string, number>>((counts,
   return counts
 }, {})
 
-export const GARAGEYA_PATTERNS: GarageyaSlot[][] = [
+export const WAIWAI_PATTERNS: WaiwaiSlot[][] = [
   [
     { x: 1 / 8, y: 1 / 8, width: 0.26 },
     { x: 5 / 8, y: 1 / 4, width: 0.24 },

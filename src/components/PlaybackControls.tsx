@@ -3,20 +3,20 @@ import { useLocale } from '../i18n'
 
 type PlaybackControlsProps = {
   sparkKey: number
-  garageyaKey: number
+  waiwaiKey: number
   isSequentialMode: boolean
   onPlayRandom: () => void
-  onPlayGarageya: () => void
+  onPlayWaiwai: () => void
   onStop: () => void
   onToggleSequentialMode: () => void
 }
 
 export function PlaybackControls({
   sparkKey,
-  garageyaKey,
+  waiwaiKey,
   isSequentialMode,
   onPlayRandom,
-  onPlayGarageya,
+  onPlayWaiwai,
   onStop,
   onToggleSequentialMode,
 }: PlaybackControlsProps) {
@@ -30,11 +30,11 @@ export function PlaybackControls({
         </span>
         {t('playback.random.label', {}, locale)}
       </button>
-      <button type="button" className="voice-garageya" onClick={onPlayGarageya}>
-        <span className="voice-launch-icon" key={garageyaKey} aria-hidden="true">
-          {t('playback.garageya.icon', {}, locale)}
+      <button type="button" className="voice-waiwai" onClick={onPlayWaiwai}>
+        <span className="voice-launch-icon" key={waiwaiKey} aria-hidden="true">
+          {t('playback.waiwai.icon', {}, locale)}
         </span>
-        {t('playback.garageya.label', {}, locale)}
+        {t('playback.waiwai.label', {}, locale)}
       </button>
       <button type="button" className="voice-stop" onClick={onStop} aria-label={t('playback.stop.ariaLabel', {}, locale)}>
         <span className="voice-stop-icon" aria-hidden="true">
