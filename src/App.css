@@ -222,6 +222,7 @@
 .category-chip-name {
   font-size: 13px;
   font-weight: 700;
+  line-height: 1;
   color: #fff8f2;
 }
 
@@ -236,6 +237,7 @@
   color: #fff8f2;
   font-size: 12px;
   font-weight: 700;
+  line-height: 1;
 }
 
 .category-chip:has(input:checked),
