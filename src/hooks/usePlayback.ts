@@ -131,8 +131,14 @@ export function usePlayback({ sortedClips, clipIndexMap, appShellRef }: UsePlayb
       playClipAtIndex(randomIndex, 'waiwai_button')
     }
 
+    // わいわい再生時は連続再生も自動で ON にして、終わったクリップが順次入れ替わり続けるようにする。
+    if (!isSequentialMode) {
+      trackSequentialToggle(true, 'waiwai')
+    }
+    setIsSequentialMode(true)
+
     setWaiwaiKey((prev) => prev + 1)
-  }, [playClipAtIndex, sortedClips])
+  }, [isSequentialMode, playClipAtIndex, sortedClips])
 
   const handleSequentialEnded = useCallback(
     (endedClipId?: string) => {
