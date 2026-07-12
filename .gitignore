@@ -31,3 +31,6 @@ tmp
 # createVideo の高画質キャッシュと生成物
 cache
 output
+
+assets/create-video/*
+!assets/create-video/.gitkeep

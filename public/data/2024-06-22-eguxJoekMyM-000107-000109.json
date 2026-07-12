@@ -1,16 +1,16 @@
 {
   "videoId": "eguxJoekMyM",
-  "serif": "みなさん、はじめまして",
-  "ruby": "みなさんはじめまして",
+  "serif": "わぁ人がいっぱいいる",
+  "ruby": "わぁひとがいっぱいいる",
   "categories": [
-    "あいさつ"
+    "笑い声"
   ],
-  "clipUrl": "https://youtube.com/watch?v=eguxJoekMyM&t=82s",
+  "clipUrl": "https://youtube.com/watch?v=eguxJoekMyM&t=107s",
   "memo": "",
   "trimming": {
-    "startTime": 82.42398240998236,
-    "endTime": 84.15987512876647,
-    "duration": 1.7358927187841147
+    "startTime": 107.60261765263886,
+    "endTime": 109.97121982644482,
+    "duration": 2.368602173805968
   },
   "videoFile": {
     "metadata": {
