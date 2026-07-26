@@ -101,6 +101,7 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 | `--normalize` / `--no-normalize` | 正規化する | `--source cache` の DL 時に `ffmpeg-normalize`（EBU R128 / -23 LUFS）で各クリップの音量を揃える |
 | `--no-cards` | cards有効 | 区切りカードと OP/ED を無効化 |
 | `--bgm` / `--no-bgm` | 無効 | BGM ミックスの有無 |
+| `--zoom` / `--no-zoom` | 無効 | 音声ピークに合わせたパンチイン・ズームの有無 |
 | `--title <text>` / `--no-title` | メタタイトル（絵文字除去） | タイトル文言 / 非表示 |
 | `--date` / `--no-date` | 表示 | 日付の有無 |
 | `--serif` / `--no-serif` | 表示 | セリフの有無 |
@@ -111,6 +112,10 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 | `--font <name>` | `Hiragino Sans` | テロップフォント（fontconfig 名） |
 
 設定ファイルでは `telops.*.align` に `top-left, top-center, top-right, middle-left, center, middle-right, bottom-left, bottom-center, bottom-right` を指定できる。色は RGB hex で書き、ASS の BGR 色へ変換する。
+
+`--zoom` または `effects.zoom.enabled: true` で、ffmpeg astats の RMS ピーク直前から静的 crop+scale のパンチインを入れる。テロップは crop 後に焼くため画面上の位置は固定され、出力時間・fps・音声パスは変えないので `concat -c copy` を維持できる。焦点は `scripts/create-video/detect_anime_face.py` が scale+pad 済みフレームからアニメ顔を検出し、失敗時は `effects.zoom.focus.x/y`、さらに中央へフォールバックする。顔検出には `pip install "opencv-python-headless<5"` と `cache/createVideo/models/lbpcascade_animeface.xml`（無ければ自動取得）が必要。
+
+クリップ JSON では `effects.zoom` で個別上書きできる。`false` は抑止、`true` は短尺/平坦スキップを無視して自動検出、`{"at": 2.5, "scale": 1.4, "x": 0.8, "y": 0.75}` は開始秒・倍率・焦点を手動指定する。`--no-zoom` はグローバル kill switch として個別指定より優先する。
 
 注意:
 - npm の仕様上、引数は `--` の後に渡す（`--videoId=...` 形式の `npm_config_*` フォールバックにも対応）。

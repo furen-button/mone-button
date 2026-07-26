@@ -1,3 +1,14 @@
+export interface ClipZoomEffect {
+  at?: number
+  scale?: number
+  x?: number
+  y?: number
+}
+
+export interface ClipEffects {
+  zoom?: boolean | ClipZoomEffect
+}
+
 export interface VoiceData {
   videoId: string
   serif: string
@@ -5,6 +16,7 @@ export interface VoiceData {
   categories: string[]
   clipUrl: string
   memo: string
+  effects?: ClipEffects
   trimming: {
     startTime: number
     endTime: number

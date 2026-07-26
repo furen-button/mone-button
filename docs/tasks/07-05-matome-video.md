@@ -13,6 +13,8 @@
 | `scripts/create-video/select.js` | `videoId` / `category` / `files` のクリップ選択と並び替え |
 | `scripts/create-video/ass.js` | ASS 生成、折り返し、ボックス描画、フェード、進行表示、カラオケ |
 | `scripts/create-video/clip.js` | クリップの字幕焼き込み、解像度/fps/音声正規化 |
+| `scripts/create-video/effects.js` | クリップ演出の解析・計画・filter_complex 構築 |
+| `scripts/create-video/detect_anime_face.py` | OpenCV + lbpcascade_animeface によるアニメ顔検出 |
 | `scripts/create-video/card.js` | 区切りカード、OP/ED カード、背景/サムネ/SE 合成 |
 | `scripts/create-video/ffmpeg.js` | ffmpeg/ffprobe 解決、同一エンコード引数、concat guard/fallback、BGM |
 | `scripts/create-video/assets.js` | サムネキャッシュ、高画質 DL、任意素材解決 |
@@ -31,10 +33,27 @@
 - `--source cache`（高画質DL）は DL 後に `ffmpeg-normalize`（EBU R128 / 既定 -23 LUFS、`public/videos` の download.js と同基準）で**各クリップの音量を正規化**してから cache に保存する。映像は `-c:v copy` で高画質維持、音声のみ正規化。`normalizeCache`（既定 true、`--no-normalize` で無効）で切替。`ffmpeg-normalize` 不在時は警告して生DLを使用。既存 cache は正規化前なので、掛け直すには対象を削除して再DLする。
 - 結合は ffprobe のストリーム署名が一致する場合 `concat -c copy`、不一致なら concat filter で再エンコードする。
 - BGM は結合後の最終パスで映像 `-c:v copy`、音声のみ `amix` する。
+- `effects.zoom.enabled` または `--zoom` で、音声ピーク直前からパンチイン・ズームを自動挿入できる。既定は無効。
 
 ## 技術メモ
 
 - **カードの pix_fmt 正規化（concat-copy 維持の要）**: JPEG サムネを overlay したカードは full-range 由来で `yuvj420p` になり、`yuv420p` のクリップと署名が食い違って毎回 concat filter（全再エンコード）に落ちる。`card.js` の最終映像フィルタ末尾に `scale=out_range=tv,format=yuv420p` を付けて limited-range `yuv420p` に揃え、`concat -c copy` の高速経路を保つ。**この 1 行を外すと再エンコード経路に戻る**ので消さないこと（`-pix_fmt yuv420p` だけでは range が残り効かない）。
+
+## パンチイン・ズーム
+
+`effects.zoom` は、ffmpeg の `astats` で 0.1 秒刻みの RMS を取り、3 窓移動平均後のピークを見せ場として扱う。ピークの `lead` 秒前から静的 `crop` + `scale` に切り替え、クリップ末尾までアップを保持する。`zoompan` は使わないためジッターがなく、動画時間・fps・音声は変えない。ASS テロップは crop 後に焼き込むので、タイトル・セリフ・進行表示の画面位置も固定される。
+
+焦点は `focus.mode: "face"` の場合、scale+pad 済みの出力キャンバス座標系で PNG を抽出し、`detect_anime_face.py` が `lbpcascade_animeface.xml` で検出する。検出できない場合は `focus.x/y`、さらに中央 `(0.5, 0.5)` へフォールバックする。OpenCV は 5.0 で `CascadeClassifier` が削除されているため、導入コマンドは `pip install "opencv-python-headless<5"` とする。カスケードは `cache/createVideo/models/lbpcascade_animeface.xml` に置き、無ければ `https://raw.githubusercontent.com/nagadomi/lbpcascade_animeface/master/lbpcascade_animeface.xml` から自動取得する。
+
+clip JSON では次のように個別指定できる。
+
+```jsonc
+"effects": { "zoom": false }
+"effects": { "zoom": true }
+"effects": { "zoom": { "at": 2.5, "scale": 1.4, "x": 0.8, "y": 0.75 } }
+```
+
+優先順位は `--no-zoom`（グローバル kill switch） > `zoom:false` > `at` 指定 > `zoom:true` > 純自動。無音、音声解析失敗、ズーム区間を確保できない短さではスキップする。200p の `source: existing` でも動くが、ズーム画質を保つ本番用途では `--source cache` を推奨する。将来は sibling キーでオチ演出（引き・モノクロ化）を追加し、必要になった時点で smooth モード、release、解析キャッシュを検討する。
 
 ## 素材
 
