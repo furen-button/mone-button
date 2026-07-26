@@ -82,7 +82,11 @@ async function main() {
     console.log(`✅ 完成: ${outPath}`);
     console.log(`   concat: ${concatResult.method}`);
   } finally {
-    fs.rmSync(workDir, { recursive: true, force: true });
+    if (process.env.KEEP_WORKDIR) {
+      console.log(`🔧 KEEP_WORKDIR: 中間ファイルを保持 ${workDir}`);
+    } else {
+      fs.rmSync(workDir, { recursive: true, force: true });
+    }
   }
 }
 
