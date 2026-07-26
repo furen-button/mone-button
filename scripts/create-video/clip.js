@@ -3,6 +3,7 @@ import path from 'path';
 import { execFileSync } from 'child_process';
 import { cacheRoot, downloadHighQuality, videosDir } from './assets.js';
 import { buildAss, formatDate, formatTimestamp, makeTextElement, stripEmoji } from './ass.js';
+import { buildZoomFilterComplex, planZoom, zoomCropFilters } from './effects.js';
 import { encodeArgs, subtitlesFilter } from './ffmpeg.js';
 
 export function resolveClipSource(clip, config) {
@@ -25,39 +26,75 @@ export function resolveClipSource(clip, config) {
   return sourceMp4;
 }
 
-export function renderClip({ tools, clip, index, total, config, workDir, size, titleOverride }) {
+export async function renderClip({ tools, clip, index, total, config, workDir, size, titleOverride }) {
   const sourceMp4 = resolveClipSource(clip, config);
-  if (!sourceMp4) return null;
+  if (!sourceMp4) {
+    return null;
+  }
 
   const assPath = path.join(workDir, `clip-${String(index).padStart(4, '0')}.ass`);
   const outPath = path.join(workDir, `clip-${String(index).padStart(4, '0')}.mp4`);
   const elements = buildClipElements({ clip, index, total, config, size, titleOverride });
   fs.writeFileSync(assPath, buildAss(elements, { width: size.width, height: size.height, font: config.font }));
 
-  const vf = [
+  const baseFilters = [
     `scale=${size.width}:${size.height}:force_original_aspect_ratio=decrease`,
     `pad=${size.width}:${size.height}:(ow-iw)/2:(oh-ih)/2`,
     'setsar=1',
     `fps=${size.fps}`,
-    subtitlesFilter(assPath, config.fontsDir),
+  ];
+  const subFilter = subtitlesFilter(assPath, config.fontsDir);
+  const zoom = await planZoom({ tools, clip, sourceMp4, config, size, workDir });
+
+  if (zoom?.skip) {
+    console.log(`   🔎 ズーム: なし (${zoom.skip})`);
+  } else if (zoom) {
+    console.log(formatZoomLog(zoom));
+  }
+
+  if (zoom && !zoom.skip && zoom.at > 0) {
+    execClip(tools.ffmpeg, sourceMp4, {
+      complex: buildZoomFilterComplex({ baseFilters, subFilter, zoom, size }),
+    }, outPath, config);
+    return outPath;
+  }
+
+  const vf = [
+    ...baseFilters,
+    ...(zoom && !zoom.skip ? zoomCropFilters({ zoom, size }) : []),
+    subFilter,
   ].join(',');
 
-  execClip(tools.ffmpeg, sourceMp4, vf, outPath, config);
+  execClip(tools.ffmpeg, sourceMp4, { vf }, outPath, config);
   return outPath;
 }
 
-function execClip(ffmpeg, sourceMp4, vf, outPath, config) {
+function execClip(ffmpeg, sourceMp4, graph, outPath, config) {
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
   fs.rmSync(outPath, { force: true });
+  const filterArgs = graph.complex
+    ? ['-filter_complex', graph.complex, '-map', '[v]', '-map', '0:a?']
+    : ['-vf', graph.vf];
   const args = [
     '-y',
     '-i', sourceMp4,
-    '-vf', vf,
+    ...filterArgs,
     '-af', 'aresample=44100,aformat=sample_fmts=fltp:channel_layouts=stereo',
     ...encodeArgs(config),
     outPath,
   ];
   execFileSync(ffmpeg, args, { stdio: 'inherit' });
+}
+
+function formatZoomLog(zoom) {
+  const focus = zoom.focus;
+  const note = focus.note ? ` (${focus.note})` : '';
+  const peak = Number.isFinite(zoom.peakDb) ? ` peak=${zoom.peakDb.toFixed(1)}dB` : '';
+  return [
+    `   🔎 ズーム: ${zoom.at.toFixed(2)}s〜 scale=${zoom.scale}`,
+    `焦点=${focus.source}(${focus.x.toFixed(2)},${focus.y.toFixed(2)})${note}`,
+    `(${zoom.origin}${peak})`,
+  ].join(' ');
 }
 
 export function buildClipElements({ clip, index, total, config, size, titleOverride }) {

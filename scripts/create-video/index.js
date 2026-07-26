@@ -36,7 +36,7 @@ async function main() {
     for (let i = 0; i < clips.length; i++) {
       const clip = clips[i];
       console.log(`🎬 [${i + 1}/${clips.length}] 描画中: ${clip.base}`);
-      const clipSegment = renderClip({
+      const clipSegment = await renderClip({
         tools,
         clip,
         index: i,

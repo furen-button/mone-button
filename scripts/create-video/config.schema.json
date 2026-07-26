@@ -303,6 +303,71 @@
           }
         }
       }
+    },
+    "effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "動画クリップに適用する演出。今回の zoom はパンチイン用で、将来のズームアウト/モノクロ化などのオチ演出は sibling キーとして追加する。",
+      "properties": {
+        "zoom": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "音声ピークに合わせて静的 crop+scale のパンチイン・ズームを入れる設定。CLI の --zoom / --no-zoom で ON/OFF。",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false, "description": "自動パンチインを有効にするか。false では従来どおりズームなし。" },
+            "mode": {
+              "type": "string",
+              "enum": ["punch"],
+              "default": "punch",
+              "description": "ズーム方式。punch=ピーク直前でハードカットして末尾までアップを保持（将来 smooth を追加予定）。"
+            },
+            "scale": {
+              "type": "number",
+              "exclusiveMinimum": 1,
+              "maximum": 3,
+              "default": 1.3,
+              "description": "ズーム倍率。1 より大きく 3 以下。"
+            },
+            "lead": { "type": "number", "minimum": 0, "default": 0.15, "description": "検出ピークの何秒前からズームを開始するか。" },
+            "minDuration": { "type": "number", "minimum": 0, "default": 2.0, "description": "自動ズーム対象にする最小クリップ秒数。clip JSON の effects.zoom=true ではこの短尺判定を無視する。" },
+            "minStart": { "type": "number", "minimum": 0, "default": 0.3, "description": "自動ズーム開始位置の下限秒数。先頭すぎるパンチインを避ける。" },
+            "minZoomDuration": { "type": "number", "minimum": 0, "default": 0.8, "description": "ズーム後に最低限残す秒数。末尾すぎるパンチインを避ける。" },
+            "focus": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "ズームの焦点。face は scale+pad 済みフレームからアニメ顔を検出し、失敗時は x/y、さらに中央へフォールバックする。",
+              "properties": {
+                "mode": {
+                  "type": "string",
+                  "enum": ["face", "fixed", "center"],
+                  "default": "face",
+                  "description": "焦点決定方法。face=アニメ顔検出 / fixed=x,y 固定 / center=中央。"
+                },
+                "x": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.5, "description": "固定焦点または顔未検出時のフォールバック X（出力キャンバス幅に対する 0〜1）。" },
+                "y": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.5, "description": "固定焦点または顔未検出時のフォールバック Y（出力キャンバス高さに対する 0〜1）。" },
+                "python": { "type": "string", "default": "python3", "description": "顔検出スクリプトを実行する Python コマンド。" },
+                "cascade": {
+                  "type": ["string", "null"],
+                  "default": null,
+                  "description": "lbpcascade_animeface.xml のパス。null なら cache/createVideo/models/ に自動取得する。"
+                },
+                "frames": { "type": "integer", "minimum": 1, "default": 3, "description": "顔検出に使う抽出フレーム数。ズーム開始直後から 0.3 秒間隔で見る。" }
+              }
+            },
+            "analysis": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "ffmpeg astats による音声ピーク解析の設定。",
+              "properties": {
+                "window": { "type": "number", "exclusiveMinimum": 0, "default": 0.1, "description": "RMS を集計する時間窓（秒）。0.1 で 100ms 刻み。" },
+                "smooth": { "type": "integer", "minimum": 1, "default": 3, "description": "RMS 時系列の移動平均窓数。" },
+                "minProminence": { "type": "number", "minimum": 0, "default": 3.0, "description": "ピークと中央値の差がこの dB 未満なら音量平坦としてスキップ。" },
+                "silenceFloor": { "type": "number", "default": -60.0, "description": "全窓がこの dB 以下なら無音としてスキップ。" }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "$defs": {

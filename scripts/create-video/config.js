@@ -160,6 +160,31 @@ export const DEFAULTS = {
       video: null,
     },
   },
+  effects: {
+    zoom: {
+      enabled: false,
+      mode: 'punch',
+      scale: 1.3,
+      lead: 0.15,
+      minDuration: 2.0,
+      minStart: 0.3,
+      minZoomDuration: 0.8,
+      focus: {
+        mode: 'face',
+        x: 0.5,
+        y: 0.5,
+        python: 'python3',
+        cascade: null,
+        frames: 3,
+      },
+      analysis: {
+        window: 0.1,
+        smooth: 3,
+        minProminence: 3.0,
+        silenceFloor: -60.0,
+      },
+    },
+  },
 };
 
 export function parseArgs(argv) {
@@ -355,6 +380,11 @@ function cliConfig(opts) {
   const bgm = optBool(opts, 'bgm');
   if (bgm !== undefined) out.bgm = { enabled: bgm };
 
+  const zoom = optBool(opts, 'zoom');
+  if (zoom !== undefined) {
+    out.effects = { zoom: { enabled: zoom } };
+  }
+
   for (const [flag, key] of [
     ['title', 'title'],
     ['date', 'date'],
@@ -411,9 +441,52 @@ function validateConfig(config) {
 
   validateAligns(config, errors);
   validateColors(config, errors);
+  validateEffects(config, errors);
 
   if (errors.length > 0) {
     throw new Error(errors.map((line) => `- ${line}`).join('\n'));
+  }
+}
+
+function validateEffects(config, errors) {
+  const zoomModes = new Set(['punch']);
+  const focusModes = new Set(['face', 'fixed', 'center']);
+  const zoom = config.effects?.zoom;
+  if (!zoom) {
+    return;
+  }
+  if (!zoomModes.has(zoom.mode)) {
+    errors.push(`effects.zoom.mode が不正です: ${zoom.mode}`);
+  }
+  if (!Number.isFinite(Number(zoom.scale)) || Number(zoom.scale) <= 1 || Number(zoom.scale) > 3) {
+    errors.push(`effects.zoom.scale は 1 より大きく 3 以下で指定してください: ${zoom.scale}`);
+  }
+  if (!Number.isFinite(Number(zoom.lead)) || Number(zoom.lead) < 0) {
+    errors.push(`effects.zoom.lead は 0 以上で指定してください: ${zoom.lead}`);
+  }
+  if (!Number.isFinite(Number(zoom.minDuration)) || Number(zoom.minDuration) < 0) {
+    errors.push(`effects.zoom.minDuration は 0 以上で指定してください: ${zoom.minDuration}`);
+  }
+  if (!Number.isFinite(Number(zoom.minStart)) || Number(zoom.minStart) < 0) {
+    errors.push(`effects.zoom.minStart は 0 以上で指定してください: ${zoom.minStart}`);
+  }
+  if (!Number.isFinite(Number(zoom.minZoomDuration)) || Number(zoom.minZoomDuration) < 0) {
+    errors.push(`effects.zoom.minZoomDuration は 0 以上で指定してください: ${zoom.minZoomDuration}`);
+  }
+  if (!focusModes.has(zoom.focus?.mode)) {
+    errors.push(`effects.zoom.focus.mode が不正です: ${zoom.focus?.mode}`);
+  }
+  for (const axis of ['x', 'y']) {
+    const value = Number(zoom.focus?.[axis]);
+    if (!Number.isFinite(value) || value < 0 || value > 1) {
+      errors.push(`effects.zoom.focus.${axis} は 0〜1 で指定してください: ${zoom.focus?.[axis]}`);
+    }
+  }
+  if (!Number.isFinite(Number(zoom.focus?.frames)) || Number(zoom.focus?.frames) < 1) {
+    errors.push(`effects.zoom.focus.frames は 1 以上で指定してください: ${zoom.focus?.frames}`);
+  }
+  if (!Number.isFinite(Number(zoom.analysis?.window)) || Number(zoom.analysis?.window) <= 0) {
+    errors.push(`effects.zoom.analysis.window は 0 より大きい値で指定してください: ${zoom.analysis?.window}`);
   }
 }
 
