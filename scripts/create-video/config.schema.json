@@ -1,0 +1,402 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mone-button/scripts/create-video/config.schema.json",
+  "title": "createVideo 設定スキーマ",
+  "description": "npm run createVideo（まとめ動画ジェネレーター）の設定ファイル。config.json / config-mone.json などがこの構造に従う。ファイルの値は DEFAULTS（config.js）に deepMerge されるため、全項目は任意（省略時は既定値）。色は RGB 6桁hex、align は 9 方位、size 系は 0〜1 なら画面高さ比・1超なら px。",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "このスキーマへの参照（任意）。エディタ補完・検証用で、実行時には無視される。"
+    },
+    "select": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "どのクリップを対象にするかの選択条件。",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["videoId", "category", "files"],
+          "default": "videoId",
+          "description": "選択モード。videoId=単一動画の全クリップ / category=カテゴリー横断 / files=ファイル名指定。"
+        },
+        "videoId": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "mode=videoId のとき必須。対象 YouTube 動画 ID。CLI の --videoId で上書き可。"
+        },
+        "categories": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "mode=category のとき必須。対象カテゴリー名の配列。CLI の --category（カンマ区切り）で上書き可。"
+        },
+        "files": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "mode=files のとき必須。public/data の JSON ファイル名（base）配列。CLI の --files で上書き可。"
+        },
+        "order": {
+          "type": "string",
+          "enum": ["date", "date-desc", "stream", "shuffle", "as-listed"],
+          "default": "date",
+          "description": "並び順。date=配信日昇順 / date-desc=降順 / stream=元動画内の時刻順 / shuffle=ランダム / as-listed=指定順。"
+        },
+        "limit": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "default": null,
+          "description": "クリップ数の上限。null で無制限。CLI の --limit で上書き可。"
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "出力ファイルの設定。",
+      "properties": {
+        "dir": { "type": "string", "default": "output", "description": "出力ディレクトリ（プロジェクトルート基準）。" },
+        "name": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "出力ファイル名/パス。null で自動命名（output/<日付>-<videoId>-combined.mp4）。CLI の --out で上書き可。"
+        },
+        "resolution": {
+          "type": "string",
+          "pattern": "^\\d+x\\d+$",
+          "default": "1280x720",
+          "description": "出力解像度（WxH）。例: 1920x1080。CLI の --resolution で上書き可。"
+        },
+        "fps": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 30,
+          "description": "出力フレームレート。"
+        }
+      }
+    },
+    "source": {
+      "type": "string",
+      "enum": ["existing", "cache"],
+      "default": "existing",
+      "description": "クリップ映像の取得元。existing=既存の public/videos/*.mp4 / cache=高画質DL＋音量正規化して cache に保存。CLI の --source で上書き可。"
+    },
+    "normalizeCache": {
+      "type": "boolean",
+      "default": true,
+      "description": "source=cache の DL 時に ffmpeg-normalize（EBU R128 / -23 LUFS）で音量を揃えるか。CLI の --normalize / --no-normalize で上書き可。"
+    },
+    "font": {
+      "type": "string",
+      "default": "Hiragino Sans",
+      "description": "テロップフォント（fontconfig 名）。CLI の --font で上書き可。"
+    },
+    "fontsDir": {
+      "type": "string",
+      "default": "/System/Library/Fonts",
+      "description": "libass に渡すフォント探索ディレクトリ。"
+    },
+    "telops": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "動画中に焼き込むテロップ（各要素）の設定。",
+      "properties": {
+        "title": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "上部のタイトルバー。",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true, "description": "表示するか。CLI の --title/--no-title は別途タイトル文言/表示を制御。" },
+            "align": { "$ref": "#/$defs/align" },
+            "size": { "$ref": "#/$defs/size" },
+            "font": { "$ref": "#/$defs/font" },
+            "color": { "$ref": "#/$defs/color" },
+            "box": { "$ref": "#/$defs/box" },
+            "fade": { "$ref": "#/$defs/fadeMs" }
+          }
+        },
+        "date": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "配信日の表示。",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "align": { "$ref": "#/$defs/align" },
+            "size": { "$ref": "#/$defs/size" },
+            "font": { "$ref": "#/$defs/font" },
+            "color": { "$ref": "#/$defs/color" }
+          }
+        },
+        "time": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "元動画内タイムスタンプの表示。",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "align": { "$ref": "#/$defs/align" },
+            "size": { "$ref": "#/$defs/size" },
+            "font": { "$ref": "#/$defs/font" },
+            "color": { "$ref": "#/$defs/color" }
+          }
+        },
+        "serif": { "$ref": "#/$defs/serifStyle" },
+        "progress": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "進行表示（i / n）とバー。",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "align": { "$ref": "#/$defs/align" },
+            "size": { "$ref": "#/$defs/size" },
+            "font": { "$ref": "#/$defs/font" },
+            "color": { "$ref": "#/$defs/color" },
+            "format": { "type": "string", "default": "{i} / {n}", "description": "表示書式。{i}=現在番号 / {n}=総数。" },
+            "bar": { "type": "boolean", "default": true, "description": "進行バーを表示するか。" }
+          }
+        }
+      }
+    },
+    "cards": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "クリップ間の区切りカード（サムネ・番号・次のセリフ等）の設定。",
+      "properties": {
+        "enabled": { "type": "boolean", "default": true, "description": "カードと OP/ED を有効にするか。CLI の --no-cards で無効化。" },
+        "font": {
+          "type": ["string", "null"],
+          "description": "カード内テキスト（番号/タイトル/次のセリフ/情報）の既定フォント。null でトップレベル font を使用。各ブロックの font 指定が優先。"
+        },
+        "position": {
+          "type": "string",
+          "enum": ["before", "after"],
+          "default": "before",
+          "description": "カードをクリップの前/後どちらに置くか（※現状コード未使用の予約項目）。"
+        },
+        "duration": { "type": "number", "minimum": 0, "default": 1.5, "description": "カード1枚の表示秒数。" },
+        "serif": {
+          "allOf": [{ "$ref": "#/$defs/serifStyle" }],
+          "description": "カードの『次のセリフ』プレビュー用スタイル。telops.serif を継承し、ここに書いた差分だけ上書きされる。marginH/marginV（幅・高さ比、既定0.08）でカードだけ位置も変えられる。空 {} で完全継承。"
+        },
+        "background": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "カード背景。",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["video", "image", "solid", "gradient"],
+              "default": "video",
+              "description": "背景種別。video=動画 / image=画像 / solid=単色 / gradient=グラデーション。素材欠落時は該当機能をスキップ。"
+            },
+            "video": { "type": ["string", "null"], "description": "type=video のときの動画パス。" },
+            "image": { "type": ["string", "null"], "description": "type=image のときの画像パス。" },
+            "color": { "$ref": "#/$defs/color" },
+            "gradient": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "type=gradient のときの2色。",
+              "properties": {
+                "c0": { "$ref": "#/$defs/color" },
+                "c1": { "$ref": "#/$defs/color" }
+              }
+            }
+          }
+        },
+        "thumbnail": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "カードに載せる元動画サムネイル。",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "y": { "type": "number", "minimum": 0, "default": 180, "description": "サムネイルの上端 Y 座標(px)。" },
+            "width": { "type": "number", "minimum": 0, "default": 760, "description": "サムネイルの幅(px)。" }
+          }
+        },
+        "show": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "カードに表示する要素の ON/OFF。",
+          "properties": {
+            "index": { "type": "boolean", "default": true, "description": "通し番号。" },
+            "nextSerif": { "type": "boolean", "default": true, "description": "次のクリップのセリフプレビュー。" },
+            "title": { "type": "boolean", "default": true, "description": "元動画タイトル。" },
+            "date": { "type": "boolean", "default": true, "description": "配信日。" },
+            "uploader": { "type": "boolean", "default": true, "description": "投稿者名。" },
+            "sourceUrl": { "type": "boolean", "default": false, "description": "元動画 URL。" }
+          }
+        },
+        "index": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "カード上の通し番号の見た目。",
+          "properties": {
+            "align": { "$ref": "#/$defs/align" },
+            "size": { "$ref": "#/$defs/size" },
+            "font": { "$ref": "#/$defs/font" },
+            "color": { "$ref": "#/$defs/color" },
+            "prefix": { "type": "string", "default": "", "description": "番号の前に付ける文字。" },
+            "suffix": { "type": "string", "default": "", "description": "番号の後に付ける文字。" }
+          }
+        },
+        "se": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "カード表示時の効果音。",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "file": { "type": ["string", "null"], "description": "効果音ファイルパス。欠落時はスキップ。" },
+            "fadeOut": { "type": "number", "minimum": 0, "default": 0.3, "description": "フェードアウト秒数。" }
+          }
+        }
+      }
+    },
+    "bgm": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "全体 BGM。CLI の --bgm / --no-bgm で ON/OFF。",
+      "properties": {
+        "enabled": { "type": "boolean", "default": false },
+        "file": { "type": ["string", "null"], "description": "BGM ファイルパス。欠落時はスキップ。" },
+        "volume": { "type": "number", "minimum": 0, "default": 0.15, "description": "BGM の音量倍率（0〜1目安）。" },
+        "fade": { "$ref": "#/$defs/fadeSec" }
+      }
+    },
+    "endcaps": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "OP（オープニング）と ED（エンディング）カード。",
+      "properties": {
+        "opening": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "オープニング。CLI の --opening / --no-opening で ON/OFF。",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "duration": { "type": "number", "minimum": 0, "default": 3.0, "description": "表示秒数。" },
+            "title": { "type": ["string", "null"], "default": null, "description": "OP タイトル文言。null でメタタイトルを使用。" },
+            "subtitle": { "type": ["string", "null"], "default": "全{n}クリップ", "description": "OP サブタイトル。{n}=総クリップ数。" },
+            "font": { "$ref": "#/$defs/font" },
+            "video": {
+              "type": ["string", "null"],
+              "default": null,
+              "description": "完成済み OP 動画のパス。指定するとその動画をそのまま OP に使用（テロップ/SE/duration は無視、音声は動画のもの）。解像度/fps は出力に正規化。null で生成カード。"
+            }
+          }
+        },
+        "ending": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "エンディング。CLI の --ending / --no-ending で ON/OFF。",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "duration": { "type": "number", "minimum": 0, "default": 4.0, "description": "表示秒数。" },
+            "text": { "type": ["string", "null"], "default": "ご視聴ありがとうございました", "description": "ED 文言。" },
+            "listClips": { "type": "boolean", "default": false, "description": "ED にクリップ一覧を表示するか。" },
+            "font": { "$ref": "#/$defs/font" },
+            "video": {
+              "type": ["string", "null"],
+              "default": null,
+              "description": "完成済み ED 動画のパス。指定するとその動画をそのまま ED に使用（テロップ/SE/duration は無視、音声は動画のもの）。解像度/fps は出力に正規化。null で生成カード。"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "color": {
+      "type": "string",
+      "pattern": "^#?[0-9A-Fa-f]{6}$",
+      "description": "RGB 6桁hex（先頭 # は任意）。内部で ASS の BGR に変換される。例: FFC6E2 / #2E9B0E。"
+    },
+    "font": {
+      "type": ["string", "null"],
+      "description": "この場所のフォント名（fontconfig 名）。null/未指定でトップレベルの font を使用。ASS の \\fn で個別に上書きされる。例: Hiragino Sans / Hiragino Maru Gothic ProN。"
+    },
+    "align": {
+      "type": "string",
+      "enum": [
+        "top-left", "top-center", "top-right",
+        "middle-left", "center", "middle-right",
+        "bottom-left", "bottom-center", "bottom-right"
+      ],
+      "description": "配置（9方位）。ボックス付き要素はボックス内で中央寄せされる。"
+    },
+    "size": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "フォントサイズ。0〜1 は画面高さに対する割合、1超は px 絶対値。"
+    },
+    "fadeMs": {
+      "type": "array",
+      "items": { "type": "number", "minimum": 0 },
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "フェード [in, out]（ミリ秒）。表示時間でクランプされる。"
+    },
+    "fadeSec": {
+      "type": "array",
+      "items": { "type": "number", "minimum": 0 },
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "フェード [in, out]（秒）。"
+    },
+    "box": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "背景ボックス。塗り・枠・角丸・透明度を持つ矩形を要素の背面に描く。",
+      "properties": {
+        "enabled": { "type": "boolean", "default": true, "description": "ボックスを描くか。" },
+        "fill": { "$ref": "#/$defs/color", "description": "塗り色（RGB hex）。" },
+        "border": { "$ref": "#/$defs/color", "description": "枠色（RGB hex）。borderWidth>0 のとき描画。" },
+        "borderWidth": { "type": "number", "minimum": 0, "description": "枠の太さ(px)。0 で枠なし。" },
+        "pad": { "type": "number", "minimum": 0, "description": "テキスト周りの内側余白(px)。ボックス高さに加算される。" },
+        "radius": { "type": "number", "minimum": 0, "description": "角丸半径(px)。0 で直角。塗りは max(0, radius-borderWidth) で同心に丸まる。" },
+        "opacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "不透明度。1=不透明〜0=完全透明。libass の \\1a に変換（\\1c 埋め込みアルファは無視されるため専用タグを使用）。"
+        }
+      }
+    },
+    "serifStyle": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "セリフ（メインの発話ボックス）のスタイル。telops.serif と cards.serif が共有。",
+      "properties": {
+        "enabled": { "type": "boolean", "default": true, "description": "表示するか。CLI の --serif/--no-serif でも制御。" },
+        "align": { "$ref": "#/$defs/align" },
+        "size": { "$ref": "#/$defs/size" },
+        "font": { "$ref": "#/$defs/font" },
+        "autoShrink": {
+          "type": "boolean",
+          "default": true,
+          "description": "複数行のときにボックス高さが maxHeight を超えないようフォントを自動縮小する。単行や上限内の2行は size のまま。"
+        },
+        "minSize": { "$ref": "#/$defs/size", "description": "autoShrink の下限（可読性の床）。maxHeight より優先。0〜1で画面高さ比、1超で px。" },
+        "maxHeight": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "autoShrink の目標上限。0〜1 は画面高さに対する割合（例 0.3=30%）、1超は px。"
+        },
+        "color": { "$ref": "#/$defs/color" },
+        "bold": { "type": "boolean", "default": true, "description": "太字。" },
+        "shadow": { "type": "number", "minimum": 0, "default": 2, "description": "影の距離(px 相当)。" },
+        "fade": { "$ref": "#/$defs/fadeMs" },
+        "box": { "$ref": "#/$defs/box" },
+        "karaoke": { "type": "boolean", "default": false, "description": "カラオケ風に1文字ずつ表示するか。" },
+        "marginH": {
+          "type": "number",
+          "description": "左右マージン（幅に対する割合、既定0.08）。※ cards.serif でのみ有効（動画中セリフは内部計算）。"
+        },
+        "marginV": {
+          "type": "number",
+          "description": "上下マージン（高さに対する割合、既定0.08）。※ cards.serif でのみ有効。"
+        }
+      }
+    }
+  }
+}
