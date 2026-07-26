@@ -10,7 +10,7 @@
   "output": {
     "dir": "output",
     "name": null,
-    "resolution": "1280x720",
+    "resolution": "1920x1080",
     "fps": 30
   },
   "source": "existing",
