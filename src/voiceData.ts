@@ -1,4 +1,5 @@
 export interface ClipZoomEffect {
+  mode?: 'punch' | 'full'
   at?: number
   scale?: number
   x?: number

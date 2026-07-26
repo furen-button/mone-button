@@ -317,9 +317,9 @@
             "enabled": { "type": "boolean", "default": false, "description": "自動パンチインを有効にするか。false では従来どおりズームなし。" },
             "mode": {
               "type": "string",
-              "enum": ["punch"],
+              "enum": ["punch", "full"],
               "default": "punch",
-              "description": "ズーム方式。punch=ピーク直前でハードカットして末尾までアップを保持（将来 smooth を追加予定）。"
+              "description": "ズーム方式。punch=音声ピーク直前でハードカットして末尾までアップを保持 / full=最初から最後までクリップ全編をアップにする（将来 smooth を追加予定）。"
             },
             "scale": {
               "type": "number",

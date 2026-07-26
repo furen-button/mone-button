@@ -90,8 +90,9 @@ function formatZoomLog(zoom) {
   const focus = zoom.focus;
   const note = focus.note ? ` (${focus.note})` : '';
   const peak = Number.isFinite(zoom.peakDb) ? ` peak=${zoom.peakDb.toFixed(1)}dB` : '';
+  const range = zoom.mode === 'full' ? '全編' : `${zoom.at.toFixed(2)}s〜`;
   return [
-    `   🔎 ズーム: ${zoom.at.toFixed(2)}s〜 scale=${zoom.scale}`,
+    `   🔎 ズーム: ${range} scale=${zoom.scale}`,
     `焦点=${focus.source}(${focus.x.toFixed(2)},${focus.y.toFixed(2)})${note}`,
     `(${zoom.origin}${peak})`,
   ].join(' ');

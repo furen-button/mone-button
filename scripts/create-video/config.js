@@ -449,7 +449,7 @@ function validateConfig(config) {
 }
 
 function validateEffects(config, errors) {
-  const zoomModes = new Set(['punch']);
+  const zoomModes = new Set(['punch', 'full']);
   const focusModes = new Set(['face', 'fixed', 'center']);
   const zoom = config.effects?.zoom;
   if (!zoom) {

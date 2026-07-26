@@ -85,6 +85,22 @@ export async function planZoom({ tools, clip, sourceMp4, config, size, workDir }
   const scale = clampNumber(manual.scale ?? zoomConfig.scale, 1.01, 3);
   const manualAt = finiteNumber(manual.at);
   const forced = override === true;
+  const mode = zoomMode(manual.mode)
+    ?? (manualAt !== null ? 'punch' : zoomMode(zoomConfig.mode))
+    ?? 'punch';
+
+  if (mode === 'full') {
+    const focus = await resolveFocus({
+      tools,
+      config: zoomConfig,
+      sourceMp4,
+      zoomStart: 0,
+      size,
+      workDir,
+      override: manual,
+    });
+    return { at: 0, scale, focus, origin: manual.mode === 'full' ? '手動' : '自動', mode };
+  }
 
   if (manualAt !== null) {
     const at = roundToFps(clamp(manualAt, 0, Math.max(0, duration - 0.2)), size.fps);
@@ -97,7 +113,7 @@ export async function planZoom({ tools, clip, sourceMp4, config, size, workDir }
       workDir,
       override: manual,
     });
-    return { at, scale, focus, origin: '手動' };
+    return { at, scale, focus, origin: '手動', mode };
   }
 
   const loudness = analyzeLoudness({ ffmpeg: tools.ffmpeg, sourceMp4, analysis: zoomConfig.analysis });
@@ -144,7 +160,7 @@ export async function planZoom({ tools, clip, sourceMp4, config, size, workDir }
     workDir,
     override: manual,
   });
-  return { at, scale, focus, origin: '自動', peakDb };
+  return { at, scale, focus, origin: '自動', peakDb, mode };
 }
 
 export function buildZoomFilterComplex({ baseFilters, subFilter, zoom, size }) {
@@ -193,6 +209,10 @@ function parseLoudnessOutput(out, windowSec) {
     }
   }
   return { times, rms, duration: times.at(-1) + windowSec };
+}
+
+function zoomMode(value) {
+  return value === 'punch' || value === 'full' ? value : null;
 }
 
 function parseRms(value) {

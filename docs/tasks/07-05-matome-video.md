@@ -43,6 +43,8 @@
 
 `effects.zoom` は、ffmpeg の `astats` で 0.1 秒刻みの RMS を取り、3 窓移動平均後のピークを見せ場として扱う。ピークの `lead` 秒前から静的 `crop` + `scale` に切り替え、クリップ末尾までアップを保持する。`zoompan` は使わないためジッターがなく、動画時間・fps・音声は変えない。ASS テロップは crop 後に焼き込むので、タイトル・セリフ・進行表示の画面位置も固定される。
 
+`mode` は 2 方式から選ぶ。`punch`（既定）は上記のピーク直前カット、`full` は音声解析を行わず最初から最後までクリップ全編をアップにする（短尺・無音・平坦スキップも適用しない）。`full` でも焦点の顔検出・フォールバックは同様に働く。
+
 焦点は `focus.mode: "face"` の場合、scale+pad 済みの出力キャンバス座標系で PNG を抽出し、`detect_anime_face.py` が `lbpcascade_animeface.xml` で検出する。検出できない場合は `focus.x/y`、さらに中央 `(0.5, 0.5)` へフォールバックする。OpenCV は 5.0 で `CascadeClassifier` が削除されているため、導入コマンドは `pip install "opencv-python-headless<5"` とする。カスケードは `cache/createVideo/models/lbpcascade_animeface.xml` に置き、無ければ `https://raw.githubusercontent.com/nagadomi/lbpcascade_animeface/master/lbpcascade_animeface.xml` から自動取得する。
 
 clip JSON では次のように個別指定できる。
@@ -51,9 +53,10 @@ clip JSON では次のように個別指定できる。
 "effects": { "zoom": false }
 "effects": { "zoom": true }
 "effects": { "zoom": { "at": 2.5, "scale": 1.4, "x": 0.8, "y": 0.75 } }
+"effects": { "zoom": { "mode": "full" } }
 ```
 
-優先順位は `--no-zoom`（グローバル kill switch） > `zoom:false` > `at` 指定 > `zoom:true` > 純自動。無音、音声解析失敗、ズーム区間を確保できない短さではスキップする。200p の `source: existing` でも動くが、ズーム画質を保つ本番用途では `--source cache` を推奨する。将来は sibling キーでオチ演出（引き・モノクロ化）を追加し、必要になった時点で smooth モード、release、解析キャッシュを検討する。
+優先順位は `--no-zoom`（グローバル kill switch） > `zoom:false` > `mode`/`at` 指定 > `zoom:true` > 純自動。クリップの `mode` はグローバル `mode` より優先し、`mode` なしで `at` を指定した場合は punch として扱う（グローバルが `full` でも `at` 指定クリップはピーク位置固定の punch になる）。無音、音声解析失敗、ズーム区間を確保できない短さではスキップする。200p の `source: existing` でも動くが、ズーム画質を保つ本番用途では `--source cache` を推奨する。将来は sibling キーでオチ演出（引き・モノクロ化）を追加し、必要になった時点で smooth モード、release、解析キャッシュを検討する。
 
 ## 素材
 

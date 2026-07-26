@@ -113,9 +113,9 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 
 設定ファイルでは `telops.*.align` に `top-left, top-center, top-right, middle-left, center, middle-right, bottom-left, bottom-center, bottom-right` を指定できる。色は RGB hex で書き、ASS の BGR 色へ変換する。
 
-`--zoom` または `effects.zoom.enabled: true` で、ffmpeg astats の RMS ピーク直前から静的 crop+scale のパンチインを入れる。テロップは crop 後に焼くため画面上の位置は固定され、出力時間・fps・音声パスは変えないので `concat -c copy` を維持できる。焦点は `scripts/create-video/detect_anime_face.py` が scale+pad 済みフレームからアニメ顔を検出し、失敗時は `effects.zoom.focus.x/y`、さらに中央へフォールバックする。顔検出には `pip install "opencv-python-headless<5"` と `cache/createVideo/models/lbpcascade_animeface.xml`（無ければ自動取得）が必要。
+`--zoom` または `effects.zoom.enabled: true` で、ffmpeg astats の RMS ピーク直前から静的 crop+scale のパンチインを入れる。`effects.zoom.mode` は `punch`（既定。ピーク直前でカット）と `full`（最初から最後まで全編アップ）を指定できる。テロップは crop 後に焼くため画面上の位置は固定され、出力時間・fps・音声パスは変えないので `concat -c copy` を維持できる。焦点は `scripts/create-video/detect_anime_face.py` が scale+pad 済みフレームからアニメ顔を検出し、失敗時は `effects.zoom.focus.x/y`、さらに中央へフォールバックする。顔検出には `pip install "opencv-python-headless<5"` と `cache/createVideo/models/lbpcascade_animeface.xml`（無ければ自動取得）が必要。
 
-クリップ JSON では `effects.zoom` で個別上書きできる。`false` は抑止、`true` は短尺/平坦スキップを無視して自動検出、`{"at": 2.5, "scale": 1.4, "x": 0.8, "y": 0.75}` は開始秒・倍率・焦点を手動指定する。`--no-zoom` はグローバル kill switch として個別指定より優先する。
+クリップ JSON では `effects.zoom` で個別上書きできる。`false` は抑止、`true` は短尺/平坦スキップを無視して自動検出、`{"at": 2.5, "scale": 1.4, "x": 0.8, "y": 0.75}` は開始秒・倍率・焦点を手動指定、`{"mode": "full"}` はそのクリップだけ全編アップにする（`mode` はグローバル設定より優先。`at` 指定時は punch 扱い）。`--no-zoom` はグローバル kill switch として個別指定より優先する。
 
 注意:
 - npm の仕様上、引数は `--` の後に渡す（`--videoId=...` 形式の `npm_config_*` フォールバックにも対応）。
