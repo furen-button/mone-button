@@ -22,6 +22,7 @@
       "enabled": true,
       "align": "top-center",
       "size": 0.03,
+      "font": null,
       "color": "FFFFFF",
       "box": {
         "enabled": true,
@@ -37,18 +38,24 @@
       "enabled": true,
       "align": "top-right",
       "size": 0.03,
+      "font": null,
       "color": "FFFFFF"
     },
     "time": {
       "enabled": true,
       "align": "bottom-right",
       "size": 0.042,
+      "font": null,
       "color": "FFFFFF"
     },
     "serif": {
       "enabled": true,
       "align": "bottom-center",
       "size": 0.08,
+      "font": null,
+      "autoShrink": true,
+      "minSize": 0.05,
+      "maxHeight": 0.3,
       "color": "FFC6E2",
       "bold": true,
       "box": {
@@ -56,7 +63,9 @@
         "fill": "FFFFFF",
         "border": "DECDFC",
         "borderWidth": 6,
-        "pad": 10
+        "pad": 10,
+        "radius": 16,
+        "opacity": 1
       },
       "shadow": 2,
       "fade": [
@@ -69,6 +78,7 @@
       "enabled": true,
       "align": "top-left",
       "size": 0.028,
+      "font": null,
       "color": "FFFFFF",
       "format": "{i} / {n}",
       "bar": true
@@ -78,6 +88,8 @@
     "enabled": true,
     "position": "before",
     "duration": 1.5,
+    "font": null,
+    "serif": {},
     "background": {
       "type": "video",
       "video": "assets/create-video/5bg191クロスするハート背景.mp4",
@@ -104,6 +116,7 @@
     "index": {
       "align": "top-right",
       "size": 0.12,
+      "font": null,
       "color": "FFFFFF",
       "prefix": "",
       "suffix": ""
@@ -128,13 +141,17 @@
       "enabled": true,
       "duration": 1.0,
       "title": null,
-      "subtitle": "全{n}クリップ"
+      "subtitle": "全{n}クリップ",
+      "font": null,
+      "video": null
     },
     "ending": {
       "enabled": true,
       "duration": 4.0,
       "text": "ご視聴ありがとうございました",
-      "listClips": false
+      "listClips": false,
+      "font": null,
+      "video": null
     }
   }
 }

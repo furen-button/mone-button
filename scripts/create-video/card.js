@@ -1,9 +1,42 @@
 import fs from 'fs';
 import path from 'path';
 import { buildAss, formatDate, makeTextElement, stripEmoji } from './ass.js';
+import { deepMerge } from './config.js';
 import { cacheThumbnail, optionalAsset } from './assets.js';
-import { encodeArgs, subtitlesFilter } from './ffmpeg.js';
+import { encodeArgs, streamSignature, subtitlesFilter } from './ffmpeg.js';
 import { execFileSync } from 'child_process';
+
+// OP/ED に完成動画が指定されていれば、その動画を 1 セグメントとして
+// （映像は解像度/fps に正規化、音声はそのまま）出力する。未指定/欠落なら null。
+function renderEndcapVideo({ tools, kind, config, workDir, size }) {
+  const spec = config.endcaps[kind] || {};
+  if (!spec.video) {
+    return null;
+  }
+  const videoPath = optionalAsset(spec.video, `${kind} 動画`);
+  if (!videoPath) {
+    return null;
+  }
+  const outPath = path.join(workDir, `${kind}.mp4`);
+  const vf = [
+    `scale=${size.width}:${size.height}:force_original_aspect_ratio=decrease`,
+    `pad=${size.width}:${size.height}:(ow-iw)/2:(oh-ih)/2`,
+    'setsar=1',
+    `fps=${size.fps}`,
+  ].join(',');
+  const hasAudio = streamSignature(tools.ffprobe, videoPath).some((s) => s.type === 'audio');
+  const args = ['-y', '-i', videoPath];
+  if (hasAudio) {
+    args.push('-vf', vf, '-af', 'aresample=44100,aformat=sample_fmts=fltp:channel_layouts=stereo');
+  } else {
+    // 音声トラックが無い動画には無音を付与して concat の署名を揃える。
+    args.push('-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=stereo', '-vf', vf, '-map', '0:v', '-map', '1:a', '-shortest');
+  }
+  args.push(...encodeArgs(config), '-movflags', '+faststart', outPath);
+  console.log(`🎬 ${kind} に指定動画を使用: ${path.basename(videoPath)}`);
+  execFileSync(tools.ffmpeg, args, { stdio: 'inherit' });
+  return outPath;
+}
 
 export async function renderClipCard({ tools, clip, index, total, config, workDir, size }) {
   if (!config.cards.enabled) return null;
@@ -24,6 +57,8 @@ export async function renderClipCard({ tools, clip, index, total, config, workDi
 
 export async function renderOpeningCard({ tools, clips, config, workDir, size, title }) {
   if (!config.endcaps.opening?.enabled) return null;
+  const videoSegment = renderEndcapVideo({ tools, kind: 'opening', config, workDir, size });
+  if (videoSegment) return videoSegment;
   return renderCard({
     tools,
     kind: 'opening',
@@ -40,6 +75,8 @@ export async function renderOpeningCard({ tools, clips, config, workDir, size, t
 
 export async function renderEndingCard({ tools, clips, config, workDir, size }) {
   if (!config.endcaps.ending?.enabled) return null;
+  const videoSegment = renderEndcapVideo({ tools, kind: 'ending', config, workDir, size });
+  if (videoSegment) return videoSegment;
   return renderCard({
     tools,
     kind: 'ending',
@@ -74,7 +111,7 @@ function buildCardElements({ kind, clip, clips, index, total, config, size, titl
       makeTextElement({
         name: 'opening-title',
         text: mainTitle,
-        style: { enabled: true, align: 'center', size: 0.085, color: 'FFFFFF' },
+        style: { enabled: true, align: 'center', size: 0.085, color: 'FFFFFF', font: config.endcaps.opening.font },
         width: size.width,
         height: size.height,
         duration,
@@ -83,7 +120,7 @@ function buildCardElements({ kind, clip, clips, index, total, config, size, titl
       makeTextElement({
         name: 'opening-subtitle',
         text: subtitle,
-        style: { enabled: true, align: 'bottom-center', size: 0.05, color: 'FFFFFF' },
+        style: { enabled: true, align: 'bottom-center', size: 0.05, color: 'FFFFFF', font: config.endcaps.opening.font },
         width: size.width,
         height: size.height,
         duration,
@@ -98,7 +135,7 @@ function buildCardElements({ kind, clip, clips, index, total, config, size, titl
       makeTextElement({
         name: 'ending-text',
         text,
-        style: { enabled: true, align: 'center', size: 0.075, color: 'FFFFFF' },
+        style: { enabled: true, align: 'center', size: 0.075, color: 'FFFFFF', font: config.endcaps.ending.font },
         width: size.width,
         height: size.height,
         duration,
@@ -109,7 +146,7 @@ function buildCardElements({ kind, clip, clips, index, total, config, size, titl
       elements.push(makeTextElement({
         name: 'ending-list',
         text: clips.slice(0, 8).map((item, i) => `${i + 1}. ${item.data.serif || item.base}`).join('\n'),
-        style: { enabled: true, align: 'bottom-center', size: 0.03, color: 'FFFFFF' },
+        style: { enabled: true, align: 'bottom-center', size: 0.03, color: 'FFFFFF', font: config.endcaps.ending.font },
         width: size.width,
         height: size.height,
         duration,
@@ -121,13 +158,15 @@ function buildCardElements({ kind, clip, clips, index, total, config, size, titl
 
   const meta = clip.meta || {};
   const show = config.cards.show || {};
+  // カード全体のテキストフォント既定。個別ブロックの font 未指定時のフォールバック。
+  const cardFont = config.cards.font;
   const elements = [];
   if (show.index) {
     const text = `${config.cards.index.prefix || ''}${index + 1}${config.cards.index.suffix || ''}`;
     elements.push(makeTextElement({
       name: 'card-index',
       text,
-      style: { ...config.cards.index, enabled: true },
+      style: { ...config.cards.index, enabled: true, font: config.cards.index.font ?? cardFont },
       width: size.width,
       height: size.height,
       duration,
@@ -138,7 +177,7 @@ function buildCardElements({ kind, clip, clips, index, total, config, size, titl
     elements.push(makeTextElement({
       name: 'card-title',
       text: stripEmoji(meta.title || ''),
-      style: { enabled: true, align: 'top-center', size: 0.04, color: 'FFFFFF', fade: [100, 100] },
+      style: { enabled: true, align: 'top-center', size: 0.04, color: 'FFFFFF', fade: [100, 100], font: cardFont },
       width: size.width,
       height: size.height,
       duration,
@@ -146,14 +185,22 @@ function buildCardElements({ kind, clip, clips, index, total, config, size, titl
     }));
   }
   if (show.nextSerif) {
+    // カードのセリフは動画中のセリフ(config.telops.serif)を継承し、
+    // config.cards.serif の指定分だけ上書きする（別々に設定できる）。
+    const serifStyle = deepMerge(config.telops.serif, config.cards.serif || {});
+    if (!serifStyle.font && cardFont) {
+      serifStyle.font = cardFont;
+    }
+    const marginH = Math.round(size.width * (serifStyle.marginH ?? 0.08));
+    const marginV = Math.round(size.height * (serifStyle.marginV ?? 0.08));
     elements.push(makeTextElement({
       name: 'serif',
       text: clip.data.serif || '',
-      style: config.telops.serif,
+      style: serifStyle,
       width: size.width,
       height: size.height,
       duration,
-      overrides: { marginH: Math.round(size.width * 0.08), marginV: Math.round(size.height * 0.08), layer: 6 },
+      overrides: { marginH, marginV, layer: 6 },
     }));
   }
 

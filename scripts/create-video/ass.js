@@ -1,5 +1,8 @@
 import { ALIGN, assOverrideColor, rgbToAssBgr } from './config.js';
 
+// ボックス高さ算出とフォント自動縮小で共有する行送り係数。
+const LINE_HEIGHT = 1.25;
+
 export function formatDate(dateStr) {
   if (!dateStr || dateStr.length !== 8) return dateStr || '';
   return `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`;
@@ -132,6 +135,9 @@ function textDialogue(el, width, height) {
     `\\1c${assOverrideColor(el.color || 'FFFFFF')}`,
   ];
 
+  if (el.font) {
+    overrides.push(`\\fn${el.font}`);
+  }
   if (el.bold) overrides.push('\\b1');
   if (el.outline !== undefined) overrides.push(`\\bord${Number(el.outline)}`);
   if (el.outlineColor) overrides.push(`\\3c${assOverrideColor(el.outlineColor)}`);
@@ -158,9 +164,11 @@ function boxDialogues(el, width, height) {
 
   const rect = el.boxRect || textBoxRect(el, width, height);
   const borderWidth = Number(el.box.borderWidth || 0);
+  const radius = Number(el.box.radius || 0);
+  const alpha = boxAlpha(el.box);
   const boxes = [];
   if (el.box.border && borderWidth > 0) {
-    boxes.push(shapeDialogue(el, rect.x, rect.y, rect.width, rect.height, el.box.border, 0));
+    boxes.push(shapeDialogue(el, rect.x, rect.y, rect.width, rect.height, el.box.border, 0, radius, alpha));
   }
   boxes.push(shapeDialogue(
     el,
@@ -169,7 +177,9 @@ function boxDialogues(el, width, height) {
     Math.max(1, rect.width - borderWidth * 2),
     Math.max(1, rect.height - borderWidth * 2),
     el.box.fill || 'FFFFFF',
-    1
+    1,
+    Math.max(0, radius - borderWidth),
+    alpha
   ));
   return boxes;
 }
@@ -179,7 +189,7 @@ function titleBar(el, width, height) {
   const pad = Number(el.box.pad || 0);
   const boxHeight = Math.max(fs + pad * 2, Math.round(height * 0.07));
   el.textPos = { x: width / 2, y: boxHeight / 2 };
-  return shapeDialogue(el, 0, 0, width, boxHeight, el.box.fill || '000000', 0);
+  return shapeDialogue(el, 0, 0, width, boxHeight, el.box.fill || '000000', 0, 0, boxAlpha(el.box));
 }
 
 function textBoxRect(el, width, height) {
@@ -188,7 +198,7 @@ function textBoxRect(el, width, height) {
   const border = Number(el.box.borderWidth || 0);
   const lines = String(el.text || '').split(/\r?\n|\\N/).length;
   const boxWidth = el.box.width || Math.round(width - (el.marginH || Math.round(width * 0.08)) * 2);
-  const boxHeight = el.box.height || Math.round(lines * fs * 1.25 + pad * 2 + border * 2);
+  const boxHeight = el.box.height || Math.round(lines * fs * LINE_HEIGHT + pad * 2 + border * 2);
   const align = el.align || 'bottom-center';
   const marginH = el.marginH || Math.round(width * 0.08);
   const marginV = el.marginV || Math.round(height * 0.045);
@@ -208,14 +218,48 @@ function textBoxRect(el, width, height) {
   return { x, y, width: boxWidth, height: boxHeight };
 }
 
-function shapeDialogue(el, x, y, width, height, fill, layerOffset) {
-  const shape = `m 0 0 l ${Math.round(width)} 0 ${Math.round(width)} ${Math.round(height)} 0 ${Math.round(height)}`;
+function shapeDialogue(el, x, y, width, height, fill, layerOffset, radius = 0, alpha = '') {
+  const w = Math.round(width);
+  const h = Math.round(height);
+  const shape = radius > 0 ? roundedRectShape(w, h, radius) : `m 0 0 l ${w} 0 ${w} ${h} 0 ${h}`;
+  // \1c はアルファを無視するため、透明度は専用の \1a タグで指定する。
+  const alphaTag = alpha ? `\\1a&H${alpha}&` : '';
   return {
     layer: el.boxLayer ?? layerOffset,
     start: el.start,
     end: el.end,
-    text: `{\\an7\\pos(${Math.round(x)},${Math.round(y)})\\p1\\1c${assOverrideColor(fill)}\\bord0\\shad0}${shape}{\\p0}`,
+    text: `{\\an7\\pos(${Math.round(x)},${Math.round(y)})\\p1\\1c${assOverrideColor(fill)}${alphaTag}\\bord0\\shad0}${shape}{\\p0}`,
   };
+}
+
+// box.opacity(0=透明〜1=不透明) を ASS のアルファ 2 桁 hex(00=不透明〜FF=透明) に変換する。
+// 不透明(未指定 or >=1)のときは空文字を返し、\1a を出力しない（後方互換）。
+function boxAlpha(box) {
+  const opacity = box?.opacity;
+  if (opacity === undefined || opacity === null || Number(opacity) >= 1) {
+    return '';
+  }
+  const aa = Math.max(0, Math.min(255, Math.round((1 - Number(opacity)) * 255)));
+  return aa.toString(16).padStart(2, '0').toUpperCase();
+}
+
+// 角丸矩形の ASS drawing パス。四隅をベジェ曲線で丸める。
+function roundedRectShape(w, h, radius) {
+  const r = Math.round(Math.max(0, Math.min(radius, w / 2, h / 2)));
+  if (r <= 0) {
+    return `m 0 0 l ${w} 0 ${w} ${h} 0 ${h}`;
+  }
+  return [
+    `m ${r} 0`,
+    `l ${w - r} 0`,
+    `b ${w} 0 ${w} 0 ${w} ${r}`,
+    `l ${w} ${h - r}`,
+    `b ${w} ${h} ${w} ${h} ${w - r} ${h}`,
+    `l ${r} ${h}`,
+    `b 0 ${h} 0 ${h} 0 ${h - r}`,
+    `l 0 ${r}`,
+    `b 0 0 0 0 ${r} 0`,
+  ].join(' ');
 }
 
 function progressBarDialogues(el, width, height) {
@@ -266,16 +310,37 @@ function karaokeText(text, duration) {
 
 export function makeTextElement({ name, text, style, width, height, duration, index, total, overrides = {} }) {
   if (!style?.enabled || !text) return null;
-  const fs = fontSize(style.size, height);
+  const baseFs = fontSize(style.size, height);
   const marginH = overrides.marginH ?? Math.round(width * (name === 'serif' ? 0.08 : 0.035));
   const marginV = overrides.marginV ?? Math.round(height * 0.045);
-  const wrapped = wrapText(stripEmoji(text), maxUnitsFor(width, marginH, marginH, fs));
+  let fs = baseFs;
+  let wrapped = wrapText(stripEmoji(text), maxUnitsFor(width, marginH, marginH, fs));
+
+  // 箱高さ上限に収める自動縮小。base サイズでの行数は縮小後の実行数以上なので、
+  // その行数で上限を満たす fs を選べば縮小後の箱高さは必ず上限内に収まる（反復不要）。
+  if (style.autoShrink && style.box?.enabled) {
+    const lines = wrapped.split('\n').length;
+    if (lines > 1) {
+      const minFs = fontSize(style.minSize ?? 0.05, height);
+      const budget = Math.round(height * (style.maxHeight ?? 0.3));
+      const pad = Number(style.box.pad || 0);
+      const border = Number(style.box.borderWidth || 0);
+      const fitFs = Math.floor((budget - pad * 2 - border * 2) / (lines * LINE_HEIGHT));
+      fs = Math.max(minFs, Math.min(baseFs, fitFs));
+      if (fs < baseFs) {
+        // 縮小後の幅で再折り返し（自動折り返し行は減りうる＝箱はさらに上限内に収まる）。
+        wrapped = wrapText(stripEmoji(text), maxUnitsFor(width, marginH, marginH, fs));
+      }
+    }
+  }
+
   const fade = Array.isArray(style.fade) ? clampFade(style.fade, duration) : undefined;
   const element = {
     name,
     text: wrapped,
     align: style.align,
-    size: style.size,
+    size: fs,
+    font: style.font,
     color: style.color,
     bold: style.bold,
     shadow: style.shadow,

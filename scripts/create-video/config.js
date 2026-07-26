@@ -42,6 +42,7 @@ export const DEFAULTS = {
       enabled: true,
       align: 'top-center',
       size: 0.03,
+      font: null,
       color: 'FFFFFF',
       box: { enabled: true, fill: '2E9B0E', pad: 12 },
       fade: [200, 200],
@@ -50,18 +51,24 @@ export const DEFAULTS = {
       enabled: true,
       align: 'top-right',
       size: 0.03,
+      font: null,
       color: 'FFFFFF',
     },
     time: {
       enabled: true,
       align: 'bottom-right',
       size: 0.042,
+      font: null,
       color: 'FFFFFF',
     },
     serif: {
       enabled: true,
       align: 'bottom-center',
       size: 0.08,
+      font: null,
+      autoShrink: true,
+      minSize: 0.05,
+      maxHeight: 0.3,
       color: '2020D0',
       bold: true,
       box: {
@@ -70,6 +77,8 @@ export const DEFAULTS = {
         border: '0000CC',
         borderWidth: 6,
         pad: 10,
+        radius: 16,
+        opacity: 1,
       },
       shadow: 2,
       fade: [150, 150],
@@ -79,6 +88,7 @@ export const DEFAULTS = {
       enabled: true,
       align: 'top-left',
       size: 0.028,
+      font: null,
       color: 'FFFFFF',
       format: '{i} / {n}',
       bar: true,
@@ -88,6 +98,12 @@ export const DEFAULTS = {
     enabled: true,
     position: 'before',
     duration: 1.5,
+    // カード内テキスト（番号/タイトル/次のセリフ/情報）の既定フォント。null でグローバル font を使用。
+    // 各ブロックの font を個別指定すればそちらが優先される。
+    font: null,
+    // カードの nextSerif 用スタイル上書き。telops.serif を継承し、ここに書いた差分だけ効く。
+    // marginH/marginV は幅・高さに対する割合で位置も別指定できる（既定 0.08）。
+    serif: {},
     background: {
       type: 'video',
       video: 'assets/create-video/5bg191クロスするハート背景.mp4',
@@ -107,6 +123,7 @@ export const DEFAULTS = {
     index: {
       align: 'top-right',
       size: 0.12,
+      font: null,
       color: 'FFFFFF',
       prefix: '',
       suffix: '',
@@ -129,12 +146,18 @@ export const DEFAULTS = {
       duration: 3.0,
       title: null,
       subtitle: '全{n}クリップ',
+      font: null,
+      // 完成済み動画を指定するとその動画をそのまま OP に使う（テロップ/SE/duration は無視、音声は動画のもの）。
+      video: null,
     },
     ending: {
       enabled: true,
       duration: 4.0,
       text: 'ご視聴ありがとうございました',
       listClips: false,
+      font: null,
+      // 完成済み動画を指定するとその動画をそのまま ED に使う（テロップ/SE/duration は無視、音声は動画のもの）。
+      video: null,
     },
   },
 };
