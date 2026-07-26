@@ -1,0 +1,161 @@
+{
+  "select": {
+    "mode": "videoId",
+    "videoId": null,
+    "categories": [],
+    "files": [],
+    "order": "date",
+    "limit": null
+  },
+  "output": {
+    "dir": "output",
+    "name": null,
+    "resolution": "1920x1080",
+    "fps": 30
+  },
+  "source": "existing",
+  "normalizeCache": true,
+  "font": "Hiragino Sans",
+  "fontsDir": "/System/Library/Fonts",
+  "telops": {
+    "title": {
+      "enabled": true,
+      "align": "top-center",
+      "size": 0.03,
+      "color": "FFFFFF",
+      "box": {
+        "enabled": true,
+        "fill": "2E9B0E",
+        "pad": 12
+      },
+      "fade": [
+        200,
+        200
+      ]
+    },
+    "date": {
+      "enabled": true,
+      "align": "top-center",
+      "size": 0.03,
+      "color": "FFFFFF"
+    },
+    "time": {
+      "enabled": true,
+      "align": "top-right",
+      "size": 0.042,
+      "color": "FFFFFF"
+    },
+    "serif": {
+      "enabled": true,
+      "align": "bottom-left",
+      "size": 0.08,
+      "autoShrink": true,
+      "minSize": 0.05,
+      "maxHeight": 0.25,
+      "color": "FFC6E2",
+      "bold": true,
+      "shadow": 2,
+      "fade": [
+        150,
+        150
+      ],
+      "box": {
+        "enabled": true,
+        "border": "FFC6E2",
+        "borderWidth": 4,
+        "pad": 12,
+        "radius": 50,
+        "opacity": 0.4
+      },
+      "karaoke": false
+    },
+    "progress": {
+      "enabled": true,
+      "align": "top-left",
+      "size": 0.028,
+      "color": "FFFFFF",
+      "format": "{i} / {n}"
+    }
+  },
+  "cards": {
+    "enabled": true,
+    "position": "before",
+    "duration": 1.5,
+    "background": {
+      "type": "video",
+      "video": "assets/create-video/5bg162シンプルドットレインボー.mp4"
+    },
+    "thumbnail": {
+      "enabled": true,
+      "y": 180,
+      "width": 760
+    },
+    "show": {
+      "index": true,
+      "nextSerif": true,
+      "title": true,
+      "date": true,
+      "uploader": true,
+      "sourceUrl": false
+    },
+    "index": {
+      "align": "top-left",
+      "size": 0.05,
+      "color": "FFFFFF",
+      "prefix": "",
+      "suffix": ""
+    },
+    "se": {
+      "enabled": true,
+      "file": "assets/create-video/パッ.mp3",
+      "fadeOut": 0.3
+    },
+    "serif": {
+      "align": "bottom-center",
+      "size": 0.08,
+      "autoShrink": true,
+      "minSize": 0.05,
+      "maxHeight": 0.3,
+      "color": "FFC6E2",
+      "bold": true,
+      "shadow": 4,
+      "fade": [
+        150,
+        150
+      ],
+      "box": {
+        "enabled": true,
+        "fill": "FFFFFF",
+        "pad": 12,
+        "radius": 50,
+        "opacity": 1,
+        "border": "FFC6E2",
+        "borderWidth": 4
+      },
+      "karaoke": false
+    }
+  },
+  "bgm": {
+    "enabled": false,
+    "file": "assets/create-video/kamatamago_C00003_heaven-and-hell.mp3",
+    "volume": 0.15,
+    "fade": [
+      1.0,
+      2.0
+    ]
+  },
+  "endcaps": {
+    "opening": {
+      "enabled": false,
+      "duration": 1.0,
+      "title": null,
+      "subtitle": "全{n}クリップ"
+    },
+    "ending": {
+      "enabled": true,
+      "duration": 3.0,
+      "text": "ご視聴ありがとうございました",
+      "listClips": false
+    }
+  }
+}
