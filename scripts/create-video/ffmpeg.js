@@ -73,16 +73,36 @@ export function concatSegments({ tools, segments, outPath, workDir, config }) {
   const sameSignature = signatures.every((sig) => JSON.stringify(sig) === JSON.stringify(signatures[0]));
 
   if (sameSignature) {
+    // concat デムクサは各セグメント mp4 の edit list（AAC プライミング除去）を無視するため、
+    // 音声を通すとセグメントごとに約46msの遅れが入り、-c copy では累積までする。
+    // 映像のみデムクサで copy し、音声は個別入力から concat フィルタで結合する。
+    // 各音声はデムクサの前進量（コンテナ duration）ちょうどに切り詰め/無音パディングして
+    // 映像タイムラインと厳密に揃える。
+    const inputs = segments.flatMap((segment) => ['-i', segment]);
+    const pads = segments.map((segment, i) => {
+      const slot = probeDuration(tools.ffprobe, segment).toFixed(6);
+      return `[${i + 1}:a]aresample=44100,atrim=0:${slot},apad=whole_dur=${slot}[a${i}]`;
+    });
+    const refs = segments.map((_, i) => `[a${i}]`).join('');
+    const filter = [...pads, `${refs}concat=n=${segments.length}:v=0:a=1[a]`].join(';');
     execFileSync(tools.ffmpeg, [
       '-y',
       '-f', 'concat',
       '-safe', '0',
       '-i', listPath,
-      '-c', 'copy',
+      ...inputs,
+      '-filter_complex', filter,
+      '-map', '0:v',
+      '-map', '[a]',
+      '-c:v', 'copy',
+      '-c:a', 'aac',
+      '-b:a', '128k',
+      '-ar', '44100',
+      '-ac', '2',
       '-movflags', '+faststart',
       outPath,
     ], { stdio: 'inherit' });
-    return { method: 'concat-copy', outPath };
+    return { method: 'concat-vcopy', outPath };
   }
 
   console.warn('⚠️ セグメントのストリーム署名が揃っていないため concat filter にフォールバックします。');
@@ -92,8 +112,14 @@ export function concatSegments({ tools, segments, outPath, workDir, config }) {
 
 function concatFilter({ tools, segments, outPath, config }) {
   const inputs = segments.flatMap((segment) => ['-i', segment]);
-  const refs = segments.map((_, i) => `[${i}:v][${i}:a]`).join('');
-  const filter = `${refs}concat=n=${segments.length}:v=1:a=1[v][a]`;
+  // 音声長が映像長と一致しないセグメントがあると concat filter でも音ズレが
+  // 蓄積するため、各音声をセグメントの映像長ちょうどに切り詰め/無音パディングする。
+  const pads = segments.map((segment, i) => {
+    const duration = probeVideoDuration(tools.ffprobe, segment);
+    return `[${i}:a]atrim=0:${duration},apad=whole_dur=${duration}[a${i}]`;
+  });
+  const refs = segments.map((_, i) => `[${i}:v][a${i}]`).join('');
+  const filter = [...pads, `${refs}concat=n=${segments.length}:v=1:a=1[v][a]`].join(';');
   execFileSync(tools.ffmpeg, [
     '-y',
     ...inputs,
@@ -104,6 +130,18 @@ function concatFilter({ tools, segments, outPath, config }) {
     '-movflags', '+faststart',
     outPath,
   ], { stdio: 'inherit' });
+}
+
+function probeVideoDuration(ffprobe, filePath) {
+  const raw = execFileSync(ffprobe, [
+    '-v', 'error',
+    '-select_streams', 'v:0',
+    '-show_entries', 'stream=start_time,duration',
+    '-of', 'csv=p=0',
+    filePath,
+  ], { encoding: 'utf8' });
+  const [start, duration] = raw.trim().split(',').map(Number);
+  return Math.max(0.04, (Number.isFinite(start) && start > 0 ? start : 0) + (duration || 0)).toFixed(3);
 }
 
 export function streamSignature(ffprobe, filePath) {

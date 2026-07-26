@@ -31,12 +31,13 @@
 - 色は設定では RGB hex、ASS 出力では `&HAABBGGRR` の BGR 順に変換する。
 - クリップ/カード/OP/ED は同じ encode flags で mp4 化する。
 - `--source cache`（高画質DL）は DL 後に `ffmpeg-normalize`（EBU R128 / 既定 -23 LUFS、`public/videos` の download.js と同基準）で**各クリップの音量を正規化**してから cache に保存する。映像は `-c:v copy` で高画質維持、音声のみ正規化。`normalizeCache`（既定 true、`--no-normalize` で無効）で切替。`ffmpeg-normalize` 不在時は警告して生DLを使用。既存 cache は正規化前なので、掛け直すには対象を削除して再DLする。
-- 結合は ffprobe のストリーム署名が一致する場合 `concat -c copy`、不一致なら concat filter で再エンコードする。
+- 結合は ffprobe のストリーム署名が一致する場合、映像は `concat` デムクサで copy・音声は各セグメント入力から concat フィルタで再エンコードする（`concat-vcopy`）。不一致なら concat filter で全再エンコードにフォールバックする。
 - BGM は結合後の最終パスで映像 `-c:v copy`、音声のみ `amix` する。
 - `effects.zoom.enabled` または `--zoom` で、音声ピーク直前からパンチイン・ズームを自動挿入できる。既定は無効。
 
 ## 技術メモ
 
+- **concat の音ズレ（AAC プライミング累積）**: `concat` デムクサはセグメント mp4 の edit list（AAC エンコーダ遅延 ≒ 2 フレーム / 約46ms の除去情報）を無視する。音声を `-c copy` で通すと、各セグメントの生パケットにプライミングが残ったまま連結され、**セグメント数に比例して音声が遅れていく**（17クリップ＋カード構成で末尾 +700ms を実測）。デコードさせても edit list は適用されないため、音声はデムクサを通さず**各セグメントを個別入力として concat フィルタで結合**する。その際、各音声をデムクサの前進量（コンテナ duration）ちょうどに `atrim`+`apad=whole_dur` で揃えることで映像タイムラインと厳密に一致させる（全17クリップでズレ ≤0.1ms を実測確認）。映像は従来どおり copy なので高速なまま。
 - **カードの pix_fmt 正規化（concat-copy 維持の要）**: JPEG サムネを overlay したカードは full-range 由来で `yuvj420p` になり、`yuv420p` のクリップと署名が食い違って毎回 concat filter（全再エンコード）に落ちる。`card.js` の最終映像フィルタ末尾に `scale=out_range=tv,format=yuv420p` を付けて limited-range `yuv420p` に揃え、`concat -c copy` の高速経路を保つ。**この 1 行を外すと再エンコード経路に戻る**ので消さないこと（`-pix_fmt yuv420p` だけでは range が残り効かない）。
 
 ## パンチイン・ズーム
