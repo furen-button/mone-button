@@ -87,6 +87,13 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 - 既定出力は `output/<YYYY-MM-DD>-<videoId>-combined.mp4`。`--out` または config の `output.name` で上書き可。
 - 併せて同名の `output/<...>.txt` に使用クリップの一覧を書き出す（実装は `summary.js`）。1 クリップ = `[動画内での時間] [serif]` / `[元動画タイトル]` / `[clipUrl]` の 2〜3 行で、タイトルは直前と同じなら省略する。時刻は各クリップのブロック先頭（区切りカードがあればその開始）を実尺の積み上げから算出する。
 - クリップ、カード、OP/ED はすべて h264/yuv420p/30fps + aac/44100/stereo に正規化してから concat する。署名が揃えば映像は `concat` デムクサで copy、音声は AAC プライミングの累積音ズレを避けるため各セグメントから直接 concat フィルタで再エンコードする（`concat-vcopy`）。署名不一致なら全再エンコードの concat filter に fallback。
+- タイトル文言は `--title` > `telops.title.overrides[videoId]` > `telops.title.text` > `clip.data.title` > メタタイトル（絵文字除去）の順で解決する。手動改行は `telops.title.overrides` の文字列へ直接入れるか、CLI では `--title '上段\n下段'` のように 2 文字の `\n` で渡せる。
+- セリフテロップは `public/data/*.json` の `serif` に生の改行を書ける。動画生成では手動改行を強制改行の起点として扱い、各セグメント内で自動折り返しと禁則処理を行う。Web サイト表示用の `serif` は `src/voiceData.ts` で改行を無かったものとして正規化する（元から空白で区切られていた箇所は空白を残し、語中で折っただけの箇所は詰める）ため、JSON 側の改行は保持される。
+- `wrapText` は行頭禁則（句読点、終わり括弧、小書き仮名など）と行末禁則（始め括弧）を分割位置の後退で避ける。ぶら下げは使わない。`maxUnits < 4` では禁則と泣き別れ回避を無効化し、行数が増える場合も禁則より行数維持を優先する。折り返し後は各行の行頭・行末の空白を落とす（`\an5` の中央寄せでは行端の空白がその行だけ中心をずらすため）。
+- `autoShrink` は実際に折り返した行数から `boxHeightFor(lines, fs, pad, border)` を測り、二分探索で高さ上限に収まる最大の整数フォントサイズを選ぶ。`minSize` が `size` より大きい場合でも拡大しない。
+
+注意:
+- 2 行タイトルは横幅も約 1711px（1080p）まで伸びるため、`telops.date`（top-right）と `telops.progress`（top-left）に重なることがある。公開用プリセットでは `telops.title.marginH: 0.16` 程度へ広げて回避する。
 
 ### オプション
 
@@ -104,7 +111,7 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 | `--no-cards` | cards有効 | 区切りカードと OP/ED を無効化 |
 | `--bgm` / `--no-bgm` | 無効 | BGM ミックスの有無 |
 | `--zoom` / `--no-zoom` | 無効 | 音声ピークに合わせたパンチイン・ズームの有無 |
-| `--title <text>` / `--no-title` | メタタイトル（絵文字除去） | タイトル文言 / 非表示 |
+| `--title <text>` / `--no-title` | メタタイトル（絵文字除去） | タイトル文言 / 非表示。2 文字の `\n` は手動改行として扱う |
 | `--date` / `--no-date` | 表示 | 日付の有無 |
 | `--serif` / `--no-serif` | 表示 | セリフの有無 |
 | `--time` / `--no-time` | 表示 | 時間（元動画タイムスタンプ）の有無 |
