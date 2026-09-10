@@ -24,6 +24,7 @@ export const DEFAULTS = {
     videoId: null,
     categories: [],
     files: [],
+    exclude: [],
     order: 'date',
     limit: null,
   },
@@ -343,6 +344,11 @@ function cliConfig(opts) {
     if (!optString(opts, 'mode')) out.select.mode = 'files';
   }
 
+  const excludeOpt = optValue(opts, 'exclude');
+  if (excludeOpt !== undefined) {
+    out.select = { ...(out.select || {}), exclude: splitList(excludeOpt) };
+  }
+
   for (const key of ['mode', 'order']) {
     const v = optString(opts, key);
     if (v) out.select = { ...(out.select || {}), [key]: v };
@@ -437,6 +443,9 @@ function validateConfig(config) {
   }
   if (config.select.mode === 'files' && config.select.files.length === 0) {
     errors.push('select.mode=files では --files または select.files が必要です。');
+  }
+  if (!Array.isArray(config.select.exclude)) {
+    errors.push('select.exclude は配列で指定してください。');
   }
 
   validateAligns(config, errors);

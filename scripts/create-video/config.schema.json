@@ -38,6 +38,12 @@
           "default": [],
           "description": "mode=files のとき必須。public/data の JSON ファイル名（base）配列。CLI の --files で上書き可。"
         },
+        "exclude": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "選択後に除外するクリップ。JSON ファイル名（base）または videoId を指定でき、videoId ならその配信の全クリップを除外する。全モードに適用。CLI の --exclude（カンマ区切り）で上書き可。"
+        },
         "order": {
           "type": "string",
           "enum": ["date", "date-desc", "stream", "shuffle", "as-listed"],

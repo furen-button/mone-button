@@ -27,6 +27,7 @@
 - 設定優先順位は `DEFAULTS < config.json < CLI/npm_config_*`。
 - 既定は `source: "existing"`、`1280x720@30`、カード ON、OP/ED ON、進行表示 ON、BGM OFF。
 - 選択モードは `videoId`、`category`（`categories[]` と交差）、`files`。
+- `select.exclude`（CLI は `--exclude`）は選択後・並び替え前に効く。ファイル名（base）または videoId を指定でき、videoId ならその配信の全クリップを落とす。区間が重なる sub-clip やコラボ配信を `public/data` を触らずにビルドから外すためのもので、Web アプリのボタン資産を壊さずに済む。除外リストは複数のまとめ動画で使い回す前提のため、選択に含まれない指定は警告しない（`public/data` のどこにも無い指定＝綴り間違いのときだけ警告する）。
 - 並び順は `date`（uploadDate→startTime 昇順）、`date-desc`、`stream`、`shuffle`、`as-listed`。
 - 色は設定では RGB hex、ASS 出力では `&HAABBGGRR` の BGR 順に変換する。
 - クリップ/カード/OP/ED は同じ encode flags で mp4 化する。

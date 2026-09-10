@@ -95,6 +95,7 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 | `--mode <videoId\|category\|files>` | `videoId` | クリップ選択モード |
 | `--videoId <id>` | なし | 対象 videoId |
 | `--category <name>` | なし | カテゴリー横断選択。カンマ区切り/複数指定可 |
+| `--exclude <name>` | なし | 選択後に除外するクリップ。ファイル名（base）または videoId をカンマ区切りで指定し、videoId ならその配信の全クリップを落とす。全モードに適用 |
 | `--order <date\|date-desc\|stream\|shuffle\|as-listed>` | `date` | 並び順 |
 | `--limit <n>` | なし | クリップ上限 |
 | `--source <existing\|cache>` | `existing` | `existing`=既存 `public/videos/*.mp4` / `cache`=高画質DL＋音量正規化して `cache/createVideo/<videoId>/` に保存 |

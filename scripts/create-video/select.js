@@ -27,6 +27,7 @@ export function collectClips(config) {
       throw new Error(`未対応の select.mode です: ${config.select.mode}`);
   }
 
+  selected = applyExclusions(selected, config.select.exclude, all);
   selected = orderClips(selected, config.select.order, config.select.mode);
   if (config.select.limit !== null && config.select.limit !== undefined) {
     selected = selected.slice(0, Number(config.select.limit));
@@ -76,6 +77,38 @@ function collectExplicitFiles(all, files) {
     if (!clip) throw new Error(`select.files の指定が見つかりません: ${entry}`);
     return clip;
   });
+}
+
+/**
+ * select.exclude で指定されたクリップを落とす。
+ * 指定はファイル名（拡張子あり/なし）でも videoId でもよく、videoId ならその配信の全クリップを除外する。
+ * 区間が重なる sub-clip やコラボ配信を、public/data を触らずにビルドから外すために使う。
+ */
+function applyExclusions(clips, exclude, all) {
+  if (!Array.isArray(exclude) || exclude.length === 0) {
+    return clips;
+  }
+  const keys = new Set(exclude.map((entry) => {
+    const name = path.basename(String(entry));
+    return name.endsWith('.json') ? path.basename(name, '.json') : name;
+  }));
+  const kept = clips.filter((clip) => !keys.has(clip.base) && !keys.has(clip.videoId));
+
+  // 除外リストは複数のまとめ動画で使い回すため、選択に含まれない指定があるのは正常。
+  // public/data のどこにも存在しない指定＝綴り間違いのときだけ警告する。
+  const known = new Set();
+  for (const clip of all) {
+    known.add(clip.base);
+    known.add(clip.videoId);
+  }
+  const unknown = [...keys].filter((key) => !known.has(key));
+  if (unknown.length > 0) {
+    console.warn(`⚠️  select.exclude の指定が public/data に存在しません: ${unknown.join(', ')}`);
+  }
+  if (kept.length < clips.length) {
+    console.log(`🚫 除外 ${clips.length - kept.length} 件`);
+  }
+  return kept;
 }
 
 function orderClips(clips, order, mode) {
