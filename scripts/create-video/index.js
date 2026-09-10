@@ -8,7 +8,7 @@ import { formatDate, stripEmoji } from './ass.js';
 import { renderClip } from './clip.js';
 import { renderClipCard, renderEndingCard, renderOpeningCard } from './card.js';
 import { concatSegments, mixBgm, probeDuration, resolveFfmpeg } from './ffmpeg.js';
-import { buildSummaryEntry, summaryPathFor, writeSummary } from './summary.js';
+import { buildSummaryEntry, writeSummary } from './summary.js';
 
 async function main() {
   const config = loadConfig();
@@ -92,10 +92,20 @@ async function main() {
     console.log(`✅ 完成: ${outPath}`);
     console.log(`   concat: ${concatResult.method}`);
 
-    if (summaryEntries.length > 0) {
-      const summaryPath = summaryPathFor(outPath);
-      writeSummary({ outPath: summaryPath, entries: summaryEntries });
-      console.log(`📝 概要: ${path.relative(projectRoot, summaryPath)}`);
+    if (summaryEntries.length > 0 && config.summary.enabled !== false) {
+      // 最終チャプターの長さを測るために ED まで含めた総尺を渡す。
+      const summaryResult = writeSummary({
+        videoOutPath: outPath,
+        entries: summaryEntries,
+        totalSec: timelineSec,
+        config,
+      });
+      for (const written of summaryResult.written) {
+        console.log(`📝 ${path.relative(projectRoot, written)}`);
+      }
+      for (const warning of summaryResult.warnings) {
+        console.warn(`⚠️  ${warning}`);
+      }
     }
   } finally {
     if (process.env.KEEP_WORKDIR) {
