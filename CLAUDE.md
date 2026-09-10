@@ -85,7 +85,11 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 - 実装は `scripts/create-video/`（index/config/select/ass/clip/card/ffmpeg/assets）。
 - `--mode videoId` / `--mode category` / `--mode files` に対応。既定は `videoId`。
 - 既定出力は `output/<YYYY-MM-DD>-<videoId>-combined.mp4`。`--out` または config の `output.name` で上書き可。
-- 併せて同名の `output/<...>.txt` に使用クリップの一覧を書き出す（実装は `summary.js`）。1 クリップ = `[動画内での時間] [serif]` / `[元動画タイトル]` / `[clipUrl]` の 2〜3 行で、タイトルは直前と同じなら省略する。時刻は各クリップのブロック先頭（区切りカードがあればその開始）を実尺の積み上げから算出する。
+- 併せて YouTube 公開用のメタデータを 3 系統書き出す（実装は `summary.js`、設定は `summary.*`）。時刻は各クリップのブロック先頭（区切りカードがあればその開始）を実尺の積み上げから算出する。
+  - `output/<name>.youtube.txt` … 概要欄本文。チャプター + 配信単位の出典 + 導入文 + 非公式表記。`summary.siteUrl` などが未設定の節は見出しごと省く
+  - `output/<name>.comment.txt` … 固定コメント用のクリップ単位一覧。1 クリップ = `[動画内での時間] [serif]` / `[元動画タイトル]` / `[clipUrl]` の 2〜3 行で、タイトルは直前と同じなら省略する。`summary.maxChars`（既定 5000）を超えると `.comment-1.txt` … へ分割し、各塊の先頭では必ずタイトルを出す
+  - `output/<name>.meta.json` … タイトル案 / タグ / チャプター配列 / 出典。将来の Data API 自動化用
+- チャプターは直前のクリップと videoId が変わった位置で切る。YouTube の要件（先頭 0:00 必須 / 3 つ以上 / 各 10 秒以上）に合わせ、先頭は 0:00 へ丸め、`summary.chapters.minSec` 未満の区間は隣へ吸収し、3 個未満になったら警告して概要欄から省く。ラベルは配信タイトルの `【】` `『』` を整形して使い、`summary.chapters.labels` で `videoId` または `videoId#2`（同じ配信の 2 回目の登場）を指定して上書きできる。
 - クリップ、カード、OP/ED はすべて h264/yuv420p/30fps + aac/44100/stereo に正規化してから concat する。署名が揃えば映像は `concat` デムクサで copy、音声は AAC プライミングの累積音ズレを避けるため各セグメントから直接 concat フィルタで再エンコードする（`concat-vcopy`）。署名不一致なら全再エンコードの concat filter に fallback。
 - タイトル文言は `--title` > `telops.title.overrides[videoId]` > `telops.title.text` > `clip.data.title` > メタタイトル（絵文字除去）の順で解決する。手動改行は `telops.title.overrides` の文字列へ直接入れるか、CLI では `--title '上段\n下段'` のように 2 文字の `\n` で渡せる。
 - セリフテロップは `public/data/*.json` の `serif` に生の改行を書ける。動画生成では手動改行を強制改行の起点として扱い、各セグメント内で自動折り返しと禁則処理を行う。Web サイト表示用の `serif` は `src/voiceData.ts` で改行を無かったものとして正規化する（元から空白で区切られていた箇所は空白を残し、語中で折っただけの箇所は詰める）ため、JSON 側の改行は保持される。
