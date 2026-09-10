@@ -167,6 +167,23 @@ export const DEFAULTS = {
       video: null,
     },
   },
+  // YouTube 公開用メタデータの生成。概要欄テンプレートの可変部をここに置く。
+  summary: {
+    enabled: true,
+    intro: null,
+    notice: null,
+    siteUrl: null,
+    officialChannelUrl: null,
+    footer: [],
+    titleCandidates: [],
+    tags: [],
+    maxChars: 5000,
+    chapters: {
+      enabled: true,
+      minSec: 10,
+      labels: {},
+    },
+  },
   effects: {
     zoom: {
       enabled: false,

@@ -338,6 +338,86 @@
         }
       }
     },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "YouTube 公開用メタデータの生成。出力 mp4 と同じ場所へ .youtube.txt / .comment.txt / .meta.json を書き出す。",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "メタデータ生成の有無。false でも動画は生成する。"
+        },
+        "intro": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "概要欄の冒頭に置く導入文。未指定なら省く。"
+        },
+        "notice": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "非公式表記などの注意書き。導入文の直後に置く。未指定なら省く。"
+        },
+        "siteUrl": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "もねボタンの URL。未指定なら「▼ボタンで遊べるサイト」節ごと省く。"
+        },
+        "officialChannelUrl": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "公式チャンネルの URL。未指定なら「▼公式チャンネル」節ごと省く。"
+        },
+        "footer": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "概要欄の末尾へ追加する任意の段落。ハッシュタグやクレジットなど。"
+        },
+        "titleCandidates": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "動画タイトル案。.meta.json にのみ出力し、概要欄には出さない。"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "YouTube のタグ。.meta.json にのみ出力する。"
+        },
+        "maxChars": {
+          "type": "number",
+          "minimum": 0,
+          "default": 5000,
+          "description": "概要欄と固定コメントの文字数上限。概要欄は超過を警告するだけ、固定コメントは分割する。0 で無効。"
+        },
+        "chapters": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "チャプター生成。境界は直前のクリップと videoId が変わった位置。",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "チャプター節を概要欄に出すかどうか。"
+            },
+            "minSec": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "default": 10,
+              "description": "1 チャプターの最短秒数。これ未満の区間は隣へ吸収する。YouTube の要件は 10 秒。"
+            },
+            "labels": {
+              "type": "object",
+              "additionalProperties": { "type": "string" },
+              "default": {},
+              "description": "videoId ごとのチャプター名の上書き。未指定なら配信タイトルから【】を整形して使う。"
+            }
+          }
+        }
+      }
+    },
     "effects": {
       "type": "object",
       "additionalProperties": false,
