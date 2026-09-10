@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { buildAss, formatDate, makeTextElement, stripEmoji } from './ass.js';
+import { buildAss, formatDate, makeTextElement, resolveTitleText, stripEmoji } from './ass.js';
 import { deepMerge } from './config.js';
 import { cacheThumbnail, optionalAsset } from './assets.js';
 import { encodeArgs, streamSignature, subtitlesFilter } from './ffmpeg.js';
@@ -176,7 +176,7 @@ function buildCardElements({ kind, clip, clips, index, total, config, size, titl
   if (show.title) {
     elements.push(makeTextElement({
       name: 'card-title',
-      text: stripEmoji(meta.title || ''),
+      text: resolveTitleText({ clip, config, titleOverride: null }),
       style: { enabled: true, align: 'top-center', size: 0.04, color: 'FFFFFF', fade: [100, 100], font: cardFont },
       width: size.width,
       height: size.height,

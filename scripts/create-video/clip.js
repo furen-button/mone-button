@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { execFileSync } from 'child_process';
 import { cacheRoot, downloadHighQuality, videosDir } from './assets.js';
-import { buildAss, formatDate, formatTimestamp, makeTextElement, stripEmoji } from './ass.js';
+import { buildAss, formatDate, formatTimestamp, makeTextElement, resolveTitleText } from './ass.js';
 import { buildZoomFilterComplex, planZoom, zoomCropFilters } from './effects.js';
 import { encodeArgs, subtitlesFilter } from './ffmpeg.js';
 
@@ -102,7 +102,7 @@ export function buildClipElements({ clip, index, total, config, size, titleOverr
   const meta = clip.meta || {};
   const dateText = formatDate(meta.uploadDate);
   const duration = clip.duration || Math.max(0.1, clip.endTime - clip.startTime);
-  const titleText = titleOverride || stripEmoji(meta.title || '');
+  const titleText = resolveTitleText({ clip, config, titleOverride });
   const elements = [];
 
   elements.push(makeTextElement({
