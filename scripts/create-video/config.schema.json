@@ -118,6 +118,34 @@
             "align": { "$ref": "#/$defs/align" },
             "size": { "$ref": "#/$defs/size" },
             "font": { "$ref": "#/$defs/font" },
+            "autoShrink": {
+              "type": "boolean",
+              "default": true,
+              "description": "複数行タイトルのとき、タイトルバーの高さ上限に収まる最大フォントサイズへ自動縮小する。"
+            },
+            "minSize": { "$ref": "#/$defs/size", "description": "タイトル autoShrink の下限。0〜1で画面高さ比、1超で px。" },
+            "maxHeight": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "default": 0.09,
+              "description": "タイトル autoShrink の目標上限。0〜1 は画面高さに対する割合（例 0.09=9%）、1超で px。"
+            },
+            "marginH": {
+              "type": "number",
+              "default": 0.035,
+              "description": "タイトルの左右マージン（幅に対する割合）。折り返し幅に使う。2行タイトルが日付・進行表示と重なる場合は 0.16 程度に広げる。"
+            },
+            "text": {
+              "type": ["string", "null"],
+              "default": null,
+              "description": "全クリップ共通のタイトル文言。null でクリップ/動画メタデータのタイトルを使う。"
+            },
+            "overrides": {
+              "type": "object",
+              "default": {},
+              "additionalProperties": { "type": "string" },
+              "description": "videoId ごとのタイトル文言上書き。手動改行は \\n を含む文字列で指定できる。"
+            },
             "color": { "$ref": "#/$defs/color" },
             "box": { "$ref": "#/$defs/box" },
             "fade": { "$ref": "#/$defs/fadeMs" }
@@ -461,7 +489,7 @@
         "karaoke": { "type": "boolean", "default": false, "description": "カラオケ風に1文字ずつ表示するか。" },
         "marginH": {
           "type": "number",
-          "description": "左右マージン（幅に対する割合、既定0.08）。※ cards.serif でのみ有効（動画中セリフは内部計算）。"
+          "description": "左右マージン（幅に対する割合、既定0.08）。折り返し幅と配置に使用。"
         },
         "marginV": {
           "type": "number",

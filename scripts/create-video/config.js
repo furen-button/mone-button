@@ -44,6 +44,12 @@ export const DEFAULTS = {
       align: 'top-center',
       size: 0.03,
       font: null,
+      autoShrink: true,
+      minSize: 0.02,
+      maxHeight: 0.09,
+      marginH: 0.035,
+      text: null,
+      overrides: {},
       color: 'FFFFFF',
       box: { enabled: true, fill: '2E9B0E', pad: 12 },
       fade: [200, 200],
@@ -373,7 +379,7 @@ function cliConfig(opts) {
   if (font) out.font = font;
 
   const title = optString(opts, 'title');
-  if (title) out.titleOverride = title;
+  if (title) out.titleOverride = title.replace(/\\n/g, '\n');
 
   const cards = optBool(opts, 'cards');
   if (cards === false) {
@@ -450,6 +456,7 @@ function validateConfig(config) {
 
   validateAligns(config, errors);
   validateColors(config, errors);
+  validateTitleOverrides(config, errors);
   validateEffects(config, errors);
 
   if (errors.length > 0) {
@@ -533,6 +540,19 @@ function validateColors(config, errors) {
       rgbToAssBgr(color);
     } catch (err) {
       errors.push(err.message);
+    }
+  }
+}
+
+function validateTitleOverrides(config, errors) {
+  const overrides = config.telops.title.overrides;
+  if (!isPlainObject(overrides)) {
+    errors.push('telops.title.overrides は videoId をキーにしたオブジェクトで指定してください。');
+    return;
+  }
+  for (const [videoId, value] of Object.entries(overrides)) {
+    if (typeof value !== 'string') {
+      errors.push(`telops.title.overrides.${videoId} は文字列で指定してください。`);
     }
   }
 }
