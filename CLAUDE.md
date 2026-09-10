@@ -85,6 +85,7 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 - 実装は `scripts/create-video/`（index/config/select/ass/clip/card/ffmpeg/assets）。
 - `--mode videoId` / `--mode category` / `--mode files` に対応。既定は `videoId`。
 - 既定出力は `output/<YYYY-MM-DD>-<videoId>-combined.mp4`。`--out` または config の `output.name` で上書き可。
+- 併せて同名の `output/<...>.txt` に使用クリップの一覧を書き出す（実装は `summary.js`）。1 クリップ = `[動画内での時間] [serif]` / `[元動画タイトル]` / `[clipUrl]` の 2〜3 行で、タイトルは直前と同じなら省略する。時刻は各クリップのブロック先頭（区切りカードがあればその開始）を実尺の積み上げから算出する。
 - クリップ、カード、OP/ED はすべて h264/yuv420p/30fps + aac/44100/stereo に正規化してから concat する。署名が揃えば映像は `concat` デムクサで copy、音声は AAC プライミングの累積音ズレを避けるため各セグメントから直接 concat フィルタで再エンコードする（`concat-vcopy`）。署名不一致なら全再エンコードの concat filter に fallback。
 
 ### オプション

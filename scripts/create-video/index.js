@@ -7,7 +7,8 @@ import { collectClips } from './select.js';
 import { formatDate, stripEmoji } from './ass.js';
 import { renderClip } from './clip.js';
 import { renderClipCard, renderEndingCard, renderOpeningCard } from './card.js';
-import { concatSegments, mixBgm, resolveFfmpeg } from './ffmpeg.js';
+import { concatSegments, mixBgm, probeDuration, resolveFfmpeg } from './ffmpeg.js';
+import { buildSummaryEntry, summaryPathFor, writeSummary } from './summary.js';
 
 async function main() {
   const config = loadConfig();
@@ -18,6 +19,13 @@ async function main() {
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'createVideo-'));
   const titleOverride = config.titleOverride || null;
   const segments = [];
+  // 各セグメントの実尺を積み上げ、クリップが動画内のどの時刻に出るかを記録する。
+  const summaryEntries = [];
+  let timelineSec = 0;
+  const pushSegment = (segment) => {
+    segments.push(segment);
+    timelineSec += probeDuration(tools.ffprobe, segment);
+  };
 
   console.log(`🚀 ${describeSelection(config)} のクリップ ${clips.length} 件をまとめ動画にします（source=${config.source}）`);
   if (config.__meta.configPath) console.log(`🧩 config: ${path.relative(projectRoot, config.__meta.configPath)}`);
@@ -31,7 +39,7 @@ async function main() {
       size,
       title: titleOverride || null,
     });
-    if (opening) segments.push(opening);
+    if (opening) pushSegment(opening);
 
     for (let i = 0; i < clips.length; i++) {
       const clip = clips[i];
@@ -57,12 +65,14 @@ async function main() {
         workDir,
         size,
       });
-      if (cardSegment) segments.push(cardSegment);
-      segments.push(clipSegment);
+      // クリップのブロック先頭（区切りカードがあればその開始）を出現時刻とする。
+      summaryEntries.push(buildSummaryEntry(clip, timelineSec));
+      if (cardSegment) pushSegment(cardSegment);
+      pushSegment(clipSegment);
     }
 
     const ending = await renderEndingCard({ tools, clips, config, workDir, size });
-    if (ending) segments.push(ending);
+    if (ending) pushSegment(ending);
 
     if (segments.length === 0) {
       throw new Error('結合できるセグメントがありませんでした。');
@@ -81,6 +91,12 @@ async function main() {
 
     console.log(`✅ 完成: ${outPath}`);
     console.log(`   concat: ${concatResult.method}`);
+
+    if (summaryEntries.length > 0) {
+      const summaryPath = summaryPathFor(outPath);
+      writeSummary({ outPath: summaryPath, entries: summaryEntries });
+      console.log(`📝 概要: ${path.relative(projectRoot, summaryPath)}`);
+    }
   } finally {
     if (process.env.KEEP_WORKDIR) {
       console.log(`🔧 KEEP_WORKDIR: 中間ファイルを保持 ${workDir}`);
