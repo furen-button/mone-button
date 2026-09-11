@@ -5,8 +5,14 @@ import {
   projectRoot,
   schemaPath,
 } from '../lib/paths.js';
+import { createClipRoutes } from './clips.js';
+import { createFileRoutes } from './files.js';
+import { createJobRoutes } from './jobs.js';
 import { createPresetRoutes } from './presets.js';
+import { createStillRoutes } from './still.js';
 import { createValidateRoutes } from './validate.js';
+
+export { shutdownJobs } from './jobs.js';
 
 export function createHandlers(context = {}) {
   const resolvedContext = {
@@ -21,6 +27,10 @@ export function createHandlers(context = {}) {
   return [
     ...createPresetRoutes(resolvedContext),
     ...createValidateRoutes(resolvedContext),
+    ...createClipRoutes(resolvedContext),
+    ...createStillRoutes(resolvedContext),
+    ...createJobRoutes(resolvedContext),
+    ...createFileRoutes(resolvedContext),
   ];
 }
 
