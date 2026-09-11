@@ -78,6 +78,14 @@ npm run import   # sync → extract → download を一括実行
 
 `public/data/*.json` のクリップを選択し、YouTube まとめ動画形式（OP/ED、区切りカード、タイトルバー、セリフボックス、進行表示）で 1 本の mp4 にする。既定プリセットは `scripts/create-video/config.json`。
 
+| プリセット | 用途 |
+|---|---|
+| `config.json` | 既定。緑のタイトルバー + 白地のセリフボックス。`source existing`（144p）でエフェクト無し |
+| `config-mone.json` | 紫 + ピンクの公開用の見た目。`source cache`・zoom 全編アップ。OP 無し |
+| `config-matome-01.json` | 名場面集 #1。`select.mode files` に 99 件を固定し、概要欄の文言も入る |
+| `config-hq.json` | **公開用 高画質のひな形**。`source cache` 1080p + zoom punch + 顔回避 + Anime4K 補正 + カード/OP/ED。`--videoId` で配信を指定する |
+| `config-category.json` | **カテゴリ横断まとめのひな形**。`select.mode category`（既定は「やられ」）。OP タイトルはカテゴリ名から自動生成される |
+
 ```
 npm run createVideo -- --videoId gr9WJDYS_u0
 ```
