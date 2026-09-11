@@ -42,6 +42,34 @@ export function SchemaForm({ rootKeys, expansion }: SchemaFormProps) {
   )
 }
 
+// 指定パスの項目だけを描く。プレビュー画面のつまみのように、設定タブと同じ patch を共有したまま
+// 一部のフィールドを別の場所に出すために使う。
+export function SchemaFieldList({ paths }: { paths: string[][] }) {
+  const context = useEditorContext()
+  const expansion: FormExpansion = { mode: 'expand', token: 0 }
+  return (
+    <div className="cv-schemaForm cv-schemaForm--compact">
+      {paths.map((path) => {
+        const node = schemaNodeAt(context.schema, path)
+        return node ? renderField({ node, path, rootPath: [path[0]], expansion, root: context.schema }) : null
+      })}
+    </div>
+  )
+}
+
+function schemaNodeAt(root: SchemaNode, path: string[]): unknown {
+  let node: unknown = root
+  for (const key of path) {
+    const { node: schema } = derefSchema(node, root)
+    const properties = record(schema.properties)
+    if (!properties || !(key in properties)) {
+      return null
+    }
+    node = properties[key]
+  }
+  return node
+}
+
 type RenderArgs = {
   node: unknown
   path: string[]

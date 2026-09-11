@@ -15,7 +15,7 @@ export function StringListField({ path }: StringListFieldProps) {
     return (
       <div className="cv-noteControl">
         <strong>{items.length} 件</strong>
-        <span>クリップタブで並べ替え（次の段で実装）</span>
+        <span>クリップタブで並べ替え</span>
       </div>
     )
   }

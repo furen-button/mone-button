@@ -4,7 +4,8 @@ import type { JsonObject, PreflightState } from '../types'
 
 const IDLE_STATE: PreflightState = { state: 'idle', response: null, error: '' }
 
-export function usePreflight(name: string, draft: JsonObject): PreflightState {
+// nonce は public/data 側の保存など、draft 以外の要因で再検証したいときに増やす。
+export function usePreflight(name: string, draft: JsonObject, nonce = 0): PreflightState {
   const [preflight, setPreflight] = useState<PreflightState>(IDLE_STATE)
 
   useEffect(() => {
@@ -29,7 +30,7 @@ export function usePreflight(name: string, draft: JsonObject): PreflightState {
       window.clearTimeout(timer)
       controller.abort()
     }
-  }, [draft, name])
+  }, [draft, name, nonce])
 
   return name ? preflight : IDLE_STATE
 }
