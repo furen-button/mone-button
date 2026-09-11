@@ -163,9 +163,9 @@ export async function planZoom({ tools, clip, sourceMp4, config, size, workDir }
   return { at, scale, focus, origin: '自動', peakDb, mode };
 }
 
-export function buildZoomFilterComplex({ baseFilters, subFilter, zoom, size }) {
+export function buildZoomFilterComplex({ baseFilters, subFilter, zoom, size, upscale = null }) {
   const base = baseFilters.join(',');
-  const crop = zoomCropFilters({ zoom, size }).join(',');
+  const crop = zoomCropFilters({ zoom, size, upscale }).join(',');
   const at = formatSeconds(zoom.at);
   const subtitle = subFilter ? `[zv]${subFilter}[v]` : '[zv]null[v]';
   return [
@@ -177,7 +177,18 @@ export function buildZoomFilterComplex({ baseFilters, subFilter, zoom, size }) {
   ].join(';');
 }
 
-export function zoomCropFilters({ zoom, size }) {
+// upscale を渡すと切り出し後の拡大フィルタを差し替える（effects.enhance の Anime4K CNN 拡大）。未指定なら従来の lanczos。
+export function zoomCropFilters({ zoom, size, upscale = null }) {
+  const { cropWidth, cropHeight, cropX, cropY } = zoomCropRect({ zoom, size });
+  return [
+    `crop=${cropWidth}:${cropHeight}:${cropX}:${cropY}`,
+    upscale || `scale=${size.width}:${size.height}:flags=lanczos`,
+    'setsar=1',
+  ];
+}
+
+// ズームで切り出す矩形（scale+pad 済みフレーム上の px）。フィルタ文字列と顔矩形の座標変換で共有する。
+export function zoomCropRect({ zoom, size }) {
   const scale = Math.max(1.01, Number(zoom.scale) || 1.3);
   const cropWidth = even(Math.max(2, size.width / scale));
   const cropHeight = even(Math.max(2, size.height / scale));
@@ -185,11 +196,65 @@ export function zoomCropFilters({ zoom, size }) {
   const rawY = Math.round(zoom.focus.y * size.height - cropHeight / 2);
   const cropX = evenFloor(clamp(rawX, 0, size.width - cropWidth));
   const cropY = evenFloor(clamp(rawY, 0, size.height - cropHeight));
-  return [
-    `crop=${cropWidth}:${cropHeight}:${cropX}:${cropY}`,
-    `scale=${size.width}:${size.height}:flags=lanczos`,
-    'setsar=1',
-  ];
+  return { cropWidth, cropHeight, cropX, cropY };
+}
+
+// scale+pad 済みフレーム上の矩形を、ズーム後の出力座標へ写す。画面外にはみ出す分は切り落とす。
+export function transformRectThroughZoom(rect, { zoom, size }) {
+  const { cropWidth, cropHeight, cropX, cropY } = zoomCropRect({ zoom, size });
+  const sx = size.width / cropWidth;
+  const sy = size.height / cropHeight;
+  const x0 = clamp((rect.x - cropX) * sx, 0, size.width);
+  const y0 = clamp((rect.y - cropY) * sy, 0, size.height);
+  const x1 = clamp((rect.x + rect.w - cropX) * sx, 0, size.width);
+  const y1 = clamp((rect.y + rect.h - cropY) * sy, 0, size.height);
+  if (x1 <= x0 || y1 <= y0) {
+    return null;
+  }
+  return { x: Math.round(x0), y: Math.round(y0), w: Math.round(x1 - x0), h: Math.round(y1 - y0) };
+}
+
+// 指定時刻のフレームから最大の顔を 1 つずつ拾い、scale+pad 済み出力座標の矩形（px）で返す。
+// cv2 やモデルが無い、顔が無いときは空配列。ズームの焦点検出と同じ検出器を使う。
+export async function detectFaceRects({ tools, focus, sourceMp4, size, workDir, times }) {
+  const python = String(focus?.python || 'python3');
+  if (!hasCv2(python)) {
+    warnCv2();
+    return [];
+  }
+  const cascade = await ensureCascade(focus?.cascade);
+  if (!cascade) {
+    return [];
+  }
+  const framePaths = extractPaddedFrames({ ffmpeg: tools.ffmpeg, sourceMp4, times, size, workDir, subdir: 'face-rects' });
+  if (framePaths.length === 0) {
+    return [];
+  }
+  try {
+    const scriptPath = path.join(moduleDir, 'detect_anime_face.py');
+    const out = execFileSync(python, [scriptPath, '--cascade', cascade, ...framePaths], { encoding: 'utf8' });
+    return largestFaces(JSON.parse(out));
+  } catch (err) {
+    if (err.status === 2) {
+      warnCv2();
+    }
+    return [];
+  }
+}
+
+function largestFaces(detections) {
+  const rects = [];
+  for (const item of detections) {
+    const faces = Array.isArray(item.faces) ? item.faces : [];
+    const face = faces
+      .map((entry) => ({ x: Number(entry.x), y: Number(entry.y), w: Number(entry.w), h: Number(entry.h) }))
+      .filter((entry) => [entry.x, entry.y, entry.w, entry.h].every(Number.isFinite) && entry.w > 0 && entry.h > 0)
+      .sort((a, b) => b.w * b.h - a.w * a.h)[0];
+    if (face) {
+      rects.push(face);
+    }
+  }
+  return rects;
 }
 
 function parseLoudnessOutput(out, windowSec) {
@@ -318,12 +383,17 @@ async function ensureCascade(configuredPath) {
 
 function extractFocusFrames({ ffmpeg, sourceMp4, zoomStart, size, workDir, frames }) {
   const count = Math.max(1, Math.round(Number(frames) || 3));
-  const frameDir = path.join(workDir, 'zoom-focus');
+  const times = Array.from({ length: count }, (_, i) => Math.max(0, zoomStart + 0.1 + i * 0.3));
+  return extractPaddedFrames({ ffmpeg, sourceMp4, times, size, workDir, subdir: 'zoom-focus' });
+}
+
+// 出力と同じ scale+pad を掛けたフレームを指定時刻で抜く。顔検出はこの座標系で行う。
+function extractPaddedFrames({ ffmpeg, sourceMp4, times, size, workDir, subdir }) {
+  const frameDir = path.join(workDir, subdir);
   fs.mkdirSync(frameDir, { recursive: true });
   const out = [];
-  for (let i = 0; i < count; i++) {
-    const at = Math.max(0, zoomStart + 0.1 + i * 0.3);
-    const outPath = path.join(frameDir, `${safeBaseName(sourceMp4)}-${Math.round(zoomStart * 1000)}-${i}.png`);
+  for (const [i, at] of times.entries()) {
+    const outPath = path.join(frameDir, `${safeBaseName(sourceMp4)}-${Math.round(at * 1000)}-${i}.png`);
     try {
       execFileSync(ffmpeg, [
         '-y',
