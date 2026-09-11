@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { EditorApiError, getPreset, getSchema, listPresets, savePreset } from './api'
+import { usePreflight } from './hooks/usePreflight'
+import { SettingsPanel } from './panels/SettingsPanel'
+import { isSettingsTabId, type SettingsTabId } from './panels/settingsTabs'
+import { EditorContextProvider } from './schema-form/EditorContext'
+import { collectSchemaPathKeys, errorPathFromMessage, pathKey } from './schema-form/resolveSchema'
 import {
   applyPatch,
   deepMerge,
@@ -9,7 +14,7 @@ import {
   presetStoreReducer,
 } from './state/presetStore'
 import { loadSession, saveSession } from './state/session'
-import type { ConflictPreset, JsonObject, Patch, PresetFile, PresetSummary, SchemaResponse } from './types'
+import type { ConflictPreset, JsonObject, Patch, PresetFile, PresetSummary, SchemaResponse, ValidationResult } from './types'
 
 type LoadOptions = {
   patch?: Patch
@@ -32,7 +37,9 @@ export function EditorApp() {
   const [currentPreset, setCurrentPreset] = useState<PresetFile | null>(null)
   const [store, dispatch] = useReducer(presetStoreReducer, initialPresetStore)
   const [activeTab, setActiveTab] = useState<TabId>('settings')
+  const [activeSettingsTab, setActiveSettingsTab] = useState<SettingsTabId>('select')
   const [showResolved, setShowResolved] = useState(false)
+  const [hideInherited, setHideInherited] = useState(false)
   const [status, setStatus] = useState<Status>('idle')
   const [errorMessage, setErrorMessage] = useState('')
   const [conflict, setConflict] = useState<ConflictPreset | null>(null)
@@ -46,9 +53,41 @@ export function EditorApp() {
     }
     return deepMerge(schemaResponse.defaults, draft) as JsonObject
   }, [draft, schemaResponse])
+  const preflight = usePreflight(store.name, draft)
   const jsonText = useMemo(() => JSON.stringify(showResolved ? resolved : draft, null, 2), [draft, resolved, showResolved])
-  const validationErrors = currentPreset?.validation.errors ?? []
+  const validation = preflight.response?.validation ?? currentPreset?.validation ?? VALIDATION_OK
+  const schemaPathKeys = useMemo(() => (schemaResponse ? collectSchemaPathKeys(schemaResponse.schema) : new Set<string>()), [schemaResponse])
+  const unmatchedValidationErrors = useMemo(
+    () => validation.errors.filter((error) => {
+      const errorPath = errorPathFromMessage(error)
+      return !errorPath || !schemaPathKeys.has(pathKey(errorPath))
+    }),
+    [schemaPathKeys, validation.errors],
+  )
+  const preflightSummary = preflight.response?.preflight?.summary ?? { error: 0, warn: 0, info: 0 }
+  const selectError = preflight.response?.selectError ?? ''
   const selectedSummary = presets.find((preset) => preset.name === store.name)?.summary ?? null
+  const patchKeys = useMemo(() => new Set(store.patch.set.keys()), [store.patch.set])
+  const unsetKeys = useMemo(() => new Set(store.patch.unset), [store.patch.unset])
+  const setValue = useCallback((path: string[], value: unknown) => {
+    dispatch({ type: 'setValue', path, value })
+  }, [])
+  const unsetValue = useCallback((path: string[]) => {
+    dispatch({ type: 'unsetValue', path })
+  }, [])
+  const editorContext = useMemo(() => ({
+    schema: schemaResponse?.schema ?? {},
+    defaults: schemaResponse?.defaults ?? {},
+    raw: store.raw,
+    draft,
+    resolved,
+    patch: patchKeys,
+    unsetKeys,
+    setValue,
+    unsetValue,
+    hideInherited,
+    preflight,
+  }), [draft, hideInherited, patchKeys, preflight, resolved, schemaResponse, setValue, store.raw, unsetKeys, unsetValue])
 
   const loadPresetByName = useCallback(async (name: string, options: LoadOptions = {}) => {
     setStatus('loading')
@@ -74,6 +113,9 @@ export function EditorApp() {
       const session = loadSession()
       if (isTabId(session?.tab)) {
         setActiveTab(session.tab)
+      }
+      if (isSettingsTabId(session?.settingsTab)) {
+        setActiveSettingsTab(session.settingsTab)
       }
 
       try {
@@ -120,9 +162,9 @@ export function EditorApp() {
 
   useEffect(() => {
     if (store.name) {
-      saveSession({ name: store.name, patch, tab: activeTab })
+      saveSession({ name: store.name, patch, tab: activeTab, settingsTab: activeSettingsTab })
     }
-  }, [activeTab, patch, store.name])
+  }, [activeSettingsTab, activeTab, patch, store.name])
 
   const handleSave = useCallback(async () => {
     if (!store.name) {
@@ -194,7 +236,8 @@ export function EditorApp() {
   }, [loadPresetByName, store.name])
 
   return (
-    <main className="cv-shell">
+    <EditorContextProvider value={editorContext}>
+      <main className="cv-shell">
       <header className="cv-topbar">
         <div className="cv-titleBlock">
           <span className="cv-devBadge">DEV</span>
@@ -233,11 +276,35 @@ export function EditorApp() {
             {status === 'saving' ? '保存中' : '保存 ⌘S'}
           </button>
           <span className={dirty > 0 ? 'cv-dirtyBadge is-dirty' : 'cv-dirtyBadge'}>{dirty} 件</span>
+          <button
+            type="button"
+            className={validation.ok ? 'cv-statusBadge is-ok' : 'cv-statusBadge is-error'}
+            onClick={() => setActiveTab('settings')}
+          >
+            検証 {validation.ok ? 'OK' : `${validation.errors.length} 件`}
+          </button>
+          <button
+            type="button"
+            className={preflightSummary.error > 0 ? 'cv-statusBadge is-error' : 'cv-statusBadge is-muted'}
+            onClick={() => setActiveTab('settings')}
+          >
+            error {preflightSummary.error}
+          </button>
+          <button
+            type="button"
+            className={preflightSummary.warn > 0 ? 'cv-statusBadge is-warn' : 'cv-statusBadge is-muted'}
+            onClick={() => setActiveTab('settings')}
+          >
+            warn {preflightSummary.warn}
+          </button>
+          {preflight.state === 'pending' ? <span className="cv-spinnerText">検証中...</span> : null}
         </div>
       </header>
 
       {status === 'error' && errorMessage ? <p className="cv-alert is-error">{errorMessage}</p> : null}
       {status === 'saved' ? <p className="cv-alert is-saved">保存しました</p> : null}
+      {selectError ? <p className="cv-alert is-warning">{selectError}</p> : null}
+      {preflight.state === 'error' ? <p className="cv-alert is-error">検証リクエストに失敗しました: {preflight.error}</p> : null}
 
       {conflict ? (
         <section className="cv-conflict" aria-live="polite">
@@ -253,11 +320,11 @@ export function EditorApp() {
         </section>
       ) : null}
 
-      {validationErrors.length > 0 ? (
+      {unmatchedValidationErrors.length > 0 ? (
         <section className="cv-validation" aria-live="polite">
           <strong>validation errors</strong>
           <ul>
-            {validationErrors.map((error) => (
+            {unmatchedValidationErrors.map((error) => (
               <li key={error}>{error}</li>
             ))}
           </ul>
@@ -279,29 +346,26 @@ export function EditorApp() {
 
       <section className="cv-content">
         {activeTab === 'settings' ? (
-          <div className="cv-settings">
-            <div className="cv-sectionHeader">
-              <h2>設定</h2>
-              <label className="cv-toggle">
-                <input
-                  type="checkbox"
-                  checked={showResolved}
-                  onChange={(event) => setShowResolved(event.target.checked)}
-                />
-                <span>解決済み（DEFAULTS を含む）を表示</span>
-              </label>
-            </div>
-            <pre className="cv-json" aria-label="preset json">
-              {store.name ? jsonText : 'プリセットを選択してください'}
-            </pre>
-          </div>
+          <SettingsPanel
+            activeTab={activeSettingsTab}
+            onTabChange={setActiveSettingsTab}
+            showResolved={showResolved}
+            onShowResolvedChange={setShowResolved}
+            hideInherited={hideInherited}
+            onHideInheritedChange={setHideInherited}
+            jsonText={jsonText}
+            hasPreset={Boolean(store.name)}
+          />
         ) : (
           <p className="cv-empty">Phase 4b 以降で実装</p>
         )}
       </section>
-    </main>
+      </main>
+    </EditorContextProvider>
   )
 }
+
+const VALIDATION_OK: ValidationResult = { ok: true, errors: [] }
 
 function messageFromError(error: unknown): string {
   if (error instanceof EditorApiError) {

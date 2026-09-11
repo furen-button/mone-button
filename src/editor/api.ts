@@ -5,6 +5,8 @@ import type {
   SavePresetBody,
   SavePresetResponse,
   SchemaResponse,
+  ValidateDraftBody,
+  ValidateResponse,
 } from './types'
 
 const API_BASE = '/__cv'
@@ -48,6 +50,15 @@ export async function savePreset(body: SavePresetBody): Promise<SavePresetRespon
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
+  })
+}
+
+export async function validateDraft(body: ValidateDraftBody, signal?: AbortSignal): Promise<ValidateResponse> {
+  return requestJson<ValidateResponse>('/validate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    signal,
   })
 }
 
