@@ -1,14 +1,6 @@
 import crypto from 'node:crypto';
 
 const INTERNAL_KEYS = new Set(['__meta', 'titleOverride', '$schema']);
-const DECIMAL_NUMBER_PATHS = new Set([
-  'cards.duration',
-  'endcaps.opening.duration',
-  'endcaps.ending.duration',
-  'effects.zoom.minDuration',
-  'effects.zoom.analysis.minProminence',
-  'effects.zoom.analysis.silenceFloor',
-]);
 
 export function applyPatch(raw, patch) {
   const next = clone(raw);
@@ -40,8 +32,11 @@ export function stripInternal(obj) {
   return next;
 }
 
+// プリセットの書式は JSON.stringify の 2 スペース + 末尾改行に固定する。
+// 元ファイルの書式（1 行配列や 1.0 のような小数表記）は保たないため、
+// 追跡中のプリセットは同じ書式で揃えておく（patch.test.js が全件を突き合わせる）。
 export function serializePreset(obj) {
-  return `${stringifyPreset(obj, 0, [])}\n`;
+  return `${JSON.stringify(obj, null, 2)}\n`;
 }
 
 export function hashText(text) {
@@ -84,52 +79,4 @@ function clone(value) {
 
 function isPlainObject(value) {
   return value !== null && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype;
-}
-
-function stringifyPreset(value, depth, path) {
-  if (Array.isArray(value)) {
-    if (value.length === 0) {
-      return '[]';
-    }
-    const indent = ' '.repeat(depth);
-    const nextIndent = ' '.repeat(depth + 2);
-    const items = value.map((item, index) => `${nextIndent}${stringifyPreset(item, depth + 2, [...path, String(index)])}`);
-    return `[\n${items.join(',\n')}\n${indent}]`;
-  }
-
-  if (isPlainObject(value)) {
-    const entries = Object.entries(value);
-    if (entries.length === 0) {
-      return '{}';
-    }
-    const indent = ' '.repeat(depth);
-    const nextIndent = ' '.repeat(depth + 2);
-    const items = entries.map(([key, item]) => {
-      return `${nextIndent}${JSON.stringify(key)}: ${stringifyPreset(item, depth + 2, [...path, key])}`;
-    });
-    return `{\n${items.join(',\n')}\n${indent}}`;
-  }
-
-  if (typeof value === 'number') {
-    return formatNumber(value, path);
-  }
-
-  return JSON.stringify(value);
-}
-
-function formatNumber(value, path) {
-  if (!Number.isFinite(value)) {
-    return 'null';
-  }
-  if (Number.isInteger(value) && shouldKeepDecimal(path)) {
-    return `${value}.0`;
-  }
-  return JSON.stringify(value);
-}
-
-function shouldKeepDecimal(path) {
-  if (path.length === 3 && path[0] === 'bgm' && path[1] === 'fade') {
-    return true;
-  }
-  return DECIMAL_NUMBER_PATHS.has(path.join('.'));
 }

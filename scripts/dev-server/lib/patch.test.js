@@ -66,12 +66,17 @@ describe('stripInternal', () => {
 });
 
 describe('serializePreset', () => {
-  it('preserves existing config-mone.json text after an empty patch', () => {
-    const file = path.join(projectRoot, 'scripts/create-video/config-mone.json');
-    const text = fs.readFileSync(file, 'utf8');
-    const raw = JSON.parse(text);
+  it('leaves every existing preset unchanged after an empty patch', () => {
+    const dir = path.join(projectRoot, 'scripts/create-video');
+    const names = fs.readdirSync(dir).filter((name) => /^config(-[a-z0-9-]+)?\.json$/u.test(name));
+    assert.ok(names.length >= 3, `プリセットが見つからない: ${names.join(', ')}`);
 
-    assert.equal(serializePreset(applyPatch(raw, { set: [], unset: [] })), text);
+    for (const name of names) {
+      const text = fs.readFileSync(path.join(dir, name), 'utf8');
+      const raw = JSON.parse(text);
+
+      assert.equal(serializePreset(applyPatch(raw, { set: [], unset: [] })), text, `${name} の書式が保存で変わる`);
+    }
   });
 
   it('adds a trailing newline and hashes text as sha1 hex', () => {
