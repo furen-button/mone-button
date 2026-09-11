@@ -6,7 +6,7 @@ import { formatSeconds } from '../lib/format'
 import { useEditorContext } from '../schema-form/EditorContext'
 import { getAtPath } from '../schema-form/resolveSchema'
 import { SchemaFieldList } from '../schema-form/SchemaForm'
-import type { StillRequest } from '../types'
+import type { StillKind, StillRequest } from '../types'
 
 type PreviewPanelProps = {
   presetName: string
@@ -26,17 +26,34 @@ const SERIF_KNOBS: string[][] = [
 
 type SaveState = { kind: 'idle' | 'saving' | 'saved' | 'error'; message: string }
 
+// ?kind=card のように初期表示を URL から指定できる（?tab= / ?preset= と同じ用途。スクショ取得で使う）。
+const initialKind: StillKind = (() => {
+  const value = new URLSearchParams(window.location.search).get('kind')
+  return value === 'card' || value === 'opening' || value === 'ending' ? value : 'clip'
+})()
+
+// 区切りカードは選択中クリップの「前」に入るもの。OP / ED はクリップに紐づかない。
+const KIND_LABELS: Array<{ kind: StillKind; label: string; hint: string }> = [
+  { kind: 'opening', label: 'OP', hint: 'オープニング' },
+  { kind: 'card', label: 'カード', hint: '選択中クリップの前に入る区切りカード' },
+  { kind: 'clip', label: 'クリップ', hint: 'クリップ本編' },
+  { kind: 'ending', label: 'ED', hint: 'エンディング' },
+]
+
 // 静止画プレビュー。本番と同じ renderStill を dev サーバ経由で呼び、返ってきた矩形を PNG に重ねる。
 export function PreviewPanel({ presetName, onSavePreset, onClipDataSaved }: PreviewPanelProps) {
   const context = useEditorContext()
   const clips = context.preflight.response?.preflight?.clips ?? []
   const [selectedBase, setSelectedBase] = useState<string | null>(null)
+  const [kind, setKind] = useState<StillKind>(initialKind)
   const clipIndex = Math.max(0, clips.findIndex((clip) => clip.base === selectedBase))
   const clip = clips[clipIndex] ?? null
-  // 時刻指定はクリップごとに持ち、クリップが変わったら自動的に既定（中央）へ戻る。
-  const [atEdit, setAtEdit] = useState<{ base: string; at: number } | null>(null)
-  const at = clip && atEdit?.base === clip.base ? atEdit.at : undefined
-  const setAt = (value: number | undefined) => setAtEdit(clip && value !== undefined ? { base: clip.base, at: value } : null)
+  const needsClip = kind === 'clip' || kind === 'card'
+  // 時刻指定は対象（種別 + クリップ）ごとに持ち、対象が変われば自動的に既定（中央）へ戻る。
+  const targetKey = `${kind}:${needsClip ? clip?.base ?? '' : ''}`
+  const [atEdit, setAtEdit] = useState<{ key: string; at: number } | null>(null)
+  const at = atEdit?.key === targetKey ? atEdit.at : undefined
+  const setAt = (value: number | undefined) => setAtEdit(value === undefined ? null : { key: targetKey, at: value })
   const [serifEdit, setSerifEdit] = useState<{ base: string; text: string } | null>(null)
   const [titleEdit, setTitleEdit] = useState<{ videoId: string; text: string } | null>(null)
   const [zoom, setZoom] = useState(false)
@@ -48,19 +65,29 @@ export function PreviewPanel({ presetName, onSavePreset, onClipDataSaved }: Prev
   const title = clip && titleEdit?.videoId === clip.videoId ? titleEdit.text : typeof existingOverride === 'string' ? existingOverride : ''
 
   const request = useMemo<StillRequest | null>(() => {
-    if (!clip || !presetName) {
+    if (!presetName || (needsClip && !clip)) {
       return null
     }
     return {
       name: presetName,
       draft: context.draft,
-      clipBase: clip.base,
+      kind,
+      clipBase: needsClip && clip ? clip.base : undefined,
       at,
-      title: title || undefined,
-      serifOverride: serif !== clip.serif ? serif : undefined,
-      zoom,
+      title: needsClip && title ? title : undefined,
+      serifOverride: needsClip && clip && serif !== clip.serif ? serif : undefined,
+      zoom: kind === 'clip' ? zoom : false,
     }
-  }, [at, clip, context.draft, presetName, serif, title, zoom])
+  }, [at, clip, context.draft, kind, needsClip, presetName, serif, title, zoom])
+  const available = KIND_LABELS.filter((entry) => {
+    if (entry.kind === 'card') {
+      return getAtPath(context.resolved, ['cards', 'enabled']) !== false
+    }
+    if (entry.kind === 'opening' || entry.kind === 'ending') {
+      return getAtPath(context.resolved, ['endcaps', entry.kind, 'enabled']) !== false
+    }
+    return true
+  })
   const still = useStill(request)
   const meta = still.meta
   const duration = meta?.source.duration ?? clip?.duration ?? 0
@@ -134,21 +161,42 @@ export function PreviewPanel({ presetName, onSavePreset, onClipDataSaved }: Prev
   return (
     <div className="cv-preview" tabIndex={0} onKeyDown={onKeyDown}>
       <div className="cv-previewToolbar">
-        <button type="button" className="cv-button" onClick={() => moveClip(-1)} disabled={clipIndex <= 0} aria-label="前のクリップ">
+        {available.length > 1 ? (
+          <div className="cv-segmented" role="radiogroup" aria-label="プレビュー対象">
+            {available.map((entry) => (
+              <button
+                key={entry.kind}
+                type="button"
+                className={kind === entry.kind ? 'cv-segment is-active' : 'cv-segment'}
+                aria-pressed={kind === entry.kind}
+                title={entry.hint}
+                onClick={() => setKind(entry.kind)}
+              >
+                {entry.label}
+              </button>
+            ))}
+          </div>
+        ) : null}
+        <button type="button" className="cv-button" onClick={() => moveClip(-1)} disabled={!needsClip || clipIndex <= 0} aria-label="前のクリップ">
           ◀
         </button>
-        <select className="cv-select cv-previewClipSelect" value={clip?.base ?? ''} onChange={(event) => setSelectedBase(event.target.value)}>
+        <select
+          className="cv-select cv-previewClipSelect"
+          value={clip?.base ?? ''}
+          disabled={!needsClip}
+          onChange={(event) => setSelectedBase(event.target.value)}
+        >
           {clips.map((entry, index) => (
             <option key={entry.base} value={entry.base}>
               {index + 1}/{clips.length} {entry.base} 「{entry.serif.split(/\r?\n/u)[0]?.slice(0, 18)}」
             </option>
           ))}
         </select>
-        <button type="button" className="cv-button" onClick={() => moveClip(1)} disabled={clipIndex >= clips.length - 1} aria-label="次のクリップ">
+        <button type="button" className="cv-button" onClick={() => moveClip(1)} disabled={!needsClip || clipIndex >= clips.length - 1} aria-label="次のクリップ">
           ▶
         </button>
         <label className="cv-toggle">
-          <input type="checkbox" checked={zoom} onChange={(event) => setZoom(event.target.checked)} />
+          <input type="checkbox" checked={zoom} disabled={kind !== 'clip'} onChange={(event) => setZoom(event.target.checked)} />
           <span>ズーム適用（顔検出で +2〜3 秒）</span>
         </label>
         <label className="cv-toggle">
@@ -220,6 +268,13 @@ export function PreviewPanel({ presetName, onSavePreset, onClipDataSaved }: Prev
         </div>
 
         <aside className="cv-previewSide">
+          {!needsClip ? (
+            <p className="cv-hint">
+              {kind === 'opening' ? 'OP' : 'ED'} の文言は「設定」タブの endcaps.{kind} で編集します。
+            </p>
+          ) : null}
+          {needsClip ? (
+            <>
           <label className="cv-fieldStack">
             <span className="cv-controlLabel">セリフ（改行はそのまま強制改行）</span>
             <textarea
@@ -253,6 +308,8 @@ export function PreviewPanel({ presetName, onSavePreset, onClipDataSaved }: Prev
           </div>
           {dataSave.kind === 'saved' ? <p className="cv-alert is-saved">{dataSave.message}</p> : null}
           {dataSave.kind === 'error' ? <p className="cv-alert is-error">{dataSave.message}</p> : null}
+            </>
+          ) : null}
           <p className="cv-hint">← → で ±0.5 秒（Shift で ±2.5 秒）、[ ] で前後のクリップ</p>
         </aside>
       </div>

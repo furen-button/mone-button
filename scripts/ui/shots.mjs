@@ -41,6 +41,7 @@ function parseArgs(argv) {
     settleMs: 2500,
     timeoutMs: 45000,
     serverTimeoutMs: 90000,
+    kind: null,
     fullPage: true,
     keepServer: false,
     strict: false,
@@ -63,6 +64,8 @@ function parseArgs(argv) {
       options.width = Number(next());
     } else if (arg === '--height') {
       options.height = Number(next());
+    } else if (arg === '--kind') {
+      options.kind = next();
     } else if (arg === '--settle') {
       options.settleMs = Number(next());
     } else if (arg === '--timeout') {
@@ -96,6 +99,7 @@ function usage() {
   --out <dir>         出力先（既定 cache/ui-shots）
   --width/--height    ビューポート（既定 1600x1000。既定はページ全体を撮る）
   --viewport          ページ全体ではなくビューポートだけ撮る
+  --kind <k>          プレビュー対象（clip / card / opening / ending）
   --settle <ms>       load 後に待つ時間（既定 2500）
   --timeout <ms>      1 枚あたりの上限（既定 45000）
   --strict            コンソールに深刻な出力があれば exit 1
@@ -188,8 +192,10 @@ async function main() {
   const session = await launchChrome({ chrome, width: options.width, height: options.height });
   try {
     for (const tab of options.tabs) {
-      const out = path.join(options.out, `${presetBase}-${tab}.png`);
-      const url = `${options.baseUrl}${EDITOR_PATH}?tab=${tab}&preset=${encodeURIComponent(options.preset)}`;
+      const suffix = options.kind && tab === 'preview' ? `-${options.kind}` : '';
+      const out = path.join(options.out, `${presetBase}-${tab}${suffix}.png`);
+      const kindQuery = options.kind ? `&kind=${encodeURIComponent(options.kind)}` : '';
+      const url = `${options.baseUrl}${EDITOR_PATH}?tab=${tab}&preset=${encodeURIComponent(options.preset)}${kindQuery}`;
       const startedAt = Date.now();
       try {
         const { data, messages } = await capturePage({

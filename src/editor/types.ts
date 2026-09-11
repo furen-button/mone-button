@@ -156,12 +156,15 @@ export type StillElement = {
 
 export type StillWarning = { code: string; message: string }
 
+export type StillKind = 'clip' | 'card' | 'opening' | 'ending'
+
 export type StillMeta = {
   at: number
   requestedAt: number
   index: number
   total: number
-  clip: { base: string; videoId: string; file: string }
+  clip: { base: string; videoId: string; file: string } | null
+  card: { kind: string; duration: number; thumbnail: string | null } | null
   size: { width: number; height: number; fps: number }
   source: { path: string; kind: string; width: number; height: number; fps: number; duration: number }
   zoom: unknown
@@ -179,7 +182,8 @@ export type StillMeta = {
 export type StillRequest = {
   name: string
   draft: JsonObject
-  clipBase: string
+  kind?: StillKind
+  clipBase?: string
   at?: number
   title?: string
   serifOverride?: string

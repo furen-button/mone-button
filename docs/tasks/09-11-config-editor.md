@@ -38,7 +38,7 @@ http://localhost:5173/mone-button/editor.html?tab=preview&preset=config-mone.jso
 | `POST /preset` | `{ mode: 'update', name, ifMatch, patch }` / `{ mode: 'create', name, base, patch }`。409 / 412 |
 | `POST /validate` | `{ name, draft }` → scratch → `loadConfig` → `runPreflight`（L0、ffmpeg 不要）。`selectError` は別枠 |
 | `POST /clips` | `{ draft }` → `collectClips` の順 + カタログ（全クリップ・カテゴリ・配信） |
-| `POST /still` / `POST /sheet` | `{ name, draft, clipBase, at, title, serifOverride, zoom }` → PNG + `X-Still-Meta`（矩形・warnings）。入力の sha1 でキャッシュ、同時 2 本 |
+| `POST /still` / `POST /sheet` | `{ name, draft, kind, clipBase, at, title, serifOverride, zoom }` → PNG + `X-Still-Meta`（矩形・warnings）。`kind` は `clip`（既定）/ `card` / `opening` / `ending` で、前 2 つは `clipBase` 必須。入力の sha1 でキャッシュ、同時 2 本 |
 | `POST /build` / `POST /qc` | `{ name, options }` / `{ name, video, contact }` → ジョブ開始（同時 1 本、409） |
 | `GET /jobs`, `GET /jobs/:id`, `GET /build/:id/log`（SSE）, `POST /build/:id/cancel` | ジョブ状態・ログ・中断 |
 | `GET /file?kind=&name=` | mp4（Range 対応）/ contact / render / qc-json / qc-md / youtube / comment / meta / log / thumb / still / sheet |
@@ -76,6 +76,6 @@ http://localhost:5173/mone-button/editor.html?tab=preview&preset=config-mone.jso
 
 - ハンドラは `vite.config.ts` の依存に入れないため遅延 import している。`scripts/dev-server/**` や `scripts/create-video/**` を編集したら dev サーバを手動再起動する（`r` + Enter）
 - Vite は Ctrl-C（SIGINT）を捕まえないので、ジョブ実行中だけ SIGINT ハンドラを登録して子プロセスを止める。残った場合は `pkill -f create-video/index.js`
-- カード / OP / ED の静止画プレビューは未対応（`card.js` の映像グラフ切り出しが必要）。クリップのみ
-- ブラウザ操作の自動テストは無い（node:test はサーバ側のみ）。実機確認は headless Chrome のスクリーンショットで行った
+- カード / OP / ED の静止画プレビューは 2026-09-12 に対応（`planCardRender` / `buildCardVideoGraph` を本番と共有）。プレビュー画面の `OP / カード / クリップ / ED` で切り替える。詳細は [静止画プレビュー CLI](09-11-still-preview.md)
+- ブラウザ操作の自動テストは無い（node:test はサーバ側のみ）。実機確認は `npm run shots`（`scripts/ui/shots.mjs`）のスクリーンショットで行う。`?tab=` / `?preset=` / `?job=` / `?kind=` で初期状態を指定できる
 - 実装は Codex へ委任して進めたが、Phase 4b の途中でクレジット切れになり、以降（クリップ / プレビュー / ビルド / 結果 / 概要欄 / 新規作成 / docs）は Claude が実装した

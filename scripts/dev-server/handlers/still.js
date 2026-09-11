@@ -33,6 +33,7 @@ async function still(context, req) {
 
   const key = sha1(JSON.stringify({
     draft: stripInternal(payload.draft),
+    kind: payload.kind,
     clipBase: payload.clipBase,
     at: payload.at ?? null,
     title: payload.title ?? null,
@@ -57,7 +58,7 @@ async function still(context, req) {
   try {
     const result = await renderStill({
       argv,
-      still: payload.clipBase,
+      still: payload.target,
       at: payload.at,
       clipPatch: payload.serifOverride !== undefined ? { serif: payload.serifOverride } : undefined,
       plans: { zoom: payload.zoom },
@@ -118,10 +119,18 @@ async function sheet(context, req) {
   }
 }
 
+const STILL_KINDS = new Set(['clip', 'card', 'opening', 'ending']);
+
 function parseStillPayload(raw) {
   const base = parseCommon(raw);
-  const clipBase = clipBaseGuard(raw.clipBase);
-  if (!clipBase || !fs.existsSync(path.join(dataDir, `${clipBase}.json`))) {
+  const kind = raw.kind === undefined ? 'clip' : raw.kind;
+  if (!STILL_KINDS.has(kind)) {
+    throw new Error(`kind must be one of ${[...STILL_KINDS].join(', ')}`);
+  }
+  // OP / ED はクリップに紐づかない。クリップと区切りカードは従来どおり public/data の実在を要求する。
+  const needsClip = kind === 'clip' || kind === 'card';
+  const clipBase = needsClip ? clipBaseGuard(raw.clipBase) : null;
+  if (needsClip && (!clipBase || !fs.existsSync(path.join(dataDir, `${clipBase}.json`)))) {
     throw new Error('clipBase is not a known clip');
   }
   let at;
@@ -139,12 +148,21 @@ function parseStillPayload(raw) {
   }
   return {
     ...base,
+    kind,
     clipBase,
+    target: stillTarget(kind, clipBase),
     at,
     title: raw.title || undefined,
     serifOverride: raw.serifOverride,
     zoom: raw.zoom === true,
   };
+}
+
+function stillTarget(kind, clipBase) {
+  if (kind === 'card') {
+    return `card:${clipBase}`;
+  }
+  return kind === 'clip' ? clipBase : kind;
 }
 
 function parseSheetPayload(raw) {
@@ -181,6 +199,7 @@ function pickMeta(result) {
     index: result.index,
     total: result.total,
     clip: result.clip,
+    card: result.card ?? null,
     size: result.size,
     source: result.source,
     zoom: result.zoom,
