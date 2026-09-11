@@ -7,6 +7,7 @@ export type EditorSession = {
   patch?: Patch
   tab?: string
   settingsTab?: string
+  jobId?: string
 }
 
 export function loadSession(): EditorSession | null {
@@ -36,6 +37,7 @@ function normalizeSession(value: unknown): EditorSession | null {
     name: typeof record.name === 'string' ? record.name : undefined,
     tab: typeof record.tab === 'string' ? record.tab : undefined,
     settingsTab: typeof record.settingsTab === 'string' ? record.settingsTab : undefined,
+    jobId: typeof record.jobId === 'string' ? record.jobId : undefined,
     patch: isPatch(record.patch) ? record.patch : undefined,
   }
 }
