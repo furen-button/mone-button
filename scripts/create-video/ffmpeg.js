@@ -208,6 +208,54 @@ export function mixBgm({ tools, inputPath, outPath, config }) {
   return { mixed: true, outPath };
 }
 
+// 映像ストリームの寸法と fps。補正（effects.enhance）の解像度ゲートに使う。
+// streamSignature は concat の等価比較に JSON.stringify で使われているので拡張しない。
+export function probeVideoStream(ffprobe, filePath) {
+  const raw = execFileSync(ffprobe, [
+    '-v', 'error',
+    '-select_streams', 'v:0',
+    '-show_entries', 'stream=width,height,r_frame_rate',
+    '-of', 'json',
+    filePath,
+  ], { encoding: 'utf8' });
+  const stream = (JSON.parse(raw).streams || [])[0] || {};
+  const [num, den] = String(stream.r_frame_rate || '0/1').split('/').map(Number);
+  return {
+    width: Number(stream.width) || 0,
+    height: Number(stream.height) || 0,
+    fps: den ? num / den : 0,
+  };
+}
+
+const libplaceboStatus = new Map();
+
+// libplacebo フィルタが実際に Vulkan デバイスを作れるか（MoltenVK 不在だと VK_ERROR_INCOMPATIBLE_DRIVER）。
+// 1 プロセスで 1 回だけ小さな lavfi 入力を通して確かめ、失敗時は stderr の 1 行目を理由として返す。
+export function ffmpegLibplaceboStatus(bin) {
+  if (libplaceboStatus.has(bin)) {
+    return libplaceboStatus.get(bin);
+  }
+  let status;
+  try {
+    execFileSync(bin, [
+      '-hide_banner', '-v', 'error',
+      '-f', 'lavfi', '-i', 'color=c=black:s=64x64:d=0.1',
+      '-vf', 'libplacebo=format=yuv420p',
+      '-frames:v', '1', '-f', 'null', '-',
+    ], { stdio: ['ignore', 'ignore', 'pipe'], encoding: 'utf8' });
+    status = { ok: true, reason: null };
+  } catch (err) {
+    // 先頭の "[libplacebo @ 0x...] " はポインタ値で毎回変わるので落とし、manifest に残す理由を決定的にする。
+    const firstLine = String(err.stderr || err.message || '')
+      .split(/\r?\n/)
+      .map((line) => line.trim().replace(/^\[[^\]]*\]\s*/u, ''))
+      .find(Boolean) || 'unknown';
+    status = { ok: false, reason: firstLine };
+  }
+  libplaceboStatus.set(bin, status);
+  return status;
+}
+
 export function probeDuration(ffprobe, filePath) {
   const raw = execFileSync(ffprobe, [
     '-v', 'error',

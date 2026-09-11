@@ -33,4 +33,29 @@ describe('loadConfig', () => {
     const config = writeTempConfig({});
     assert.equal(loadConfig(['--config', config, '--videoId', 'abc123', '--title', '上段\\n下段']).titleOverride, '上段\n下段');
   });
+
+  it('--enhance と --no-zoom は effects を互いに潰さない', () => {
+    const config = writeTempConfig({});
+    const loaded = loadConfig(['--config', config, '--videoId', 'abc123', '--enhance', '--no-zoom']);
+    assert.equal(loaded.effects.enhance.enabled, true);
+    assert.equal(loaded.effects.zoom.enabled, false);
+    assert.equal(loaded.effects.enhance.restore, 'Restore_CNN_M');
+    assert.equal(loaded.__meta.cli.enhance, true);
+  });
+
+  it('--no-enhance は設定より優先し、kill switch として __meta.cli に残る', () => {
+    const config = writeTempConfig({ effects: { enhance: { enabled: true } } });
+    const loaded = loadConfig(['--config', config, '--videoId', 'abc123', '--no-enhance']);
+    assert.equal(loaded.effects.enhance.enabled, false);
+    assert.equal(loaded.__meta.cli.enhance, false);
+  });
+
+  it('effects.enhance の backend とシェーダ名を検証する', () => {
+    const badBackend = writeTempConfig({ effects: { enhance: { backend: 'realesrgan' } } });
+    assert.throws(() => loadConfig(['--config', badBackend, '--videoId', 'abc123']), /effects\.enhance\.backend/u);
+    const badName = writeTempConfig({ effects: { enhance: { restore: 'Restore CNN M; rm -rf' } } });
+    assert.throws(() => loadConfig(['--config', badName, '--videoId', 'abc123']), /effects\.enhance\.restore/u);
+    const nullRestore = writeTempConfig({ effects: { enhance: { restore: null, minSourceHeight: 1080 } } });
+    assert.equal(loadConfig(['--config', nullRestore, '--videoId', 'abc123']).effects.enhance.restore, null);
+  });
 });
