@@ -8,9 +8,16 @@ import { formatAvoidLog, planSerifAvoidance } from './avoid.js';
 import { formatEnhanceLog, planEnhance, restoreFilter, upscaleFilter } from './enhance.js';
 import { encodeArgs, subtitlesFilter } from './ffmpeg.js';
 
-export function resolveClipSource(clip, config) {
+export function clipSourcePathFor(clip, config) {
   if (config.source === 'existing') {
-    const sourceMp4 = path.join(videosDir, `${clip.base}.mp4`);
+    return path.join(videosDir, `${clip.base}.mp4`);
+  }
+  return path.join(cacheRoot, clip.videoId, `${clip.base}.mp4`);
+}
+
+export function resolveClipSource(clip, config, { allowDownload = true, log = console.log } = {}) {
+  if (config.source === 'existing') {
+    const sourceMp4 = clipSourcePathFor(clip, config);
     if (!fs.existsSync(sourceMp4)) {
       console.warn(`⚠️ 既存 mp4 が無いためスキップ: ${clip.base}.mp4`);
       return null;
@@ -18,11 +25,13 @@ export function resolveClipSource(clip, config) {
     return sourceMp4;
   }
 
-  const sourceMp4 = path.join(cacheRoot, clip.videoId, `${clip.base}.mp4`);
+  const sourceMp4 = clipSourcePathFor(clip, config);
   if (fs.existsSync(sourceMp4)) {
-    console.log(`♻️ キャッシュ再利用: ${clip.base}.mp4`);
+    log(`♻️ キャッシュ再利用: ${clip.base}.mp4`);
+  } else if (!allowDownload) {
+    return null;
   } else {
-    console.log(`⏬ 高画質ダウンロード中: ${clip.base}`);
+    log(`⏬ 高画質ダウンロード中: ${clip.base}`);
     downloadHighQuality(clip, sourceMp4, { normalize: config.normalizeCache !== false });
   }
   return sourceMp4;
@@ -36,29 +45,70 @@ export async function renderClip({ tools, clip, index, total, config, workDir, s
 
   const assPath = path.join(workDir, `clip-${String(index).padStart(4, '0')}.ass`);
   const outPath = path.join(workDir, `clip-${String(index).padStart(4, '0')}.mp4`);
+  const plan = await planClipRender({
+    tools,
+    clip,
+    index,
+    total,
+    config,
+    size,
+    workDir,
+    sourceMp4,
+    assPath,
+    titleOverride,
+  });
+  fs.writeFileSync(assPath, plan.ass);
+  execClip(tools.ffmpeg, sourceMp4, plan.graph, outPath, config);
+  return {
+    path: outPath,
+    kind: 'clip',
+    clip,
+    sourcePath: sourceMp4,
+    elements: plan.elements,
+    zoom: plan.zoom,
+    avoid: plan.avoid,
+    enhance: plan.enhance,
+  };
+}
+
+export async function planClipRender({
+  tools,
+  clip,
+  index,
+  total,
+  config,
+  size,
+  workDir,
+  sourceMp4,
+  assPath,
+  titleOverride = null,
+  plans = {},
+  probe = null,
+  log = console.log,
+}) {
   // ズームの切り出しで顔の出力座標が変わるため、顔回避はズーム計画の後に決める。
-  const zoom = await planZoom({ tools, clip, sourceMp4, config, size, workDir });
+  const zoom = await resolveRenderPlan(plans.zoom, () => planZoom({ tools, clip, sourceMp4, config, size, workDir }));
   if (zoom?.skip) {
-    console.log(`   🔎 ズーム: なし (${zoom.skip})`);
+    log(`   🔎 ズーム: なし (${zoom.skip})`);
   } else if (zoom) {
-    console.log(formatZoomLog(zoom));
+    log(formatZoomLog(zoom));
   }
 
   // 補正（Anime4K）は出力解像度に揃えた後のフィルタ列に入るだけで、顔検出やテロップの座標には影響しない。
-  const enhance = await planEnhance({ tools, clip, sourceMp4, config });
+  const enhance = await resolveRenderPlan(plans.enhance, () => planEnhance({ tools, clip, sourceMp4, config, probe }));
   const enhanceLog = formatEnhanceLog(enhance);
   if (enhanceLog) {
-    console.log(enhanceLog);
+    log(enhanceLog);
   }
 
-  const avoid = await planSerifAvoidance({ tools, clip, sourceMp4, config, size, workDir, zoom });
+  const avoid = await resolveRenderPlan(plans.avoid, () => planSerifAvoidance({ tools, clip, sourceMp4, config, size, workDir, zoom }));
   const avoidLog = formatAvoidLog(avoid);
   if (avoidLog) {
-    console.log(avoidLog);
+    log(avoidLog);
   }
   const serifOverrides = avoid?.applied ? { marginL: avoid.marginL, marginR: avoid.marginR } : null;
   const elements = buildClipElements({ clip, index, total, config, size, titleOverride, serifOverrides });
-  fs.writeFileSync(assPath, buildAss(elements, { width: size.width, height: size.height, font: config.font }));
+  const ass = buildAss(elements, { width: size.width, height: size.height, font: config.font });
 
   const baseFilters = [
     `scale=${size.width}:${size.height}:force_original_aspect_ratio=decrease`,
@@ -73,10 +123,15 @@ export async function renderClip({ tools, clip, index, total, config, workDir, s
   const subFilter = subtitlesFilter(assPath, config.fontsDir);
 
   if (zoom && !zoom.skip && zoom.at > 0) {
-    execClip(tools.ffmpeg, sourceMp4, {
-      complex: buildZoomFilterComplex({ baseFilters, subFilter, zoom, size, upscale }),
-    }, outPath, config);
-    return { path: outPath, kind: 'clip', clip, sourcePath: sourceMp4, elements, zoom, avoid, enhance };
+    return {
+      zoom,
+      enhance,
+      avoid,
+      serifOverrides,
+      elements,
+      ass,
+      graph: { complex: buildZoomFilterComplex({ baseFilters, subFilter, zoom, size, upscale }) },
+    };
   }
 
   const vf = [
@@ -85,8 +140,25 @@ export async function renderClip({ tools, clip, index, total, config, workDir, s
     subFilter,
   ].join(',');
 
-  execClip(tools.ffmpeg, sourceMp4, { vf }, outPath, config);
-  return { path: outPath, kind: 'clip', clip, sourcePath: sourceMp4, elements, zoom, avoid, enhance };
+  return {
+    zoom,
+    enhance,
+    avoid,
+    serifOverrides,
+    elements,
+    ass,
+    graph: { vf },
+  };
+}
+
+async function resolveRenderPlan(plan, run) {
+  if (plan === false || plan === null) {
+    return null;
+  }
+  if (typeof plan === 'object') {
+    return plan;
+  }
+  return run();
 }
 
 function execClip(ffmpeg, sourceMp4, graph, outPath, config) {
