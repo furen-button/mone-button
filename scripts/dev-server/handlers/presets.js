@@ -166,7 +166,8 @@ function presetSummary(context, name) {
   const stat = fs.statSync(file);
   let summary = null;
   try {
-    summary = summarizePreset(JSON.parse(fs.readFileSync(file, 'utf8')));
+    // mode を書いていないプリセット（DEFAULTS の videoId を継承）でも一覧に mode が出るよう、解決済みで要約する。
+    summary = summarizePreset(deepMerge(structuredClone(DEFAULTS), JSON.parse(fs.readFileSync(file, 'utf8'))));
   } catch {
     summary = null;
   }
