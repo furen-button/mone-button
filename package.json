@@ -18,7 +18,8 @@
     "import": "npm run sync && npm run extract && npm run download",
     "createVideo": "node scripts/create-video/index.js",
     "qc": "node scripts/create-video/qc/index.js",
-    "still": "node scripts/create-video/preview.js"
+    "still": "node scripts/create-video/preview.js",
+    "shots": "node scripts/ui/shots.mjs"
   },
   "dependencies": {
     "firebase": "^12.15.0",

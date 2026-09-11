@@ -216,6 +216,24 @@ http://localhost:5173/mone-button/editor.html?tab=preview&preset=config-mone.jso
 
 詳細は docs/tasks/09-11-config-editor.md を参照。
 
+### 画面のスクリーンショット（shots）
+
+エディタの各タブを headless Chrome で撮り、コンソール出力も拾う。UI を直したときの目視確認と
+リグレッション検出に使う。
+
+```
+npm run shots                                # config-matome-01.json の 5 タブ
+npm run shots -- --preset config-mone.json --tab preview,build
+npm run shots -- --strict                    # コンソールに深刻な出力があれば exit 1
+```
+
+- 実装は `scripts/ui/shots.mjs` と `scripts/ui/cdp.mjs`（Node 組み込みの WebSocket だけで CDP を話す。依存は増やさない）。
+- Chrome の `--screenshot` フラグは使わない。あれは「読み込みが落ち着いた」と Chrome が判断した瞬間に 1 枚撮って終わりで、後から届く `/__cv/clips` や `/__cv/still` の結果が写らず、さらに PNG を書いた後もプロセスが終了しない。CDP で `Page.loadEventFired` の後に `--settle`（既定 2500ms）待ってから `Page.captureScreenshot` する。
+- 既定はページ全体（`Page.getLayoutMetrics` の高さ）。`--viewport` でビューポートだけにできる。
+- dev サーバが動いていなければ自分で `npm run dev` を起動し、撮り終えたら止める。
+- 出力は `cache/ui-shots/<preset>-<tab>.png` と `<preset>-console.log`（gitignore 済み）。
+- `console.error` / 例外 / `net::ERR` / `Failed to load resource` / React の `Warning:` を要注意として数える。1 枚あたり約 2.8 秒。
+
 ## ドキュメント管理
 
 - docs/draft.md - 仕様元
