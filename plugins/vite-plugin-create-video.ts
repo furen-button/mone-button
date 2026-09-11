@@ -8,6 +8,7 @@ import type { HandlerRequest, HandlerResult, Route } from '../scripts/dev-server
 type HandlerModule = {
   createHandlers: () => Route[]
   matchRoute: (routes: Route[], method: string, path: string) => { route: Route; params: Record<string, string> } | null
+  shutdownJobs?: () => void
 }
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url))
@@ -21,6 +22,13 @@ export function createVideoEditorPlugin(): Plugin {
     configureServer(server) {
       server.middlewares.use('/__cv', (req, res) => {
         void handleRequest(req, res)
+      })
+      // dev サーバの再起動・終了時に実行中の createVideo 子プロセス（と孫 ffmpeg）を残さない。
+      // ハンドラ未読込なら起動したジョブも無いので何もしない。
+      server.httpServer?.once('close', () => {
+        if (handlerModulePromise) {
+          void handlerModulePromise.then((handlers) => handlers.shutdownJobs?.()).catch(() => undefined)
+        }
       })
     },
   }
@@ -110,6 +118,8 @@ function sendHandlerResult(req: IncomingMessage, res: ServerResponse, result: Ha
       res.setHeader('Content-Length', String(result.length))
     }
     if (req.method === 'HEAD') {
+      // 本文は送らない。開いた読み取りストリームは閉じて fd を残さない。
+      result.stream.destroy()
       res.end()
       return
     }
