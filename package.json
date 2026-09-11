@@ -8,7 +8,7 @@
     "check:i18n": "node scripts/check-i18n.mjs",
     "build": "npm run check:i18n && tsc -b && vite build",
     "lint": "eslint .",
-    "test": "node --test scripts/create-video/*.test.js scripts/create-video/qc/*.test.js scripts/create-video/qc/checks/*.test.js",
+    "test": "node --test scripts/create-video/*.test.js scripts/create-video/qc/*.test.js scripts/create-video/qc/checks/*.test.js scripts/dev-server/lib/*.test.js scripts/dev-server/handlers/*.test.js",
     "golden:ass": "node scripts/create-video/golden-ass.mjs",
     "preview": "vite preview",
     "sync": "node scripts/sync.js",
