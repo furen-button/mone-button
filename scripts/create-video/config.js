@@ -90,6 +90,15 @@ export const DEFAULTS = {
       shadow: 2,
       fade: [150, 150],
       karaoke: false,
+      // 顔検出でセリフボックスが演者の顔と重なるクリップだけ、顔の無い側へ寄せて幅を狭める。
+      // gap は顔との間隔、minWidth は狭めたボックスの幅の下限（いずれも画面幅に対する割合）。
+      // 下限を満たせないときは従来どおり全幅にし、QC が warn で知らせる。
+      avoidFace: {
+        enabled: true,
+        gap: 0.0125,
+        minWidth: 0.45,
+        frames: 3,
+      },
     },
     progress: {
       enabled: true,
@@ -184,6 +193,51 @@ export const DEFAULTS = {
       labels: {},
     },
   },
+  qc: {
+    enabled: false,
+    manifest: true,
+    python: 'python3',
+    signature: {
+      pixFmt: 'yuv420p',
+      sampleRate: 44100,
+      channels: 2,
+    },
+    thresholds: {
+      durationFrames: 1,
+      driftMs: 50,
+      phashDistance: 12,
+      // 取り込み側が ffmpeg-normalize（EBU R128 / -23 LUFS）で揃えるため、目標は -23 LUFS ±2 とする。
+      integratedLufsMin: -25,
+      integratedLufsMax: -21,
+      truePeakMax: -1,
+      segmentLufsRange: 3,
+      // 文字矩形の幅は charWidth ベースの推定で実測より広めに出るため、端が触れただけでは衝突とみなさない。
+      collisionAreaRatio: 0.2,
+      silenceMinDuration: 0.8,
+      blackMinDuration: 0.5,
+      freezeMinDuration: 0.5,
+      telopFillRatio: 0.3,
+      telopColorDistance: 60,
+      // これ未満の opacity のボックスは色一致率で判定できないので焼き込み判定をスキップする。
+      telopMinOpacity: 0.9,
+      chapterDriftSec: 1,
+      minSyncCorrelation: 0.15,
+    },
+    static: {
+      maxSerifLines: 4,
+    },
+    // コンタクトシート（代表フレームの一覧 PNG）。--contact / --review で使う。
+    contact: {
+      cellWidth: 480,
+      columns: 4,
+      fontFile: null,
+    },
+    // コンタクトシートを claude CLI に読ませる目視レビュー。非決定的なので合否には反映しない。
+    review: {
+      claudeBin: 'claude',
+      timeoutMs: 300000,
+    },
+  },
   effects: {
     zoom: {
       enabled: false,
@@ -207,6 +261,18 @@ export const DEFAULTS = {
         minProminence: 3.0,
         silenceFloor: -60.0,
       },
+    },
+    // アニメ向け線補正（Anime4K GLSL を ffmpeg libplacebo で適用）。1080p cache の YouTube 圧縮ボケを整え、
+    // zoom の 1.3 倍拡大を CNN アップスケールにする。既定 OFF。CLI の --enhance / --no-enhance。
+    enhance: {
+      enabled: false,
+      backend: 'anime4k',
+      shadersDir: null,
+      restore: 'Restore_CNN_M',
+      upscale: 'Upscale_CNN_x2_M',
+      clampHighlights: true,
+      minSourceHeight: 720,
+      required: false,
     },
   },
 };
@@ -409,9 +475,20 @@ function cliConfig(opts) {
   const bgm = optBool(opts, 'bgm');
   if (bgm !== undefined) out.bgm = { enabled: bgm };
 
+  // --zoom / --enhance はどちらも out.effects へ merge する（後勝ちで潰さない）。
   const zoom = optBool(opts, 'zoom');
   if (zoom !== undefined) {
-    out.effects = { zoom: { enabled: zoom } };
+    out.effects = { ...(out.effects || {}), zoom: { enabled: zoom } };
+  }
+
+  const enhance = optBool(opts, 'enhance');
+  if (enhance !== undefined) {
+    out.effects = { ...(out.effects || {}), enhance: { enabled: enhance } };
+  }
+
+  const qc = optBool(opts, 'qc');
+  if (qc !== undefined) {
+    out.qc = { enabled: qc };
   }
 
   for (const [flag, key] of [
@@ -434,6 +511,16 @@ function cliConfig(opts) {
   const ending = optBool(opts, 'ending');
   if (ending !== undefined) {
     out.endcaps = { ...(out.endcaps || {}), ending: { enabled: ending } };
+  }
+
+  // --avoid-face / --no-avoid-face はセリフの顔回避のグローバル切り替え。
+  // --no-serif などの telops フラグと同じ out.telops へ merge する（後勝ちで潰さない）。
+  const avoidFace = optBool(opts, 'avoid-face');
+  if (avoidFace !== undefined) {
+    out.telops = {
+      ...(out.telops || {}),
+      serif: { ...(out.telops?.serif || {}), avoidFace: { enabled: avoidFace } },
+    };
   }
 
   return out;
@@ -475,9 +562,29 @@ function validateConfig(config) {
   validateColors(config, errors);
   validateTitleOverrides(config, errors);
   validateEffects(config, errors);
+  validateEnhance(config, errors);
+  validateQc(config, errors);
 
   if (errors.length > 0) {
     throw new Error(errors.map((line) => `- ${line}`).join('\n'));
+  }
+}
+
+function validateQc(config, errors) {
+  const qc = config.qc || {};
+  if (!Number.isFinite(Number(qc.signature?.sampleRate)) || Number(qc.signature?.sampleRate) <= 0) {
+    errors.push(`qc.signature.sampleRate が不正です: ${qc.signature?.sampleRate}`);
+  }
+  if (!Number.isFinite(Number(qc.signature?.channels)) || Number(qc.signature?.channels) <= 0) {
+    errors.push(`qc.signature.channels が不正です: ${qc.signature?.channels}`);
+  }
+  for (const [key, value] of Object.entries(qc.thresholds || {})) {
+    if (!Number.isFinite(Number(value))) {
+      errors.push(`qc.thresholds.${key} が不正です: ${value}`);
+    }
+  }
+  if (!Number.isFinite(Number(qc.static?.maxSerifLines)) || Number(qc.static?.maxSerifLines) < 1) {
+    errors.push(`qc.static.maxSerifLines は 1 以上で指定してください: ${qc.static?.maxSerifLines}`);
   }
 }
 
@@ -520,6 +627,33 @@ function validateEffects(config, errors) {
   }
   if (!Number.isFinite(Number(zoom.analysis?.window)) || Number(zoom.analysis?.window) <= 0) {
     errors.push(`effects.zoom.analysis.window は 0 より大きい値で指定してください: ${zoom.analysis?.window}`);
+  }
+}
+
+function validateEnhance(config, errors) {
+  const enhance = config.effects?.enhance;
+  if (!enhance) {
+    return;
+  }
+  if (enhance.backend !== 'anime4k') {
+    errors.push(`effects.enhance.backend が不正です: ${enhance.backend}`);
+  }
+  for (const key of ['restore', 'upscale']) {
+    const value = enhance[key];
+    if (value !== null && value !== undefined && !/^[A-Za-z0-9_.]+$/.test(String(value))) {
+      errors.push(`effects.enhance.${key} はシェーダ名（例 Restore_CNN_M）または null で指定してください: ${value}`);
+    }
+  }
+  if (!Number.isInteger(Number(enhance.minSourceHeight)) || Number(enhance.minSourceHeight) < 1) {
+    errors.push(`effects.enhance.minSourceHeight は 1 以上の整数で指定してください: ${enhance.minSourceHeight}`);
+  }
+  if (enhance.shadersDir !== null && enhance.shadersDir !== undefined && typeof enhance.shadersDir !== 'string') {
+    errors.push('effects.enhance.shadersDir は文字列または null で指定してください。');
+  }
+  for (const key of ['enabled', 'clampHighlights', 'required']) {
+    if (typeof enhance[key] !== 'boolean') {
+      errors.push(`effects.enhance.${key} は true / false で指定してください: ${enhance[key]}`);
+    }
   }
 }
 

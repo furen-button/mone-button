@@ -400,24 +400,33 @@ function boxDialogues(el, width, height) {
 }
 
 function titleBar(el, width, height) {
+  const rect = titleBarRect(el, width, height);
+  return shapeDialogue(el, rect.x, rect.y, rect.width, rect.height, el.box.fill || '000000', 0, 0, boxAlpha(el.box));
+}
+
+function titleBarRect(el, width, height) {
   const fs = fontSize(el.size, height);
   const pad = Number(el.box.pad || 0);
   const border = Number(el.box.borderWidth || 0);
   const boxHeight = Math.max(boxHeightFor(countLines(el.text), fs, pad, border), Math.round(height * 0.07));
   el.textPos = { x: width / 2, y: boxHeight / 2 };
-  return shapeDialogue(el, 0, 0, width, boxHeight, el.box.fill || '000000', 0, 0, boxAlpha(el.box));
+  return { x: 0, y: 0, width, height: boxHeight };
 }
 
-function textBoxRect(el, width, height) {
+export function textBoxRect(el, width, height) {
   const fs = fontSize(el.size, height);
   const pad = Number(el.box.pad || 0);
   const border = Number(el.box.borderWidth || 0);
   const lines = countLines(el.text);
-  const boxWidth = el.box.width || Math.round(width - (el.marginH || Math.round(width * 0.08)) * 2);
-  const boxHeight = el.box.height || boxHeightFor(lines, fs, pad, border);
-  const align = el.align || 'bottom-center';
   const marginH = el.marginH || Math.round(width * 0.08);
   const marginV = el.marginV || Math.round(height * 0.045);
+  // 顔を避けて左右非対称にした場合はマージンがそのままボックスの左右端になる。
+  const asymmetric = el.marginL !== undefined && el.marginR !== undefined
+    && (el.marginL !== marginH || el.marginR !== marginH);
+  const boxWidth = el.box.width
+    || (asymmetric ? Math.round(width - el.marginL - el.marginR) : Math.round(width - marginH * 2));
+  const boxHeight = el.box.height || boxHeightFor(lines, fs, pad, border);
+  const align = el.align || 'bottom-center';
   let x = marginH;
   let y = height - marginV - boxHeight;
 
@@ -426,12 +435,112 @@ function textBoxRect(el, width, height) {
   if (align.endsWith('left')) x = marginH;
   if (align.endsWith('right')) x = width - marginH - boxWidth;
   if (align.endsWith('center') || align === 'center') x = Math.round((width - boxWidth) / 2);
+  if (asymmetric) x = el.marginL;
 
   el.textPos = {
     x: x + boxWidth / 2,
     y: y + boxHeight / 2,
   };
   return { x, y, width: boxWidth, height: boxHeight };
+}
+
+export function elementRect(el, width, height) {
+  if (!el) return null;
+  if (el.box?.enabled) {
+    return rectForOutput(el.name === 'title' ? titleBarRect(el, width, height) : textBoxRect(el, width, height));
+  }
+  return elementTextRect(el, width, height);
+}
+
+export function elementTextRect(el, width, height) {
+  if (!el) return null;
+  if (el.box?.enabled && !el.textPos) {
+    if (el.name === 'title') {
+      titleBarRect(el, width, height);
+    } else {
+      textBoxRect(el, width, height);
+    }
+  }
+
+  const fs = fontSize(el.size, height);
+  const lines = String(el.text || '').split(/\r?\n|\\N/);
+  const textWidth = Math.max(1, Math.round(Math.max(...lines.map((line) => measureWidth(line))) * fs / 0.97));
+  const textHeight = Math.max(1, Math.round(lines.length * fs * LINE_HEIGHT));
+  const pos = el.textPos || alignedPosition(el.align, width, height, el.marginH, el.marginV);
+  const anchor = el.box?.enabled ? ALIGN.center : alignCode(el.align);
+  let x = pos.x;
+  let y = pos.y;
+
+  if ([8, 5, 2].includes(anchor)) x -= textWidth / 2;
+  if ([9, 6, 3].includes(anchor)) x -= textWidth;
+  if ([4, 5, 6].includes(anchor)) y -= textHeight / 2;
+  if ([1, 2, 3].includes(anchor)) y -= textHeight;
+
+  let rect = { x, y, width: textWidth, height: textHeight };
+  if (el.progress?.bar) {
+    rect = unionRects(rect, progressBarRect(el, width, height));
+  }
+  return rectForOutput(rect);
+}
+
+// 行ごとの文字矩形を返す。複数行テロップをブロックの外接矩形で扱うと、
+// 幅の広い行と、相手に重なる y 帯にある行が別物でも重なったと誤判定する
+// （3 行 serif の 2 行目が最も広く、time に近いのは短い 3 行目という実例があった）。
+// ASS の中央寄せ（\an5）は行ごとに中央へ寄せるため、行単位の矩形が実際の描画と一致する。
+export function elementTextLineRects(el, width, height) {
+  const block = elementTextRect(el, width, height);
+  if (!block) {
+    return [];
+  }
+
+  const lines = String(el.text || '').split(/\r?\n|\\N/);
+  const fs = fontSize(el.size, height);
+  const lineHeight = fs * LINE_HEIGHT;
+  // 行送りの余白（LINE_HEIGHT が 1 を超える分）は字が乗らないので、上下から差し引く。
+  // これを含めたままだと、上下に並べただけのテロップ（config-mone の title と date）が
+  // 字が離れているのに矩形だけ重なって衝突扱いになる。
+  const leading = (LINE_HEIGHT - 1) * fs / 2;
+  const blockWidth = Math.max(...lines.map((line) => measureWidth(line))) * fs / 0.97;
+  const anchor = el.box?.enabled ? ALIGN.center : alignCode(el.align);
+  const rects = [];
+
+  for (const [index, line] of lines.entries()) {
+    const lineWidth = Math.max(1, Math.round(measureWidth(line) * fs / 0.97));
+    let x = block.x;
+    if ([8, 5, 2].includes(anchor)) {
+      x = block.x + (blockWidth - lineWidth) / 2;
+    } else if ([9, 6, 3].includes(anchor)) {
+      x = block.x + (blockWidth - lineWidth);
+    }
+    rects.push(rectForOutput({
+      x,
+      y: block.y + index * lineHeight + leading,
+      width: lineWidth,
+      height: Math.max(1, Math.round(lineHeight - leading * 2)),
+    }));
+  }
+
+  if (el.progress?.bar) {
+    rects.push(rectForOutput(progressBarRect(el, width, height)));
+  }
+  return rects;
+}
+
+export function lineBreakViolations(text) {
+  const lines = String(text || '').split(/\r?\n|\\N/).filter(Boolean);
+  const violations = [];
+  for (const [index, line] of lines.entries()) {
+    const chars = [...line];
+    const head = chars[0];
+    const tail = chars.at(-1);
+    if (head && LINE_START_KINSOKU_CHARS.has(head)) {
+      violations.push({ line: index + 1, side: 'start', char: head });
+    }
+    if (tail && LINE_END_KINSOKU_CHARS.has(tail)) {
+      violations.push({ line: index + 1, side: 'end', char: tail });
+    }
+  }
+  return violations;
 }
 
 function shapeDialogue(el, x, y, width, height, fill, layerOffset, radius = 0, alpha = '') {
@@ -479,15 +588,20 @@ function roundedRectShape(w, h, radius) {
 }
 
 function progressBarDialogues(el, width, height) {
+  const rect = progressBarRect(el, width, height);
+  return [
+    shapeDialogue({ ...el, boxLayer: 0 }, rect.x, rect.y, rect.width, rect.height, 'FFFFFF', 0),
+    shapeDialogue({ ...el, boxLayer: 1 }, rect.x, rect.y, rect.filled, rect.height, el.color || 'FFFFFF', 1),
+  ];
+}
+
+function progressBarRect(el, width, height) {
   const totalWidth = Math.round(width * 0.18);
   const filled = Math.max(0, Math.min(totalWidth, Math.round(totalWidth * (el.progress.index / el.progress.total))));
   const barHeight = Math.max(5, Math.round(height * 0.009));
   const pos = alignedPosition(el.align, width, height, el.marginH, el.marginV);
   const y = pos.y + fontSize(el.size, height) * 0.8;
-  return [
-    shapeDialogue({ ...el, boxLayer: 0 }, pos.x, y, totalWidth, barHeight, 'FFFFFF', 0),
-    shapeDialogue({ ...el, boxLayer: 1 }, pos.x, y, filled, barHeight, el.color || 'FFFFFF', 1),
-  ];
+  return { x: pos.x, y, width: totalWidth, height: barHeight, filled };
 }
 
 function alignedPosition(align, width, height, marginH = Math.round(width * 0.035), marginV = Math.round(height * 0.045)) {
@@ -507,7 +621,7 @@ function alignCode(align) {
   return ALIGN[align] || ALIGN.center;
 }
 
-function fontSize(value, height) {
+export function fontSize(value, height) {
   const numeric = Number(value);
   return Math.max(1, Math.round(numeric > 0 && numeric <= 1 ? height * numeric : numeric));
 }
@@ -531,10 +645,14 @@ export function makeTextElement({ name, text, style, width, height, duration, in
   const baseFs = fontSize(style.size, height);
   const defaultMarginH = name === 'serif' ? 0.08 : 0.035;
   const marginH = overrides.marginH ?? Math.round(width * (style.marginH ?? defaultMarginH));
-  const marginV = overrides.marginV ?? Math.round(height * 0.045);
+  // marginH と同じく config からも指定できるようにする（schema は以前から marginV を宣言していた）。
+  const marginV = overrides.marginV ?? Math.round(height * (style.marginV ?? 0.045));
+  // 顔を避けるときだけ左右非対称になる。折り返し幅とボックス幅の両方がこれに従う。
+  const marginL = overrides.marginL ?? marginH;
+  const marginR = overrides.marginR ?? marginH;
   let fs = baseFs;
   const stripped = stripEmoji(text);
-  let wrapped = wrapText(stripped, maxUnitsFor(width, marginH, marginH, fs));
+  let wrapped = wrapText(stripped, maxUnitsFor(width, marginL, marginR, fs));
 
   // 箱高さ上限に収める自動縮小。実際の折り返し結果を測り、収まる最大の整数 fs を選ぶ。
   if (style.autoShrink && style.box?.enabled) {
@@ -545,7 +663,8 @@ export function makeTextElement({ name, text, style, width, height, duration, in
       ({ fs, wrapped } = fitTextToBoxHeight({
         text: stripped,
         width,
-        marginH,
+        marginL,
+        marginR,
         minFs,
         baseFs,
         budget,
@@ -569,6 +688,8 @@ export function makeTextElement({ name, text, style, width, height, duration, in
     box: style.box,
     marginH,
     marginV,
+    marginL,
+    marginR,
     duration,
     karaoke: Boolean(style.karaoke),
     ...overrides,
@@ -579,17 +700,17 @@ export function makeTextElement({ name, text, style, width, height, duration, in
   return element;
 }
 
-function fitTextToBoxHeight({ text, width, marginH, minFs, baseFs, budget, box }) {
+function fitTextToBoxHeight({ text, width, marginL, marginR, minFs, baseFs, budget, box }) {
   const pad = Number(box.pad || 0);
   const border = Number(box.borderWidth || 0);
   let lo = minFs;
   let hi = baseFs;
   let bestFs = minFs;
-  let bestWrapped = wrapText(text, maxUnitsFor(width, marginH, marginH, minFs));
+  let bestWrapped = wrapText(text, maxUnitsFor(width, marginL, marginR, minFs));
 
   while (lo <= hi) {
     const fs = Math.floor((lo + hi) / 2);
-    const wrapped = wrapText(text, maxUnitsFor(width, marginH, marginH, fs));
+    const wrapped = wrapText(text, maxUnitsFor(width, marginL, marginR, fs));
     const boxHeight = boxHeightFor(countLines(wrapped), fs, pad, border);
     if (boxHeight <= budget) {
       bestFs = fs;
@@ -607,6 +728,23 @@ function clampFade(fade, duration) {
   const maxMs = Math.max(0, Math.floor((Number(duration) || 0) * 1000) - 50);
   if (maxMs <= 0) return [0, 0];
   return [Math.min(Number(fade[0] || 0), maxMs), Math.min(Number(fade[1] || 0), maxMs)];
+}
+
+function rectForOutput(rect) {
+  return {
+    x: Math.round(rect.x),
+    y: Math.round(rect.y),
+    w: Math.round(rect.width),
+    h: Math.round(rect.height),
+  };
+}
+
+function unionRects(a, b) {
+  const x1 = Math.min(a.x, b.x);
+  const y1 = Math.min(a.y, b.y);
+  const x2 = Math.max(a.x + a.width, b.x + b.width);
+  const y2 = Math.max(a.y + a.height, b.y + b.height);
+  return { x: x1, y: y1, width: x2 - x1, height: y2 - y1 };
 }
 
 export { rgbToAssBgr };

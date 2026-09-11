@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { buildAss, formatDate, makeTextElement, resolveTitleText, stripEmoji } from './ass.js';
-import { deepMerge } from './config.js';
+import { deepMerge, resolveProjectPath } from './config.js';
 import { cacheThumbnail, optionalAsset } from './assets.js';
 import { encodeArgs, streamSignature, subtitlesFilter } from './ffmpeg.js';
 import { execFileSync } from 'child_process';
@@ -35,7 +35,7 @@ function renderEndcapVideo({ tools, kind, config, workDir, size }) {
   args.push(...encodeArgs(config), '-movflags', '+faststart', outPath);
   console.log(`🎬 ${kind} に指定動画を使用: ${path.basename(videoPath)}`);
   execFileSync(tools.ffmpeg, args, { stdio: 'inherit' });
-  return outPath;
+  return { path: outPath, kind, sourcePath: videoPath, elements: [] };
 }
 
 export async function renderClipCard({ tools, clip, index, total, config, workDir, size }) {
@@ -99,10 +99,10 @@ async function renderCard({ tools, kind, clip, clips, index, total, config, work
 
   const command = buildCardCommand({ tools, assPath, outPath, config, size, duration, thumbnail });
   execFileSync(tools.ffmpeg, command, { stdio: 'inherit' });
-  return outPath;
+  return { path: outPath, kind: kind === 'clip' ? 'card' : kind, clip, sourcePath: cardSourcePath(config), elements };
 }
 
-function buildCardElements({ kind, clip, clips, index, total, config, size, title, duration }) {
+export function buildCardElements({ kind, clip, clips, index, total, config, size, title, duration }) {
   if (kind === 'opening') {
     const first = clips[0];
     const mainTitle = title || config.endcaps.opening.title || makeMatomeTitle(config, first);
@@ -315,4 +315,11 @@ function backgroundInput(config, size, duration) {
     args: ['-f', 'lavfi', '-t', String(duration), '-i', `color=c=0x${color}:s=${size.width}x${size.height}:r=${size.fps}`],
     videoFilter: `setsar=1,fps=${size.fps}`,
   };
+}
+
+function cardSourcePath(config) {
+  const bg = config.cards.background || {};
+  if (bg.type === 'video' && bg.video) return resolveProjectPath(bg.video);
+  if (bg.type === 'image' && bg.image) return resolveProjectPath(bg.image);
+  return null;
 }

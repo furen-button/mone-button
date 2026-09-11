@@ -115,6 +115,7 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 | `--no-cards` | cards有効 | 区切りカードと OP/ED を無効化 |
 | `--bgm` / `--no-bgm` | 無効 | BGM ミックスの有無 |
 | `--zoom` / `--no-zoom` | 無効 | 音声ピークに合わせたパンチイン・ズームの有無 |
+| `--enhance` / `--no-enhance` | 無効 | Anime4K（ffmpeg libplacebo）でアニメの線を補正する。1080p の `--source cache` 向けで、144p の既存 mp4 には掛からない |
 | `--title <text>` / `--no-title` | メタタイトル（絵文字除去） | タイトル文言 / 非表示。2 文字の `\n` は手動改行として扱う |
 | `--date` / `--no-date` | 表示 | 日付の有無 |
 | `--serif` / `--no-serif` | 表示 | セリフの有無 |
@@ -130,11 +131,50 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 
 クリップ JSON では `effects.zoom` で個別上書きできる。`false` は抑止、`true` は短尺/平坦スキップを無視して自動検出、`{"at": 2.5, "scale": 1.4, "x": 0.8, "y": 0.75}` は開始秒・倍率・焦点を手動指定、`{"mode": "full"}` はそのクリップだけ全編アップにする（`mode` はグローバル設定より優先。`at` 指定時は punch 扱い）。`--no-zoom` はグローバル kill switch として個別指定より優先する。
 
+`telops.serif.avoidFace`（既定 有効）で、セリフボックスが演者の顔と重なるクリップだけ、顔の無い側へ寄せて幅を狭める。ボックスは画面下端に張り付いていて下へ逃がせないため、顔の左右どちらか広い側に収める（既定プリセットでは右に立つ演者を避けて左寄せになり、幅 1612px → 約 1180px）。顔は zoom と同じ `detect_anime_face.py` でクリップ全体から `frames`（既定 3）枚を抜いて検出し、検出した矩形はすべてまとめて避ける。zoom が効くクリップでは切り出し後の座標へ変換してから判定する。`gap`（既定 0.0125 = 24px）は顔との間隔、`minWidth`（既定 0.45）は狭めた幅の下限で、満たせないときは全幅のままにして QC が `serif_face_fallback` を warn で知らせる。顔が検出できない・重ならないときは従来どおり。折り返し幅もボックスに合わせて狭くなるため行数が増えることがある。`--avoid-face` / `--no-avoid-face` でグローバルに切り替え、クリップ JSON の `effects.avoidFace` で `false`（抑止）/ `true` / `{"side": "left"|"right"}`（寄せる側を指定）を個別指定できる。判断は render.json の `avoidFace` に残る。
+
+`effects.enhance`（既定 無効）は、Anime4K の GLSL シェーダを ffmpeg の `libplacebo` フィルタで掛けるアニメ向け線補正。YouTube 1080p の圧縮でにじんだ線を整える用途で、`--source cache` の 1080p ソースを想定する。scale+pad+fps の後に等倍の復元（`restore`、既定 `Restore_CNN_M`）を入れ、zoom の切り出し後の拡大を lanczos から CNN（`upscale`、既定 `Upscale_CNN_x2_M`）に置き換える（Anime4K 公式の Mode A = Restore → Upscale の順。1080p に復元を 2 回掛けると過剰シャープになるので 1 回だけ）。シェーダ名は `Anime4K_` 接頭辞と `.glsl` を除いた形で、`Restore_CNN_{S,M,L,VL,UL}` / `Restore_CNN_Soft_*`（軽いボケ向き）/ `Upscale_CNN_x2_*` から選ぶ。サイズは 1 段上がるごとに処理時間が約 2 倍。`Anime4K_Clamp_Highlights` を先頭に付けて元より明るくならないよう抑える（`clampHighlights`）。`minSourceHeight`（既定 720）未満のソースには掛けないので `public/videos`（256×144）は自動で対象外。ソースを差し替えるのではなくフィルタ列に入るだけなので、キャッシュ・中間ファイル・追加バイナリは無く、顔検出やテロップ座標も変わらない。`--enhance` / `--no-enhance` でグローバルに切り替え、クリップ JSON の `effects.enhance` で `false` / `true`（`minSourceHeight` を無視）/ `{"restore": "Restore_CNN_Soft_M", "upscale": null}` を個別指定できる。判断は render.json の `enhance` に残り、libplacebo が使えない・シェーダが無いときは警告して補正なしで続行し、QC が `enhance_fallback` を warn で知らせる（`required: true` なら error で停止）。
+
 注意:
 - npm の仕様上、引数は `--` の後に渡す（`--videoId=...` 形式の `npm_config_*` フォールバックにも対応）。
 - テロップ焼き込みには `subtitles`(libass) 対応の ffmpeg が必要。通常の Homebrew `ffmpeg` は非対応のため `brew install ffmpeg-full` を導入する（keg-only。既存 ffmpeg は壊さない）。スクリプトが `/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg` を自動検出し、`FFMPEG_BIN` 環境変数で上書きも可。
 - 区切りカードの背景/SE/BGM は `assets/create-video/` の素材を参照する。欠落時は該当機能をスキップして続行する。
+- `--enhance` は `libplacebo` フィルタ入りの ffmpeg（`ffmpeg-full`）と Vulkan ドライバが必要。macOS では `brew install molten-vk`（無いと `VK_ERROR_INCOMPATIBLE_DRIVER` で補正だけスキップされる）。シェーダは初回に bloc97/Anime4K の release zip（GLSL テキスト）を `cache/createVideo/tools/anime4k/glsl/` へ自動取得し、連結したプリセットを同所の `.presets/` に置く。
 - 高画質DLには yt-dlp が必要。`--source cache` の音量正規化には `ffmpeg-normalize` が必要（不在時は警告して生DLを使用）。映像は copy で高画質のまま、音声のみ正規化する。サムネイルは `cache/createVideo/thumbnails/` にキャッシュする。
+
+## 生成動画の自動品質レビュー（QC）
+
+`createVideo` の生成物を「意図（レンダー設定）と実物（ffprobe 実測）の差分」として検査する。
+
+```
+npm run qc -- --video output/xxx.mp4        # 既存 mp4 を単体レビュー
+npm run qc -- --preflight --videoId xxx     # 生成せず L0 だけ（ffmpeg 不要・数十ms）
+npm run qc -- --all [--dir output]          # ディレクトリ内の mp4 を一括レビューして表で出す
+npm run qc -- --video xxx.mp4 --contact     # 代表フレーム一覧 PNG を書き出す
+npm run qc -- --video xxx.mp4 --review      # 上記を claude CLI に読ませて指摘を書き出す（非ゲート）
+npm run createVideo -- --videoId xxx --qc   # 生成前 L0 + 生成後 L1
+```
+
+- 実装は `scripts/create-video/qc/`（index/manifest/report/checks/*）。しきい値は `config.qc.*`。
+- `--qc` を付けると生成時に `output/<name>.render.json`（レンダーマニフェスト）を書き出す。セグメントの実尺・テロップ矩形・zoom・concat 経路を残し、QC の期待値にする。`config.qc.manifest: false` で抑止可。manifest は `--qc` なしの通常実行でも書き出す（出力が 1 ファイル増えるだけで mp4 は変わらない）。
+- **L0（生成前・ffmpeg 不要）**… 素材存在、テロップのはみ出し・重なり、autoShrink の張り付き、行数、禁則残存、クリップ重複、`--order` の単調性、チャプター要件。error があればエンコードを始めずに止める。`npm test` でも回る。
+- **L1（生成後）**… 署名と総尺、concat 経路、A/V 同期（音声相互相関）、クリップ同一性（pHash）、音量（ebur128）、無音、黒、フリーズ、テロップ焼き込み（矩形内の塗り色一致率）、概要欄の時刻。
+- 出力は `output/<name>.qc.json` と `output/<name>.qc.md`。**終了コードは error が 1 件以上で 1、warn / info のみなら 0。**
+- `--contact` は各クリップの代表フレームをラベル付きで並べた `output/<name>.contact.png` を書き出す。`--review` はそれを `claude` CLI に読ませて `output/<name>.review.md` に指摘を残す。どちらも結果は info 扱いで、**合否には影響しない**（LLM の出力は非決定的なため）。
+- render manifest には mp4 のサイズと SHA-256 が入る（version 2）。古い manifest が残っている場合は `manifest_stale` を error にする。検証目的で無視したいときだけ `--allow-stale-manifest` を使う。
+- テロップの衝突は「不透明なボックスがあればボックス、無ければ行ごとの文字矩形」で判定する。`title` のボックスは全幅の背景バーで date と progress がその上に乗る意図的なデザインなので、判定から除く。
+- ASS 出力は `scripts/create-video/__fixtures__/ass-golden.json` で固定している（3 プリセット × `public/data` 全クリップのハッシュ + 要注意 15 件の全文）。テロップ描画を意図的に変えたときは `npm run golden:ass` で更新する。`wrap-golden.json` は別物で再生成禁止。
+- 音量の目標は **-23 LUFS ±2**（取り込み側の `ffmpeg-normalize` が EBU R128 / -23 LUFS で揃えるため）。YouTube 基準に寄せたい場合は `config.qc.thresholds.integratedLufsMin/Max` を変更する。
+- 区切りカード・OP・ED は静止画背景で無音なため、manifest がある場合はフリーズ・無音・音量差の検査をクリップ区間だけに限定する。
+- `effects.enhance` を設定したのに libplacebo 不可やシェーダ欠落で補正なしになったクリップは `enhance_fallback` を warn にする。manifest のセグメントに `enhance`（`applied` / `restore` / `upscale` / `from`、または `fallback` と `reason`）が残る。
+- テロップの衝突は重なり面積比（既定 0.2）で判定する。文字矩形の幅は `charWidth` 推定で実測より広く出るため、端が触れただけでは error にしない。
+
+注意:
+- manifest が無い mp4 でも動くが、位置ズレ・クリップ抜け・焼き込み・音量差の検査は info で skip する。
+- 日本語 OCR 辞書が無い環境を前提に、**文字認識には依存しない**。テロップは矩形と塗り色でのみ検証する。
+- A/V 同期と pHash には python（numpy / cv2）が必要。無ければその検査だけ skip して続行する。
+
+詳細は docs/tasks/09-10-video-qc.md を参照。
 
 ## ドキュメント管理
 

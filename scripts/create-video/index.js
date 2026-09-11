@@ -9,22 +9,39 @@ import { renderClip } from './clip.js';
 import { renderClipCard, renderEndingCard, renderOpeningCard } from './card.js';
 import { concatSegments, mixBgm, probeDuration, resolveFfmpeg } from './ffmpeg.js';
 import { buildSummaryEntry, writeSummary } from './summary.js';
+import { writeRenderManifest } from './qc/manifest.js';
+import { runQc } from './qc/index.js';
+import { runStaticChecks } from './qc/checks/static.js';
+import { exitCodeForResults, formatConsoleSummary, writeQcReport } from './qc/report.js';
 
 async function main() {
   const config = loadConfig();
   const size = outputSize(config);
-  const tools = resolveFfmpeg();
   const clips = collectClips(config);
   const outPath = resolveOutputPath(config, clips);
-  const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'createVideo-'));
   const titleOverride = config.titleOverride || null;
+  const staticResults = config.qc.enabled
+    ? runStaticChecks({ config, clips, size, titleOverride })
+    : [];
+  if (exitCodeForResults(staticResults) !== 0) {
+    const report = writeQcReport({ videoPath: outPath, results: staticResults });
+    console.log(formatConsoleSummary({ results: staticResults, reportPaths: report.paths }));
+    process.exitCode = 1;
+    return;
+  }
+
+  const tools = resolveFfmpeg();
+  const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'createVideo-'));
   const segments = [];
+  const renderedSegments = [];
   // 各セグメントの実尺を積み上げ、クリップが動画内のどの時刻に出るかを記録する。
   const summaryEntries = [];
   let timelineSec = 0;
   const pushSegment = (segment) => {
-    segments.push(segment);
-    timelineSec += probeDuration(tools.ffprobe, segment);
+    const durationSec = probeDuration(tools.ffprobe, segment.path);
+    segments.push(segment.path);
+    renderedSegments.push({ ...segment, atSec: timelineSec, durationSec });
+    timelineSec += durationSec;
   };
 
   console.log(`🚀 ${describeSelection(config)} のクリップ ${clips.length} 件をまとめ動画にします（source=${config.source}）`);
@@ -92,6 +109,20 @@ async function main() {
     console.log(`✅ 完成: ${outPath}`);
     console.log(`   concat: ${concatResult.method}`);
 
+    let manifestPath = null;
+    if (config.qc.manifest !== false) {
+      ({ path: manifestPath } = await writeRenderManifest({
+        videoOutPath: outPath,
+        config,
+        clips,
+        renderedSegments,
+        concatMethod: concatResult.method,
+        totalSec: timelineSec,
+        size,
+      }));
+      console.log(`🧾 ${path.relative(projectRoot, manifestPath)}`);
+    }
+
     if (summaryEntries.length > 0 && config.summary.enabled !== false) {
       // 最終チャプターの長さを測るために ED まで含めた総尺を渡す。
       const summaryResult = writeSummary({
@@ -105,6 +136,23 @@ async function main() {
       }
       for (const warning of summaryResult.warnings) {
         console.warn(`⚠️  ${warning}`);
+      }
+    }
+
+    if (config.qc.enabled) {
+      const cli = config.__meta?.cli || {};
+      const qcResult = await runQc({
+        videoPath: outPath,
+        config,
+        manifestPath,
+        staticResults,
+        // --contact / --review は QC の外側（コンタクトシートと LLM 目視）。結果は info 扱い。
+        contact: Boolean(cli.contact) || Boolean(cli.review),
+        review: Boolean(cli.review),
+      });
+      console.log(formatConsoleSummary({ results: qcResult.results, reportPaths: qcResult.report.paths }));
+      if (qcResult.exitCode !== 0) {
+        process.exitCode = qcResult.exitCode;
       }
     }
   } finally {
