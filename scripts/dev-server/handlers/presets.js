@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { ALIGN, DEFAULTS, deepMerge, loadConfig } from '../../create-video/config.js';
+import { ALIGN, DEFAULTS, deepMerge } from '../../create-video/config.js';
 import { assertNoForbiddenKeys, assertSafePath, presetFileName } from '../lib/guards.js';
+import { validateConfigFile } from '../lib/config-validation.js';
 import { applyPatch, hashText, serializePreset, stripInternal } from '../lib/patch.js';
 
 export function createPresetRoutes(context) {
@@ -205,7 +206,7 @@ function readPresetResponse(name, file) {
     hash,
     mtimeMs,
     resolved: deepMerge(structuredClone(DEFAULTS), raw),
-    validation: validatePreset(file),
+    validation: validateConfigFile(file),
   };
 }
 
@@ -218,19 +219,6 @@ function readPresetFile(file) {
     hash: hashText(text),
     mtimeMs: stat.mtimeMs,
   };
-}
-
-function validatePreset(file) {
-  try {
-    loadConfig(['--config', file]);
-    return { ok: true, errors: [] };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return {
-      ok: false,
-      errors: message.split('\n').map((line) => line.replace(/^- /u, '')),
-    };
-  }
 }
 
 function presetPath(context, name) {

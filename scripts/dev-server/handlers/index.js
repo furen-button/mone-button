@@ -6,6 +6,7 @@ import {
   schemaPath,
 } from '../lib/paths.js';
 import { createPresetRoutes } from './presets.js';
+import { createValidateRoutes } from './validate.js';
 
 export function createHandlers(context = {}) {
   const resolvedContext = {
@@ -19,6 +20,7 @@ export function createHandlers(context = {}) {
 
   return [
     ...createPresetRoutes(resolvedContext),
+    ...createValidateRoutes(resolvedContext),
   ];
 }
 
