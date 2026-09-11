@@ -7,11 +7,15 @@ export const dataDir = path.join(projectRoot, 'public/data');
 export const videosDir = path.join(projectRoot, 'public/videos');
 export const cacheRoot = path.join(projectRoot, 'cache/createVideo');
 
-export async function cacheThumbnail(videoId, config) {
+export async function cacheThumbnail(videoId, config, { allowDownload = true } = {}) {
   if (!config.cards.thumbnail?.enabled || !videoId) return null;
   const dir = path.join(cacheRoot, 'thumbnails');
   const outPath = path.join(dir, `${videoId}.jpg`);
   if (fs.existsSync(outPath)) return outPath;
+  // 静止画プレビューは取得済みのものだけを使う（プレビューで外に取りに行かない）。
+  if (!allowDownload) {
+    return null;
+  }
 
   fs.mkdirSync(dir, { recursive: true });
   const urls = [

@@ -57,6 +57,17 @@ npm run -s still -- --videoId gr9WJDYS_u0 --still '#1' --frames 6
 - V-4: `--limit 3 --sheet 3` は 3 セルの `sheet-3x3.png` を生成し、`cells.length === 3`。`--frames 4` は 4 セルの `<base>-frames4.png` を生成した。
 - 実測レイテンシ（1080p 出力、Apple Silicon）: ffmpeg 単体 約 0.6 秒。`renderStill` を同一プロセスで繰り返すと約 0.7 秒/枚。CLI（`npm run -s still`）は node 起動込みで約 0.9 秒。`config-mone --zoom --avoid-face` は顔検出（python + OpenCV）込みで約 3.7 秒。3 セル sheet と 4 frames はどちらも約 1.2 秒。内訳は `resolveFfmpeg` 76 ms（プロセス内で 1 回だけ）、ffprobe 69 ms、`collectClips` 20 ms、残りが ffmpeg（libass/fontconfig 初期化 + 先読み 0.5 秒分のフィルタ処理）。
 
+## カード / OP / ED（2026-09-12 追加）
+
+クリップと同じ seam 抽出で、区切りカード・OP・ED も 1 フレーム焼けるようにした。
+
+- `card.js` の `renderCard` から `planCardRender()`（要素と ASS 本文）を、`buildCardCommand` から `buildCardVideoGraph()`（`[v]` を作るまでの入力とフィルタ）を切り出し、音声グラフ（SE / anullsrc / afade / apad）と分けた。本番は両方を連結するので **ffmpeg の argv は 1 要素も変わらない**（3 プリセット × サムネ有無 × カード/OP/ED の 12 パターンで、リファクタ前の実装をコピーして突き合わせた）。
+- `--still card:<base>` / `card:#N` は、そのクリップの**前に入る**区切りカード。`--still opening` / `ending` は端のカードで、`endcaps.*.video` に完成動画があればその動画から抜く（`endcapVideoFilter` は本番と同じ scale/pad/setsar/fps）。
+- サムネイルは `cacheThumbnail(videoId, config, { allowDownload: false })` でキャッシュ済みのみ使う。未取得なら `thumbnail_missing` を出して背景だけで描く（プレビューが外へ取りに行かない）。
+- 背景素材が欠けて色にフォールバックしたときは `card_background_fallback`。
+- `StillResult` はクリップと同じ形で、`clip` は OP/ED では null、`card: { kind, duration, thumbnail }` が増える。`source.kind` は `card-video` / `card-image` / `card-gradient` / `card-color` / `endcap-video`。
+- 検証（既定プリセット `gr9WJDYS_u0 --limit 3`）: `--print-ass` は本番 `card-0001.ass` / `opening.ass` / `ending.ass` と完全一致。完成セグメントから抜いたフレームとの PSNR は 39.30 / 41.31 / 43.43 dB で、それぞれの圧縮床（still を x264 crf23 で往復）40.80 / 42.74 / 44.93 dB の 1.5 dB 以内。カードは背景の動きが小さく t±1 フレームでも PSNR が落ちないので、時刻の一致は ASS と尺で見る。所要は 0.6〜1.9 秒/枚。
+
 ## 注意
 
 - `--source cache` はキャッシュ済み mp4 のみ読む。CLI preview から download は発生しない。

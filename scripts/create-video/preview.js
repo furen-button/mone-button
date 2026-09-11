@@ -19,6 +19,13 @@ import {
   planClipRender,
   resolveClipSource,
 } from './clip.js';
+import {
+  buildCardVideoGraph,
+  endcapVideoFilter,
+  endcapVideoPath,
+  planCardRender,
+} from './card.js';
+import { cacheThumbnail } from './assets.js';
 import { zoomCropRect } from './effects.js';
 import { loadConfig, outputSize, parseArgs, projectRoot } from './config.js';
 import { collectClips } from './select.js';
@@ -46,6 +53,11 @@ export class StillAbortedError extends Error {
 }
 
 export async function renderStill(request) {
+  const target = parseStillTarget(request.still);
+  if (target.kind !== 'clip') {
+    return renderCardStill(request, target);
+  }
+
   const started = Date.now();
   const log = request.log || (() => {});
   const context = loadStillContext(request);
@@ -208,6 +220,11 @@ export async function renderStill(request) {
 }
 
 export async function buildStillAss(request) {
+  const target = parseStillTarget(request.still);
+  if (target.kind !== 'clip') {
+    return buildCardStillAss(request, target);
+  }
+
   const context = loadStillContext(request);
   const { config, size, index, total, clip } = context;
   const assPath = path.join(os.tmpdir(), `${clip.base}.ass`);
@@ -355,7 +372,12 @@ export function parseStillTarget(value) {
     return { kind: 'ending' };
   }
   if (raw.startsWith('card:')) {
-    return { kind: 'card', base: stripClipExt(raw.slice('card:'.length)) };
+    const value = raw.slice('card:'.length).trim();
+    const cardPosition = value.match(/^#(\d+)$/u);
+    if (cardPosition) {
+      return { kind: 'card', position: Number(cardPosition[1]) };
+    }
+    return { kind: 'card', base: stripClipExt(value) };
   }
   const position = raw.match(/^#(\d+)$/u);
   if (position) {
@@ -624,6 +646,266 @@ async function mapWithConcurrency(items, concurrency, mapper) {
   return results;
 }
 
+// カード / OP / ED の静止画。クリップ経路と違ってソース mp4 が無く、背景（lavfi / 画像 / 動画）と
+// サムネイルと ASS から本番と同じ入力を組み立てる。計画は card.js の planCardRender と共有する。
+async function renderCardStill(request, target) {
+  const started = Date.now();
+  const log = request.log || (() => {});
+  const timeoutMs = request.timeoutMs ?? defaultTimeoutMs;
+  const tools = request.tools || cachedFfmpegTools();
+  const context = await loadCardContext(request, target);
+  const { config, size, clip, index, total } = context;
+  const base = cardStillBase(target, clip);
+
+  let tmpOut = null;
+  try {
+    // OP/ED に完成動画が指定されていれば、本番と同じくその動画から抜く。
+    const endcap = context.videoPath
+      ? await probeStillSource({
+          ffprobe: tools.ffprobe,
+          sourceMp4: context.videoPath,
+          kind: 'endcap',
+          signal: request.signal,
+          timeoutMs,
+        })
+      : null;
+    const duration = endcap ? positiveDuration(endcap.duration, context.duration) : context.duration;
+    const requestedAt = parseAt(request.at, { duration, fps: size.fps });
+    const at = clampAt(requestedAt, { duration, fps: size.fps });
+    const out = resolveStillOut(request.out, { configPath: config.__meta?.configPath, base, at });
+    fs.mkdirSync(path.dirname(out), { recursive: true });
+    tmpOut = `${out}.tmp.png`;
+    fs.rmSync(tmpOut, { force: true });
+
+    let plan = null;
+    let assPath = null;
+    let args;
+    let source;
+    if (endcap) {
+      source = { ...endcap, kind: 'endcap-video', path: context.videoPath };
+      args = stillFfmpegArgs({
+        sourceMp4: context.videoPath,
+        graph: { vf: endcapVideoFilter(size) },
+        at,
+        out: tmpOut,
+        postFilters: request.postFilters || [],
+        preroll: stillPreroll(at, size.fps),
+      });
+    } else {
+      plan = planCardRender({ ...context.planArgs, duration });
+      assPath = cardStillAssPath({ out, base, at, config, index, total, kind: target.kind });
+      fs.mkdirSync(path.dirname(assPath), { recursive: true });
+      fs.writeFileSync(assPath, plan.ass);
+      const graph = buildCardVideoGraph({ assPath, config, size, duration, thumbnail: context.thumbnail });
+      args = cardStillFfmpegArgs({
+        inputs: graph.inputs,
+        filters: graph.filters,
+        at,
+        out: tmpOut,
+        postFilters: request.postFilters || [],
+      });
+      source = {
+        kind: `card-${plan.background.kind}`,
+        path: plan.background.path,
+        width: size.width,
+        height: size.height,
+        fps: size.fps,
+        duration,
+      };
+    }
+    log(`🖼️ ${base} t=${at.toFixed(3)}s を描きます`);
+
+    await runFfmpegStill({ ffmpeg: tools.ffmpeg, args, signal: request.signal, timeoutMs, tmpOut });
+    await fs.promises.rename(tmpOut, out);
+
+    return {
+      ok: true,
+      out,
+      assPath,
+      at,
+      requestedAt,
+      index,
+      total,
+      clip: clip ? { base: clip.base, videoId: clip.videoId, file: clip.file } : null,
+      card: { kind: target.kind, duration, thumbnail: context.thumbnail },
+      size,
+      source,
+      zoom: null,
+      avoidFace: null,
+      enhance: null,
+      elements: plan ? elementRects(plan.elements, size) : [],
+      overlays: {},
+      warnings: collectCardWarnings({ context, plan, at, requestedAt }),
+      key: stillKey({ ass: plan?.ass || '', args, source }),
+      ms: Date.now() - started,
+    };
+  } catch (err) {
+    if (tmpOut) {
+      fs.rmSync(tmpOut, { force: true });
+    }
+    if (isAbortError(err, request.signal)) {
+      throw new StillAbortedError();
+    }
+    if (err.stderr !== undefined) {
+      const message = firstLine(err.stderr) || firstLine(err.message);
+      throw new Error(`静止画の書き出しに失敗しました: ${message}`);
+    }
+    throw err;
+  }
+}
+
+async function buildCardStillAss(request, target) {
+  const context = await loadCardContext(request, target);
+  if (context.videoPath) {
+    throw new Error(`endcaps.${target.kind}.video が指定されているため ASS はありません（指定動画をそのまま使います）。`);
+  }
+  const plan = planCardRender({ ...context.planArgs, duration: context.duration });
+  return {
+    ok: true,
+    ass: plan.ass,
+    index: context.index,
+    total: context.total,
+    clip: context.clip,
+    size: context.size,
+    elements: plan.elements,
+    warnings: collectCardWarnings({ context, plan, at: null, requestedAt: null }),
+  };
+}
+
+async function loadCardContext(request, target) {
+  const { config } = loadConfigForStill(request.argv || [], target);
+  const size = outputSize(config);
+  const clips = collectClips(config);
+  if (clips.length === 0) {
+    throw new Error('クリップが選択されていません。');
+  }
+
+  if (target.kind === 'card') {
+    if (!config.cards.enabled) {
+      throw new Error('cards.enabled が false なので区切りカードはありません（--no-cards を外す）。');
+    }
+    const selected = selectStillClip({ clips, target });
+    const clip = request.clipPatch
+      ? { ...selected.clip, data: { ...selected.clip.data, ...request.clipPatch } }
+      : selected.clip;
+    // プレビューではサムネイルを取りに行かない。未取得なら warning を出して背景だけで描く。
+    const thumbnail = await cacheThumbnail(clip.videoId, config, { allowDownload: false });
+    const total = clips.length;
+    return {
+      config,
+      size,
+      clips,
+      clip,
+      index: selected.index,
+      total,
+      duration: Number(config.cards.duration) || 1.5,
+      thumbnail,
+      videoPath: null,
+      planArgs: {
+        kind: 'clip',
+        clip,
+        clips,
+        index: selected.index,
+        total,
+        config,
+        size,
+        title: null,
+        thumbnail,
+      },
+    };
+  }
+
+  const spec = config.endcaps[target.kind] || {};
+  if (!spec.enabled) {
+    throw new Error(`endcaps.${target.kind}.enabled が false です。`);
+  }
+  const index = target.kind === 'opening' ? 0 : clips.length - 1;
+  const total = clips.length;
+  return {
+    config,
+    size,
+    clips,
+    clip: null,
+    index,
+    total,
+    duration: Number(spec.duration) || (target.kind === 'opening' ? 3 : 4),
+    thumbnail: null,
+    videoPath: endcapVideoPath(target.kind, config),
+    planArgs: {
+      kind: target.kind,
+      clip: null,
+      clips,
+      index,
+      total,
+      config,
+      size,
+      title: config.titleOverride || null,
+      thumbnail: null,
+    },
+  };
+}
+
+function cardStillBase(target, clip) {
+  return target.kind === 'card' ? `card-${clip.base}` : target.kind;
+}
+
+function collectCardWarnings({ context, plan, at, requestedAt }) {
+  const { config } = context;
+  const warnings = [...(config.__meta?.stillWarnings || [])];
+  if (context.clip && config.cards.thumbnail?.enabled && !context.thumbnail) {
+    warnings.push({
+      code: 'thumbnail_missing',
+      message: `サムネイル未取得: cache/createVideo/thumbnails/${context.clip.videoId}.jpg（プレビューでは取りに行きません）。`,
+    });
+  }
+  const requestedBackground = config.cards.background?.type;
+  if (plan && requestedBackground && plan.background.kind !== requestedBackground) {
+    warnings.push({
+      code: 'card_background_fallback',
+      message: `カード背景 ${requestedBackground} を読めないため ${plan.background.kind} で描いています。`,
+    });
+  }
+  if (Number.isFinite(at) && Number.isFinite(requestedAt) && Math.abs(at - requestedAt) > 0.0005) {
+    warnings.push({
+      code: 'at_clamped',
+      message: `指定時刻 ${requestedAt.toFixed(3)}s を ${at.toFixed(3)}s に丸めました。`,
+    });
+  }
+  return warnings;
+}
+
+// カードは filter_complex が [v] を作るところまで本番と同じで、そこへ still 用の後段を足す。
+export function cardStillFfmpegArgs({ inputs, filters, at, out, postFilters = [] }) {
+  const post = ['format=yuv420p', ...postFilters.filter(Boolean)].join(',');
+  return [
+    '-hide_banner',
+    '-nostdin',
+    '-v', 'error',
+    '-y',
+    ...inputs,
+    '-filter_complex', `${filters.join(';')};[v]${post}[out]`,
+    '-map', '[out]',
+    '-an',
+    '-ss', Number(at).toFixed(3),
+    '-frames:v', '1',
+    '-update', '1',
+    out,
+  ];
+}
+
+// カードの ASS 置き場。クリップ側と同じく、中身を決める入力をすべてハッシュに入れて衝突を避ける。
+function cardStillAssPath({ out, base, at, config, index, total, kind }) {
+  const { __meta, ...effective } = config || {};
+  const hash = crypto.createHash('sha1')
+    .update(`${kind}\0${base}\0${Number(at).toFixed(3)}\0${index}/${total}\0`)
+    .update(JSON.stringify(effective))
+    .update('\0')
+    .update(String(__meta?.cli?.title ?? ''))
+    .digest('hex')
+    .slice(0, 8);
+  return path.join(path.dirname(out), '.ass', `${base}-t${Number(at).toFixed(3)}-${hash}.ass`);
+}
+
 function loadStillContext(request) {
   const target = parseStillTarget(request.still);
   if (target.kind !== 'clip') {
@@ -878,10 +1160,11 @@ function printWarnings(warnings) {
 function helpText() {
   return [
     '使い方:',
-    '  npm run still -- --still <base|#N> [--at 2.05|50%] [--out out.png]',
+    '  npm run still -- --still <base|#N|card:<base>|opening|ending> [--at 2.05|50%] [--out out.png]',
     '',
     'オプション:',
-    '  --still <target>      クリップ base / base.json / base.mp4 / #N',
+    '  --still <target>      クリップ base / base.json / base.mp4 / #N /',
+    '                        card:<base> / card:#N（区切りカード）/ opening / ending',
     '  --at <time>           秒または N%。省略時はクリップ中央付近',
     '  --out <path>          PNG の出力先',
     '  --json                結果を 1 行 JSON で出力',

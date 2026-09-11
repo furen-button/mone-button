@@ -151,9 +151,12 @@ npm run -s still -- --videoId gr9WJDYS_u0 --still <base> --print-ass
 npm run -s still -- --config scripts/create-video/config-mone.json --videoId gr9WJDYS_u0 --still <base> --zoom --avoid-face
 npm run -s still -- --videoId gr9WJDYS_u0 --limit 3 --sheet 8
 npm run -s still -- --videoId gr9WJDYS_u0 --still '#1' --frames 6
+npm run -s still -- --videoId gr9WJDYS_u0 --limit 3 --still 'card:#2'   # 区切りカード
+npm run -s still -- --videoId gr9WJDYS_u0 --limit 3 --still opening     # OP（ED は ending）
 ```
 
 - 本番と同じ `planClipRender → buildAss → subtitles` を通し、1 フレームだけ PNG に焼く。
+- 区切りカード（`card:<base>` / `card:#N`）と OP / ED（`opening` / `ending`）も同じ考え方で、`planCardRender` と `buildCardVideoGraph` を本番（`card.js`）と共有する。背景・サムネイル・ASS の入力は本番と同一で、音声グラフだけ外す。`endcaps.*.video` に完成動画が指定されていればその動画から抜く。サムネイルはキャッシュ済みのものだけを使い、未取得なら `thumbnail_missing` を出して背景だけで描く。
 - `-ss` は `-i` の後に置く。libass と zoom の PTS を本番フィルタチェーンと揃えるため。`-vf` 経路では `trim=start=<t-0.5 秒を 1/fps に切り下げ>` を本番チェーンの前に置き、それより前のフレームはデコードだけで捨てる（pts は保たれるので PNG は全フレーム処理と md5 一致。zoom punch の `filter_complex` は `setpts=PTS-STARTPTS` があるため前置しない）。
 - 既定では zoom・顔回避は OFF で、テロップ位置は不変。`--zoom` `--avoid-face` で opt-in でき、顔検出が走ると +2〜3 秒ほど掛かる。
 - `source: cache` のキャッシュミスでも yt-dlp は起動しない。期待パスを `source_missing` warning に出す。
@@ -162,6 +165,7 @@ npm run -s still -- --videoId gr9WJDYS_u0 --still '#1' --frames 6
 - `--json` は 1 行 JSON。主要キーは `ok,out,assPath,at,requestedAt,index,total,clip,size,source,zoom,avoidFace,enhance,elements,overlays,warnings,key,ms`。
 - 2026-09-11 実測（1080p 出力）: ffmpeg 単体 約 0.6 秒、`renderStill` を同一プロセスで繰り返すと約 0.7 秒/枚（`resolveFfmpeg` はプロセス内で 1 回だけ）、CLI は node 起動込みで約 0.9 秒。`config-mone` の `--zoom --avoid-face` は顔検出込みで約 3.7 秒。3 セルの `--sheet 3` と `--frames 4` はどちらも約 1.2 秒。
 - 本番との一致は「完成セグメントから抜いたフレームとの PSNR」で確認する。値は内容依存で、既定プリセットは 41 dB、zoom 全編は 37 dB。どちらも静止画を x264 crf23 で往復させた圧縮の床（39 dB / 36 dB）と同じ帯にあり、t±1 フレームとは 8 dB 以上離れる。ASS は `--print-ass` で本番 `clip-NNNN.ass` と完全一致する。
+- カード / OP / ED も同様に、既定プリセットで 39.3 / 41.3 / 43.4 dB（それぞれの圧縮床は 40.8 / 42.7 / 44.9 dB）。ASS は本番 `card-NNNN.ass` / `opening.ass` / `ending.ass` と完全一致する。カードは背景がほぼ静止しているため t±1 フレームでも PSNR が下がらず、一致の根拠は ASS の一致と圧縮床との距離で見る。
 
 ## 生成動画の自動品質レビュー（QC）
 

@@ -9,11 +9,13 @@ import {
   elementTextRect,
   fontSize,
 } from './ass.js';
+import { buildCardCommand, buildCardElements, buildCardVideoGraph, endcapVideoFilter, planCardRender } from './card.js';
 import { buildClipElements, planClipRender } from './clip.js';
 import { DEFAULTS, deepMerge } from './config.js';
 import { buildZoomFilterComplex } from './effects.js';
 import { subtitlesFilter } from './ffmpeg.js';
 import {
+  cardStillFfmpegArgs,
   collectStillWarnings,
   defaultStillTime,
   elementRects,
@@ -73,6 +75,10 @@ describe('parseStillTarget', () => {
     assert.deepEqual(parseStillTarget('clip-a.mp4'), { kind: 'clip', base: 'clip-a' });
     assert.deepEqual(parseStillTarget('#12'), { kind: 'clip', position: 12 });
     assert.deepEqual(parseStillTarget('card:clip-a'), { kind: 'card', base: 'clip-a' });
+    assert.deepEqual(parseStillTarget('card:clip-a.json'), { kind: 'card', base: 'clip-a' });
+    assert.deepEqual(parseStillTarget('card:#2'), { kind: 'card', position: 2 });
+    assert.deepEqual(parseStillTarget('opening'), { kind: 'opening' });
+    assert.deepEqual(parseStillTarget('ending'), { kind: 'ending' });
   });
 });
 
@@ -225,5 +231,83 @@ describe('elementRects', () => {
       };
     });
     assert.deepEqual(elementRects(structuredClone(elements), size), expected);
+  });
+});
+
+describe('planCardRender', () => {
+  it('区切りカードの ASS と要素を本番の buildCardElements と同じ形で返す', () => {
+    const cfg = config();
+    const clips = [clip()];
+    const args = { kind: 'clip', clip: clips[0], clips, index: 1, total: 3, config: cfg, size, title: null, duration: 1.5 };
+    const plan = planCardRender(args);
+
+    assert.equal(plan.safeKind, 'card-0001');
+    assert.equal(plan.duration, 1.5);
+    assert.deepEqual(
+      plan.elements.map((el) => el.name),
+      buildCardElements(args).map((el) => el.name),
+    );
+    assert.equal(plan.ass, buildAss(buildCardElements(args), { width: size.width, height: size.height, font: cfg.font }));
+  });
+
+  it('OP と ED は背景の種別を返す（素材が無ければ色に落ちる）', () => {
+    const cfg = config({ cards: { background: { type: 'gradient' } } });
+    const clips = [clip()];
+    const opening = planCardRender({ kind: 'opening', clip: null, clips, index: 0, total: 1, config: cfg, size, title: 'まとめ', duration: 3 });
+    const ending = planCardRender({ kind: 'ending', clip: null, clips, index: 0, total: 1, config: cfg, size, title: null, duration: 4 });
+
+    assert.equal(opening.safeKind, 'opening');
+    assert.equal(ending.safeKind, 'ending');
+    assert.equal(opening.background.kind, 'gradient');
+    assert.ok(opening.elements.some((el) => el.name === 'opening-title'));
+    assert.ok(ending.elements.some((el) => el.name === 'ending-text'));
+  });
+});
+
+describe('buildCardVideoGraph', () => {
+  it('本番の buildCardCommand は映像グラフをそのまま含む（分割で argv が変わらない）', () => {
+    const cfg = config({ cards: { background: { type: 'gradient' } } });
+    const graph = buildCardVideoGraph({ assPath: '/tmp/x.ass', config: cfg, size, duration: 1.5, thumbnail: null });
+    const command = buildCardCommand({ assPath: '/tmp/x.ass', outPath: '/tmp/x.mp4', config: cfg, size, duration: 1.5, thumbnail: null });
+
+    assert.deepEqual(command.slice(1, 1 + graph.inputs.length), graph.inputs);
+    const complex = command[command.indexOf('-filter_complex') + 1];
+    assert.ok(complex.startsWith(graph.filters.join(';')), '映像フィルタが先頭に並ぶ');
+    assert.ok(complex.endsWith('[a]'), '音声フィルタが後ろに付く');
+    assert.deepEqual(graph.filters.at(-1).endsWith('[v]'), true);
+  });
+
+  it('サムネイルがあれば overlay を挟む', () => {
+    const cfg = config();
+    const withThumb = buildCardVideoGraph({ assPath: '/tmp/x.ass', config: cfg, size, duration: 1.5, thumbnail: import.meta.filename });
+    const withoutThumb = buildCardVideoGraph({ assPath: '/tmp/x.ass', config: cfg, size, duration: 1.5, thumbnail: null });
+
+    assert.equal(withThumb.inputCount, 2);
+    assert.equal(withoutThumb.inputCount, 1);
+    assert.ok(withThumb.filters.some((filter) => filter.includes('overlay=')));
+    assert.ok(!withoutThumb.filters.some((filter) => filter.includes('overlay=')));
+  });
+});
+
+describe('cardStillFfmpegArgs', () => {
+  it('-ss は入力の後で、[v] の後段に format を足して [out] を map する', () => {
+    const args = cardStillFfmpegArgs({
+      inputs: ['-f', 'lavfi', '-t', '1.5', '-i', 'color=c=0x000000'],
+      filters: ['[0:v]setsar=1[bg0]', '[bg0]subtitles=x.ass[v]'],
+      at: 0.75,
+      out: '/tmp/out.png',
+      postFilters: ['scale=480:-2'],
+    });
+
+    assert.ok(args.indexOf('-ss') > args.lastIndexOf('-i'));
+    assert.deepEqual(args.slice(-10), ['-map', '[out]', '-an', '-ss', '0.750', '-frames:v', '1', '-update', '1', '/tmp/out.png']);
+    const complex = args[args.indexOf('-filter_complex') + 1];
+    assert.ok(complex.endsWith('[v]format=yuv420p,scale=480:-2[out]'));
+  });
+});
+
+describe('endcapVideoFilter', () => {
+  it('指定動画は出力解像度に収めて fps を揃える', () => {
+    assert.equal(endcapVideoFilter(size), baseFilters().join(','));
   });
 });
