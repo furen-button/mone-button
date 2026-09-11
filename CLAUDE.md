@@ -197,6 +197,25 @@ npm run createVideo -- --videoId xxx --qc   # 生成前 L0 + 生成後 L1
 
 詳細は docs/tasks/09-10-video-qc.md を参照。
 
+## 設定エディタ（dev 専用 GUI）
+
+`scripts/create-video/config*.json` を GUI で作成・編集・プレビュー・実行する。dev サーバ専用で、`vite build` には入らない。
+
+```
+npm run dev                 # いつもの dev サーバ
+npm run editor              # /mone-button/editor.html を開く
+http://localhost:5173/mone-button/editor.html?tab=preview&preset=config-mone.json
+```
+
+- 画面は `クリップ`（select の編集、files + as-listed のときドラッグ&ドロップ / Alt+↑↓ で並べ替え、「この選択を files に固定」）/ `プレビュー`（`npm run still` と同じレンダラで 1 フレーム、矩形オーバーレイ、セリフ改行の試し、`public/data に保存` と `プリセットに保存` の 2 ボタン）/ `設定`（`config.schema.json` から生成したフォーム。明示 / 継承 / 未保存の 3 状態、× で継承に戻す、「継承項目を隠す」で差分ビュー）/ `ビルド`（`--limit` などを選んで createVideo を起動、SSE ログ、結果の動画・QC・コンタクトシート）/ `概要欄`（`.youtube.txt` / `.comment*.txt` / `meta.json` のコピー）。「＋ 新規」で `config-<name>.json` を空または複製で作る
+- 保存は **`raw ∪ dirty`**（触った項目だけをファイルへ当てる）。解決済み全体や DEFAULTS からの差分は書かない。空 patch の保存は無変更。検証失敗でも保存は止めない
+- 未保存の draft は `cache/createVideo/editor/<preset>.draft.json` に書き、検証（`runPreflight`）とプレビュー（`renderStill`）はそれを `--config` で読む。ビルドは保存済みプリセットで走る
+- API は `/__cv/*`（`plugins/vite-plugin-create-video.ts` → `scripts/dev-server/handlers/*.js`）。ハンドラは遅延 import なので **`scripts/dev-server/**` や `scripts/create-video/**` を直したら dev サーバを再起動する**（`r` + Enter）
+- ガード: ループバック以外・Origin 不一致・`Sec-Fetch-Site: cross-site` は 403、プリセット名は `config-*.json` のみ、`/file` は kind ごとに基底ディレクトリ固定、ビルドオプションは allowlist。子プロセスは detached でグループ化し、cancel / サーバ close / Ctrl-C でまとめて止める。残った場合は `pkill -f create-video/index.js`
+- テストは `scripts/dev-server/**/*.test.js`（`npm test` に含まれる）。ブラウザ操作テストは無いので、UI は headless Chrome のスクリーンショットで確認する（`?tab=` / `?preset=` / `?job=` で初期状態を指定できる）
+
+詳細は docs/tasks/09-11-config-editor.md を参照。
+
 ## ドキュメント管理
 
 - docs/draft.md - 仕様元
