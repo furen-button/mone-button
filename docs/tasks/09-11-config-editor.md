@@ -47,7 +47,7 @@ http://localhost:5173/mone-button/editor.html?tab=preview&preset=config-mone.jso
 ## 保存の意味論
 
 - プリセットは **`raw ∪ dirty`** で書く。ファイルを verbatim に読み、フォームが触ったパスだけ `set` / `unset` を当てて書き戻す。解決済みツリー全体を書くと今日の DEFAULTS が凍結され、DEFAULTS からの最小差分にすると手書きの意図が消えるため。配列は丸ごと置換（`deepMerge` と同じ）
-- 空 patch の保存で既存 3 プリセットは無変更（`3.0` のような小数表記は `lib/patch.js` のパス列挙で保つ。小数フィールドを足したら列挙も更新する）
+- 書式は `JSON.stringify(obj, null, 2)` + 末尾改行に固定する。元ファイルの書式（1 行配列、`3.0` のような小数表記）は保たないので、追跡中のプリセットは同じ書式で揃えておく。`patch.test.js` が `scripts/create-video/config*.json` 全件を空 patch で書き戻して元テキストと突き合わせるため、ずれれば `npm test` が落ちる
 - 検証失敗でも保存は止めない。`config.json` 自体が単体では invalid（videoId 無し）で、CLI フラグで補完される前提
 - **セリフ = `public/data`（既存 `/__data/save`）、タイトル上書き = プリセットの `telops.title.overrides`**。プレビュー画面の保存ボタン 2 つがこの粒度に対応する
 - 新規作成は `config-<name>.json` のみ（`.vscode/settings.json` のスキーマ紐付けに一致）。空 `{}` は全項目が DEFAULTS を継承する正当なプリセット
@@ -66,7 +66,7 @@ http://localhost:5173/mone-button/editor.html?tab=preview&preset=config-mone.jso
 ## 検証結果（2026-09-11）
 
 - `npm test` 159 件 pass（guards / patch / log-parser / build-options / schema-walk / presets / validate / clips / files / jobs）。`tsc -b`、`eslint src/editor plugins scripts/dev-server` ともにクリーン。`npm run build` の dist に `editor.html` も `__cv` も含まれない
-- curl のガード: Origin 不一致 403 / `Sec-Fetch-Site: cross-site` 403 / `text/plain` 415 / `../evil.json` 400 / `__proto__` 400 / 同名 create 409 / `ifMatch` 不一致 412 / `kind=mp4&name=../../package.json` 400。`config-mone.json` の空 patch 保存で `git diff` は空
+- curl のガード: Origin 不一致 403 / `Sec-Fetch-Site: cross-site` 403 / `text/plain` 415 / `../evil.json` 400 / `__proto__` 400 / 同名 create 409 / `ifMatch` 不一致 412 / `kind=mp4&name=../../package.json` 400。全プリセットの空 patch 保存で `git diff` は空
 - `/validate`: `config-matome-01.json` は 99 クリップ・warn 1・約 43 ms。videoId 欠落は `validation.ok=false`、不明 files は `selectError`
 - `/still`: 既定プリセットで 1 枚目 1.9 秒（cold）、同じ要求はキャッシュで 2 ms。`serifOverride` の改行が 2 行の矩形に反映。`clipBase: ../x` は 400
 - `/build`（`--limit 2 --no-cards --no-avoid-face`）: SSE に started 1 / progress 2 / stage 6 / log 575 / done 1。`concat-vcopy`、sidecar（render / youtube / meta / comment）。二重起動は 409。`/qc --contact` ジョブで `.qc.json` / `.qc.md` / `.contact.png` が生成され `/result` に反映。mp4 は `Range: bytes=0-99` で 206。終了後に子プロセスは残らない
