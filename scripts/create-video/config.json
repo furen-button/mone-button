@@ -43,7 +43,8 @@
     },
     "time": {
       "enabled": true,
-      "align": "bottom-right",
+      "align": "top-right",
+      "marginV": 0.105,
       "size": 0.042,
       "font": null,
       "color": "FFFFFF"
