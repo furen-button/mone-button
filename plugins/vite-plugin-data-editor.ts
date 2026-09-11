@@ -3,6 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Plugin } from 'vite'
+import { assertLocalRequest, readBody, sendJson } from './lib/dev-http'
 
 // dev サーバ専用: public/data/*.json の serif/ruby/memo/categories だけを書き戻すミドルウェア。
 // apply: 'serve' のため本番ビルドには一切含まれない。
@@ -21,24 +22,11 @@ type SavePayload = {
   categories?: unknown
 }
 
-function readBody(req: IncomingMessage): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = []
-    req.on('data', (chunk: Buffer) => {
-      chunks.push(chunk)
-    })
-    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')))
-    req.on('error', reject)
-  })
-}
-
-function sendJson(res: ServerResponse, status: number, body: unknown): void {
-  res.statusCode = status
-  res.setHeader('Content-Type', 'application/json; charset=utf-8')
-  res.end(JSON.stringify(body))
-}
-
 async function handleSave(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  if (!assertLocalRequest(req, res)) {
+    return
+  }
+
   try {
     const payload = JSON.parse(await readBody(req)) as SavePayload
 
