@@ -6,11 +6,11 @@ import { formatSeconds } from '../lib/format'
 import { useEditorContext } from '../schema-form/EditorContext'
 import { getAtPath } from '../schema-form/resolveSchema'
 import { SchemaFieldList } from '../schema-form/SchemaForm'
-import type { StillKind, StillRequest } from '../types'
+import type { Patch, StillKind, StillRequest } from '../types'
 
 type PreviewPanelProps = {
   presetName: string
-  onSavePreset(): Promise<void>
+  onSavePreset(extra?: Patch): Promise<void>
   onClipDataSaved(): void
 }
 
@@ -138,13 +138,19 @@ export function PreviewPanel({ presetName, onSavePreset, onClipDataSaved }: Prev
     if (!clip) {
       return
     }
-    if (title) {
-      context.setValue(['telops', 'title', 'overrides', clip.videoId], title)
-    } else if (typeof existingOverride === 'string') {
-      context.unsetValue(['telops', 'title', 'overrides', clip.videoId])
+    const path = ['telops', 'title', 'overrides', clip.videoId]
+    const extra: Patch = title
+      ? { set: [{ path, value: title }], unset: [] }
+      : typeof existingOverride === 'string'
+        ? { set: [], unset: [path] }
+        : { set: [], unset: [] }
+
+    try {
+      await onSavePreset(extra)
+      setTitleEdit(null)
+    } catch {
+      // エラー表示は親の保存通知に任せ、入力途中の値は残す。
     }
-    setTitleEdit(null)
-    await onSavePreset()
   }
 
   if (!presetName) {

@@ -62,6 +62,39 @@ export function patchPayloadFromState(patch: PatchState): Patch {
   }
 }
 
+export function mergePatchPayloads(base: Patch, extra?: Patch): Patch {
+  if (!extra) {
+    return clonePatchPayload(base)
+  }
+
+  const set = new Map<string, PatchOp>()
+  const unset = new Map<string, string[]>()
+
+  for (const entry of base.set) {
+    set.set(pathKey(entry.path), { path: [...entry.path], value: clone(entry.value) })
+  }
+  for (const path of base.unset) {
+    unset.set(pathKey(path), [...path])
+  }
+
+  for (const entry of extra.set) {
+    const key = pathKey(entry.path)
+    // 追加 patch 側の set/unset が、呼び出し時点の古い patch より優先される。
+    set.set(key, { path: [...entry.path], value: clone(entry.value) })
+    unset.delete(key)
+  }
+  for (const path of extra.unset) {
+    const key = pathKey(path)
+    unset.set(key, [...path])
+    set.delete(key)
+  }
+
+  return {
+    set: Array.from(set.values()).map((entry) => ({ path: [...entry.path], value: clone(entry.value) })),
+    unset: Array.from(unset.values()).map((path) => [...path]),
+  }
+}
+
 export function dirtyCount(state: PresetStoreState): number {
   return state.patch.set.size + state.patch.unset.size
 }
@@ -141,6 +174,13 @@ function clonePatchState(patch: PatchState): PatchState {
   return {
     set: new Map(Array.from(patch.set.entries()).map(([key, entry]) => [key, { path: [...entry.path], value: clone(entry.value) }])),
     unset: new Set(patch.unset),
+  }
+}
+
+function clonePatchPayload(patch: Patch): Patch {
+  return {
+    set: patch.set.map((entry) => ({ path: [...entry.path], value: clone(entry.value) })),
+    unset: patch.unset.map((path) => [...path]),
   }
 }
 

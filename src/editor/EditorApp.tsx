@@ -17,6 +17,7 @@ import {
   deepMerge,
   dirtyCount,
   initialPresetStore,
+  mergePatchPayloads,
   patchPayloadFromState,
   presetStoreReducer,
 } from './state/presetStore'
@@ -199,15 +200,16 @@ export function EditorApp() {
     }
   }, [activeSettingsTab, activeTab, jobId, patch, store.name])
 
-  const handleSave = useCallback(async () => {
+  const handleSave = useCallback(async (extra?: Patch) => {
     if (!store.name) {
       return
     }
 
+    const savePatch = mergePatchPayloads(patch, extra)
     setStatus('saving')
     setErrorMessage('')
     try {
-      const saved = await savePreset({ mode: 'update', name: store.name, ifMatch: store.hash, patch })
+      const saved = await savePreset({ mode: 'update', name: store.name, ifMatch: store.hash, patch: savePatch })
       dispatch({ type: 'saved', preset: saved })
       setCurrentPreset(saved)
       setConflict(null)
@@ -219,6 +221,7 @@ export function EditorApp() {
       if (error instanceof EditorApiError && error.status === 412) {
         setConflict(error.current ?? null)
       }
+      throw error
     }
   }, [patch, store.hash, store.name])
 
@@ -226,7 +229,7 @@ export function EditorApp() {
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') {
         event.preventDefault()
-        void handleSave()
+        void handleSave().catch(() => undefined)
       }
     }
     window.addEventListener('keydown', onKeyDown)
@@ -321,7 +324,7 @@ export function EditorApp() {
             <button
               type="button"
               className="cv-button cv-buttonPrimary"
-              onClick={() => void handleSave()}
+              onClick={() => void handleSave().catch(() => undefined)}
               disabled={!store.name || status === 'loading' || status === 'saving'}
             >
               {status === 'saving' ? '保存中' : '保存 ⌘S'}
