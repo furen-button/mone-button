@@ -182,6 +182,12 @@
   background: rgba(112, 76, 18, 0.24);
 }
 
+.cv-alert.is-dismissible {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .cv-conflict {
   display: flex;
   align-items: center;

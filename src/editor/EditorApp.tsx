@@ -200,6 +200,17 @@ export function EditorApp() {
     }
   }, [activeSettingsTab, activeTab, jobId, patch, store.name])
 
+  // 「保存しました」は読み終えれば用済みなので自動で消す。エラーは読み逃すと原因が分からなくなるため
+  // 自動では消さず、× で閉じるか次の保存・読込で消えるのに任せる。
+  useEffect(() => {
+    if (status !== 'saved') {
+      return undefined
+    }
+
+    const timer = window.setTimeout(() => setStatus('idle'), 3000)
+    return () => window.clearTimeout(timer)
+  }, [status])
+
   const handleSave = useCallback(async (extra?: Patch) => {
     if (!store.name) {
       return
@@ -360,7 +371,22 @@ export function EditorApp() {
           </div>
         </header>
 
-        {status === 'error' && errorMessage ? <p className="cv-alert is-error">{errorMessage}</p> : null}
+        {status === 'error' && errorMessage ? (
+          <p className="cv-alert is-error is-dismissible">
+            <span>{errorMessage}</span>
+            <button
+              type="button"
+              className="cv-iconButton"
+              aria-label="エラーを閉じる"
+              onClick={() => {
+                setStatus('idle')
+                setErrorMessage('')
+              }}
+            >
+              ×
+            </button>
+          </p>
+        ) : null}
         {status === 'saved' ? <p className="cv-alert is-saved">保存しました</p> : null}
         {selectError ? <p className="cv-alert is-warning">{selectError}</p> : null}
         {preflight.state === 'error' ? <p className="cv-alert is-error">検証リクエストに失敗しました: {preflight.error}</p> : null}
