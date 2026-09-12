@@ -10,6 +10,23 @@ export function StringListField({ path }: StringListFieldProps) {
   const setValue = useFieldSetter(path)
   const items = useMemo(() => (Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []), [value])
   const [newItem, setNewItem] = useState('')
+  const sourceText = items.join('\n')
+  const [edit, setEdit] = useState({ source: sourceText, text: sourceText })
+  const text = edit.source === sourceText ? edit.text : sourceText
+  // 表示は確定値ではなく生テキスト。空行を消さずに改行を打てるようにするため。
+  const commitItems = (nextItems: string[]) => {
+    const committedText = nextItems.join('\n')
+    setValue(nextItems)
+    setEdit({ source: committedText, text: committedText })
+  }
+  // 入力のたびに確定する。blur まで待つと、textarea にフォーカスしたまま ⌘S を押したときに
+  // window の keydown では blur が起きず、打った内容が保存されない。
+  // source を確定後の items から作るテキストに合わせることで、生テキストの表示だけを残す。
+  const commitList = (nextText: string) => {
+    const nextItems = nextText.split('\n').map((line) => line.trim()).filter(Boolean)
+    setValue(nextItems)
+    setEdit({ source: nextItems.join('\n'), text: nextText })
+  }
 
   if (path.join('.') === 'select.files') {
     return (
@@ -20,11 +37,6 @@ export function StringListField({ path }: StringListFieldProps) {
     )
   }
 
-  const text = items.join('\n')
-  const commitList = (nextText: string) => {
-    setValue(nextText.split('\n').map((line) => line.trim()).filter(Boolean))
-  }
-
   return (
     <div className="cv-listControl">
       <div className="cv-chipList">
@@ -33,13 +45,19 @@ export function StringListField({ path }: StringListFieldProps) {
             type="button"
             key={item}
             className="cv-chip"
-            onClick={() => setValue(items.filter((candidate) => candidate !== item))}
+            onClick={() => commitItems(items.filter((candidate) => candidate !== item))}
           >
             {item} ×
           </button>
         ))}
       </div>
-      <textarea className="cv-textarea" value={text} rows={Math.max(3, Math.min(8, items.length + 1))} onChange={(event) => commitList(event.target.value)} />
+      <textarea
+        className="cv-textarea"
+        value={text}
+        rows={Math.max(3, Math.min(8, text.split('\n').length + 1))}
+        onChange={(event) => commitList(event.target.value)}
+        onBlur={() => commitItems(items)}
+      />
       <div className="cv-inlineEdit">
         <input className="cv-input" type="text" value={newItem} onChange={(event) => setNewItem(event.target.value)} />
         <button
@@ -48,7 +66,7 @@ export function StringListField({ path }: StringListFieldProps) {
           onClick={() => {
             const trimmed = newItem.trim()
             if (trimmed) {
-              setValue([...items, trimmed])
+              commitItems([...items, trimmed])
               setNewItem('')
             }
           }}

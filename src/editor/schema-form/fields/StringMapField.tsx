@@ -5,16 +5,23 @@ type StringMapFieldProps = {
   path: string[]
 }
 
+type StringMapRows = Array<[string, string]>
+
 export function StringMapField({ path }: StringMapFieldProps) {
   const value = useFieldValue(path)
   const setValue = useFieldSetter(path)
-  const rows = useMemo(() => objectEntries(value), [value])
+  const sourceRows = useMemo(() => objectEntries(value), [value])
+  const source = useMemo(() => rowsKey(sourceRows), [sourceRows])
+  const [edit, setEdit] = useState({ source, rows: sourceRows })
+  const rows = edit.source === source ? edit.rows : sourceRows
   const [newKey, setNewKey] = useState('')
   const [newValue, setNewValue] = useState('')
   const note = path.join('.') === 'summary.chapters.labels' ? 'videoId#2 も指定できます。' : ''
 
-  const setRows = (nextRows: Array<[string, string]>) => {
-    setValue(Object.fromEntries(nextRows.filter(([key]) => key.trim()).map(([key, itemValue]) => [key.trim(), itemValue])))
+  const setRows = (nextRows: StringMapRows) => {
+    const nextValue = rowsToObject(nextRows)
+    setValue(nextValue)
+    setEdit({ source: rowsKey(objectEntries(nextValue)), rows: nextRows })
   }
 
   return (
@@ -55,8 +62,9 @@ export function StringMapField({ path }: StringMapFieldProps) {
           type="button"
           className="cv-button"
           onClick={() => {
-            if (newKey.trim()) {
-              setRows([...rows, [newKey, newValue]])
+            const trimmedKey = newKey.trim()
+            if (trimmedKey) {
+              setRows([...rows, [trimmedKey, newValue]])
               setNewKey('')
               setNewValue('')
             }
@@ -70,9 +78,17 @@ export function StringMapField({ path }: StringMapFieldProps) {
 }
 
 // 並び替えはしない。JSON の挿入順を保つことで、キーを編集中に行が入れ替わってフォーカスを失うのを避ける。
-function objectEntries(value: unknown): Array<[string, string]> {
+function objectEntries(value: unknown): StringMapRows {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
     return []
   }
   return Object.entries(value).filter((entry): entry is [string, string] => typeof entry[1] === 'string')
+}
+
+function rowsToObject(rows: StringMapRows): Record<string, string> {
+  return Object.fromEntries(rows.filter(([key]) => key.trim()).map(([key, itemValue]) => [key.trim(), itemValue]))
+}
+
+function rowsKey(rows: StringMapRows): string {
+  return JSON.stringify(rows)
 }
