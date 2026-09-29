@@ -99,6 +99,9 @@ npm run createVideo -- --videoId gr9WJDYS_u0
   - `output/<name>.meta.json` … タイトル案 / タグ / チャプター配列 / 出典。将来の Data API 自動化用
 - チャプターは直前のクリップと videoId が変わった位置で切る。YouTube の要件（先頭 0:00 必須 / 3 つ以上 / 各 10 秒以上）に合わせ、先頭は 0:00 へ丸め、`summary.chapters.minSec` 未満の区間は隣へ吸収し、3 個未満になったら警告して概要欄から省く。ラベルは配信タイトルの `【】` `『』` を整形して使い、`summary.chapters.labels` で `videoId` または `videoId#2`（同じ配信の 2 回目の登場）を指定して上書きできる。
 - クリップ、カード、OP/ED はすべて h264/yuv420p/30fps + aac/44100/stereo に正規化してから concat する。署名が揃えば映像は `concat` デムクサで copy、音声は AAC プライミングの累積音ズレを避けるため各セグメントから直接 concat フィルタで再エンコードする（`concat-vcopy`）。署名不一致なら全再エンコードの concat filter に fallback。
+- 音声は常に `AUDIO_RESAMPLE`（`aresample=44100:async=1:min_hard_comp=0.001:first_pts=0`、`ffmpeg.js`）で通す。yt-dlp の区間切り出しで作った **96kHz 音声のソースには数十 ms の pts の穴**（タイムスタンプだけ飛んでサンプルが無い）が混ざり、`async` 無しだと穴が AAC パケット 1 個の長い duration として残る。プレイヤーは pts を尊重するので穴以降の音声が遅れ、連結でクリップごとに積み上がる（2026-09 の 109 クリップ動画で 599ms）。`min_hard_comp` を 1ms に下げるのは、`async=1` だけだと既定 0.1 秒未満の穴が埋まらず、穴を捨てて音声が早まるため。44.1kHz のソースには穴は無い。
+- `execClip` の音声に `apad` + `-shortest` を足してはいけない。`encodeArgs` の `-r`（CFR）と組み合わさると `-shortest` が効かず、無限長になった音声に映像フレームが追従してセグメントが際限なく伸びる（映像 11 秒に対し音声 79 秒、完成動画 147 秒→876 秒を実測）。
+- `npm run fixCacheAudio [-- --dry-run] [--tolerance <ms>] [--dir <path>]` … `cache/createVideo/**` の高画質クリップで pts の穴がある（1ms 超）・音声長と映像長がずれている（既定 24ms = AAC 1 フレーム超）ものを、映像 copy のまま音声だけ再エンコードして揃える（`assets.js` の `alignAudioToVideo`。連結側と同じ `atrim`/`apad` で映像ストリーム尺ちょうどに揃える。`-shortest` は AAC フレーム粒度で ±23ms 残るので使わない）。再ダウンロード不要。`downloadHighQuality` は取得直後に同じ整列を掛け、yt-dlp の音声選択は `asr<=48000` の m4a を優先する。
 - タイトル文言は `--title` > `telops.title.overrides[videoId]` > `telops.title.text` > `clip.data.title` > メタタイトル（絵文字除去）の順で解決する。手動改行は `telops.title.overrides` の文字列へ直接入れるか、CLI では `--title '上段\n下段'` のように 2 文字の `\n` で渡せる。
 - セリフテロップは `public/data/*.json` の `serif` に生の改行を書ける。動画生成では手動改行を強制改行の起点として扱い、各セグメント内で自動折り返しと禁則処理を行う。Web サイト表示用の `serif` は `src/voiceData.ts` で改行を無かったものとして正規化する（元から空白で区切られていた箇所は空白を残し、語中で折っただけの箇所は詰める）ため、JSON 側の改行は保持される。
 - `wrapText` は行頭禁則（句読点、終わり括弧、小書き仮名など）と行末禁則（始め括弧）を分割位置の後退で避ける。ぶら下げは使わない。`maxUnits < 4` では禁則と泣き別れ回避を無効化し、行数が増える場合も禁則より行数維持を優先する。折り返し後は各行の行頭・行末の空白を落とす（`\an5` の中央寄せでは行端の空白がその行だけ中心をずらすため）。
@@ -191,7 +194,8 @@ npm run createVideo -- --videoId xxx --qc   # 生成前 L0 + 生成後 L1
 - 実装は `scripts/create-video/qc/`（index/manifest/report/checks/*）。しきい値は `config.qc.*`。
 - `--qc` を付けると生成時に `output/<name>.render.json`（レンダーマニフェスト）を書き出す。セグメントの実尺・テロップ矩形・zoom・concat 経路を残し、QC の期待値にする。`config.qc.manifest: false` で抑止可。manifest は `--qc` なしの通常実行でも書き出す（出力が 1 ファイル増えるだけで mp4 は変わらない）。
 - **L0（生成前・ffmpeg 不要）**… 素材存在、テロップのはみ出し・重なり、autoShrink の張り付き、行数、禁則残存、クリップ重複、`--order` の単調性、チャプター要件。error があればエンコードを始めずに止める。`npm test` でも回る。
-- **L1（生成後）**… 署名と総尺、concat 経路、A/V 同期（音声相互相関）、クリップ同一性（pHash）、音量（ebur128）、無音、黒、フリーズ、テロップ焼き込み（矩形内の塗り色一致率）、概要欄の時刻。
+- **L1（生成後）**… 署名と総尺、A/V 尺差（`probe_av_duration_gap`、`qc.thresholds.avGapMs` 既定 50ms）、音声 pts の穴（`probe_audio_pts_hole`、`qc.thresholds.audioHoleMs` 既定 10ms）、concat 経路、A/V 同期（音声相互相関）、クリップ同一性（pHash）、音量（ebur128）、無音、黒、フリーズ、テロップ焼き込み（矩形内の塗り色一致率）、概要欄の時刻。A/V 尺差と pts の穴は ffprobe だけで測れるので python 不在でも必ず効く。
+- `sync_audio_drift` は出力を `-ss` で切り出して相互相関を取るため **pts を尊重した位置**を測る。サンプル列を連結し直す測り方（wav に落として numpy で切る等）では pts の穴が消えて 0 に見えるので、検証には使わない。
 - 出力は `output/<name>.qc.json` と `output/<name>.qc.md`。**終了コードは error が 1 件以上で 1、warn / info のみなら 0。**
 - `--contact` は各クリップの代表フレームをラベル付きで並べた `output/<name>.contact.png` を書き出す。`--review` はそれを `claude` CLI に読ませて `output/<name>.review.md` に指摘を残す。どちらも結果は info 扱いで、**合否には影響しない**（LLM の出力は非決定的なため）。
 - render manifest には mp4 のサイズと SHA-256 が入る（version 2）。古い manifest が残っている場合は `manifest_stale` を error にする。検証目的で無視したいときだけ `--allow-stale-manifest` を使う。
