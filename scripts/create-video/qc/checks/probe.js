@@ -1,12 +1,15 @@
 import fs from 'fs';
 import { execFileSync } from 'child_process';
 import { outputSize } from '../../config.js';
+import { audioPtsHoleMs } from '../../assets.js';
 import { summaryPathsFor } from '../../summary.js';
 
 export function runProbeChecks({ tools, videoPath, manifest, config }) {
   const probe = probeMedia(tools.ffprobe, videoPath);
   const results = [
     ...checkSignature({ probe, manifest, config }),
+    ...checkAvDurationGap({ probe, config }),
+    ...checkAudioPtsHole({ tools, videoPath, config }),
     ...checkTotalDuration({ probe, manifest, config }),
     ...checkConcatMethod({ manifest }),
     ...checkChapterTimes({ videoPath, manifest, config }),
@@ -110,6 +113,49 @@ function checkSignature({ probe, manifest, config }) {
   }
 
   return results;
+}
+
+// 音声ストリームと映像ストリームの尺差。連結でセグメントごとに音ズレが積み上がると
+// ここに合計として現れる。相互相関（python 依存）が使えない環境でも必ず効く軽い門番。
+export function checkAvDurationGap({ probe, config }) {
+  const video = (probe.streams || []).find((stream) => stream.codec_type === 'video');
+  const audio = (probe.streams || []).find((stream) => stream.codec_type === 'audio');
+  const videoSec = Number(video?.duration);
+  const audioSec = Number(audio?.duration);
+  if (!Number.isFinite(videoSec) || !Number.isFinite(audioSec)) {
+    return [result('info', 'probe_av_gap_skip', 'ストリーム尺を取得できないため A/V 尺差の検査をスキップします。')];
+  }
+  const gapMs = (audioSec - videoSec) * 1000;
+  const thresholdMs = Number(config.qc.thresholds.avGapMs);
+  if (Math.abs(gapMs) > thresholdMs) {
+    return [result(
+      'error',
+      'probe_av_duration_gap',
+      `音声と映像の尺が ${Math.round(gapMs)}ms ずれています。`,
+      `音声 ${audioSec.toFixed(3)}s / 映像 ${videoSec.toFixed(3)}s / 許容 ±${thresholdMs}ms`,
+    )];
+  }
+  return [];
+}
+
+// 音声パケットの pts の穴。ソース（yt-dlp 区間切り出しの 96kHz 音声）由来の穴が
+// async 無しで通ると、AAC パケット 1 個の duration が数十 ms 伸びた形で残り、プレイヤーは
+// pts を尊重するので穴以降の音声が遅れる。連結でクリップごとに積み上がる累積音ズレの正体。
+export function checkAudioPtsHole({ tools, videoPath, config }) {
+  const holeMs = audioPtsHoleMs({ ffprobe: tools.ffprobe, filePath: videoPath });
+  if (holeMs === null) {
+    return [result('info', 'probe_audio_hole_skip', '音声パケットを読めないため pts の穴の検査をスキップします。')];
+  }
+  const thresholdMs = Number(config.qc.thresholds.audioHoleMs);
+  if (holeMs > thresholdMs) {
+    return [result(
+      'error',
+      'probe_audio_pts_hole',
+      `音声の pts に合計 ${Math.round(holeMs)}ms の穴があります（穴以降の音声が遅れます）。`,
+      `許容 ${thresholdMs}ms。ソースの穴は npm run fixCacheAudio で埋められます`,
+    )];
+  }
+  return [];
 }
 
 function checkTotalDuration({ probe, manifest, config }) {

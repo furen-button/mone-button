@@ -205,6 +205,10 @@ export const DEFAULTS = {
     thresholds: {
       durationFrames: 1,
       driftMs: 50,
+      // 音声ストリーム尺 − 映像ストリーム尺。連結の累積音ズレがここに合計として出る。
+      avGapMs: 50,
+      // 音声パケットの pts の穴の合計。ソース由来の穴が残ると穴以降の音声が遅れる。
+      audioHoleMs: 10,
       phashDistance: 12,
       // 取り込み側が ffmpeg-normalize（EBU R128 / -23 LUFS）で揃えるため、目標は -23 LUFS ±2 とする。
       integratedLufsMin: -25,

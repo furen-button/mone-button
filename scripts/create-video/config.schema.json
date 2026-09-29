@@ -450,6 +450,8 @@
           "properties": {
             "durationFrames": { "type": "number", "minimum": 0, "default": 1, "description": "総尺ずれを許容するフレーム数。" },
             "driftMs": { "type": "number", "minimum": 0, "default": 50, "description": "A/V 同期ずれの許容ミリ秒。" },
+            "avGapMs": { "type": "number", "minimum": 0, "default": 50, "description": "音声ストリーム尺と映像ストリーム尺の差の許容ミリ秒。" },
+            "audioHoleMs": { "type": "number", "minimum": 0, "default": 10, "description": "音声パケットの pts の穴（合計）の許容ミリ秒。穴以降の音声が遅れる。" },
             "phashDistance": { "type": "number", "minimum": 0, "default": 12, "description": "クリップ同一性 pHash の許容ハミング距離。" },
             "integratedLufsMin": { "type": "number", "default": -25, "description": "全体 Integrated LUFS の下限。取り込み側の EBU R128 / -23 LUFS に合わせる。" },
             "integratedLufsMax": { "type": "number", "default": -21, "description": "全体 Integrated LUFS の上限。取り込み側の EBU R128 / -23 LUFS に合わせる。" },
