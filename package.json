@@ -18,6 +18,7 @@
     "import": "npm run sync && npm run extract && npm run download",
     "createVideo": "node scripts/create-video/index.js",
     "qc": "node scripts/create-video/qc/index.js",
+    "fixCacheAudio": "node scripts/create-video/fix-cache-audio.mjs",
     "still": "node scripts/create-video/preview.js",
     "shots": "node scripts/ui/shots.mjs"
   },
