@@ -41,6 +41,11 @@ function resolveFfprobe(ffmpeg) {
   return 'ffprobe';
 }
 
+// 音声を 44.1kHz に揃えつつ、pts の穴（タイムスタンプだけ飛んでサンプルが無い区間）を
+// 無音で埋める。async=1 だけでは既定 min_hard_comp=0.1 秒未満の穴が埋まらず、穴を捨てて
+// 以降の音声が早まるので 1ms まで下げる。first_pts=0 で先頭の無音も揃える。
+export const AUDIO_RESAMPLE = 'aresample=44100:async=1:min_hard_comp=0.001:first_pts=0';
+
 export function encodeArgs(config) {
   return [
     '-r', String(config.output.fps),
@@ -81,7 +86,7 @@ export function concatSegments({ tools, segments, outPath, workDir, config }) {
     const inputs = segments.flatMap((segment) => ['-i', segment]);
     const pads = segments.map((segment, i) => {
       const slot = probeDuration(tools.ffprobe, segment).toFixed(6);
-      return `[${i + 1}:a]aresample=44100,atrim=0:${slot},apad=whole_dur=${slot}[a${i}]`;
+      return `[${i + 1}:a]${AUDIO_RESAMPLE},atrim=0:${slot},apad=whole_dur=${slot}[a${i}]`;
     });
     const refs = segments.map((_, i) => `[a${i}]`).join('');
     const filter = [...pads, `${refs}concat=n=${segments.length}:v=0:a=1[a]`].join(';');
@@ -116,7 +121,7 @@ function concatFilter({ tools, segments, outPath, config }) {
   // 蓄積するため、各音声をセグメントの映像長ちょうどに切り詰め/無音パディングする。
   const pads = segments.map((segment, i) => {
     const duration = probeVideoDuration(tools.ffprobe, segment);
-    return `[${i}:a]atrim=0:${duration},apad=whole_dur=${duration}[a${i}]`;
+    return `[${i}:a]${AUDIO_RESAMPLE},atrim=0:${duration},apad=whole_dur=${duration}[a${i}]`;
   });
   const refs = segments.map((_, i) => `[${i}:v][a${i}]`).join('');
   const filter = [...pads, `${refs}concat=n=${segments.length}:v=1:a=1[v][a]`].join(';');

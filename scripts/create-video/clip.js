@@ -6,7 +6,7 @@ import { buildAss, formatDate, formatTimestamp, makeTextElement, resolveTitleTex
 import { buildZoomFilterComplex, planZoom, zoomCropFilters } from './effects.js';
 import { formatAvoidLog, planSerifAvoidance } from './avoid.js';
 import { formatEnhanceLog, planEnhance, restoreFilter, upscaleFilter } from './enhance.js';
-import { encodeArgs, subtitlesFilter } from './ffmpeg.js';
+import { AUDIO_RESAMPLE, encodeArgs, subtitlesFilter } from './ffmpeg.js';
 
 export function clipSourcePathFor(clip, config) {
   if (config.source === 'existing') {
@@ -15,7 +15,7 @@ export function clipSourcePathFor(clip, config) {
   return path.join(cacheRoot, clip.videoId, `${clip.base}.mp4`);
 }
 
-export function resolveClipSource(clip, config, { allowDownload = true, log = console.log } = {}) {
+export function resolveClipSource(clip, config, { allowDownload = true, log = console.log, tools = null } = {}) {
   if (config.source === 'existing') {
     const sourceMp4 = clipSourcePathFor(clip, config);
     if (!fs.existsSync(sourceMp4)) {
@@ -32,13 +32,13 @@ export function resolveClipSource(clip, config, { allowDownload = true, log = co
     return null;
   } else {
     log(`⏬ 高画質ダウンロード中: ${clip.base}`);
-    downloadHighQuality(clip, sourceMp4, { normalize: config.normalizeCache !== false });
+    downloadHighQuality(clip, sourceMp4, { normalize: config.normalizeCache !== false, tools });
   }
   return sourceMp4;
 }
 
 export async function renderClip({ tools, clip, index, total, config, workDir, size, titleOverride }) {
-  const sourceMp4 = resolveClipSource(clip, config);
+  const sourceMp4 = resolveClipSource(clip, config, { tools });
   if (!sourceMp4) {
     return null;
   }
@@ -171,7 +171,15 @@ function execClip(ffmpeg, sourceMp4, graph, outPath, config) {
     '-y',
     '-i', sourceMp4,
     ...filterArgs,
-    '-af', 'aresample=44100,aformat=sample_fmts=fltp:channel_layouts=stereo',
+    // yt-dlp の区間切り出しで作った 96kHz 音声のソースには、数十 ms の pts の穴
+    // （タイムスタンプだけ飛んでサンプルが無い）が混ざる。async 無しで通すと穴が
+    // そのまま AAC パケットの長い duration になり、プレイヤーは pts を尊重するので
+    // 穴以降の音声が遅れ、連結でクリップごとに積み上がる。min_hard_comp を 1ms に
+    // 下げて穴を無音で埋め、pts とサンプル数を一致させる（async=1 だけだと既定の
+    // 0.1 秒未満の穴は埋まらず、穴を捨てて音声が早まる）。
+    // apad + -shortest は使わない。encodeArgs の -r（CFR）と組み合わさると -shortest が
+    // 効かず、無限長になった音声に映像フレームが追従してセグメントが際限なく伸びる。
+    '-af', `${AUDIO_RESAMPLE},aformat=sample_fmts=fltp:channel_layouts=stereo`,
     ...encodeArgs(config),
     outPath,
   ];

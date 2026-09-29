@@ -3,7 +3,7 @@ import path from 'path';
 import { buildAss, formatDate, makeTextElement, resolveTitleText, stripEmoji } from './ass.js';
 import { deepMerge, resolveProjectPath } from './config.js';
 import { cacheThumbnail, optionalAsset } from './assets.js';
-import { encodeArgs, streamSignature, subtitlesFilter } from './ffmpeg.js';
+import { AUDIO_RESAMPLE, encodeArgs, streamSignature, subtitlesFilter } from './ffmpeg.js';
 import { execFileSync } from 'child_process';
 
 // OP/ED に完成動画が指定されていれば、その動画を 1 セグメントとして
@@ -18,7 +18,8 @@ function renderEndcapVideo({ tools, kind, config, workDir, size }) {
   const hasAudio = streamSignature(tools.ffprobe, videoPath).some((s) => s.type === 'audio');
   const args = ['-y', '-i', videoPath];
   if (hasAudio) {
-    args.push('-vf', vf, '-af', 'aresample=44100,aformat=sample_fmts=fltp:channel_layouts=stereo');
+    // クリップと同じく pts の穴を無音で埋めてから揃える（clip.js の execClip を参照）。
+    args.push('-vf', vf, '-af', `${AUDIO_RESAMPLE},aformat=sample_fmts=fltp:channel_layouts=stereo`);
   } else {
     // 音声トラックが無い動画には無音を付与して concat の署名を揃える。
     args.push('-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=stereo', '-vf', vf, '-map', '0:v', '-map', '1:a', '-shortest');
