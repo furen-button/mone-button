@@ -16,15 +16,18 @@ type UseClipCollectionArgs = {
 // ストリームグループ化・インデックスマップ）をまとめたフック。
 export function useClipCollection({ selectedCategories, sortType, playCounts }: UseClipCollectionArgs) {
   const [clipOverrides, setClipOverrides] = useState<Record<string, VoiceData>>({})
+  const [deletedClips, setDeletedClips] = useState<ReadonlySet<string>>(() => new Set())
 
-  // dev 編集で保存した内容をその場で反映するため、voiceClips に override をマージした一覧を使う。
+  // dev 編集で保存・削除した内容をその場で反映するため、voiceClips に override をマージし削除分を除いた一覧を使う。
   const clips = useMemo(
     () =>
-      voiceClips.map((clip) => {
-        const override = clipOverrides[clip.fileBaseName]
-        return override ? { ...clip, ...override } : clip
-      }),
-    [clipOverrides],
+      voiceClips
+        .filter((clip) => !deletedClips.has(clip.fileBaseName))
+        .map((clip) => {
+          const override = clipOverrides[clip.fileBaseName]
+          return override ? { ...clip, ...override } : clip
+        }),
+    [clipOverrides, deletedClips],
   )
 
   const visibleClips = useMemo(
@@ -106,5 +109,9 @@ export function useClipCollection({ selectedCategories, sortType, playCounts }: 
     setClipOverrides((current) => ({ ...current, [fileBaseName]: updated }))
   }, [])
 
-  return { sortedClips, streamGroups, clipIndexMap, applyClipOverride }
+  const removeClip = useCallback((fileBaseName: string) => {
+    setDeletedClips((current) => new Set(current).add(fileBaseName))
+  }, [])
+
+  return { sortedClips, streamGroups, clipIndexMap, applyClipOverride, removeClip }
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { VoiceClip } from '../voiceData'
 import { formatUploadDate } from '../voiceData'
 import { t } from '../i18n'
@@ -10,10 +11,28 @@ type InfoModalProps = {
   onClickSourceVideoLink: (linkType: 'source_video', clip: VoiceClip) => void
   // dev 限定: 指定された場合のみ「編集」ボタンを表示する（本番では未指定）。
   onEdit?: (clip: VoiceClip) => void
+  // dev 限定: 指定された場合のみ「削除」ボタンを表示する。確認なしで即削除（trash/ へ退避）。
+  onDelete?: (clip: VoiceClip) => Promise<void>
 }
 
-export function InfoModal({ clip, onClose, onClickClipLink, onClickSourceVideoLink, onEdit }: InfoModalProps) {
+export function InfoModal({ clip, onClose, onClickClipLink, onClickSourceVideoLink, onEdit, onDelete }: InfoModalProps) {
   const locale = useLocale()
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
+
+  const handleDelete = async () => {
+    if (!onDelete) {
+      return
+    }
+    setIsDeleting(true)
+    setDeleteError('')
+    try {
+      await onDelete(clip)
+    } catch (error) {
+      setDeleteError(error instanceof Error ? error.message : String(error))
+      setIsDeleting(false)
+    }
+  }
 
   return (
     <div className="info-modal-backdrop" role="presentation" onClick={onClose}>
@@ -59,11 +78,26 @@ export function InfoModal({ clip, onClose, onClickClipLink, onClickSourceVideoLi
         >
           {t('infoModal.openVideo', {}, locale)}
         </a>
-        {onEdit ? (
-          <button type="button" className="info-modal-edit" onClick={() => onEdit(clip)}>
-            🔧 編集（DEV）
-          </button>
+        {onEdit || onDelete ? (
+          <div className="info-modal-dev-actions">
+            {onEdit ? (
+              <button type="button" className="info-modal-edit" onClick={() => onEdit(clip)}>
+                🔧 編集（DEV）
+              </button>
+            ) : null}
+            {onDelete ? (
+              <button
+                type="button"
+                className="info-modal-delete"
+                onClick={() => void handleDelete()}
+                disabled={isDeleting}
+              >
+                {isDeleting ? '削除中…' : '🗑 削除（DEV）'}
+              </button>
+            ) : null}
+          </div>
         ) : null}
+        {deleteError ? <p className="clip-edit-status is-error">⚠ {deleteError}</p> : null}
         <button type="button" className="info-modal-close" onClick={onClose}>
           {t('infoModal.close', {}, locale)}
         </button>

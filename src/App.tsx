@@ -20,6 +20,7 @@ import { usePlayback } from './hooks/usePlayback'
 import { usePlayCounts } from './hooks/usePlayCounts'
 import { useVolume } from './hooks/useVolume'
 import { LocaleProvider } from './i18n'
+import { deleteClipData } from './lib/devDataEditor'
 import { trackSortChange, trackYoutubeLinkClick } from './lib/analytics'
 import {
   categoryCounts,
@@ -43,7 +44,7 @@ function App() {
   const { selectedCategories, toggleCategory, selectAllCategories, clearAllCategories } = useCategoryFilter()
 
   const [sortType, setSortType] = useState<SortType>('reading')
-  const { sortedClips, streamGroups, clipIndexMap, applyClipOverride } = useClipCollection({
+  const { sortedClips, streamGroups, clipIndexMap, applyClipOverride, removeClip } = useClipCollection({
     selectedCategories,
     sortType,
     playCounts,
@@ -77,6 +78,17 @@ function App() {
       )
     },
     [applyClipOverride],
+  )
+
+  // dev 限定: json と mp4 を trash/ へ退避し、一覧から外して情報モーダルを閉じる。
+  // 失敗時は例外を InfoModal 側へ投げ返してエラー表示させる。
+  const handleClipDelete = useCallback(
+    async (clip: VoiceClip) => {
+      await deleteClipData(clip.fileBaseName)
+      removeClip(clip.fileBaseName)
+      setInfoClip(null)
+    },
+    [removeClip],
   )
 
   return (
@@ -142,6 +154,7 @@ function App() {
                 onClickClipLink={handleInfoModalLinkClick}
                 onClickSourceVideoLink={handleInfoModalLinkClick}
                 onEdit={enableDevEditor ? setEditClip : undefined}
+                onDelete={enableDevEditor ? handleClipDelete : undefined}
               />
             ) : null}
 

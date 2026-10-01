@@ -729,6 +729,31 @@
   background: #efe3ff;
 }
 
+.info-modal-dev-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.info-modal-delete {
+  border: 1px dashed #e0a497;
+  border-radius: 999px;
+  background: #fdf0ed;
+  color: #b3402b;
+  font-weight: 700;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.info-modal-delete:hover {
+  background: #fae3de;
+}
+
+.info-modal-delete:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 /* dev 限定: クリップ編集モーダル（本番ビルドには含まれない） */
 .clip-edit-backdrop {
   position: fixed;

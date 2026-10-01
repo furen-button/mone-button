@@ -34,3 +34,6 @@ output
 
 assets/create-video/*
 !assets/create-video/.gitkeep
+
+# dev 編集モードで削除したクリップ（json / mp4）の退避先
+trash
