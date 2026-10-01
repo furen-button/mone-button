@@ -8,12 +8,19 @@
     "check:i18n": "node scripts/check-i18n.mjs",
     "build": "npm run check:i18n && tsc -b && vite build",
     "lint": "eslint .",
+    "test": "node --test scripts/create-video/*.test.js scripts/create-video/qc/*.test.js scripts/create-video/qc/checks/*.test.js scripts/dev-server/lib/*.test.js scripts/dev-server/handlers/*.test.js",
+    "golden:ass": "node scripts/create-video/golden-ass.mjs",
     "preview": "vite preview",
+    "editor": "vite --open /mone-button/editor.html",
     "sync": "node scripts/sync.js",
     "extract": "node scripts/extract.js",
     "download": "node scripts/download.js",
     "import": "npm run sync && npm run extract && npm run download",
-    "createVideo": "node scripts/create-video/index.js"
+    "createVideo": "node scripts/create-video/index.js",
+    "qc": "node scripts/create-video/qc/index.js",
+    "fixCacheAudio": "node scripts/create-video/fix-cache-audio.mjs",
+    "still": "node scripts/create-video/preview.js",
+    "shots": "node scripts/ui/shots.mjs"
   },
   "dependencies": {
     "firebase": "^12.15.0",

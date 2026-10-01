@@ -41,6 +41,11 @@ function resolveFfprobe(ffmpeg) {
   return 'ffprobe';
 }
 
+// 音声を 44.1kHz に揃えつつ、pts の穴（タイムスタンプだけ飛んでサンプルが無い区間）を
+// 無音で埋める。async=1 だけでは既定 min_hard_comp=0.1 秒未満の穴が埋まらず、穴を捨てて
+// 以降の音声が早まるので 1ms まで下げる。first_pts=0 で先頭の無音も揃える。
+export const AUDIO_RESAMPLE = 'aresample=44100:async=1:min_hard_comp=0.001:first_pts=0';
+
 export function encodeArgs(config) {
   return [
     '-r', String(config.output.fps),
@@ -81,7 +86,7 @@ export function concatSegments({ tools, segments, outPath, workDir, config }) {
     const inputs = segments.flatMap((segment) => ['-i', segment]);
     const pads = segments.map((segment, i) => {
       const slot = probeDuration(tools.ffprobe, segment).toFixed(6);
-      return `[${i + 1}:a]aresample=44100,atrim=0:${slot},apad=whole_dur=${slot}[a${i}]`;
+      return `[${i + 1}:a]${AUDIO_RESAMPLE},atrim=0:${slot},apad=whole_dur=${slot}[a${i}]`;
     });
     const refs = segments.map((_, i) => `[a${i}]`).join('');
     const filter = [...pads, `${refs}concat=n=${segments.length}:v=0:a=1[a]`].join(';');
@@ -116,7 +121,7 @@ function concatFilter({ tools, segments, outPath, config }) {
   // 蓄積するため、各音声をセグメントの映像長ちょうどに切り詰め/無音パディングする。
   const pads = segments.map((segment, i) => {
     const duration = probeVideoDuration(tools.ffprobe, segment);
-    return `[${i}:a]atrim=0:${duration},apad=whole_dur=${duration}[a${i}]`;
+    return `[${i}:a]${AUDIO_RESAMPLE},atrim=0:${duration},apad=whole_dur=${duration}[a${i}]`;
   });
   const refs = segments.map((_, i) => `[${i}:v][a${i}]`).join('');
   const filter = [...pads, `${refs}concat=n=${segments.length}:v=1:a=1[v][a]`].join(';');
@@ -206,6 +211,54 @@ export function mixBgm({ tools, inputPath, outPath, config }) {
     outPath,
   ], { stdio: 'inherit' });
   return { mixed: true, outPath };
+}
+
+// 映像ストリームの寸法と fps。補正（effects.enhance）の解像度ゲートに使う。
+// streamSignature は concat の等価比較に JSON.stringify で使われているので拡張しない。
+export function probeVideoStream(ffprobe, filePath) {
+  const raw = execFileSync(ffprobe, [
+    '-v', 'error',
+    '-select_streams', 'v:0',
+    '-show_entries', 'stream=width,height,r_frame_rate',
+    '-of', 'json',
+    filePath,
+  ], { encoding: 'utf8' });
+  const stream = (JSON.parse(raw).streams || [])[0] || {};
+  const [num, den] = String(stream.r_frame_rate || '0/1').split('/').map(Number);
+  return {
+    width: Number(stream.width) || 0,
+    height: Number(stream.height) || 0,
+    fps: den ? num / den : 0,
+  };
+}
+
+const libplaceboStatus = new Map();
+
+// libplacebo フィルタが実際に Vulkan デバイスを作れるか（MoltenVK 不在だと VK_ERROR_INCOMPATIBLE_DRIVER）。
+// 1 プロセスで 1 回だけ小さな lavfi 入力を通して確かめ、失敗時は stderr の 1 行目を理由として返す。
+export function ffmpegLibplaceboStatus(bin) {
+  if (libplaceboStatus.has(bin)) {
+    return libplaceboStatus.get(bin);
+  }
+  let status;
+  try {
+    execFileSync(bin, [
+      '-hide_banner', '-v', 'error',
+      '-f', 'lavfi', '-i', 'color=c=black:s=64x64:d=0.1',
+      '-vf', 'libplacebo=format=yuv420p',
+      '-frames:v', '1', '-f', 'null', '-',
+    ], { stdio: ['ignore', 'ignore', 'pipe'], encoding: 'utf8' });
+    status = { ok: true, reason: null };
+  } catch (err) {
+    // 先頭の "[libplacebo @ 0x...] " はポインタ値で毎回変わるので落とし、manifest に残す理由を決定的にする。
+    const firstLine = String(err.stderr || err.message || '')
+      .split(/\r?\n/)
+      .map((line) => line.trim().replace(/^\[[^\]]*\]\s*/u, ''))
+      .find(Boolean) || 'unknown';
+    status = { ok: false, reason: firstLine };
+  }
+  libplaceboStatus.set(bin, status);
+  return status;
 }
 
 export function probeDuration(ffprobe, filePath) {

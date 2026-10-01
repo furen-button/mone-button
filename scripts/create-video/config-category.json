@@ -1,0 +1,184 @@
+{
+  "select": {
+    "mode": "category",
+    "categories": [
+      "やられ"
+    ],
+    "order": "date",
+    "limit": null
+  },
+  "output": {
+    "resolution": "1920x1080",
+    "fps": 30,
+    "name": null
+  },
+  "source": "cache",
+  "normalizeCache": true,
+  "font": "Hiragino Sans",
+  "fontsDir": "/System/Library/Fonts",
+  "telops": {
+    "title": {
+      "enabled": true,
+      "align": "top-center",
+      "size": 0.03,
+      "color": "FFFFFF",
+      "box": {
+        "enabled": true,
+        "fill": "DECDFC",
+        "pad": 15,
+        "opacity": 0.4
+      },
+      "fade": [
+        200,
+        200
+      ]
+    },
+    "date": {
+      "enabled": true,
+      "align": "top-center",
+      "size": 0.03,
+      "color": "FFFFFF"
+    },
+    "time": {
+      "enabled": true,
+      "align": "top-right",
+      "size": 0.042,
+      "color": "FFFFFF"
+    },
+    "serif": {
+      "enabled": true,
+      "align": "bottom-left",
+      "size": 0.08,
+      "autoShrink": true,
+      "minSize": 0.05,
+      "maxHeight": 0.25,
+      "color": "FFC6E2",
+      "bold": true,
+      "shadow": 2,
+      "fade": [
+        150,
+        150
+      ],
+      "box": {
+        "enabled": true,
+        "border": "FFC6E2",
+        "borderWidth": 4,
+        "pad": 12,
+        "radius": 50,
+        "opacity": 0.4
+      },
+      "karaoke": false,
+      "avoidFace": {
+        "enabled": true
+      }
+    },
+    "progress": {
+      "enabled": true,
+      "align": "top-left",
+      "size": 0.028,
+      "color": "FFFFFF",
+      "format": "{i} / {n}"
+    }
+  },
+  "cards": {
+    "enabled": true,
+    "position": "before",
+    "duration": 1,
+    "background": {
+      "type": "video",
+      "video": "assets/create-video/5bg162シンプルドットレインボー.mp4"
+    },
+    "thumbnail": {
+      "enabled": true,
+      "y": 180,
+      "width": 760
+    },
+    "show": {
+      "index": true,
+      "nextSerif": true,
+      "title": true,
+      "date": true,
+      "uploader": true,
+      "sourceUrl": false
+    },
+    "index": {
+      "align": "top-left",
+      "size": 0.05,
+      "color": "FFFFFF",
+      "prefix": "",
+      "suffix": ""
+    },
+    "se": {
+      "enabled": true,
+      "file": "assets/create-video/パッ.mp3",
+      "fadeOut": 0.3
+    },
+    "serif": {
+      "align": "bottom-center",
+      "size": 0.08,
+      "autoShrink": true,
+      "minSize": 0.05,
+      "maxHeight": 0.3,
+      "color": "FFC6E2",
+      "bold": true,
+      "shadow": 4,
+      "fade": [
+        150,
+        150
+      ],
+      "box": {
+        "enabled": true,
+        "fill": "FFFFFF",
+        "pad": 12,
+        "radius": 50,
+        "opacity": 1,
+        "border": "FFC6E2",
+        "borderWidth": 4
+      },
+      "karaoke": false
+    }
+  },
+  "endcaps": {
+    "opening": {
+      "enabled": true,
+      "duration": 2,
+      "title": null,
+      "subtitle": "全{n}クリップ"
+    },
+    "ending": {
+      "enabled": true,
+      "duration": 3,
+      "text": "ご視聴ありがとうございました",
+      "listClips": false
+    }
+  },
+  "effects": {
+    "zoom": {
+      "enabled": true,
+      "mode": "punch",
+      "scale": 1.3,
+      "focus": {
+        "mode": "face",
+        "x": 0.8,
+        "y": 0.75
+      }
+    },
+    "enhance": {
+      "enabled": true,
+      "restore": "Restore_CNN_M",
+      "upscale": "Upscale_CNN_x2_M",
+      "minSourceHeight": 720,
+      "required": false
+    }
+  },
+  "summary": {
+    "intro": "にじさんじ所属・梢桃音さんの配信から、同じテーマの場面を集めました。",
+    "notice": "※このチャンネルは非公式のファン制作です。",
+    "tags": [
+      "梢桃音",
+      "にじさんじ",
+      "切り抜き",
+      "まとめ"
+    ]
+  }
+}

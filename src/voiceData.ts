@@ -84,6 +84,12 @@ export const voiceClips: VoiceClip[] = Object.entries(dataModules)
     const fileBaseName = filename.replace(/\.json$/i, '')
     return {
       ...data,
+      // serif の改行はまとめ動画のテロップ専用の指定なので、サイトでは無かったものとして扱う。
+      // 元から空白で区切られていた箇所は空白を残し、語中で折っただけの箇所は詰める。
+      serif: data.serif.replace(
+        /[^\S\r\n]*\r?\n[^\S\r\n]*/g,
+        (matched) => (/[^\S\r\n]/.test(matched) ? ' ' : ''),
+      ),
       fileBaseName,
       videoPath: `${baseUrl}videos/${fileBaseName}.mp4`,
     }

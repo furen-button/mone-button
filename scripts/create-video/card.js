@@ -1,33 +1,25 @@
 import fs from 'fs';
 import path from 'path';
-import { buildAss, formatDate, makeTextElement, stripEmoji } from './ass.js';
-import { deepMerge } from './config.js';
+import { buildAss, formatDate, makeTextElement, resolveTitleText, stripEmoji } from './ass.js';
+import { deepMerge, resolveProjectPath } from './config.js';
 import { cacheThumbnail, optionalAsset } from './assets.js';
-import { encodeArgs, streamSignature, subtitlesFilter } from './ffmpeg.js';
+import { AUDIO_RESAMPLE, encodeArgs, streamSignature, subtitlesFilter } from './ffmpeg.js';
 import { execFileSync } from 'child_process';
 
 // OP/ED に完成動画が指定されていれば、その動画を 1 セグメントとして
 // （映像は解像度/fps に正規化、音声はそのまま）出力する。未指定/欠落なら null。
 function renderEndcapVideo({ tools, kind, config, workDir, size }) {
-  const spec = config.endcaps[kind] || {};
-  if (!spec.video) {
-    return null;
-  }
-  const videoPath = optionalAsset(spec.video, `${kind} 動画`);
+  const videoPath = endcapVideoPath(kind, config);
   if (!videoPath) {
     return null;
   }
   const outPath = path.join(workDir, `${kind}.mp4`);
-  const vf = [
-    `scale=${size.width}:${size.height}:force_original_aspect_ratio=decrease`,
-    `pad=${size.width}:${size.height}:(ow-iw)/2:(oh-ih)/2`,
-    'setsar=1',
-    `fps=${size.fps}`,
-  ].join(',');
+  const vf = endcapVideoFilter(size);
   const hasAudio = streamSignature(tools.ffprobe, videoPath).some((s) => s.type === 'audio');
   const args = ['-y', '-i', videoPath];
   if (hasAudio) {
-    args.push('-vf', vf, '-af', 'aresample=44100,aformat=sample_fmts=fltp:channel_layouts=stereo');
+    // クリップと同じく pts の穴を無音で埋めてから揃える（clip.js の execClip を参照）。
+    args.push('-vf', vf, '-af', `${AUDIO_RESAMPLE},aformat=sample_fmts=fltp:channel_layouts=stereo`);
   } else {
     // 音声トラックが無い動画には無音を付与して concat の署名を揃える。
     args.push('-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=stereo', '-vf', vf, '-map', '0:v', '-map', '1:a', '-shortest');
@@ -35,7 +27,26 @@ function renderEndcapVideo({ tools, kind, config, workDir, size }) {
   args.push(...encodeArgs(config), '-movflags', '+faststart', outPath);
   console.log(`🎬 ${kind} に指定動画を使用: ${path.basename(videoPath)}`);
   execFileSync(tools.ffmpeg, args, { stdio: 'inherit' });
-  return outPath;
+  return { path: outPath, kind, sourcePath: videoPath, elements: [] };
+}
+
+// OP/ED に指定された完成動画のパス。未指定・欠落なら null。
+export function endcapVideoPath(kind, config) {
+  const spec = config.endcaps[kind] || {};
+  if (!spec.video) {
+    return null;
+  }
+  return optionalAsset(spec.video, `${kind} 動画`);
+}
+
+// 指定動画を出力解像度・fps に合わせる映像フィルタ。静止画プレビューも同じものを通す。
+export function endcapVideoFilter(size) {
+  return [
+    `scale=${size.width}:${size.height}:force_original_aspect_ratio=decrease`,
+    `pad=${size.width}:${size.height}:(ow-iw)/2:(oh-ih)/2`,
+    'setsar=1',
+    `fps=${size.fps}`,
+  ].join(',');
 }
 
 export async function renderClipCard({ tools, clip, index, total, config, workDir, size }) {
@@ -91,18 +102,34 @@ export async function renderEndingCard({ tools, clips, config, workDir, size }) 
 }
 
 async function renderCard({ tools, kind, clip, clips, index, total, config, workDir, size, thumbnail, title, duration }) {
-  const safeKind = kind === 'clip' ? `card-${String(index).padStart(4, '0')}` : kind;
-  const assPath = path.join(workDir, `${safeKind}.ass`);
-  const outPath = path.join(workDir, `${safeKind}.mp4`);
-  const elements = buildCardElements({ kind, clip, clips, index, total, config, size, title, duration });
-  fs.writeFileSync(assPath, buildAss(elements, { width: size.width, height: size.height, font: config.font }));
+  const plan = planCardRender({ kind, clip, clips, index, total, config, size, title, duration, thumbnail });
+  const assPath = path.join(workDir, `${plan.safeKind}.ass`);
+  const outPath = path.join(workDir, `${plan.safeKind}.mp4`);
+  fs.writeFileSync(assPath, plan.ass);
 
   const command = buildCardCommand({ tools, assPath, outPath, config, size, duration, thumbnail });
   execFileSync(tools.ffmpeg, command, { stdio: 'inherit' });
-  return outPath;
+  return { path: outPath, kind: kind === 'clip' ? 'card' : kind, clip, sourcePath: cardSourcePath(config), elements: plan.elements };
 }
 
-function buildCardElements({ kind, clip, clips, index, total, config, size, title, duration }) {
+// カード 1 枚の「何を描くか」をまとめる。本番（renderCard）と静止画プレビュー（preview.js）が
+// 同じ計画を共有するための seam。ASS のパスは呼び出し側が決めるので、ここでは本文だけ返す。
+export function planCardRender({ kind, clip, clips, index, total, config, size, title, duration, thumbnail = null }) {
+  const safeKind = kind === 'clip' ? `card-${String(index).padStart(4, '0')}` : kind;
+  const elements = buildCardElements({ kind, clip, clips, index, total, config, size, title, duration });
+  return {
+    kind,
+    safeKind,
+    duration,
+    thumbnail,
+    elements,
+    ass: buildAss(elements, { width: size.width, height: size.height, font: config.font }),
+    sourcePath: cardSourcePath(config),
+    background: backgroundInput(config, size, duration),
+  };
+}
+
+export function buildCardElements({ kind, clip, clips, index, total, config, size, title, duration }) {
   if (kind === 'opening') {
     const first = clips[0];
     const mainTitle = title || config.endcaps.opening.title || makeMatomeTitle(config, first);
@@ -176,7 +203,7 @@ function buildCardElements({ kind, clip, clips, index, total, config, size, titl
   if (show.title) {
     elements.push(makeTextElement({
       name: 'card-title',
-      text: stripEmoji(meta.title || ''),
+      text: resolveTitleText({ clip, config, titleOverride: null }),
       style: { enabled: true, align: 'top-center', size: 0.04, color: 'FFFFFF', fade: [100, 100], font: cardFont },
       width: size.width,
       height: size.height,
@@ -228,29 +255,20 @@ function makeMatomeTitle(config, firstClip) {
   return categories || stripEmoji(firstClip?.meta?.title || 'まとめ');
 }
 
-function buildCardCommand({ assPath, outPath, config, size, duration, thumbnail }) {
-  const args = ['-y'];
+// カードの映像グラフ。[v] を作るところまでで、音声には触らない。
+// 静止画プレビューはこれだけを使い、本番は音声グラフを足して 1 本の filter_complex にする。
+export function buildCardVideoGraph({ assPath, config, size, duration, thumbnail }) {
   const background = backgroundInput(config, size, duration);
-  args.push(...background.args);
+  const inputs = [...background.args];
 
   let inputIndex = 1;
   const hasThumb = Boolean(thumbnail && fs.existsSync(thumbnail));
   if (hasThumb) {
-    args.push('-loop', '1', '-t', String(duration), '-i', thumbnail);
+    inputs.push('-loop', '1', '-t', String(duration), '-i', thumbnail);
     inputIndex++;
   }
 
-  const sePath = config.cards.se?.enabled ? optionalAsset(config.cards.se.file, 'カードSE') : null;
-  const audioIndex = inputIndex;
-  if (sePath) {
-    args.push('-i', sePath);
-  } else {
-    args.push('-f', 'lavfi', '-t', String(duration), '-i', 'anullsrc=r=44100:cl=stereo');
-  }
-
-  const filters = [
-    `[0:v]${background.videoFilter}[bg0]`,
-  ];
+  const filters = [`[0:v]${background.videoFilter}[bg0]`];
   let videoLabel = 'bg0';
   if (hasThumb) {
     const thumbWidth = Number(config.cards.thumbnail.width) || Math.round(size.width * 0.6);
@@ -263,21 +281,41 @@ function buildCardCommand({ assPath, outPath, config, size, duration, thumbnail 
   // クリップ側の pix_fmt と揃えて concat -c copy の高速経路を維持する。
   filters.push(`[${videoLabel}]${subtitlesFilter(assPath, config.fontsDir)},scale=out_range=tv,format=yuv420p[v]`);
 
+  return { inputs, filters, inputCount: inputIndex, hasThumb, background };
+}
+
+// カードの音声グラフ。SE が無ければ無音を敷いて concat の署名を揃える。
+function buildCardAudioGraph({ config, duration, audioIndex }) {
+  const sePath = config.cards.se?.enabled ? optionalAsset(config.cards.se.file, 'カードSE') : null;
+  const inputs = sePath
+    ? ['-i', sePath]
+    : ['-f', 'lavfi', '-t', String(duration), '-i', 'anullsrc=r=44100:cl=stereo'];
+
   const fadeOut = Math.max(0, Number(config.cards.se?.fadeOut || 0));
   const fadeStart = Math.max(0, duration - fadeOut);
-  const audioFilters = [`[${audioIndex}:a]atrim=0:${duration}`];
-  if (fadeOut > 0) audioFilters.push(`afade=t=out:st=${fadeStart}:d=${fadeOut}`);
-  audioFilters.push('aresample=44100', 'aformat=sample_fmts=fltp:channel_layouts=stereo', 'apad', `atrim=0:${duration}[a]`);
-  filters.push(audioFilters.join(','));
+  const filters = [`[${audioIndex}:a]atrim=0:${duration}`];
+  if (fadeOut > 0) {
+    filters.push(`afade=t=out:st=${fadeStart}:d=${fadeOut}`);
+  }
+  filters.push('aresample=44100', 'aformat=sample_fmts=fltp:channel_layouts=stereo', 'apad', `atrim=0:${duration}[a]`);
 
-  args.push(
-    '-filter_complex', filters.join(';'),
+  return { inputs, filter: filters.join(',') };
+}
+
+export function buildCardCommand({ assPath, outPath, config, size, duration, thumbnail }) {
+  const video = buildCardVideoGraph({ assPath, config, size, duration, thumbnail });
+  const audio = buildCardAudioGraph({ config, duration, audioIndex: video.inputCount });
+
+  return [
+    '-y',
+    ...video.inputs,
+    ...audio.inputs,
+    '-filter_complex', [...video.filters, audio.filter].join(';'),
     '-map', '[v]',
     '-map', '[a]',
     ...encodeArgs(config),
     outPath,
-  );
-  return args;
+  ];
 }
 
 function backgroundInput(config, size, duration) {
@@ -287,6 +325,8 @@ function backgroundInput(config, size, duration) {
     const video = optionalAsset(bg.video, 'カード背景動画');
     if (video) {
       return {
+        kind: 'video',
+        path: video,
         args: ['-stream_loop', '-1', '-t', String(duration), '-i', video],
         videoFilter: normalize,
       };
@@ -296,6 +336,8 @@ function backgroundInput(config, size, duration) {
     const image = optionalAsset(bg.image, 'カード背景画像');
     if (image) {
       return {
+        kind: 'image',
+        path: image,
         args: ['-loop', '1', '-t', String(duration), '-i', image],
         videoFilter: normalize,
       };
@@ -305,6 +347,8 @@ function backgroundInput(config, size, duration) {
     const c0 = (bg.gradient?.c0 || bg.color || '0E7A34').replace(/^#/, '');
     const c1 = (bg.gradient?.c1 || bg.color || '064D20').replace(/^#/, '');
     return {
+      kind: 'gradient',
+      path: null,
       args: ['-f', 'lavfi', '-t', String(duration), '-i', `gradients=s=${size.width}x${size.height}:r=${size.fps}:c0=0x${c0}:c1=0x${c1}:nb_colors=2`],
       videoFilter: `setsar=1,fps=${size.fps}`,
     };
@@ -312,7 +356,16 @@ function backgroundInput(config, size, duration) {
 
   const color = (bg.color || '0E7A34').replace(/^#/, '');
   return {
+    kind: 'color',
+    path: null,
     args: ['-f', 'lavfi', '-t', String(duration), '-i', `color=c=0x${color}:s=${size.width}x${size.height}:r=${size.fps}`],
     videoFilter: `setsar=1,fps=${size.fps}`,
   };
+}
+
+function cardSourcePath(config) {
+  const bg = config.cards.background || {};
+  if (bg.type === 'video' && bg.video) return resolveProjectPath(bg.video);
+  if (bg.type === 'image' && bg.image) return resolveProjectPath(bg.image);
+  return null;
 }

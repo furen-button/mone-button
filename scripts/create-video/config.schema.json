@@ -118,6 +118,35 @@
             "align": { "$ref": "#/$defs/align" },
             "size": { "$ref": "#/$defs/size" },
             "font": { "$ref": "#/$defs/font" },
+            "autoShrink": {
+              "type": "boolean",
+              "default": true,
+              "description": "複数行タイトルのとき、タイトルバーの高さ上限に収まる最大フォントサイズへ自動縮小する。"
+            },
+            "minSize": { "$ref": "#/$defs/size", "description": "タイトル autoShrink の下限。0〜1で画面高さ比、1超で px。" },
+            "maxHeight": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "default": 0.09,
+              "description": "タイトル autoShrink の目標上限。0〜1 は画面高さに対する割合（例 0.09=9%）、1超で px。"
+            },
+            "marginH": {
+              "type": "number",
+              "default": 0.035,
+              "description": "タイトルの左右マージン（幅に対する割合）。折り返し幅に使う。2行タイトルが日付・進行表示と重なる場合は 0.16 程度に広げる。"
+            },
+            "marginV": { "type": "number", "description": "上下マージン（高さに対する割合、既定0.045）。配置に使用。同じ隅に複数のテロップを縦に並べるときに使う。" },
+            "text": {
+              "type": ["string", "null"],
+              "default": null,
+              "description": "全クリップ共通のタイトル文言。null でクリップ/動画メタデータのタイトルを使う。"
+            },
+            "overrides": {
+              "type": "object",
+              "default": {},
+              "additionalProperties": { "type": "string" },
+              "description": "videoId ごとのタイトル文言上書き。手動改行は \\n を含む文字列で指定できる。"
+            },
             "color": { "$ref": "#/$defs/color" },
             "box": { "$ref": "#/$defs/box" },
             "fade": { "$ref": "#/$defs/fadeMs" }
@@ -132,7 +161,9 @@
             "align": { "$ref": "#/$defs/align" },
             "size": { "$ref": "#/$defs/size" },
             "font": { "$ref": "#/$defs/font" },
-            "color": { "$ref": "#/$defs/color" }
+            "color": { "$ref": "#/$defs/color" },
+            "marginH": { "type": "number", "description": "左右マージン（幅に対する割合、既定0.035）。配置に使用。" },
+            "marginV": { "type": "number", "description": "上下マージン（高さに対する割合、既定0.045）。配置に使用。同じ隅に複数のテロップを縦に並べるときに使う。" }
           }
         },
         "time": {
@@ -144,7 +175,9 @@
             "align": { "$ref": "#/$defs/align" },
             "size": { "$ref": "#/$defs/size" },
             "font": { "$ref": "#/$defs/font" },
-            "color": { "$ref": "#/$defs/color" }
+            "color": { "$ref": "#/$defs/color" },
+            "marginH": { "type": "number", "description": "左右マージン（幅に対する割合、既定0.035）。配置に使用。" },
+            "marginV": { "type": "number", "description": "上下マージン（高さに対する割合、既定0.045）。配置に使用。同じ隅に複数のテロップを縦に並べるときに使う。" }
           }
         },
         "serif": { "$ref": "#/$defs/serifStyle" },
@@ -158,6 +191,8 @@
             "size": { "$ref": "#/$defs/size" },
             "font": { "$ref": "#/$defs/font" },
             "color": { "$ref": "#/$defs/color" },
+            "marginH": { "type": "number", "description": "左右マージン（幅に対する割合、既定0.035）。配置に使用。" },
+            "marginV": { "type": "number", "description": "上下マージン（高さに対する割合、既定0.045）。配置に使用。同じ隅に複数のテロップを縦に並べるときに使う。" },
             "format": { "type": "string", "default": "{i} / {n}", "description": "表示書式。{i}=現在番号 / {n}=総数。" },
             "bar": { "type": "boolean", "default": true, "description": "進行バーを表示するか。" }
           }
@@ -310,6 +345,158 @@
         }
       }
     },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "YouTube 公開用メタデータの生成。出力 mp4 と同じ場所へ .youtube.txt / .comment.txt / .meta.json を書き出す。",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "メタデータ生成の有無。false でも動画は生成する。"
+        },
+        "intro": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "概要欄の冒頭に置く導入文。未指定なら省く。"
+        },
+        "notice": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "非公式表記などの注意書き。導入文の直後に置く。未指定なら省く。"
+        },
+        "siteUrl": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "もねボタンの URL。未指定なら「▼ボタンで遊べるサイト」節ごと省く。"
+        },
+        "officialChannelUrl": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "公式チャンネルの URL。未指定なら「▼公式チャンネル」節ごと省く。"
+        },
+        "footer": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "概要欄の末尾へ追加する任意の段落。ハッシュタグやクレジットなど。"
+        },
+        "titleCandidates": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "動画タイトル案。.meta.json にのみ出力し、概要欄には出さない。"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "YouTube のタグ。.meta.json にのみ出力する。"
+        },
+        "maxChars": {
+          "type": "number",
+          "minimum": 0,
+          "default": 5000,
+          "description": "概要欄と固定コメントの文字数上限。概要欄は超過を警告するだけ、固定コメントは分割する。0 で無効。"
+        },
+        "chapters": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "チャプター生成。境界は直前のクリップと videoId が変わった位置。",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "チャプター節を概要欄に出すかどうか。"
+            },
+            "minSec": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "default": 10,
+              "description": "1 チャプターの最短秒数。これ未満の区間は隣へ吸収する。YouTube の要件は 10 秒。"
+            },
+            "labels": {
+              "type": "object",
+              "additionalProperties": { "type": "string" },
+              "default": {},
+              "description": "videoId ごとのチャプター名の上書き。未指定なら配信タイトルから【】を整形して使う。"
+            }
+          }
+        }
+      }
+    },
+    "qc": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "生成動画の自動品質レビュー設定。--qc で生成直後レビューを有効にする。manifest=false で render.json の出力だけを抑止できる。",
+      "properties": {
+        "enabled": { "type": "boolean", "default": false, "description": "createVideo の生成前 L0 / 生成後 L1 QC を実行するか。CLI の --qc / --no-qc で上書き可。" },
+        "manifest": { "type": "boolean", "default": true, "description": "output/<name>.render.json を出力するか。false では manifest 出力を抑止する。" },
+        "python": { "type": "string", "default": "python3", "description": "A/V 同期や pHash など Python 補助スクリプトを実行するコマンド。numpy/cv2 が無ければ該当検査だけ info skip。" },
+        "signature": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "出力 mp4 に求める固定ストリーム署名。解像度/fps は manifest または output 設定と比較する。",
+          "properties": {
+            "pixFmt": { "type": "string", "default": "yuv420p", "description": "映像 pix_fmt の期待値。" },
+            "sampleRate": { "type": "number", "exclusiveMinimum": 0, "default": 44100, "description": "音声サンプルレートの期待値。" },
+            "channels": { "type": "number", "exclusiveMinimum": 0, "default": 2, "description": "音声チャンネル数の期待値。" }
+          }
+        },
+        "thresholds": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "QC のしきい値。error/warn の段階はコード側の検査定義に従う。",
+          "properties": {
+            "durationFrames": { "type": "number", "minimum": 0, "default": 1, "description": "総尺ずれを許容するフレーム数。" },
+            "driftMs": { "type": "number", "minimum": 0, "default": 50, "description": "A/V 同期ずれの許容ミリ秒。" },
+            "avGapMs": { "type": "number", "minimum": 0, "default": 50, "description": "音声ストリーム尺と映像ストリーム尺の差の許容ミリ秒。" },
+            "audioHoleMs": { "type": "number", "minimum": 0, "default": 10, "description": "音声パケットの pts の穴（合計）の許容ミリ秒。穴以降の音声が遅れる。" },
+            "phashDistance": { "type": "number", "minimum": 0, "default": 12, "description": "クリップ同一性 pHash の許容ハミング距離。" },
+            "integratedLufsMin": { "type": "number", "default": -25, "description": "全体 Integrated LUFS の下限。取り込み側の EBU R128 / -23 LUFS に合わせる。" },
+            "integratedLufsMax": { "type": "number", "default": -21, "description": "全体 Integrated LUFS の上限。取り込み側の EBU R128 / -23 LUFS に合わせる。" },
+            "truePeakMax": { "type": "number", "default": -1, "description": "True Peak の上限 dBTP。" },
+            "segmentLufsRange": { "type": "number", "minimum": 0, "default": 3, "description": "クリップ間 LUFS レンジの許容 LU。" },
+            "collisionAreaRatio": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.2, "description": "テロップ衝突とみなす重なり面積比（小さい方の矩形に対する比）。" },
+            "silenceMinDuration": { "type": "number", "minimum": 0, "default": 0.8, "description": "無音警告の最短秒数。" },
+            "blackMinDuration": { "type": "number", "minimum": 0, "default": 0.5, "description": "黒画面検出の最短秒数。" },
+            "freezeMinDuration": { "type": "number", "minimum": 0, "default": 0.5, "description": "フリーズ検出の最短秒数。" },
+            "telopFillRatio": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.3, "description": "テロップ矩形内で boxFill 色に近い画素の最低一致率。" },
+            "telopColorDistance": { "type": "number", "minimum": 0, "default": 60, "description": "boxFill 色一致とみなす RGB 距離。" },
+            "telopMinOpacity": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.9, "description": "焼き込み判定を行うボックス opacity の下限。これ未満は半透明として判定をスキップする。" },
+            "chapterDriftSec": { "type": "number", "minimum": 0, "default": 1, "description": "概要欄チャプター時刻と実測境界の許容秒数。" },
+            "minSyncCorrelation": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.15, "description": "A/V 同期の相互相関を採用する最低相関。" }
+          }
+        },
+        "contact": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "コンタクトシート（代表フレーム一覧 PNG）の設定。npm run qc の --contact / --review で使う。",
+          "properties": {
+            "cellWidth": { "type": "number", "minimum": 80, "default": 480, "description": "1 マスの横幅(px)。" },
+            "columns": { "type": "number", "minimum": 1, "default": 4, "description": "横に並べるマス数。" },
+            "fontFile": { "type": ["string", "null"], "default": null, "description": "マス番号ラベルの描画に使うフォントファイル。null で既定候補から自動選択し、見つからなければラベルなしで続行する。" }
+          }
+        },
+        "review": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "コンタクトシートを claude CLI に読ませる目視レビュー。非決定的なので QC の合否には反映しない。",
+          "properties": {
+            "claudeBin": { "type": "string", "default": "claude", "description": "claude CLI のパス。見つからなければレビューを skip する。" },
+            "timeoutMs": { "type": "number", "minimum": 1000, "default": 300000, "description": "レビュー 1 回のタイムアウト(ms)。" }
+          }
+        },
+        "static": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "生成前 L0 静的検査の設定。",
+          "properties": {
+            "maxSerifLines": { "type": "integer", "minimum": 1, "default": 4, "description": "セリフテロップの推奨最大行数。超過時は warn。" }
+          }
+        }
+      }
+    },
     "effects": {
       "type": "object",
       "additionalProperties": false,
@@ -371,6 +558,21 @@
                 "silenceFloor": { "type": "number", "default": -60.0, "description": "全窓がこの dB 以下なら無音としてスキップ。" }
               }
             }
+          }
+        },
+        "enhance": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "アニメ向け線補正。Anime4K の GLSL シェーダを ffmpeg の libplacebo フィルタで掛け、1080p cache の YouTube 圧縮ボケを整える。scale+pad+fps の後に等倍の復元（restore）を入れ、zoom の切り出し後の拡大を CNN（upscale）に置き換える。libplacebo が Vulkan（MoltenVK）を使えない環境では警告して補正なしで続行する。CLI の --enhance / --no-enhance で ON/OFF。",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false, "description": "補正を有効にするか。false では従来どおりのフィルタ列になる。" },
+            "backend": { "type": "string", "enum": ["anime4k"], "default": "anime4k", "description": "補正エンジン。現状 anime4k（libplacebo + Anime4K GLSL）のみ。" },
+            "shadersDir": { "type": ["string", "null"], "default": null, "description": "Anime4K_*.glsl の置き場。null なら cache/createVideo/tools/anime4k/glsl に release zip を自動取得して展開する。" },
+            "restore": { "type": ["string", "null"], "default": "Restore_CNN_M", "description": "等倍の線復元シェーダ名（Anime4K_ 接頭辞と .glsl を除く）。Restore_CNN_{S,M,L,VL,UL} / Restore_CNN_Soft_{S,M,L,VL,UL}。null で復元なし。" },
+            "upscale": { "type": ["string", "null"], "default": "Upscale_CNN_x2_M", "description": "zoom の切り出し後の拡大に使うシェーダ名。Upscale_CNN_x2_{S,M,L,VL,UL} など。null なら従来の lanczos。" },
+            "clampHighlights": { "type": "boolean", "default": true, "description": "Anime4K_Clamp_Highlights を先頭に付け、復元・拡大で元より明るくならないように抑える。" },
+            "minSourceHeight": { "type": "integer", "minimum": 1, "default": 720, "description": "この高さ未満のソースには掛けない（public/videos の 144p は対象外）。clip JSON の effects.enhance=true では無視する。" },
+            "required": { "type": "boolean", "default": false, "description": "true なら libplacebo 不可・シェーダ欠落を error にして生成を止める。false では警告して補正なしで続行する。" }
           }
         }
       }
@@ -461,11 +663,22 @@
         "karaoke": { "type": "boolean", "default": false, "description": "カラオケ風に1文字ずつ表示するか。" },
         "marginH": {
           "type": "number",
-          "description": "左右マージン（幅に対する割合、既定0.08）。※ cards.serif でのみ有効（動画中セリフは内部計算）。"
+          "description": "左右マージン（幅に対する割合、既定0.08）。折り返し幅と配置に使用。"
         },
         "marginV": {
           "type": "number",
-          "description": "上下マージン（高さに対する割合、既定0.08）。※ cards.serif でのみ有効。"
+          "description": "上下マージン（高さに対する割合、既定0.045。serif は 0.08）。配置に使用。"
+        },
+        "avoidFace": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "顔検出でセリフボックスが演者の顔と重なるクリップだけ、顔の無い側へ寄せて幅を狭める。ボックスは画面下端に張り付いていて下へ逃がせないため、左右どちらか広い側に収める。クリップ JSON の effects.avoidFace で個別に false / true / {\"side\": \"left\"|\"right\"} を指定できる。",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true, "description": "有効にするか。CLI の --avoid-face / --no-avoid-face で上書き可。" },
+            "gap": { "type": "number", "minimum": 0, "default": 0.0125, "description": "顔とボックスの間隔（幅比）。" },
+            "minWidth": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.45, "description": "狭めたボックス幅の下限（幅比）。満たせなければ全幅のままにし、QC が warn で知らせる。" },
+            "frames": { "type": "integer", "minimum": 1, "default": 3, "description": "顔検出に使うフレーム数。クリップ全体に散らして抜き、検出した顔はすべてまとめて避ける。" }
+          }
         }
       }
     }

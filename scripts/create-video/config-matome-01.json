@@ -259,6 +259,26 @@
       "listClips": false
     }
   },
+  "summary": {
+    "intro": "にじさんじ所属・梢桃音さんの配信から名場面をまとめました。",
+    "notice": "※このチャンネルは非公式のファン制作です。",
+    "siteUrl": null,
+    "officialChannelUrl": null,
+    "titleCandidates": [
+      "【梢桃音】初配信から3Dお披露目までの名場面集【にじさんじ切り抜き】",
+      "梢桃音さんの名場面まとめ #1 初配信〜3Dお披露目"
+    ],
+    "tags": [
+      "梢桃音",
+      "にじさんじ",
+      "切り抜き",
+      "名場面",
+      "まとめ"
+    ],
+    "chapters": {
+      "labels": {}
+    }
+  },
   "effects": {
     "zoom": {
       "enabled": true,

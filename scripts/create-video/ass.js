@@ -2,9 +2,33 @@ import { ALIGN, assOverrideColor, rgbToAssBgr } from './config.js';
 
 // ボックス高さ算出とフォント自動縮小で共有する行送り係数。
 const LINE_HEIGHT = 1.25;
+const KINSOKU_BACKTRACK_LIMIT = 4;
+const KINSOKU_MIN_TAIL_UNITS = 6;
+const KINSOKU_TAIL_MOVE_LIMIT = 6;
+
+const LINE_START_KINSOKU_CHARS = new Set([
+  ...'、。，．・：；？！‼⁉ゝゞヽヾ々ー〜）〕］｝〉》」』】〙〗〟\'"｠»%‰℃°',
+  ...'ぁぃぅぇぉっゃゅょゎゕゖァィゥェォッャュョヮヵヶ',
+  ...',.:;?!)]}｡｣､･ｰﾞﾟ',
+]);
+const RAW_LINE_END_KINSOKU_CHARS = [
+  ...'（〔［｛〈《「『【〘〖〝\'"｟«([{｢',
+];
+// 行頭禁則と行末禁則の実運用集合は必ず素集合に保つ。
+// ASCII の引用符は開き/閉じの文脈を持てないため、重複回避として行頭側で扱う。
+const LINE_END_KINSOKU_CHARS = new Set(
+  RAW_LINE_END_KINSOKU_CHARS.filter((ch) => !LINE_START_KINSOKU_CHARS.has(ch)),
+);
+for (const ch of LINE_END_KINSOKU_CHARS) {
+  if (LINE_START_KINSOKU_CHARS.has(ch)) {
+    throw new Error(`禁則集合が重複しています: ${ch}`);
+  }
+}
 
 export function formatDate(dateStr) {
-  if (!dateStr || dateStr.length !== 8) return dateStr || '';
+  if (!dateStr || dateStr.length !== 8) {
+    return dateStr || '';
+  }
   return `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`;
 }
 
@@ -18,11 +42,14 @@ export function formatTimestamp(seconds) {
 }
 
 export function stripEmoji(text) {
-  if (!text) return '';
+  if (!text) {
+    return '';
+  }
   return text
     .replace(/\p{Extended_Pictographic}/gu, '')
     .replace(/[️‍\u{1F3FB}-\u{1F3FF}]/gu, '')
-    .replace(/\s{2,}/g, ' ')
+    .replace(/[^\S\r\n]{2,}/g, ' ')
+    .replace(/[^\S\r\n]*\r?\n[^\S\r\n]*/g, '\n')
     .trim();
 }
 
@@ -33,8 +60,34 @@ export function charWidth(ch) {
   return 1;
 }
 
-export function wrapText(text, maxUnits) {
-  if (maxUnits <= 0) return text;
+export function wrapText(text, maxUnits, { kinsoku = true } = {}) {
+  const input = String(text);
+  if (maxUnits <= 0) {
+    return normalizeWrappedLines(input.split(/\r?\n/)).join('\n');
+  }
+
+  const out = [];
+  for (const segment of input.split(/\r?\n/)) {
+    if (segment === '') {
+      out.push('');
+      continue;
+    }
+    out.push(...wrapSegment(segment, maxUnits, { kinsoku }));
+  }
+  return normalizeWrappedLines(out).join('\n');
+}
+
+function wrapSegment(segment, maxUnits, { kinsoku }) {
+  if (kinsoku && maxUnits >= 4) {
+    const legacy = wrapSegmentLegacy(segment, maxUnits);
+    const wrapped = wrapSegmentWithKinsoku(segment, maxUnits);
+    // 行数が増えるくらいなら禁則は諦める。その legacy 側にも空白が残りうるので採用後にトリムする。
+    return trimLineEdges(wrapped.length <= legacy.length ? wrapped : legacy);
+  }
+  return wrapSegmentLegacy(segment, maxUnits);
+}
+
+function wrapSegmentLegacy(segment, maxUnits) {
   const out = [];
   let line = '';
   let width = 0;
@@ -46,16 +99,14 @@ export function wrapText(text, maxUnits) {
     lastSpace = -1;
   };
 
-  for (const ch of String(text)) {
-    if (ch === '\n') {
-      flush();
-      continue;
-    }
+  for (const ch of String(segment)) {
     line += ch;
     width += charWidth(ch);
-    if (ch === ' ') lastSpace = line.length - 1;
+    if (ch === ' ') {
+      lastSpace = line.length - 1;
+    }
     if (width >= maxUnits) {
-      if (lastSpace > 0 && lastSpace < line.length - 1) {
+      if (shouldBreakAtSpace(line, lastSpace)) {
         const rest = line.slice(lastSpace + 1);
         out.push(line.slice(0, lastSpace));
         line = rest;
@@ -67,11 +118,175 @@ export function wrapText(text, maxUnits) {
     }
   }
   if (line) out.push(line);
-  return out.join('\n');
+  return out;
+}
+
+function wrapSegmentWithKinsoku(segment, maxUnits) {
+  const chars = [...String(segment)];
+  const out = [];
+  let start = 0;
+  while (start < chars.length) {
+    const br = measureBreak(chars, start, maxUnits);
+    if (br.cut >= chars.length) {
+      out.push(chars.slice(start).join(''));
+      break;
+    }
+
+    let cut = br.cut;
+    let nextStart = br.nextStart;
+    if (!br.bySpace) {
+      cut = adjustKinsokuBreak(chars, start, cut);
+      nextStart = cut;
+    }
+    if (cut <= start) {
+      cut = br.cut;
+      nextStart = br.nextStart;
+    }
+
+    out.push(chars.slice(start, cut).join(''));
+    start = nextStart;
+  }
+  return rebalanceShortTail(out, maxUnits);
+}
+
+// \an5 の中央寄せでは行頭・行末の空白がその行だけ中心をずらすため、折り返し後に落とす。
+// 禁則の後退や短い最終行の再調整で、区切りに使った空白が行端に残ることがある。
+function trimLineEdges(lines) {
+  return lines.map((line) => line.replace(/^[ \u3000]+|[ \u3000]+$/g, ''));
+}
+
+function measureBreak(chars, start, maxUnits) {
+  let width = 0;
+  let lastSpace = -1;
+  for (let i = start; i < chars.length; i++) {
+    const ch = chars[i];
+    width += charWidth(ch);
+    if (ch === ' ') {
+      lastSpace = i;
+    }
+    if (width >= maxUnits) {
+      if (lastSpace > start && lastSpace < i) {
+        return { cut: lastSpace, nextStart: lastSpace + 1, bySpace: true };
+      }
+      return { cut: i + 1, nextStart: i + 1, bySpace: false };
+    }
+  }
+  return { cut: chars.length, nextStart: chars.length, bySpace: false };
+}
+
+function adjustKinsokuBreak(chars, start, cut) {
+  if (!violatesKinsoku(chars, cut)) {
+    return cut;
+  }
+  for (let back = 1; back <= KINSOKU_BACKTRACK_LIMIT; back++) {
+    const candidate = cut - back;
+    if (candidate <= start) {
+      break;
+    }
+    if (!violatesKinsoku(chars, candidate)) {
+      return candidate;
+    }
+  }
+  return cut;
+}
+
+function violatesKinsoku(chars, cut) {
+  return (
+    LINE_END_KINSOKU_CHARS.has(chars[cut - 1]) ||
+    (cut < chars.length && LINE_START_KINSOKU_CHARS.has(chars[cut]))
+  );
+}
+
+function rebalanceShortTail(lines, maxUnits) {
+  if (lines.length < 2) {
+    return lines;
+  }
+  const minTail = Math.min(KINSOKU_MIN_TAIL_UNITS, maxUnits);
+  const tail = lines.at(-1);
+  if (measureWidth(tail) >= minTail) {
+    return lines;
+  }
+
+  const prev = lines.at(-2);
+  const prevChars = [...prev];
+  const tailChars = [...tail];
+  for (let move = 1; move <= KINSOKU_TAIL_MOVE_LIMIT; move++) {
+    const cut = prevChars.length - move;
+    if (cut <= 0) {
+      break;
+    }
+    const nextTail = [...prevChars.slice(cut), ...tailChars];
+    if (measureWidth(nextTail.join('')) > maxUnits) {
+      continue;
+    }
+    if (violatesKinsoku([...prevChars, ...tailChars], cut)) {
+      continue;
+    }
+    if (measureWidth(nextTail.join('')) >= minTail) {
+      return [
+        ...lines.slice(0, -2),
+        prevChars.slice(0, cut).join(''),
+        nextTail.join(''),
+      ];
+    }
+  }
+  return lines;
+}
+
+function measureWidth(text) {
+  return [...String(text)].reduce((sum, ch) => sum + charWidth(ch), 0);
+}
+
+function shouldBreakAtSpace(line, lastSpace) {
+  return lastSpace > 0 && lastSpace < line.length - 1;
+}
+
+function normalizeWrappedLines(lines) {
+  const out = [];
+  for (const line of lines) {
+    if (line === '' && out.at(-1) === '') {
+      continue;
+    }
+    out.push(line);
+  }
+  while (out[0] === '') {
+    out.shift();
+  }
+  while (out.at(-1) === '') {
+    out.pop();
+  }
+  return out;
 }
 
 export function maxUnitsFor(width, marginL, marginR, size) {
   return Math.floor(((width - marginL - marginR) / size) * 0.97);
+}
+
+export function boxHeightFor(lines, fs, pad, border) {
+  return Math.round(lines * fs * LINE_HEIGHT + pad * 2 + border * 2);
+}
+
+export function countLines(text) {
+  return String(text || '').split(/\r?\n|\\N/).length;
+}
+
+export function resolveTitleText({ clip, config, titleOverride }) {
+  const meta = clip?.meta || {};
+  const videoId = clip?.videoId || clip?.data?.videoId || meta.videoId;
+  if (titleOverride) {
+    return titleOverride;
+  }
+  const override = videoId ? config.telops.title.overrides?.[videoId] : null;
+  if (override) {
+    return override;
+  }
+  if (config.telops.title.text) {
+    return config.telops.title.text;
+  }
+  if (clip?.data?.title) {
+    return clip.data.title;
+  }
+  return stripEmoji(meta.title || '');
 }
 
 export function escapeAssText(text) {
@@ -185,23 +400,33 @@ function boxDialogues(el, width, height) {
 }
 
 function titleBar(el, width, height) {
-  const fs = fontSize(el.size, height);
-  const pad = Number(el.box.pad || 0);
-  const boxHeight = Math.max(fs + pad * 2, Math.round(height * 0.07));
-  el.textPos = { x: width / 2, y: boxHeight / 2 };
-  return shapeDialogue(el, 0, 0, width, boxHeight, el.box.fill || '000000', 0, 0, boxAlpha(el.box));
+  const rect = titleBarRect(el, width, height);
+  return shapeDialogue(el, rect.x, rect.y, rect.width, rect.height, el.box.fill || '000000', 0, 0, boxAlpha(el.box));
 }
 
-function textBoxRect(el, width, height) {
+function titleBarRect(el, width, height) {
   const fs = fontSize(el.size, height);
   const pad = Number(el.box.pad || 0);
   const border = Number(el.box.borderWidth || 0);
-  const lines = String(el.text || '').split(/\r?\n|\\N/).length;
-  const boxWidth = el.box.width || Math.round(width - (el.marginH || Math.round(width * 0.08)) * 2);
-  const boxHeight = el.box.height || Math.round(lines * fs * LINE_HEIGHT + pad * 2 + border * 2);
-  const align = el.align || 'bottom-center';
+  const boxHeight = Math.max(boxHeightFor(countLines(el.text), fs, pad, border), Math.round(height * 0.07));
+  el.textPos = { x: width / 2, y: boxHeight / 2 };
+  return { x: 0, y: 0, width, height: boxHeight };
+}
+
+export function textBoxRect(el, width, height) {
+  const fs = fontSize(el.size, height);
+  const pad = Number(el.box.pad || 0);
+  const border = Number(el.box.borderWidth || 0);
+  const lines = countLines(el.text);
   const marginH = el.marginH || Math.round(width * 0.08);
   const marginV = el.marginV || Math.round(height * 0.045);
+  // 顔を避けて左右非対称にした場合はマージンがそのままボックスの左右端になる。
+  const asymmetric = el.marginL !== undefined && el.marginR !== undefined
+    && (el.marginL !== marginH || el.marginR !== marginH);
+  const boxWidth = el.box.width
+    || (asymmetric ? Math.round(width - el.marginL - el.marginR) : Math.round(width - marginH * 2));
+  const boxHeight = el.box.height || boxHeightFor(lines, fs, pad, border);
+  const align = el.align || 'bottom-center';
   let x = marginH;
   let y = height - marginV - boxHeight;
 
@@ -210,12 +435,112 @@ function textBoxRect(el, width, height) {
   if (align.endsWith('left')) x = marginH;
   if (align.endsWith('right')) x = width - marginH - boxWidth;
   if (align.endsWith('center') || align === 'center') x = Math.round((width - boxWidth) / 2);
+  if (asymmetric) x = el.marginL;
 
   el.textPos = {
     x: x + boxWidth / 2,
     y: y + boxHeight / 2,
   };
   return { x, y, width: boxWidth, height: boxHeight };
+}
+
+export function elementRect(el, width, height) {
+  if (!el) return null;
+  if (el.box?.enabled) {
+    return rectForOutput(el.name === 'title' ? titleBarRect(el, width, height) : textBoxRect(el, width, height));
+  }
+  return elementTextRect(el, width, height);
+}
+
+export function elementTextRect(el, width, height) {
+  if (!el) return null;
+  if (el.box?.enabled && !el.textPos) {
+    if (el.name === 'title') {
+      titleBarRect(el, width, height);
+    } else {
+      textBoxRect(el, width, height);
+    }
+  }
+
+  const fs = fontSize(el.size, height);
+  const lines = String(el.text || '').split(/\r?\n|\\N/);
+  const textWidth = Math.max(1, Math.round(Math.max(...lines.map((line) => measureWidth(line))) * fs / 0.97));
+  const textHeight = Math.max(1, Math.round(lines.length * fs * LINE_HEIGHT));
+  const pos = el.textPos || alignedPosition(el.align, width, height, el.marginH, el.marginV);
+  const anchor = el.box?.enabled ? ALIGN.center : alignCode(el.align);
+  let x = pos.x;
+  let y = pos.y;
+
+  if ([8, 5, 2].includes(anchor)) x -= textWidth / 2;
+  if ([9, 6, 3].includes(anchor)) x -= textWidth;
+  if ([4, 5, 6].includes(anchor)) y -= textHeight / 2;
+  if ([1, 2, 3].includes(anchor)) y -= textHeight;
+
+  let rect = { x, y, width: textWidth, height: textHeight };
+  if (el.progress?.bar) {
+    rect = unionRects(rect, progressBarRect(el, width, height));
+  }
+  return rectForOutput(rect);
+}
+
+// 行ごとの文字矩形を返す。複数行テロップをブロックの外接矩形で扱うと、
+// 幅の広い行と、相手に重なる y 帯にある行が別物でも重なったと誤判定する
+// （3 行 serif の 2 行目が最も広く、time に近いのは短い 3 行目という実例があった）。
+// ASS の中央寄せ（\an5）は行ごとに中央へ寄せるため、行単位の矩形が実際の描画と一致する。
+export function elementTextLineRects(el, width, height) {
+  const block = elementTextRect(el, width, height);
+  if (!block) {
+    return [];
+  }
+
+  const lines = String(el.text || '').split(/\r?\n|\\N/);
+  const fs = fontSize(el.size, height);
+  const lineHeight = fs * LINE_HEIGHT;
+  // 行送りの余白（LINE_HEIGHT が 1 を超える分）は字が乗らないので、上下から差し引く。
+  // これを含めたままだと、上下に並べただけのテロップ（config-mone の title と date）が
+  // 字が離れているのに矩形だけ重なって衝突扱いになる。
+  const leading = (LINE_HEIGHT - 1) * fs / 2;
+  const blockWidth = Math.max(...lines.map((line) => measureWidth(line))) * fs / 0.97;
+  const anchor = el.box?.enabled ? ALIGN.center : alignCode(el.align);
+  const rects = [];
+
+  for (const [index, line] of lines.entries()) {
+    const lineWidth = Math.max(1, Math.round(measureWidth(line) * fs / 0.97));
+    let x = block.x;
+    if ([8, 5, 2].includes(anchor)) {
+      x = block.x + (blockWidth - lineWidth) / 2;
+    } else if ([9, 6, 3].includes(anchor)) {
+      x = block.x + (blockWidth - lineWidth);
+    }
+    rects.push(rectForOutput({
+      x,
+      y: block.y + index * lineHeight + leading,
+      width: lineWidth,
+      height: Math.max(1, Math.round(lineHeight - leading * 2)),
+    }));
+  }
+
+  if (el.progress?.bar) {
+    rects.push(rectForOutput(progressBarRect(el, width, height)));
+  }
+  return rects;
+}
+
+export function lineBreakViolations(text) {
+  const lines = String(text || '').split(/\r?\n|\\N/).filter(Boolean);
+  const violations = [];
+  for (const [index, line] of lines.entries()) {
+    const chars = [...line];
+    const head = chars[0];
+    const tail = chars.at(-1);
+    if (head && LINE_START_KINSOKU_CHARS.has(head)) {
+      violations.push({ line: index + 1, side: 'start', char: head });
+    }
+    if (tail && LINE_END_KINSOKU_CHARS.has(tail)) {
+      violations.push({ line: index + 1, side: 'end', char: tail });
+    }
+  }
+  return violations;
 }
 
 function shapeDialogue(el, x, y, width, height, fill, layerOffset, radius = 0, alpha = '') {
@@ -263,15 +588,20 @@ function roundedRectShape(w, h, radius) {
 }
 
 function progressBarDialogues(el, width, height) {
+  const rect = progressBarRect(el, width, height);
+  return [
+    shapeDialogue({ ...el, boxLayer: 0 }, rect.x, rect.y, rect.width, rect.height, 'FFFFFF', 0),
+    shapeDialogue({ ...el, boxLayer: 1 }, rect.x, rect.y, rect.filled, rect.height, el.color || 'FFFFFF', 1),
+  ];
+}
+
+function progressBarRect(el, width, height) {
   const totalWidth = Math.round(width * 0.18);
   const filled = Math.max(0, Math.min(totalWidth, Math.round(totalWidth * (el.progress.index / el.progress.total))));
   const barHeight = Math.max(5, Math.round(height * 0.009));
   const pos = alignedPosition(el.align, width, height, el.marginH, el.marginV);
   const y = pos.y + fontSize(el.size, height) * 0.8;
-  return [
-    shapeDialogue({ ...el, boxLayer: 0 }, pos.x, y, totalWidth, barHeight, 'FFFFFF', 0),
-    shapeDialogue({ ...el, boxLayer: 1 }, pos.x, y, filled, barHeight, el.color || 'FFFFFF', 1),
-  ];
+  return { x: pos.x, y, width: totalWidth, height: barHeight, filled };
 }
 
 function alignedPosition(align, width, height, marginH = Math.round(width * 0.035), marginV = Math.round(height * 0.045)) {
@@ -291,7 +621,7 @@ function alignCode(align) {
   return ALIGN[align] || ALIGN.center;
 }
 
-function fontSize(value, height) {
+export function fontSize(value, height) {
   const numeric = Number(value);
   return Math.max(1, Math.round(numeric > 0 && numeric <= 1 ? height * numeric : numeric));
 }
@@ -309,28 +639,37 @@ function karaokeText(text, duration) {
 }
 
 export function makeTextElement({ name, text, style, width, height, duration, index, total, overrides = {} }) {
-  if (!style?.enabled || !text) return null;
+  if (!style?.enabled || !text) {
+    return null;
+  }
   const baseFs = fontSize(style.size, height);
-  const marginH = overrides.marginH ?? Math.round(width * (name === 'serif' ? 0.08 : 0.035));
-  const marginV = overrides.marginV ?? Math.round(height * 0.045);
+  const defaultMarginH = name === 'serif' ? 0.08 : 0.035;
+  const marginH = overrides.marginH ?? Math.round(width * (style.marginH ?? defaultMarginH));
+  // marginH と同じく config からも指定できるようにする（schema は以前から marginV を宣言していた）。
+  const marginV = overrides.marginV ?? Math.round(height * (style.marginV ?? 0.045));
+  // 顔を避けるときだけ左右非対称になる。折り返し幅とボックス幅の両方がこれに従う。
+  const marginL = overrides.marginL ?? marginH;
+  const marginR = overrides.marginR ?? marginH;
   let fs = baseFs;
-  let wrapped = wrapText(stripEmoji(text), maxUnitsFor(width, marginH, marginH, fs));
+  const stripped = stripEmoji(text);
+  let wrapped = wrapText(stripped, maxUnitsFor(width, marginL, marginR, fs));
 
-  // 箱高さ上限に収める自動縮小。base サイズでの行数は縮小後の実行数以上なので、
-  // その行数で上限を満たす fs を選べば縮小後の箱高さは必ず上限内に収まる（反復不要）。
+  // 箱高さ上限に収める自動縮小。実際の折り返し結果を測り、収まる最大の整数 fs を選ぶ。
   if (style.autoShrink && style.box?.enabled) {
-    const lines = wrapped.split('\n').length;
+    const lines = countLines(wrapped);
     if (lines > 1) {
-      const minFs = fontSize(style.minSize ?? 0.05, height);
+      const minFs = Math.min(baseFs, fontSize(style.minSize ?? 0.05, height));
       const budget = Math.round(height * (style.maxHeight ?? 0.3));
-      const pad = Number(style.box.pad || 0);
-      const border = Number(style.box.borderWidth || 0);
-      const fitFs = Math.floor((budget - pad * 2 - border * 2) / (lines * LINE_HEIGHT));
-      fs = Math.max(minFs, Math.min(baseFs, fitFs));
-      if (fs < baseFs) {
-        // 縮小後の幅で再折り返し（自動折り返し行は減りうる＝箱はさらに上限内に収まる）。
-        wrapped = wrapText(stripEmoji(text), maxUnitsFor(width, marginH, marginH, fs));
-      }
+      ({ fs, wrapped } = fitTextToBoxHeight({
+        text: stripped,
+        width,
+        marginL,
+        marginR,
+        minFs,
+        baseFs,
+        budget,
+        box: style.box,
+      }));
     }
   }
 
@@ -349,6 +688,8 @@ export function makeTextElement({ name, text, style, width, height, duration, in
     box: style.box,
     marginH,
     marginV,
+    marginL,
+    marginR,
     duration,
     karaoke: Boolean(style.karaoke),
     ...overrides,
@@ -359,10 +700,51 @@ export function makeTextElement({ name, text, style, width, height, duration, in
   return element;
 }
 
+function fitTextToBoxHeight({ text, width, marginL, marginR, minFs, baseFs, budget, box }) {
+  const pad = Number(box.pad || 0);
+  const border = Number(box.borderWidth || 0);
+  let lo = minFs;
+  let hi = baseFs;
+  let bestFs = minFs;
+  let bestWrapped = wrapText(text, maxUnitsFor(width, marginL, marginR, minFs));
+
+  while (lo <= hi) {
+    const fs = Math.floor((lo + hi) / 2);
+    const wrapped = wrapText(text, maxUnitsFor(width, marginL, marginR, fs));
+    const boxHeight = boxHeightFor(countLines(wrapped), fs, pad, border);
+    if (boxHeight <= budget) {
+      bestFs = fs;
+      bestWrapped = wrapped;
+      lo = fs + 1;
+    } else {
+      hi = fs - 1;
+    }
+  }
+
+  return { fs: bestFs, wrapped: bestWrapped };
+}
+
 function clampFade(fade, duration) {
   const maxMs = Math.max(0, Math.floor((Number(duration) || 0) * 1000) - 50);
   if (maxMs <= 0) return [0, 0];
   return [Math.min(Number(fade[0] || 0), maxMs), Math.min(Number(fade[1] || 0), maxMs)];
+}
+
+function rectForOutput(rect) {
+  return {
+    x: Math.round(rect.x),
+    y: Math.round(rect.y),
+    w: Math.round(rect.width),
+    h: Math.round(rect.height),
+  };
+}
+
+function unionRects(a, b) {
+  const x1 = Math.min(a.x, b.x);
+  const y1 = Math.min(a.y, b.y);
+  const x2 = Math.max(a.x + a.width, b.x + b.width);
+  const y2 = Math.max(a.y + a.height, b.y + b.height);
+  return { x: x1, y: y1, width: x2 - x1, height: y2 - y1 };
 }
 
 export { rgbToAssBgr };

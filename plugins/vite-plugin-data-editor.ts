@@ -3,6 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Plugin } from 'vite'
+import { assertLocalRequest, readBody, sendJson } from './lib/dev-http'
 
 // dev サーバ専用: public/data/*.json の serif/ruby/memo/categories を書き戻すミドルウェアと、
 // クリップ（json + mp4）を trash/ へ退避する削除ミドルウェア。
@@ -27,23 +28,6 @@ type SavePayload = {
   ruby?: unknown
   memo?: unknown
   categories?: unknown
-}
-
-function readBody(req: IncomingMessage): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = []
-    req.on('data', (chunk: Buffer) => {
-      chunks.push(chunk)
-    })
-    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')))
-    req.on('error', reject)
-  })
-}
-
-function sendJson(res: ServerResponse, status: number, body: unknown): void {
-  res.statusCode = status
-  res.setHeader('Content-Type', 'application/json; charset=utf-8')
-  res.end(JSON.stringify(body))
 }
 
 // fileBaseName を検証し public/data 直下の既存 json パスを返す。不正時はレスポンスを返して null。
@@ -82,6 +66,10 @@ function moveToTrash(sourcePath: string, subDir: string): string {
 }
 
 async function handleDelete(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  if (!assertLocalRequest(req, res)) {
+    return
+  }
+
   try {
     const payload = JSON.parse(await readBody(req)) as DeletePayload
     const filePath = resolveDataFile(payload.fileBaseName, res)
@@ -103,6 +91,10 @@ async function handleDelete(req: IncomingMessage, res: ServerResponse): Promise<
 }
 
 async function handleSave(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  if (!assertLocalRequest(req, res)) {
+    return
+  }
+
   try {
     const payload = JSON.parse(await readBody(req)) as SavePayload
 

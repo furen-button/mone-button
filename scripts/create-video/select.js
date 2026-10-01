@@ -2,15 +2,20 @@ import fs from 'fs';
 import path from 'path';
 import { dataDir } from './assets.js';
 
-export function collectClips(config) {
+// public/data の全クリップをファイル名順に読む。選択前の母集団で、エディタのカタログ表示にも使う。
+export function readAllClips() {
   if (!fs.existsSync(dataDir)) {
     throw new Error(`データディレクトリがありません: ${dataDir}`);
   }
 
-  const all = fs.readdirSync(dataDir)
+  return fs.readdirSync(dataDir)
     .filter((file) => file.endsWith('.json'))
     .sort()
     .map((file) => readClip(file));
+}
+
+export function collectClips(config) {
+  const all = readAllClips();
 
   let selected;
   switch (config.select.mode) {
