@@ -22,6 +22,7 @@ import { useVolume } from './hooks/useVolume'
 import { LocaleProvider } from './i18n'
 import { deleteClipData } from './lib/devDataEditor'
 import { trackSortChange, trackYoutubeLinkClick } from './lib/analytics'
+import { withVideoCacheBust } from './lib/videoPath'
 import {
   categoryCounts,
   categoryOptions,
@@ -35,6 +36,10 @@ import {
 // ClipEditModal を含む編集 UI は tree-shake で除去される。
 const enableDevEditor = import.meta.env.DEV
 
+type ClipSavedOptions = {
+  cacheBustVideo?: boolean
+}
+
 function App() {
   const appShellRef = useRef<HTMLElement>(null)
 
@@ -44,10 +49,12 @@ function App() {
   const { selectedCategories, toggleCategory, selectAllCategories, clearAllCategories } = useCategoryFilter()
 
   const [sortType, setSortType] = useState<SortType>('reading')
+  const [videoVersions, setVideoVersions] = useState<Record<string, number>>({})
   const { sortedClips, streamGroups, clipIndexMap, applyClipOverride, removeClip } = useClipCollection({
     selectedCategories,
     sortType,
     playCounts,
+    videoVersions,
   })
   const playback = usePlayback({ sortedClips, clipIndexMap, appShellRef })
   const { volume, setVolume } = useVolume(appShellRef, playback.floatingClips)
@@ -71,13 +78,42 @@ function App() {
 
   // dev 編集の保存結果をローカル state へ反映（一覧・情報モーダルに即時反映）。
   const handleClipSaved = useCallback(
-    (fileBaseName: string, updated: VoiceData) => {
+    (fileBaseName: string, updated: VoiceData, options?: ClipSavedOptions) => {
+      const nextVideoVersion = options?.cacheBustVideo ? Date.now() : undefined
+      if (nextVideoVersion) {
+        setVideoVersions((current) => ({ ...current, [fileBaseName]: nextVideoVersion }))
+      }
       applyClipOverride(fileBaseName, updated)
       setInfoClip((current) =>
-        current && current.fileBaseName === fileBaseName ? { ...current, ...updated } : current,
+        current && current.fileBaseName === fileBaseName
+          ? {
+              ...current,
+              ...updated,
+              videoPath: withVideoCacheBust(current.videoPath, nextVideoVersion),
+            }
+          : current,
+      )
+      setEditClip((current) =>
+        current && current.fileBaseName === fileBaseName
+          ? {
+              ...current,
+              ...updated,
+              videoPath: withVideoCacheBust(current.videoPath, nextVideoVersion),
+            }
+          : current,
       )
     },
     [applyClipOverride],
+  )
+
+  const handleOpenEdit = useCallback(
+    (clip: VoiceClip) => {
+      setEditClip({
+        ...clip,
+        videoPath: withVideoCacheBust(clip.videoPath, videoVersions[clip.fileBaseName]),
+      })
+    },
+    [videoVersions],
   )
 
   // dev 限定: json と mp4 を trash/ へ退避し、一覧から外して情報モーダルを閉じる。
@@ -153,7 +189,7 @@ function App() {
                 onClose={() => setInfoClip(null)}
                 onClickClipLink={handleInfoModalLinkClick}
                 onClickSourceVideoLink={handleInfoModalLinkClick}
-                onEdit={enableDevEditor ? setEditClip : undefined}
+                onEdit={enableDevEditor ? handleOpenEdit : undefined}
                 onDelete={enableDevEditor ? handleClipDelete : undefined}
               />
             ) : null}

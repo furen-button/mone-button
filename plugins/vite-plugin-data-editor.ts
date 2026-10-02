@@ -1,9 +1,11 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { execFile } from 'node:child_process'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Plugin } from 'vite'
 import { assertLocalRequest, readBody, sendJson } from './lib/dev-http'
+import { TrimValidationError, createTrimPlan, parseTrimPayload } from '../scripts/dev-server/lib/trim.js'
 
 // dev サーバ専用: public/data/*.json の serif/ruby/memo/categories を書き戻すミドルウェアと、
 // クリップ（json + mp4）を trash/ へ退避する削除ミドルウェア。
@@ -20,6 +22,12 @@ const EDITABLE_STRING_FIELDS = ['serif', 'ruby', 'memo'] as const
 
 type DeletePayload = {
   fileBaseName?: unknown
+}
+
+type TrimPayload = {
+  fileBaseName?: unknown
+  keepStart?: unknown
+  keepEnd?: unknown
 }
 
 type SavePayload = {
@@ -63,6 +71,106 @@ function moveToTrash(sourcePath: string, subDir: string): string {
   }
   fs.renameSync(sourcePath, destPath)
   return path.relative(path.dirname(trashDir), destPath)
+}
+
+type FfmpegTools = {
+  ffmpeg: string
+  ffprobe: string
+}
+
+type FfmpegModule = {
+  AUDIO_RESAMPLE: string
+  resolveFfmpeg: () => FfmpegTools
+  probeDuration: (ffprobe: string, filePath: string) => number
+}
+
+type AssetsModule = {
+  cacheRoot: string
+}
+
+function execFileAsync(file: string, args: string[]): Promise<void> {
+  return new Promise((resolve, reject) => {
+    execFile(file, args, { maxBuffer: 16 * 1024 * 1024 }, (error, _stdout, stderr) => {
+      if (error) {
+        reject(Object.assign(error, { stderr }))
+        return
+      }
+      resolve()
+    })
+  })
+}
+
+async function loadFfmpegModules(): Promise<{ ffmpegModule: FfmpegModule, assetsModule: AssetsModule }> {
+  const [ffmpegModule, assetsModule] = await Promise.all([
+    import(pathToFileURL(path.resolve(currentDir, '../scripts/create-video/ffmpeg.js')).href),
+    import(pathToFileURL(path.resolve(currentDir, '../scripts/create-video/assets.js')).href),
+  ])
+  return {
+    ffmpegModule: ffmpegModule as FfmpegModule,
+    assetsModule: assetsModule as AssetsModule,
+  }
+}
+
+async function trimVideoFile({
+  ffmpeg,
+  audioResample,
+  sourcePath,
+  keepStart,
+  keepEnd,
+}: {
+  ffmpeg: string
+  audioResample: string
+  sourcePath: string
+  keepStart: number
+  keepEnd: number
+}): Promise<string> {
+  const tmpPath = `${sourcePath}.trim-${process.pid}-${Date.now()}.mp4`
+  try {
+    await execFileAsync(ffmpeg, [
+      '-y',
+      '-i', sourcePath,
+      '-ss', keepStart.toFixed(6),
+      '-to', keepEnd.toFixed(6),
+      '-c:v', 'libx264',
+      '-pix_fmt', 'yuv420p',
+      '-preset', 'veryfast',
+      '-crf', '28',
+      '-c:a', 'aac',
+      '-b:a', '96k',
+      '-ar', '44100',
+      '-ac', '2',
+      '-af', audioResample,
+      '-movflags', '+faststart',
+      tmpPath,
+    ])
+    const moved = moveToTrash(sourcePath, 'videos')
+    fs.renameSync(tmpPath, sourcePath)
+    return moved
+  } catch (error) {
+    fs.rmSync(tmpPath, { force: true })
+    throw error
+  }
+}
+
+function cacheVideoPath(cacheRoot: string, videoId: unknown, fileBaseName: string): string | null {
+  if (typeof videoId !== 'string' || !/^[\w-]+$/.test(videoId)) {
+    return null
+  }
+  return path.join(cacheRoot, videoId, `${fileBaseName}.mp4`)
+}
+
+function errorMessage(error: unknown): string {
+  if (error instanceof Error && 'stderr' in error) {
+    const detail = String((error as Error & { stderr?: unknown }).stderr || '')
+      .trim()
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .pop()
+    if (detail) {
+      return detail
+    }
+  }
+  return error instanceof Error ? error.message : String(error)
 }
 
 async function handleDelete(req: IncomingMessage, res: ServerResponse): Promise<void> {
@@ -128,6 +236,62 @@ async function handleSave(req: IncomingMessage, res: ServerResponse): Promise<vo
   }
 }
 
+async function handleTrim(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  if (!assertLocalRequest(req, res)) {
+    return
+  }
+
+  try {
+    const payload = JSON.parse(await readBody(req)) as TrimPayload
+    const parsed = parseTrimPayload(payload)
+
+    const filePath = resolveDataFile(parsed.fileBaseName, res)
+    if (!filePath) {
+      return
+    }
+
+    const videoPath = path.join(videosDir, `${parsed.fileBaseName}.mp4`)
+    if (!fs.existsSync(videoPath)) {
+      sendJson(res, 404, { error: 'video file not found' })
+      return
+    }
+
+    const current = JSON.parse(fs.readFileSync(filePath, 'utf8')) as Record<string, unknown>
+    const { ffmpegModule, assetsModule } = await loadFfmpegModules()
+    const tools = ffmpegModule.resolveFfmpeg()
+    const sourceDuration = ffmpegModule.probeDuration(tools.ffprobe, videoPath)
+    const plan = createTrimPlan(parsed, current, sourceDuration)
+
+    if (!plan.noop) {
+      const moved = [
+        await trimVideoFile({
+          ffmpeg: tools.ffmpeg,
+          audioResample: ffmpegModule.AUDIO_RESAMPLE,
+          sourcePath: videoPath,
+          keepStart: plan.keepStart,
+          keepEnd: plan.keepEnd,
+        }),
+      ]
+      const hqCachePath = cacheVideoPath(assetsModule.cacheRoot, plan.updated.videoId, parsed.fileBaseName)
+      if (hqCachePath && fs.existsSync(hqCachePath)) {
+        moved.push(moveToTrash(hqCachePath, path.join('cache', String(plan.updated.videoId))))
+      }
+
+      fs.writeFileSync(filePath, JSON.stringify(plan.updated, null, 2))
+      sendJson(res, 200, { updated: plan.updated, moved })
+      return
+    }
+
+    sendJson(res, 200, { updated: plan.updated, moved: [] })
+  } catch (error) {
+    if (error instanceof TrimValidationError) {
+      sendJson(res, error.status, { error: error.message })
+      return
+    }
+    sendJson(res, 500, { error: errorMessage(error) })
+  }
+}
+
 export function dataEditorPlugin(): Plugin {
   return {
     name: 'mone-data-editor',
@@ -146,6 +310,13 @@ export function dataEditorPlugin(): Plugin {
           return
         }
         void handleDelete(req, res)
+      })
+      server.middlewares.use('/__data/trim', (req, res, next) => {
+        if (req.method !== 'POST') {
+          next()
+          return
+        }
+        void handleTrim(req, res)
       })
     },
   }
