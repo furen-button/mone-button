@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { KeyboardEvent } from 'react'
 import type { VoiceClip, VoiceData } from '../../voiceData'
+import { TrimEditor } from './TrimEditor'
 
 // dev 限定のクリップ編集モーダル。本番ビルドには含めない（App 側で import.meta.env.DEV でガード）。
 // 文言はローカル開発専用のため i18n を通さず素の日本語で書く。
@@ -9,7 +10,7 @@ type ClipEditModalProps = {
   clip: VoiceClip
   categorySuggestions: string[]
   onClose: () => void
-  onSaved: (fileBaseName: string, updated: VoiceData) => void
+  onSaved: (fileBaseName: string, updated: VoiceData, options?: { cacheBustVideo?: boolean }) => void
 }
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
@@ -91,6 +92,8 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
           <h2 className="clip-edit-title">クリップ編集 <span className="clip-edit-badge">DEV</span></h2>
           <p className="clip-edit-filename">{clip.fileBaseName}.json</p>
         </header>
+
+        <TrimEditor clip={clip} onSaved={onSaved} />
 
         <label className="clip-edit-field">
           <span className="clip-edit-label">serif（セリフ）</span>

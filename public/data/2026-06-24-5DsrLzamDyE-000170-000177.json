@@ -1,0 +1,32 @@
+{
+  "videoId": "5DsrLzamDyE",
+  "serif": "あいさつ",
+  "ruby": "あいさつ",
+  "categories": [
+    "あいさつ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=5DsrLzamDyE&t=170s",
+  "memo": "",
+  "trimming": {
+    "startTime": 170.2,
+    "endTime": 177.45,
+    "duration": 7.25,
+    "original": {
+      "startTime": 170,
+      "endTime": 177.6,
+      "duration": 7.599999999999994
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "5DsrLzamDyE",
+      "title": "【くるくるくるりん】昼からくるくるくるくるくるくる🌀【にじさんじ/梢桃音】",
+      "duration": 9772,
+      "thumbnail": "https://i.ytimg.com/vi/5DsrLzamDyE/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260624",
+      "viewCount": 14748,
+      "url": "https://www.youtube.com/watch?v=5DsrLzamDyE"
+    }
+  }
+}

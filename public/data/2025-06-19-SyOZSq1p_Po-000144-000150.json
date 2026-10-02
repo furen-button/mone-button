@@ -1,0 +1,32 @@
+{
+  "videoId": "SyOZSq1p_Po",
+  "serif": "あいさつ",
+  "ruby": "あいさつ",
+  "categories": [
+    "あいさつ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=SyOZSq1p_Po&t=144s",
+  "memo": "",
+  "trimming": {
+    "startTime": 144.56,
+    "endTime": 150.05,
+    "duration": 5.49,
+    "original": {
+      "startTime": 144.56,
+      "endTime": 150.2,
+      "duration": 5.639999999999986
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "SyOZSq1p_Po",
+      "title": "【1周年記念】マリメ2｜2時間以内に視聴者応募コース3つクリア出来なかったら初配信同時視聴【にじさんじ/梢桃音】",
+      "duration": 7798,
+      "thumbnail": "https://i.ytimg.com/vi/SyOZSq1p_Po/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250619",
+      "viewCount": 30818,
+      "url": "https://www.youtube.com/watch?v=SyOZSq1p_Po"
+    }
+  }
+}

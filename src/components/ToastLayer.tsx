@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { t, useLocale } from '../i18n'
 import type { FloatingStageClip } from '../voiceData'
 
@@ -16,6 +16,10 @@ export function ToastLayer({ floatingClips, volume, isStopping, onClipEnded, onC
   const locale = useLocale()
   const [exitingClipIds, setExitingClipIds] = useState<string[]>([])
   const exitTimersRef = useRef<Map<string, number>>(new Map())
+  const activeExitingClipIds = useMemo(() => {
+    const activeIds = new Set(floatingClips.map((clip) => clip.id))
+    return new Set(exitingClipIds.filter((id) => activeIds.has(id)))
+  }, [exitingClipIds, floatingClips])
 
   const startExit = useCallback((clipId: string, reason: 'ended' | 'close') => {
     setExitingClipIds((currentIds) => {
@@ -40,20 +44,14 @@ export function ToastLayer({ floatingClips, volume, isStopping, onClipEnded, onC
   }, [onClipEnded, onCloseClip])
 
   useEffect(() => {
+    const exitTimers = exitTimersRef.current
     return () => {
-      exitTimersRef.current.forEach((timer) => {
+      exitTimers.forEach((timer) => {
         window.clearTimeout(timer)
       })
-      exitTimersRef.current.clear()
+      exitTimers.clear()
     }
   }, [])
-
-  useEffect(() => {
-    setExitingClipIds((currentIds) => {
-      const activeIds = new Set(floatingClips.map((clip) => clip.id))
-      return currentIds.filter((id) => activeIds.has(id))
-    })
-  }, [floatingClips])
 
   if (floatingClips.length === 0) {
     return null
@@ -63,7 +61,7 @@ export function ToastLayer({ floatingClips, volume, isStopping, onClipEnded, onC
     <section className="toast-layer" aria-live="polite" aria-label="Playback toast layer">
       {floatingClips.map((stageClip, index) => (
         <article
-          className={`floating-clip ${isStopping ? 'is-stopping' : ''} ${exitingClipIds.includes(stageClip.id) ? 'is-exiting' : ''}`}
+          className={`floating-clip ${isStopping ? 'is-stopping' : ''} ${activeExitingClipIds.has(stageClip.id) ? 'is-exiting' : ''}`}
           key={stageClip.id}
           style={{
             left: `${stageClip.left}px`,

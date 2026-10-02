@@ -1,0 +1,32 @@
+{
+  "videoId": "ul4VbwZggVY",
+  "serif": "あいさつ",
+  "ruby": "あいさつ",
+  "categories": [
+    "あいさつ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=ul4VbwZggVY&t=106s",
+  "memo": "",
+  "trimming": {
+    "startTime": 106.66,
+    "endTime": 111.93,
+    "duration": 5.2700000000000005,
+    "original": {
+      "startTime": 106.36,
+      "endTime": 112.18,
+      "duration": 5.820000000000007
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "ul4VbwZggVY",
+      "title": "【雑談】チルな雰囲気でお話しよ🌙最近頂いたスパチャも読みます【にじさんじ/梢桃音】",
+      "duration": 9295,
+      "thumbnail": "https://i.ytimg.com/vi/ul4VbwZggVY/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240720",
+      "viewCount": 7661,
+      "url": "https://www.youtube.com/watch?v=ul4VbwZggVY"
+    }
+  }
+}

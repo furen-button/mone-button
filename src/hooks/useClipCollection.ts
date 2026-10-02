@@ -5,16 +5,18 @@ import {
   type StreamGroup,
   type VoiceData,
 } from '../voiceData'
+import { withVideoCacheBust } from '../lib/videoPath'
 
 type UseClipCollectionArgs = {
   selectedCategories: string[]
   sortType: SortType
   playCounts: Record<string, number>
+  videoVersions: Record<string, number>
 }
 
 // クリップ一覧の派生（dev 編集の override マージ・カテゴリ絞り込み・並び替え・
 // ストリームグループ化・インデックスマップ）をまとめたフック。
-export function useClipCollection({ selectedCategories, sortType, playCounts }: UseClipCollectionArgs) {
+export function useClipCollection({ selectedCategories, sortType, playCounts, videoVersions }: UseClipCollectionArgs) {
   const [clipOverrides, setClipOverrides] = useState<Record<string, VoiceData>>({})
   const [deletedClips, setDeletedClips] = useState<ReadonlySet<string>>(() => new Set())
 
@@ -25,9 +27,10 @@ export function useClipCollection({ selectedCategories, sortType, playCounts }: 
         .filter((clip) => !deletedClips.has(clip.fileBaseName))
         .map((clip) => {
           const override = clipOverrides[clip.fileBaseName]
-          return override ? { ...clip, ...override } : clip
+          const videoPath = withVideoCacheBust(clip.videoPath, videoVersions[clip.fileBaseName])
+          return override ? { ...clip, ...override, videoPath } : { ...clip, videoPath }
         }),
-    [clipOverrides, deletedClips],
+    [clipOverrides, deletedClips, videoVersions],
   )
 
   const visibleClips = useMemo(

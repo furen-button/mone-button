@@ -22,6 +22,11 @@ export interface VoiceData {
     startTime: number
     endTime: number
     duration: number
+    original?: {
+      startTime: number
+      endTime: number
+      duration: number
+    }
   }
   videoFile: {
     metadata: {

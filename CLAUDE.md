@@ -70,6 +70,8 @@ npm run import   # sync → extract → download を一括実行
 
 注意:
 - serif / ruby / categories の入力は **youtube-clip-tool 側で行う**（取込後に上書きされない）。既存クリップの内容を直したい場合は `public/data` を直接編集するか、当該ファイルを削除して再取込する。
+- dev サイトのクリップ編集モーダルでは、波形を見ながら先頭・末尾を **短縮のみ** でトリムできる。ファイル名は変えず、旧 `public/videos` は `trash/videos`、高画質キャッシュは `trash/cache` へ退避して次回 createVideo で再 DL させる。
+- トリムすると `public/data` 全体を見ている ASS golden が変わる。意図したトリム後は `npm run golden:ass` で `scripts/create-video/__fixtures__/ass-golden.json` を更新する。
 - データは build 時に glob 取込されるため、取り込み後の表示反映には `npm run dev` または `npm run build` が必要。
 
 詳細は docs/tasks/06-19-clip-import.md を参照。

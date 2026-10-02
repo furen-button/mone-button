@@ -1,0 +1,32 @@
+{
+  "videoId": "eaPkc4NfLGI",
+  "serif": "あいさつ",
+  "ruby": "あいさつ",
+  "categories": [
+    "あいさつ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=eaPkc4NfLGI&t=159s",
+  "memo": "",
+  "trimming": {
+    "startTime": 159.73000000000002,
+    "endTime": 165.58,
+    "duration": 5.8500000000000005,
+    "original": {
+      "startTime": 159.58,
+      "endTime": 165.78,
+      "duration": 6.199999999999989
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "eaPkc4NfLGI",
+      "title": "【たこ焼き】朝起きたら無性にたこ焼きが食べたかったから食べる🐙【にじさんじ/梢桃音】",
+      "duration": 4714,
+      "thumbnail": "https://i.ytimg.com/vi/eaPkc4NfLGI/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250807",
+      "viewCount": 12096,
+      "url": "https://www.youtube.com/watch?v=eaPkc4NfLGI"
+    }
+  }
+}

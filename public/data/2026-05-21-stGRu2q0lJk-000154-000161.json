@@ -1,0 +1,32 @@
+{
+  "videoId": "stGRu2q0lJk",
+  "serif": "あいさつ",
+  "ruby": "あいさつ",
+  "categories": [
+    "あいさつ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=stGRu2q0lJk&t=154s",
+  "memo": "",
+  "trimming": {
+    "startTime": 154.9,
+    "endTime": 161.20000000000002,
+    "duration": 6.300000000000002,
+    "original": {
+      "startTime": 154.8,
+      "endTime": 161.5,
+      "duration": 6.699999999999989
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "stGRu2q0lJk",
+      "title": "【司書のお仕事：魔導図書館を片付けろ！】昼のチルタイム過ごそう📚📕【にじさんじ/梢桃音】",
+      "duration": 9277,
+      "thumbnail": "https://i.ytimg.com/vi/stGRu2q0lJk/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260521",
+      "viewCount": 13390,
+      "url": "https://www.youtube.com/watch?v=stGRu2q0lJk"
+    }
+  }
+}

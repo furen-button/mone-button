@@ -1,0 +1,32 @@
+{
+  "videoId": "Khb7App7BUU",
+  "serif": "あいさつ",
+  "ruby": "あいさつ",
+  "categories": [
+    "あいさつ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=Khb7App7BUU&t=104s",
+  "memo": "",
+  "trimming": {
+    "startTime": 104.58,
+    "endTime": 111.32,
+    "duration": 6.740000000000001,
+    "original": {
+      "startTime": 104.58,
+      "endTime": 111.52,
+      "duration": 6.939999999999998
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "Khb7App7BUU",
+      "title": "【ポケモンミリしら】学習編✏️みんなから募集したポケモン知識を学んだり想像で御三家のお絵描きしたりする！【にじさんじ/梢桃音】",
+      "duration": 5831,
+      "thumbnail": "https://i.ytimg.com/vi/Khb7App7BUU/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240823",
+      "viewCount": 33119,
+      "url": "https://www.youtube.com/watch?v=Khb7App7BUU"
+    }
+  }
+}

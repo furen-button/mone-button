@@ -1,0 +1,32 @@
+{
+  "videoId": "7tPIyFEvZuo",
+  "serif": "わらいごえ",
+  "ruby": "わらいごえ",
+  "categories": [
+    "笑い声"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=7tPIyFEvZuo&t=433s",
+  "memo": "",
+  "trimming": {
+    "startTime": 433,
+    "endTime": 436.70118879608293,
+    "duration": 3.7011887960829495,
+    "original": {
+      "startTime": 433,
+      "endTime": 437,
+      "duration": 4
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "7tPIyFEvZuo",
+      "title": "【🎃🍂🧶】もう秋だねって雑談【にじさんじ/梢桃音】",
+      "duration": 9052,
+      "thumbnail": "https://i.ytimg.com/vi/7tPIyFEvZuo/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260928",
+      "viewCount": 28790,
+      "url": "https://www.youtube.com/watch?v=7tPIyFEvZuo"
+    }
+  }
+}
