@@ -1,0 +1,32 @@
+{
+  "videoId": "fir_b-MRvRA",
+  "serif": "あいさつ",
+  "ruby": "あいさつ",
+  "categories": [
+    "あいさつ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=fir_b-MRvRA&t=207s",
+  "memo": "",
+  "trimming": {
+    "startTime": 207.39000000000001,
+    "endTime": 211.85000000000002,
+    "duration": 4.460000000000001,
+    "original": {
+      "startTime": 207.14000000000001,
+      "endTime": 212.2,
+      "duration": 5.059999999999974
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "fir_b-MRvRA",
+      "title": "【遊戯王マスターデュエル】なーさんと再びデュエル！！【梢桃音/にじさんじ遊戯王マスターデュエル祭2025】",
+      "duration": 4907,
+      "thumbnail": "https://i.ytimg.com/vi/fir_b-MRvRA/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20251121",
+      "viewCount": 12015,
+      "url": "https://www.youtube.com/watch?v=fir_b-MRvRA"
+    }
+  }
+}

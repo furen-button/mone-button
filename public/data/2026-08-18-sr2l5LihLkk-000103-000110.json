@@ -1,0 +1,32 @@
+{
+  "videoId": "sr2l5LihLkk",
+  "serif": "あいさつ",
+  "ruby": "あいさつ",
+  "categories": [
+    "あいさつ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=sr2l5LihLkk&t=103s",
+  "memo": "",
+  "trimming": {
+    "startTime": 103.45,
+    "endTime": 109.47,
+    "duration": 6.020000000000002,
+    "original": {
+      "startTime": 103.2,
+      "endTime": 110.07000000000001,
+      "duration": 6.8700000000000045
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "sr2l5LihLkk",
+      "title": "【エンドフィールド×にじさんじ UNIT SHOWDOWN】大会本番✨チームフロンティア優勝目指して頑張るよ✊🏻【梢桃音視点/にじさんじ】",
+      "duration": 7237,
+      "thumbnail": "https://i.ytimg.com/vi/sr2l5LihLkk/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260818",
+      "viewCount": 7044,
+      "url": "https://www.youtube.com/watch?v=sr2l5LihLkk"
+    }
+  }
+}

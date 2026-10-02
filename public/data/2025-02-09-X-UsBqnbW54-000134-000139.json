@@ -1,0 +1,32 @@
+{
+  "videoId": "X-UsBqnbW54",
+  "serif": "あいさつ",
+  "ruby": "あいさつ",
+  "categories": [
+    "あいさつ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=X-UsBqnbW54&t=134s",
+  "memo": "",
+  "trimming": {
+    "startTime": 134.14000000000001,
+    "endTime": 139.45000000000002,
+    "duration": 5.3100000000000005,
+    "original": {
+      "startTime": 134.14000000000001,
+      "endTime": 139.6,
+      "duration": 5.4599999999999795
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "X-UsBqnbW54",
+      "title": "【ポケモンSV】DLC#２ ゼロの秘宝『前編碧の仮面』鬼さんどこいった？？【にじさんじ/梢桃音】",
+      "duration": 15962,
+      "thumbnail": "https://i.ytimg.com/vi/X-UsBqnbW54/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250209",
+      "viewCount": 17584,
+      "url": "https://www.youtube.com/watch?v=X-UsBqnbW54"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "videoId": "5AOexQErsrs",
+  "serif": "あいさつ",
+  "ruby": "あいさつ",
+  "categories": [
+    "あいさつ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=5AOexQErsrs&t=251s",
+  "memo": "",
+  "trimming": {
+    "startTime": 251,
+    "endTime": 257.23,
+    "duration": 6.23,
+    "original": {
+      "startTime": 251,
+      "endTime": 257.47999999999996,
+      "duration": 6.479999999999961
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "5AOexQErsrs",
+      "title": "【ゼルダの伝説時のオカリナ】#6 シリーズ完全初見🔰大人になったよ！森の神殿から🌳✨【にじさんじ/梢桃音】",
+      "duration": 7750,
+      "thumbnail": "https://i.ytimg.com/vi/5AOexQErsrs/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250305",
+      "viewCount": 10719,
+      "url": "https://www.youtube.com/watch?v=5AOexQErsrs"
+    }
+  }
+}

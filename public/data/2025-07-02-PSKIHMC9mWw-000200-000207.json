@@ -1,0 +1,32 @@
+{
+  "videoId": "PSKIHMC9mWw",
+  "serif": "あいさつ",
+  "ruby": "あいさつ",
+  "categories": [
+    "あいさつ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=PSKIHMC9mWw&t=200s",
+  "memo": "",
+  "trimming": {
+    "startTime": 200.59,
+    "endTime": 207.79,
+    "duration": 7.2,
+    "original": {
+      "startTime": 200.44,
+      "endTime": 207.94,
+      "duration": 7.5
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "PSKIHMC9mWw",
+      "title": "【Melatonin】チルな感じのリズムゲーム🎶みんなのこと寝かしつけちゃお【にじさんじ/梢桃音】",
+      "duration": 6942,
+      "thumbnail": "https://i.ytimg.com/vi/PSKIHMC9mWw/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250702",
+      "viewCount": 10781,
+      "url": "https://www.youtube.com/watch?v=PSKIHMC9mWw"
+    }
+  }
+}
