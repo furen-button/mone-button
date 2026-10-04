@@ -507,8 +507,13 @@
   outline-offset: 1px;
 }
 
+/* 縦長動画（144x256）が幅いっぱいに伸びてトーストが画面を覆わないよう高さを抑える。
+   上限は usePlayback.ts の CLIP_VIDEO_MAX_HEIGHT と揃える。 */
 .clip-video {
   width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  background: #000000;
   border-radius: 10px;
   display: block;
 }

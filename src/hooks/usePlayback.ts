@@ -8,6 +8,10 @@ import {
 import { incrementPlayCount } from '../lib/playCount'
 import { type FloatingStageClip, type PlaybackMode, type VoiceClip } from '../voiceData'
 
+// App.css の .clip-video の max-height と .floating-clip の padding に揃える
+const CLIP_VIDEO_MAX_HEIGHT = 320
+const CLIP_CARD_PADDING = 8
+
 type UsePlaybackArgs = {
   sortedClips: VoiceClip[]
   clipIndexMap: Map<string, number>
@@ -51,7 +55,8 @@ export function usePlayback({ sortedClips, clipIndexMap, appShellRef }: UsePlayb
       const safeBottomPadding = 140
       const clampedWidth = Math.min(width, Math.max(shellWidth - safeSidePadding * 2, 220))
 
-      const cardHeight = Math.round(clampedWidth * 0.6)
+      // 生成時点では動画の縦横比が分からないため、縦長動画で高さが上限に達する場合も見込む
+      const cardHeight = Math.max(Math.round(clampedWidth * 0.6), CLIP_VIDEO_MAX_HEIGHT + CLIP_CARD_PADDING * 2)
       const maxX = Math.max(shellWidth - clampedWidth - safeSidePadding * 2, 0)
       const maxY = Math.max(viewportHeight - cardHeight - safeTopPadding - safeBottomPadding, 0)
 
