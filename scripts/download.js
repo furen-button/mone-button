@@ -22,8 +22,10 @@ function readJson(filePath) {
  * 2. yt-dlp を実行して指定区間をダウンロードする関数
  */
 function downloadVideo(videoUrl, startTime, endTime, outputPath) {
-  // ダウンロード時点でもなるべく軽いものを狙う（200p以下）
-  const command = `yt-dlp -f "bestvideo[height<=200][ext=mp4]+bestaudio[ext=m4a]/best[height<=200][ext=mp4]/best" --download-sections "*${startTime}-${endTime}" --force-keyframes-at-cuts -o "${outputPath}" "${videoUrl}"`;
+  // ダウンロード時点でもなるべく軽いものを狙う（短辺200p以下）
+  // 縦長動画（ショート等）は最小でも 144x256 で height 条件に合わず、
+  // 映像と音声が分離したストリームしか無いため best にも落ちない。width 側の条件で拾う。
+  const command = `yt-dlp -f "bestvideo[height<=200][ext=mp4]+bestaudio[ext=m4a]/bestvideo[width<=200][ext=mp4]+bestaudio[ext=m4a]/best[height<=200][ext=mp4]/best" --download-sections "*${startTime}-${endTime}" --force-keyframes-at-cuts -o "${outputPath}" "${videoUrl}"`;
   execSync(command, { stdio: 'inherit' });
 }
 
