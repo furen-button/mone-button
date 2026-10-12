@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=aImyEaq_TR0&t=99s",
   "memo": "文字起こし: にじさんじすどたやかけなじゅうじんたんたんみやくねるはちおかしかぜいもんねです\n照合: 読み（一致度 0.50）\nにじさんじ所属: なし\nあやかきの自由人担当: なし\n魅惑のゆるふわ調香師: なし\n梢桃音です: なし",
   "trimming": {
-    "startTime": 99.34,
+    "startTime": 99.54,
     "endTime": 105.72,
-    "duration": 6.3799999999999955
+    "duration": 6.18,
+    "original": {
+      "startTime": 99.34,
+      "endTime": 105.72,
+      "duration": 6.3799999999999955
+    }
   },
   "videoFile": {
     "metadata": {

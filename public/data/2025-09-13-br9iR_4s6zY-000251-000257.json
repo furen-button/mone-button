@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=br9iR_4s6zY&t=251s",
   "memo": "文字起こし: 二次三次種族あやかけの自衛陣担当部役のヨロファーチャーコーチ小杖もねです\nにじさんじ所属: 二次三次 (4:11.2)\nあやかきの自由人担当: あやかけの自衛陣担当 (4:12.3)\n魅惑のゆるふわ調香師: 役の (4:13.9)\n梢桃音です: 小杖もねです (4:15.7)",
   "trimming": {
-    "startTime": 251,
+    "startTime": 251.1,
     "endTime": 257.12,
-    "duration": 6.1200000000000045
+    "duration": 6.0200000000000005,
+    "original": {
+      "startTime": 251,
+      "endTime": 257.12,
+      "duration": 6.1200000000000045
+    }
   },
   "videoFile": {
     "metadata": {

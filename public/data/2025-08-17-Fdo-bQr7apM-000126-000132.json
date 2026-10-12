@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=Fdo-bQr7apM&t=126s",
   "memo": "文字起こし: モネ、コモネー、にじたんじ所属、あやかきのじゅうじゅん、トントン役のある発祥講師、小瀬もねです\nにじさんじ所属: なし\nあやかきの自由人担当: あやかきのじゅうじゅん、トントン (2:08.4)\n魅惑のゆるふわ調香師: 役の (2:09.8)\n梢桃音です: 小瀬もねです (2:11.4)\n補い: 先頭は手前の語から",
   "trimming": {
-    "startTime": 126.22,
+    "startTime": 126.27,
     "endTime": 132.79,
-    "duration": 6.569999999999993
+    "duration": 6.5200000000000005,
+    "original": {
+      "startTime": 126.22,
+      "endTime": 132.79,
+      "duration": 6.569999999999993
+    }
   },
   "videoFile": {
     "metadata": {

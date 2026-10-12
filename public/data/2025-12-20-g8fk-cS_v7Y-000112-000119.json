@@ -5,12 +5,17 @@
   "categories": [
     "あいさつ"
   ],
-  "clipUrl": "https://youtube.com/watch?v=g8fk-cS_v7Y&t=112s",
+  "clipUrl": "https://youtube.com/watch?v=g8fk-cS_v7Y&t=113s",
   "memo": "文字起こし: にするかや掛けの中人担当役の8直し小瀬尾根です\nにじさんじ所属: なし\nあやかきの自由人担当: 担当 (1:54.3)\n魅惑のゆるふわ調香師: 役の (1:54.8)\n梢桃音です: 小瀬尾根です (1:56.6)\n補い: 前半を起こし直し、先頭は手前の語から",
   "trimming": {
-    "startTime": 112.39999999999999,
-    "endTime": 119.09,
-    "duration": 6.690000000000012
+    "startTime": 113.07260240243004,
+    "endTime": 118.51592484351987,
+    "duration": 5.443322441089839,
+    "original": {
+      "startTime": 112.39999999999999,
+      "endTime": 119.09,
+      "duration": 6.690000000000012
+    }
   },
   "videoFile": {
     "metadata": {

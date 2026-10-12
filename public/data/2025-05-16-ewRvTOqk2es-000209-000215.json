@@ -5,12 +5,17 @@
   "categories": [
     "あいさつ"
   ],
-  "clipUrl": "https://youtube.com/watch?v=ewRvTOqk2es&t=209s",
+  "clipUrl": "https://youtube.com/watch?v=ewRvTOqk2es&t=210s",
   "memo": "文字起こし: 早書きの自由人担当迷惑のいるハーチョコウシコゼモネです\nにじさんじ所属: なし\nあやかきの自由人担当: 早書きの自由人担当 (3:30.0)\n魅惑のゆるふわ調香師: 迷惑の (3:32.0)\n梢桃音です: コゼモネです (3:34.3)",
   "trimming": {
-    "startTime": 209.8,
-    "endTime": 215.48,
-    "duration": 5.679999999999978
+    "startTime": 210.29995397643594,
+    "endTime": 215.48000000000002,
+    "duration": 5.180046023564064,
+    "original": {
+      "startTime": 209.8,
+      "endTime": 215.48,
+      "duration": 5.679999999999978
+    }
   },
   "videoFile": {
     "metadata": {

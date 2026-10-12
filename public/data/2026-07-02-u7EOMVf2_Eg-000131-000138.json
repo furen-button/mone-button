@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=u7EOMVf2_Eg&t=131s",
   "memo": "文字起こし: 所得ありかけの中人担当ミラクルのエラハーチョーコーシー小杖もねーです\nにじさんじ所属: なし\nあやかきの自由人担当: 担当 (2:13.4)\n魅惑のゆるふわ調香師: ミラクルの (2:14.0)\n梢桃音です: 小杖もねーです (2:16.4)\n補い: 先頭は手前の語から",
   "trimming": {
-    "startTime": 131.44,
+    "startTime": 131.9791439617084,
     "endTime": 138,
-    "duration": 6.560000000000002
+    "duration": 6.020856038291605,
+    "original": {
+      "startTime": 131.44,
+      "endTime": 138,
+      "duration": 6.560000000000002
+    }
   },
   "videoFile": {
     "metadata": {

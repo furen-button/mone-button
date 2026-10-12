@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=xrrq4ceWpOg&t=145s",
   "memo": "文字起こし: ージーサンディスドカイアかきのじゅうじゅんたんぱーみやかのいろはちおかしこんざいもねです\n照合: 読み（一致度 0.45）\nにじさんじ所属: なし\nあやかきの自由人担当: なし\n魅惑のゆるふわ調香師: なし\n梢桃音です: なし",
   "trimming": {
-    "startTime": 145.06,
-    "endTime": 150.35999999999999,
-    "duration": 5.299999999999983
+    "startTime": 145.16,
+    "endTime": 150.01460235640647,
+    "duration": 4.85460235640648,
+    "original": {
+      "startTime": 145.06,
+      "endTime": 150.35999999999999,
+      "duration": 5.299999999999983
+    }
   },
   "videoFile": {
     "metadata": {

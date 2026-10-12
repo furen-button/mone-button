@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=PfZG5L3dnGI&t=178s",
   "memo": "文字起こし: 綾香絹人担当お魅惑のイルフワッチョウコウシ梢萌です\nにじさんじ所属: なし\nあやかきの自由人担当: 担当 (3:00.5)\n魅惑のゆるふわ調香師: 魅惑の (3:01.1)\n梢桃音です: 梢萌です (3:03.8)\n補い: 先頭は手前の語から",
   "trimming": {
-    "startTime": 178.56,
+    "startTime": 178.65000644329896,
     "endTime": 187.1,
-    "duration": 8.539999999999992
+    "duration": 8.44999355670103,
+    "original": {
+      "startTime": 178.56,
+      "endTime": 187.1,
+      "duration": 8.539999999999992
+    }
   },
   "videoFile": {
     "metadata": {

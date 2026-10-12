@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=hhQK5iHCyzI&t=145s",
   "memo": "文字起こし: 2時、3時、6時、早く木の自由陣担当都宮区のユロファー調香師小杖萌音です\nにじさんじ所属: 2時、3時 (2:25.7)\nあやかきの自由人担当: 担当 (2:28.9)\n魅惑のゆるふわ調香師: 調香師 (2:30.7)\n梢桃音です: 小杖萌音です (2:31.5)",
   "trimming": {
-    "startTime": 145.5,
+    "startTime": 145.8368703976436,
     "endTime": 153.32,
-    "duration": 7.819999999999993
+    "duration": 7.4831296023564065,
+    "original": {
+      "startTime": 145.5,
+      "endTime": 153.32,
+      "duration": 7.819999999999993
+    }
   },
   "videoFile": {
     "metadata": {

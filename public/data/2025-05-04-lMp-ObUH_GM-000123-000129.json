@@ -5,12 +5,17 @@
   "categories": [
     "あいさつ"
   ],
-  "clipUrl": "https://youtube.com/watch?v=lMp-ObUH_GM&t=123s",
+  "clipUrl": "https://youtube.com/watch?v=lMp-ObUH_GM&t=124s",
   "memo": "文字起こし: にじさんにしゅうたくあやかきのじゅうちん担当役のエルハーチおこし小瀬えもねです\nにじさんじ所属: にじさんに (2:04.0)\nあやかきの自由人担当: あやかきのじゅうちん担当 (2:05.0)\n魅惑のゆるふわ調香師: 役の (2:06.6)\n梢桃音です: 小瀬えもねです (2:08.3)",
   "trimming": {
-    "startTime": 123.8,
-    "endTime": 129.51999999999998,
-    "duration": 5.719999999999985
+    "startTime": 124.0073131443299,
+    "endTime": 129.52,
+    "duration": 5.512686855670103,
+    "original": {
+      "startTime": 123.8,
+      "endTime": 129.51999999999998,
+      "duration": 5.719999999999985
+    }
   },
   "videoFile": {
     "metadata": {

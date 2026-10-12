@@ -5,12 +5,17 @@
   "categories": [
     "あいさつ"
   ],
-  "clipUrl": "https://youtube.com/watch?v=5NX9ZVWJczU&t=175s",
+  "clipUrl": "https://youtube.com/watch?v=5NX9ZVWJczU&t=176s",
   "memo": "文字起こし: ニジサンジショウタカヤキのニジニヤニヤニヤニヤニヤニヤニヤニヤニヤコズエモネです\n照合: 読み（一致度 0.41）\nにじさんじ所属: なし\nあやかきの自由人担当: なし\n魅惑のゆるふわ調香師: なし\n梢桃音です: なし",
   "trimming": {
-    "startTime": 175.82000000000002,
-    "endTime": 180.82999999999998,
-    "duration": 5.0099999999999625
+    "startTime": 176.02054526417527,
+    "endTime": 180.83,
+    "duration": 4.809454735824742,
+    "original": {
+      "startTime": 175.82000000000002,
+      "endTime": 180.82999999999998,
+      "duration": 5.0099999999999625
+    }
   },
   "videoFile": {
     "metadata": {

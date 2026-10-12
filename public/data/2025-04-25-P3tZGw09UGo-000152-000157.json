@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=P3tZGw09UGo&t=152s",
   "memo": "文字起こし: にじさんですどくらいかけのちうちんたんたんみやくのいろはちょうこしこーずえもねです\nにじさんじ所属: にじさん (2:32.6)\nあやかきの自由人担当: なし\n魅惑のゆるふわ調香師: いろは (2:35.3)\n梢桃音です: もねです (2:37.0)\n補い: 前半を起こし直し",
   "trimming": {
-    "startTime": 152.36,
-    "endTime": 157.79999999999998,
-    "duration": 5.439999999999969
+    "startTime": 152.61,
+    "endTime": 157.8,
+    "duration": 5.19,
+    "original": {
+      "startTime": 152.36,
+      "endTime": 157.79999999999998,
+      "duration": 5.439999999999969
+    }
   },
   "videoFile": {
     "metadata": {

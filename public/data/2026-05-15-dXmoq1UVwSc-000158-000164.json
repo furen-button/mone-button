@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=dXmoq1UVwSc&t=158s",
   "memo": "文字起こし: 二次三次種族綾香家の獣神タントウミヤクノエルハッチおかしコゼンオネです\nにじさんじ所属: 二次三次 (2:38.9)\nあやかきの自由人担当: なし\n魅惑のゆるふわ調香師: ミヤクノ (2:41.8)\n梢桃音です: コゼンオネです (2:43.3)",
   "trimming": {
-    "startTime": 158.74,
-    "endTime": 164.92,
-    "duration": 6.179999999999978
+    "startTime": 158.94,
+    "endTime": 164.49875,
+    "duration": 5.55875,
+    "original": {
+      "startTime": 158.74,
+      "endTime": 164.92,
+      "duration": 6.179999999999978
+    }
   },
   "videoFile": {
     "metadata": {

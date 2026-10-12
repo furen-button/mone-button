@@ -5,12 +5,17 @@
   "categories": [
     "あいさつ"
   ],
-  "clipUrl": "https://youtube.com/watch?v=j8sRHRiYAe0&t=150s",
+  "clipUrl": "https://youtube.com/watch?v=j8sRHRiYAe0&t=151s",
   "memo": "文字起こし: 虹さんに所属、あやかぎの自由人担当魅惑のエロハーチョー講師、梢萌音です\nにじさんじ所属: 虹さんに所属 (2:30.3)\nあやかきの自由人担当: 担当 (2:34.0)\n魅惑のゆるふわ調香師: 魅惑の (2:34.6)\n梢桃音です: 梢萌音です (2:36.7)",
   "trimming": {
-    "startTime": 150.12,
-    "endTime": 158.48,
-    "duration": 8.359999999999985
+    "startTime": 151.23502577319587,
+    "endTime": 158.21163199558174,
+    "duration": 6.976606222385861,
+    "original": {
+      "startTime": 150.12,
+      "endTime": 158.48,
+      "duration": 8.359999999999985
+    }
   },
   "videoFile": {
     "metadata": {

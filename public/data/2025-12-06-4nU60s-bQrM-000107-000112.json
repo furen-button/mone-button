@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=4nU60s-bQrM&t=107s",
   "memo": "文字起こし: 23時所属綾香家の自由人担当ミヤクノエル八丁講師小杖尾根です\nにじさんじ所属: 23時所属 (1:47.4)\nあやかきの自由人担当: 担当 (1:49.2)\n魅惑のゆるふわ調香師: ミヤクノ (1:49.7)\n梢桃音です: 小杖尾根です (1:51.2)",
   "trimming": {
-    "startTime": 107.16,
-    "endTime": 112.48,
-    "duration": 5.320000000000007
+    "startTime": 107.21,
+    "endTime": 112.47999999999999,
+    "duration": 5.2700000000000005,
+    "original": {
+      "startTime": 107.16,
+      "endTime": 112.48,
+      "duration": 5.320000000000007
+    }
   },
   "videoFile": {
     "metadata": {

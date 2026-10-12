@@ -5,12 +5,17 @@
   "categories": [
     "あいさつ"
   ],
-  "clipUrl": "https://youtube.com/watch?v=9qyLRMU2xDI&t=144s",
+  "clipUrl": "https://youtube.com/watch?v=9qyLRMU2xDI&t=145s",
   "memo": "文字起こし: 次産地初度買いかけの自由全担当宮古のエルファーチュア講師小泉宗です\nにじさんじ所属: なし\nあやかきの自由人担当: 担当 (2:27.2)\n魅惑のゆるふわ調香師: 宮古の (2:27.7)\n梢桃音です: 小泉宗です (2:29.8)\n補い: 前半を起こし直し、先頭は手前の語から",
   "trimming": {
-    "startTime": 144.98000000000002,
-    "endTime": 151.14,
-    "duration": 6.159999999999968
+    "startTime": 145.03000000000003,
+    "endTime": 151.14000000000001,
+    "duration": 6.11,
+    "original": {
+      "startTime": 144.98000000000002,
+      "endTime": 151.14,
+      "duration": 6.159999999999968
+    }
   },
   "videoFile": {
     "metadata": {

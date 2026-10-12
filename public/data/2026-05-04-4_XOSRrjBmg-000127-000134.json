@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=4_XOSRrjBmg&t=127s",
   "memo": "文字起こし: 2時3時静かやかきの自由人担当魅惑のエルファーチャー講師コズエモネです\nにじさんじ所属: 2時3時静か (2:07.4)\nあやかきの自由人担当: やかきの自由人担当 (2:08.7)\n魅惑のゆるふわ調香師: 魅惑の (2:10.8)\n梢桃音です: コズエモネです (2:12.8)",
   "trimming": {
-    "startTime": 127.24,
+    "startTime": 127.33999999999999,
     "endTime": 134.26,
-    "duration": 7.019999999999996
+    "duration": 6.92,
+    "original": {
+      "startTime": 127.24,
+      "endTime": 134.26,
+      "duration": 7.019999999999996
+    }
   },
   "videoFile": {
     "metadata": {

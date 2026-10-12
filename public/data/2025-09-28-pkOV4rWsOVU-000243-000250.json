@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=pkOV4rWsOVU&t=243s",
   "memo": "文字起こし: にじさんじしょぼくあやがきの自由人トントーミアクロイルファチョコシコゼマネデ\n照合: 読み（一致度 0.68）\nにじさんじ所属: なし\nあやかきの自由人担当: なし\n魅惑のゆるふわ調香師: なし\n梢桃音です: なし",
   "trimming": {
-    "startTime": 243.72,
-    "endTime": 250.36999999999998,
-    "duration": 6.649999999999977
+    "startTime": 243.94709407216496,
+    "endTime": 250.37,
+    "duration": 6.4229059278350515,
+    "original": {
+      "startTime": 243.72,
+      "endTime": 250.36999999999998,
+      "duration": 6.649999999999977
+    }
   },
   "videoFile": {
     "metadata": {

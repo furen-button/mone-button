@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=UYAVJZhPJ_4&t=93s",
   "memo": "文字起こし: にじさんです僕はやっかきのちゅーちん担当みやくのやろはちおこし小勢もねです\nにじさんじ所属: にじさん (1:33.3)\nあやかきの自由人担当: 担当 (1:35.5)\n魅惑のゆるふわ調香師: なし\n梢桃音です: 小勢もねです (1:37.7)",
   "trimming": {
-    "startTime": 93.08,
-    "endTime": 99.08,
-    "duration": 6
+    "startTime": 93.33,
+    "endTime": 98.92384204712813,
+    "duration": 5.593842047128129,
+    "original": {
+      "startTime": 93.08,
+      "endTime": 99.08,
+      "duration": 6
+    }
   },
   "videoFile": {
     "metadata": {

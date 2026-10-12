@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=Hh3wAF6sLXc&t=108s",
   "memo": "文字起こし:  ニジダンジジョトクあやかきのじゅうじゅん担当ヤーグのギルファーチョークおしっこずえもね\n照合: 読み（一致度 0.66）\nにじさんじ所属: なし\nあやかきの自由人担当: なし\n魅惑のゆるふわ調香師: なし\n梢桃音です: なし",
   "trimming": {
-    "startTime": 108.66,
+    "startTime": 108.96,
     "endTime": 119.72,
-    "duration": 11.060000000000002
+    "duration": 10.76,
+    "original": {
+      "startTime": 108.66,
+      "endTime": 119.72,
+      "duration": 11.060000000000002
+    }
   },
   "videoFile": {
     "metadata": {

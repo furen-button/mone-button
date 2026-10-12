@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=kgGbUQ0fQqg&t=143s",
   "memo": "文字起こし: にじさんじ所属あやかきの自由じんたんとなんかゆっくりしゃ\n照合: 読み（一致度 0.55）\nにじさんじ所属: なし\nあやかきの自由人担当: なし\n魅惑のゆるふわ調香師: なし\n梢桃音です: なし",
   "trimming": {
-    "startTime": 143.18,
-    "endTime": 152.94,
-    "duration": 9.759999999999991
+    "startTime": 143.33,
+    "endTime": 150.77849779086893,
+    "duration": 7.448497790868925,
+    "original": {
+      "startTime": 143.18,
+      "endTime": 152.94,
+      "duration": 9.759999999999991
+    }
   },
   "videoFile": {
     "metadata": {

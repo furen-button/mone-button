@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=XScqcAv7sxw&t=125s",
   "memo": "文字起こし: ねるさんですあやかきのデュージン担当宮古のエラハチおかし小杖もねです\nにじさんじ所属: ねるさん (2:05.6)\nあやかきの自由人担当: あやかきのデュージン担当 (2:06.4)\n魅惑のゆるふわ調香師: 宮古の (2:09.1)\n梢桃音です: 小杖もねです (2:10.6)",
   "trimming": {
-    "startTime": 125.42,
-    "endTime": 132.01,
-    "duration": 6.589999999999989
+    "startTime": 125.59522885217231,
+    "endTime": 131.74279685198823,
+    "duration": 6.147567999815906,
+    "original": {
+      "startTime": 125.42,
+      "endTime": 132.01,
+      "duration": 6.589999999999989
+    }
   },
   "videoFile": {
     "metadata": {

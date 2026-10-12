@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=HeqcrGcy3lQ&t=133s",
   "memo": "文字起こし: にじさんじ所属あやかけのじゅうじん担当部役のいろはっちょう講師コズエモネです\nにじさんじ所属: にじさんじ所属 (2:13.2)\nあやかきの自由人担当: あやかけのじゅうじん担当 (2:14.3)\n魅惑のゆるふわ調香師: 役の (2:16.0)\n梢桃音です: コズエモネです (2:18.2)",
   "trimming": {
-    "startTime": 133.02,
-    "endTime": 140.2,
-    "duration": 7.179999999999978
+    "startTime": 133.22,
+    "endTime": 139.34380614874817,
+    "duration": 6.123806148748159,
+    "original": {
+      "startTime": 133.02,
+      "endTime": 140.2,
+      "duration": 7.179999999999978
+    }
   },
   "videoFile": {
     "metadata": {

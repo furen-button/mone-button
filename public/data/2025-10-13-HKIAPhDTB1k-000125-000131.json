@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=HKIAPhDTB1k&t=125s",
   "memo": "文字起こし: 二次三次集と絵描きの獣神担当役のエルハッチアコーシーコゼオモネです\nにじさんじ所属: 二次三次 (2:05.4)\nあやかきの自由人担当: 絵描きの獣神担当 (2:06.2)\n魅惑のゆるふわ調香師: 役の (2:07.6)\n梢桃音です: コゼオモネです (2:09.8)",
   "trimming": {
-    "startTime": 125.16,
-    "endTime": 131.2,
-    "duration": 6.039999999999992
+    "startTime": 125.36,
+    "endTime": 131.06371916421207,
+    "duration": 5.703719164212076,
+    "original": {
+      "startTime": 125.16,
+      "endTime": 131.2,
+      "duration": 6.039999999999992
+    }
   },
   "videoFile": {
     "metadata": {

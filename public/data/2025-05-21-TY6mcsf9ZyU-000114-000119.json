@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=TY6mcsf9ZyU&t=114s",
   "memo": "文字起こし: にずさん地図がやかきの中心担当役のいる8おかしい小勢もね\n照合: 読み（一致度 0.48）\nにじさんじ所属: なし\nあやかきの自由人担当: なし\n魅惑のゆるふわ調香師: なし\n梢桃音です: なし",
   "trimming": {
-    "startTime": 114.38,
+    "startTime": 114.61081208578791,
     "endTime": 119.92,
-    "duration": 5.540000000000006
+    "duration": 5.309187914212076,
+    "original": {
+      "startTime": 114.38,
+      "endTime": 119.92,
+      "duration": 5.540000000000006
+    }
   },
   "videoFile": {
     "metadata": {

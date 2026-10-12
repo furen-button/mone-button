@@ -5,12 +5,17 @@
   "categories": [
     "あいさつ"
   ],
-  "clipUrl": "https://youtube.com/watch?v=0gmBvhs9td8&t=149s",
+  "clipUrl": "https://youtube.com/watch?v=0gmBvhs9td8&t=150s",
   "memo": "文字起こし: 住人担当魅力のいるハチおかし小津山根です\nにじさんじ所属: なし\nあやかきの自由人担当: 担当 (2:30.5)\n魅惑のゆるふわ調香師: 魅力の (2:30.9)\n梢桃音です: 山根です (2:32.5)\n補い: 先頭は手前の語から",
   "trimming": {
-    "startTime": 149.86,
-    "endTime": 153.16,
-    "duration": 3.299999999999983
+    "startTime": 150.9344212536819,
+    "endTime": 152.9589138438881,
+    "duration": 2.0244925902061857,
+    "original": {
+      "startTime": 149.86,
+      "endTime": 153.16,
+      "duration": 3.299999999999983
+    }
   },
   "videoFile": {
     "metadata": {

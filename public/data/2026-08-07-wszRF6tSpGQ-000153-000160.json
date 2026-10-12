@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=wszRF6tSpGQ&t=153s",
   "memo": "文字起こし: 2時3時すぐか夜かけの獣人担当役のるはっちゃん講師小瀬萌音です\nにじさんじ所属: 2時3時 (2:33.7)\nあやかきの自由人担当: 夜かけの獣人担当 (2:34.9)\n魅惑のゆるふわ調香師: 役の (2:36.4)\n梢桃音です: 小瀬萌音です (2:39.1)",
   "trimming": {
-    "startTime": 153.54000000000002,
-    "endTime": 160.66,
-    "duration": 7.119999999999976
+    "startTime": 153.64000000000001,
+    "endTime": 160.36,
+    "duration": 6.7200000000000015,
+    "original": {
+      "startTime": 153.54000000000002,
+      "endTime": 160.66,
+      "duration": 7.119999999999976
+    }
   },
   "videoFile": {
     "metadata": {

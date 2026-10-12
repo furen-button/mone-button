@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=ceqCTl54dm4&t=140s",
   "memo": "文字起こし: 日産で静かやかけのジェルチン担当お役のいるハーチョウ講師小杉尾根です\nにじさんじ所属: 日産 (2:20.5)\nあやかきの自由人担当: 担当 (2:22.6)\n魅惑のゆるふわ調香師: 役の (2:23.1)\n梢桃音です: 小杉尾根です (2:25.0)",
   "trimming": {
-    "startTime": 140.28,
+    "startTime": 140.45325455633284,
     "endTime": 146.22,
-    "duration": 5.939999999999998
+    "duration": 5.766745443667158,
+    "original": {
+      "startTime": 140.28,
+      "endTime": 146.22,
+      "duration": 5.939999999999998
+    }
   },
   "videoFile": {
     "metadata": {

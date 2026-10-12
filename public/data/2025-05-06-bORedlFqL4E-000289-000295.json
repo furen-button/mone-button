@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=bORedlFqL4E&t=289s",
   "memo": "文字起こし: にじさんに所属綾香家の自由人担当宮古の夜放送講師梢萌音です\nにじさんじ所属: にじさんに所属 (4:49.4)\nあやかきの自由人担当: 担当 (4:51.6)\n魅惑のゆるふわ調香師: 宮古の (4:52.2)\n梢桃音です: 梢萌音です (4:53.8)",
   "trimming": {
-    "startTime": 289.24,
-    "endTime": 295.06,
-    "duration": 5.819999999999993
+    "startTime": 289.39,
+    "endTime": 294.8676785714286,
+    "duration": 5.477678571428571,
+    "original": {
+      "startTime": 289.24,
+      "endTime": 295.06,
+      "duration": 5.819999999999993
+    }
   },
   "videoFile": {
     "metadata": {

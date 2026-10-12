@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=H2Ws_7QDYdc&t=123s",
   "memo": "文字起こし: 二次三次収録あやかけなじゅうじん担当役のいろはっちょこしかずえもねです\nにじさんじ所属: 二次三次 (2:03.6)\nあやかきの自由人担当: 担当 (2:05.8)\n魅惑のゆるふわ調香師: 役の (2:06.3)\n梢桃音です: もねです (2:08.6)",
   "trimming": {
-    "startTime": 123.44,
-    "endTime": 129.42,
-    "duration": 5.97999999999999
+    "startTime": 123.59,
+    "endTime": 129.2334002209131,
+    "duration": 5.643400220913108,
+    "original": {
+      "startTime": 123.44,
+      "endTime": 129.42,
+      "duration": 5.97999999999999
+    }
   },
   "videoFile": {
     "metadata": {

@@ -8,9 +8,14 @@
   "clipUrl": "https://youtube.com/watch?v=xx5Qjk3EmBc&t=182s",
   "memo": "文字起こし: 虹さんに所属あやかきの獣神担当脈のある八丁腰梢山ねーです\nにじさんじ所属: 虹さんに所属 (3:02.6)\nあやかきの自由人担当: あやかきの獣神担当 (3:03.7)\n魅惑のゆるふわ調香師: 脈の (3:05.3)\n梢桃音です: 梢山ねーです (3:06.6)",
   "trimming": {
-    "startTime": 182.4,
-    "endTime": 188.22,
-    "duration": 5.819999999999993
+    "startTime": 182.62620535714285,
+    "endTime": 188.00116736181425,
+    "duration": 5.374962004671392,
+    "original": {
+      "startTime": 182.4,
+      "endTime": 188.22,
+      "duration": 5.819999999999993
+    }
   },
   "videoFile": {
     "metadata": {
