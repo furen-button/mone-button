@@ -1,0 +1,1481 @@
+{
+  "generated_at": "2026-10-13T16:32:31+00:00",
+  "note": "output/ の手選別（2026-10-14）で残した画像。crop=透過済み顔クロップ、frames=緑幕のままの元フレーム",
+  "summary": {
+    "mone": {
+      "crop": 47
+    },
+    "mone-outfit": {
+      "crop": 36,
+      "frames": 59
+    },
+    "mone-3d": {
+      "crop": 11
+    }
+  },
+  "count": 153,
+  "items": [
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0001_f00186042_r4_crop.png",
+      "source": "output/mone-picks/0001_f00186042_r4_crop.png",
+      "frame": 186042,
+      "source_id": "f00186042",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0002_f00279546_r5_crop.png",
+      "source": "output/mone-picks/0002_f00279546_r5_crop.png",
+      "frame": 279546,
+      "source_id": "f00279546",
+      "rating": 5
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0003_f00268140_r4_crop.png",
+      "source": "output/mone-picks/0003_f00268140_r4_crop.png",
+      "frame": 268140,
+      "source_id": "f00268140",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0004_f00264360_r4_crop.png",
+      "source": "output/mone-picks/0004_f00264360_r4_crop.png",
+      "frame": 264360,
+      "source_id": "f00264360",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0005_f00179490_r4_crop.png",
+      "source": "output/mone-picks/0005_f00179490_r4_crop.png",
+      "frame": 179490,
+      "source_id": "f00179490",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0006_f00266754_r5_crop.png",
+      "source": "output/mone-picks/0006_f00266754_r5_crop.png",
+      "frame": 266754,
+      "source_id": "f00266754",
+      "rating": 5
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0007_f00233910_r5_crop.png",
+      "source": "output/mone-picks/0007_f00233910_r5_crop.png",
+      "frame": 233910,
+      "source_id": "f00233910",
+      "rating": 5
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0008_f00240474_r4_crop.png",
+      "source": "output/mone-picks/0008_f00240474_r4_crop.png",
+      "frame": 240474,
+      "source_id": "f00240474",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0009_f00233310_r4_crop.png",
+      "source": "output/mone-picks/0009_f00233310_r4_crop.png",
+      "frame": 233310,
+      "source_id": "f00233310",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0010_f00230784_r4_crop.png",
+      "source": "output/mone-picks/0010_f00230784_r4_crop.png",
+      "frame": 230784,
+      "source_id": "f00230784",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0011_f00250866_r4_crop.png",
+      "source": "output/mone-picks/0011_f00250866_r4_crop.png",
+      "frame": 250866,
+      "source_id": "f00250866",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0012_f00250836_r4_crop.png",
+      "source": "output/mone-picks/0012_f00250836_r4_crop.png",
+      "frame": 250836,
+      "source_id": "f00250836",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0013_f00252610_r4_crop.png",
+      "source": "output/mone-picks/0013_f00252610_r4_crop.png",
+      "frame": 252610,
+      "source_id": "f00252606",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0014_f00281058_r4_crop.png",
+      "source": "output/mone-picks/0014_f00281058_r4_crop.png",
+      "frame": 281058,
+      "source_id": "f00281058",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0015_f00186318_r5_crop.png",
+      "source": "output/mone-picks/0015_f00186318_r5_crop.png",
+      "frame": 186318,
+      "source_id": "f00186318",
+      "rating": 5
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0016_f00279726_r4_crop.png",
+      "source": "output/mone-picks/0016_f00279726_r4_crop.png",
+      "frame": 279726,
+      "source_id": "f00279726",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0017_f00187602_r4_crop.png",
+      "source": "output/mone-picks/0017_f00187602_r4_crop.png",
+      "frame": 187602,
+      "source_id": "f00187602",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0018_f00186450_r4_crop.png",
+      "source": "output/mone-picks/0018_f00186450_r4_crop.png",
+      "frame": 186450,
+      "source_id": "f00186450",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0019_f00283170_r4_crop.png",
+      "source": "output/mone-picks/0019_f00283170_r4_crop.png",
+      "frame": 283170,
+      "source_id": "f00283170",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0020_f00266838_r4_crop.png",
+      "source": "output/mone-picks/0020_f00266838_r4_crop.png",
+      "frame": 266838,
+      "source_id": "f00266838",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0021_f00270462_r4_crop.png",
+      "source": "output/mone-picks/0021_f00270462_r4_crop.png",
+      "frame": 270462,
+      "source_id": "f00270462",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0023_f00265290_r4_crop.png",
+      "source": "output/mone-picks/0023_f00265290_r4_crop.png",
+      "frame": 265290,
+      "source_id": "f00265290",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0024_f00224718_r4_crop.png",
+      "source": "output/mone-picks/0024_f00224718_r4_crop.png",
+      "frame": 224718,
+      "source_id": "f00224718",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0025_f00226320_r5_crop.png",
+      "source": "output/mone-picks/0025_f00226320_r5_crop.png",
+      "frame": 226320,
+      "source_id": "f00226320",
+      "rating": 5
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0026_f00216180_r4_crop.png",
+      "source": "output/mone-picks/0026_f00216180_r4_crop.png",
+      "frame": 216180,
+      "source_id": "f00216180",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0027_f00161124_r5_crop.png",
+      "source": "output/mone-picks/0027_f00161124_r5_crop.png",
+      "frame": 161124,
+      "source_id": "f00161124",
+      "rating": 5
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0028_f00167466_r4_crop.png",
+      "source": "output/mone-picks/0028_f00167466_r4_crop.png",
+      "frame": 167466,
+      "source_id": "f00167466",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0029_f00218046_r5_crop.png",
+      "source": "output/mone-picks/0029_f00218046_r5_crop.png",
+      "frame": 218046,
+      "source_id": "f00218046",
+      "rating": 5
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0030_f00156540_r5_crop.png",
+      "source": "output/mone-picks/0030_f00156540_r5_crop.png",
+      "frame": 156540,
+      "source_id": "f00156540",
+      "rating": 5
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0031_f00154506_r4_crop.png",
+      "source": "output/mone-picks/0031_f00154506_r4_crop.png",
+      "frame": 154506,
+      "source_id": "f00154506",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0032_f00156648_r4_crop.png",
+      "source": "output/mone-picks/0032_f00156648_r4_crop.png",
+      "frame": 156648,
+      "source_id": "f00156648",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0033_f00178662_r4_crop.png",
+      "source": "output/mone-picks/0033_f00178662_r4_crop.png",
+      "frame": 178662,
+      "source_id": "f00178662",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0034_f00245418_r4_crop.png",
+      "source": "output/mone-picks/0034_f00245418_r4_crop.png",
+      "frame": 245418,
+      "source_id": "f00245418",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0035_f00289748_r4_crop.png",
+      "source": "output/mone-picks/0035_f00289748_r4_crop.png",
+      "frame": 289748,
+      "source_id": "f00289746",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0036_f00160554_r4_crop.png",
+      "source": "output/mone-picks/0036_f00160554_r4_crop.png",
+      "frame": 160554,
+      "source_id": "f00160554",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0037_f00225840_r4_crop.png",
+      "source": "output/mone-picks/0037_f00225840_r4_crop.png",
+      "frame": 225840,
+      "source_id": "f00225840",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0038_f00197556_r5_crop.png",
+      "source": "output/mone-picks/0038_f00197556_r5_crop.png",
+      "frame": 197556,
+      "source_id": "f00197556",
+      "rating": 5
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0039_f00220572_r4_crop.png",
+      "source": "output/mone-picks/0039_f00220572_r4_crop.png",
+      "frame": 220572,
+      "source_id": "f00220572",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0040_f00292404_r4_crop.png",
+      "source": "output/mone-picks/0040_f00292404_r4_crop.png",
+      "frame": 292404,
+      "source_id": "f00292404",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0041_f00215700_r5_crop.png",
+      "source": "output/mone-picks/0041_f00215700_r5_crop.png",
+      "frame": 215700,
+      "source_id": "f00215700",
+      "rating": 5
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0042_f00154974_r5_crop.png",
+      "source": "output/mone-picks/0042_f00154974_r5_crop.png",
+      "frame": 154974,
+      "source_id": "f00154974",
+      "rating": 5
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0043_f00216858_r5_crop.png",
+      "source": "output/mone-picks/0043_f00216858_r5_crop.png",
+      "frame": 216858,
+      "source_id": "f00216858",
+      "rating": 5
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0044_f00244152_r4_crop.png",
+      "source": "output/mone-picks/0044_f00244152_r4_crop.png",
+      "frame": 244152,
+      "source_id": "f00244152",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0045_f00155454_r4_crop.png",
+      "source": "output/mone-picks/0045_f00155454_r4_crop.png",
+      "frame": 155454,
+      "source_id": "f00155454",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0046_f00218682_r4_crop.png",
+      "source": "output/mone-picks/0046_f00218682_r4_crop.png",
+      "frame": 218682,
+      "source_id": "f00218682",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0047_f00201528_r4_crop.png",
+      "source": "output/mone-picks/0047_f00201528_r4_crop.png",
+      "frame": 201528,
+      "source_id": "f00201528",
+      "rating": 4
+    },
+    {
+      "video": "mone",
+      "kind": "crop",
+      "path": "dist/mone/crop/0048_f00207282_r4_crop.png",
+      "source": "output/mone-picks/0048_f00207282_r4_crop.png",
+      "frame": 207282,
+      "source_id": "f00207282",
+      "rating": 4
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0001_f00126624_r5_crop.png",
+      "source": "output/mone-outfit-picks/0001_f00126624_r5_crop.png",
+      "frame": 126624,
+      "source_id": "f00126624",
+      "rating": 5
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0003_f00089199_r5_crop.png",
+      "source": "output/mone-outfit-picks/0003_f00089199_r5_crop.png",
+      "frame": 89199,
+      "source_id": "f00089199",
+      "rating": 5
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0004_f00119520_r4_crop.png",
+      "source": "output/mone-outfit-picks/0004_f00119520_r4_crop.png",
+      "frame": 119520,
+      "source_id": "f00119520",
+      "rating": 4
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0005_f00120222_r4_crop.png",
+      "source": "output/mone-outfit-picks/0005_f00120222_r4_crop.png",
+      "frame": 120222,
+      "source_id": "f00120222",
+      "rating": 4
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0006_f00125604_r4_crop.png",
+      "source": "output/mone-outfit-picks/0006_f00125604_r4_crop.png",
+      "frame": 125604,
+      "source_id": "f00125604",
+      "rating": 4
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0007_f00124797_r4_crop.png",
+      "source": "output/mone-outfit-picks/0007_f00124797_r4_crop.png",
+      "frame": 124797,
+      "source_id": "f00124797",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0007_f00124797_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0008_f00129088_r4_crop.png",
+      "source": "output/mone-outfit-picks/0008_f00129088_r4_crop.png",
+      "frame": 129088,
+      "source_id": "f00129084",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0008_f00129088_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0009_f00131121_r4_crop.png",
+      "source": "output/mone-outfit-picks/0009_f00131121_r4_crop.png",
+      "frame": 131121,
+      "source_id": "f00131121",
+      "rating": 4
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0010_f00130827_r4_crop.png",
+      "source": "output/mone-outfit-picks/0010_f00130827_r4_crop.png",
+      "frame": 130827,
+      "source_id": "f00130827",
+      "rating": 4
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0011_f00130881_r4_crop.png",
+      "source": "output/mone-outfit-picks/0011_f00130881_r4_crop.png",
+      "frame": 130881,
+      "source_id": "f00130881",
+      "rating": 4
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0012_f00129432_r4_crop.png",
+      "source": "output/mone-outfit-picks/0012_f00129432_r4_crop.png",
+      "frame": 129432,
+      "source_id": "f00129432",
+      "rating": 4
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0013_f00130677_r4_crop.png",
+      "source": "output/mone-outfit-picks/0013_f00130677_r4_crop.png",
+      "frame": 130677,
+      "source_id": "f00130677",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0013_f00130677_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0014_f00125997_r4_crop.png",
+      "source": "output/mone-outfit-picks/0014_f00125997_r4_crop.png",
+      "frame": 125997,
+      "source_id": "f00125997",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0014_f00125997_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0015_f00126963_r4_crop.png",
+      "source": "output/mone-outfit-picks/0015_f00126963_r4_crop.png",
+      "frame": 126963,
+      "source_id": "f00126963",
+      "rating": 4
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0018_f00126888_r4_crop.png",
+      "source": "output/mone-outfit-picks/0018_f00126888_r4_crop.png",
+      "frame": 126888,
+      "source_id": "f00126888",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0018_f00126888_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0020_f00121521_r4_crop.png",
+      "source": "output/mone-outfit-picks/0020_f00121521_r4_crop.png",
+      "frame": 121521,
+      "source_id": "f00121521",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0020_f00121521_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0021_f00123345_r4_crop.png",
+      "source": "output/mone-outfit-picks/0021_f00123345_r4_crop.png",
+      "frame": 123345,
+      "source_id": "f00123345",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0021_f00123345_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0023_f00128460_r4_crop.png",
+      "source": "output/mone-outfit-picks/0023_f00128460_r4_crop.png",
+      "frame": 128460,
+      "source_id": "f00128460",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0023_f00128460_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0026_f00108906_r4_crop.png",
+      "source": "output/mone-outfit-picks/0026_f00108906_r4_crop.png",
+      "frame": 108906,
+      "source_id": "f00108906",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0026_f00108906_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0027_f00126675_r4_crop.png",
+      "source": "output/mone-outfit-picks/0027_f00126675_r4_crop.png",
+      "frame": 126675,
+      "source_id": "f00126675",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0027_f00126675_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0029_f00111518_r4_crop.png",
+      "source": "output/mone-outfit-picks/0029_f00111518_r4_crop.png",
+      "frame": 111518,
+      "source_id": "f00111516",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0029_f00111518_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0030_f00093561_r4_crop.png",
+      "source": "output/mone-outfit-picks/0030_f00093561_r4_crop.png",
+      "frame": 93561,
+      "source_id": "f00093561",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0030_f00093561_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0031_f00108654_r4_crop.png",
+      "source": "output/mone-outfit-picks/0031_f00108654_r4_crop.png",
+      "frame": 108654,
+      "source_id": "f00108654",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0031_f00108654_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0032_f00092823_r4_crop.png",
+      "source": "output/mone-outfit-picks/0032_f00092823_r4_crop.png",
+      "frame": 92823,
+      "source_id": "f00092823",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0032_f00092823_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0034_f00092968_r4_crop.png",
+      "source": "output/mone-outfit-picks/0034_f00092968_r4_crop.png",
+      "frame": 92968,
+      "source_id": "f00092964",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0034_f00092968_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0035_f00126414_r4_crop.png",
+      "source": "output/mone-outfit-picks/0035_f00126414_r4_crop.png",
+      "frame": 126414,
+      "source_id": "f00126414",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0035_f00126414_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0038_f00117123_r4_crop.png",
+      "source": "output/mone-outfit-picks/0038_f00117123_r4_crop.png",
+      "frame": 117123,
+      "source_id": "f00117123",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0038_f00117123_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0042_f00117422_r4_crop.png",
+      "source": "output/mone-outfit-picks/0042_f00117422_r4_crop.png",
+      "frame": 117422,
+      "source_id": "f00117420",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0042_f00117422_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0043_f00091530_r4_crop.png",
+      "source": "output/mone-outfit-picks/0043_f00091530_r4_crop.png",
+      "frame": 91530,
+      "source_id": "f00091530",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0043_f00091530_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0045_f00089577_r4_crop.png",
+      "source": "output/mone-outfit-picks/0045_f00089577_r4_crop.png",
+      "frame": 89577,
+      "source_id": "f00089577",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0045_f00089577_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0046_f00089118_r4_crop.png",
+      "source": "output/mone-outfit-picks/0046_f00089118_r4_crop.png",
+      "frame": 89118,
+      "source_id": "f00089118",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0046_f00089118_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0060_f00088587_r4_crop.png",
+      "source": "output/mone-outfit-picks/0060_f00088587_r4_crop.png",
+      "frame": 88587,
+      "source_id": "f00088587",
+      "rating": 4,
+      "frame_image": "dist/mone-outfit/frames/0060_f00088587_r4_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0064_f00122148_r3_crop.png",
+      "source": "output/mone-outfit-picks/0064_f00122148_r3_crop.png",
+      "frame": 122148,
+      "source_id": "f00122148",
+      "rating": 3,
+      "frame_image": "dist/mone-outfit/frames/0064_f00122148_r3_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0068_f00088647_r3_crop.png",
+      "source": "output/mone-outfit-picks/0068_f00088647_r3_crop.png",
+      "frame": 88647,
+      "source_id": "f00088647",
+      "rating": 3,
+      "frame_image": "dist/mone-outfit/frames/0068_f00088647_r3_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0069_f00092856_r3_crop.png",
+      "source": "output/mone-outfit-picks/0069_f00092856_r3_crop.png",
+      "frame": 92856,
+      "source_id": "f00092856",
+      "rating": 3,
+      "frame_image": "dist/mone-outfit/frames/0069_f00092856_r3_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "crop",
+      "path": "dist/mone-outfit/crop/0070_f00118470_r3_crop.png",
+      "source": "output/mone-outfit-picks/0070_f00118470_r3_crop.png",
+      "frame": 118470,
+      "source_id": "f00118470",
+      "rating": 3,
+      "frame_image": "dist/mone-outfit/frames/0070_f00118470_r3_frame.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0007_f00124797_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0007_f00124797_r4_frame.png",
+      "frame": 124797,
+      "source_id": "f00124797",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0007_f00124797_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0008_f00129088_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0008_f00129088_r4_frame.png",
+      "frame": 129088,
+      "source_id": "f00129084",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0008_f00129088_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0013_f00130677_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0013_f00130677_r4_frame.png",
+      "frame": 130677,
+      "source_id": "f00130677",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0013_f00130677_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0014_f00125997_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0014_f00125997_r4_frame.png",
+      "frame": 125997,
+      "source_id": "f00125997",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0014_f00125997_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0016_f00130224_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0016_f00130224_r4_frame.png",
+      "frame": 130224,
+      "source_id": "f00130224",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0017_f00128853_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0017_f00128853_r4_frame.png",
+      "frame": 128853,
+      "source_id": "f00128853",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0018_f00126888_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0018_f00126888_r4_frame.png",
+      "frame": 126888,
+      "source_id": "f00126888",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0018_f00126888_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0019_f00129693_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0019_f00129693_r4_frame.png",
+      "frame": 129693,
+      "source_id": "f00129693",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0020_f00121521_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0020_f00121521_r4_frame.png",
+      "frame": 121521,
+      "source_id": "f00121521",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0020_f00121521_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0021_f00123345_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0021_f00123345_r4_frame.png",
+      "frame": 123345,
+      "source_id": "f00123345",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0021_f00123345_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0022_f00126966_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0022_f00126966_r4_frame.png",
+      "frame": 126966,
+      "source_id": "f00126966",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0023_f00128460_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0023_f00128460_r4_frame.png",
+      "frame": 128460,
+      "source_id": "f00128460",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0023_f00128460_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0024_f00120369_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0024_f00120369_r4_frame.png",
+      "frame": 120369,
+      "source_id": "f00120369",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0025_f00129750_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0025_f00129750_r4_frame.png",
+      "frame": 129750,
+      "source_id": "f00129750",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0026_f00108906_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0026_f00108906_r4_frame.png",
+      "frame": 108906,
+      "source_id": "f00108906",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0026_f00108906_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0027_f00126675_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0027_f00126675_r4_frame.png",
+      "frame": 126675,
+      "source_id": "f00126675",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0027_f00126675_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0028_f00094224_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0028_f00094224_r4_frame.png",
+      "frame": 94224,
+      "source_id": "f00094224",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0029_f00111518_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0029_f00111518_r4_frame.png",
+      "frame": 111518,
+      "source_id": "f00111516",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0029_f00111518_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0030_f00093561_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0030_f00093561_r4_frame.png",
+      "frame": 93561,
+      "source_id": "f00093561",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0030_f00093561_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0031_f00108654_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0031_f00108654_r4_frame.png",
+      "frame": 108654,
+      "source_id": "f00108654",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0031_f00108654_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0032_f00092823_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0032_f00092823_r4_frame.png",
+      "frame": 92823,
+      "source_id": "f00092823",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0032_f00092823_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0033_f00093663_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0033_f00093663_r4_frame.png",
+      "frame": 93663,
+      "source_id": "f00093663",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0034_f00092968_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0034_f00092968_r4_frame.png",
+      "frame": 92968,
+      "source_id": "f00092964",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0034_f00092968_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0035_f00126414_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0035_f00126414_r4_frame.png",
+      "frame": 126414,
+      "source_id": "f00126414",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0035_f00126414_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0036_f00109284_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0036_f00109284_r4_frame.png",
+      "frame": 109284,
+      "source_id": "f00109284",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0037_f00093042_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0037_f00093042_r4_frame.png",
+      "frame": 93042,
+      "source_id": "f00093042",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0038_f00117123_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0038_f00117123_r4_frame.png",
+      "frame": 117123,
+      "source_id": "f00117123",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0038_f00117123_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0039_f00118140_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0039_f00118140_r4_frame.png",
+      "frame": 118140,
+      "source_id": "f00118140",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0040_f00111144_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0040_f00111144_r4_frame.png",
+      "frame": 111144,
+      "source_id": "f00111144",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0041_f00089067_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0041_f00089067_r4_frame.png",
+      "frame": 89067,
+      "source_id": "f00089067",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0042_f00117422_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0042_f00117422_r4_frame.png",
+      "frame": 117422,
+      "source_id": "f00117420",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0042_f00117422_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0043_f00091530_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0043_f00091530_r4_frame.png",
+      "frame": 91530,
+      "source_id": "f00091530",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0043_f00091530_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0044_f00116973_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0044_f00116973_r4_frame.png",
+      "frame": 116973,
+      "source_id": "f00116973",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0045_f00089577_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0045_f00089577_r4_frame.png",
+      "frame": 89577,
+      "source_id": "f00089577",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0045_f00089577_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0046_f00089118_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0046_f00089118_r4_frame.png",
+      "frame": 89118,
+      "source_id": "f00089118",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0046_f00089118_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0047_f00116406_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0047_f00116406_r4_frame.png",
+      "frame": 116406,
+      "source_id": "f00116406",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0048_f00116481_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0048_f00116481_r4_frame.png",
+      "frame": 116481,
+      "source_id": "f00116481",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0049_f00090201_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0049_f00090201_r4_frame.png",
+      "frame": 90201,
+      "source_id": "f00090201",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0050_f00091926_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0050_f00091926_r4_frame.png",
+      "frame": 91926,
+      "source_id": "f00091926",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0054_f00089814_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0054_f00089814_r4_frame.png",
+      "frame": 89814,
+      "source_id": "f00089814",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0055_f00090246_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0055_f00090246_r4_frame.png",
+      "frame": 90246,
+      "source_id": "f00090246",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0056_f00117276_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0056_f00117276_r4_frame.png",
+      "frame": 117276,
+      "source_id": "f00117276",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0057_f00109695_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0057_f00109695_r4_frame.png",
+      "frame": 109695,
+      "source_id": "f00109695",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0058_f00088983_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0058_f00088983_r4_frame.png",
+      "frame": 88983,
+      "source_id": "f00088983",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0059_f00091689_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0059_f00091689_r4_frame.png",
+      "frame": 91689,
+      "source_id": "f00091689",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0060_f00088587_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0060_f00088587_r4_frame.png",
+      "frame": 88587,
+      "source_id": "f00088587",
+      "rating": 4,
+      "crop": "dist/mone-outfit/crop/0060_f00088587_r4_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0061_f00089880_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0061_f00089880_r4_frame.png",
+      "frame": 89880,
+      "source_id": "f00089880",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0062_f00110709_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0062_f00110709_r4_frame.png",
+      "frame": 110709,
+      "source_id": "f00110709",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0063_f00089756_r4_frame.png",
+      "source": "output/mone-outfit-picks-frames/0063_f00089756_r4_frame.png",
+      "frame": 89756,
+      "source_id": "f00089760",
+      "rating": 4,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0064_f00122148_r3_frame.png",
+      "source": "output/mone-outfit-picks-frames/0064_f00122148_r3_frame.png",
+      "frame": 122148,
+      "source_id": "f00122148",
+      "rating": 3,
+      "crop": "dist/mone-outfit/crop/0064_f00122148_r3_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0065_f00124425_r3_frame.png",
+      "source": "output/mone-outfit-picks-frames/0065_f00124425_r3_frame.png",
+      "frame": 124425,
+      "source_id": "f00124425",
+      "rating": 3,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0066_f00124686_r3_frame.png",
+      "source": "output/mone-outfit-picks-frames/0066_f00124686_r3_frame.png",
+      "frame": 124686,
+      "source_id": "f00124686",
+      "rating": 3,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0067_f00109551_r3_frame.png",
+      "source": "output/mone-outfit-picks-frames/0067_f00109551_r3_frame.png",
+      "frame": 109551,
+      "source_id": "f00109551",
+      "rating": 3,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0068_f00088647_r3_frame.png",
+      "source": "output/mone-outfit-picks-frames/0068_f00088647_r3_frame.png",
+      "frame": 88647,
+      "source_id": "f00088647",
+      "rating": 3,
+      "crop": "dist/mone-outfit/crop/0068_f00088647_r3_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0069_f00092856_r3_frame.png",
+      "source": "output/mone-outfit-picks-frames/0069_f00092856_r3_frame.png",
+      "frame": 92856,
+      "source_id": "f00092856",
+      "rating": 3,
+      "crop": "dist/mone-outfit/crop/0069_f00092856_r3_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0070_f00118470_r3_frame.png",
+      "source": "output/mone-outfit-picks-frames/0070_f00118470_r3_frame.png",
+      "frame": 118470,
+      "source_id": "f00118470",
+      "rating": 3,
+      "crop": "dist/mone-outfit/crop/0070_f00118470_r3_crop.png"
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0071_f00116136_r3_frame.png",
+      "source": "output/mone-outfit-picks-frames/0071_f00116136_r3_frame.png",
+      "frame": 116136,
+      "source_id": "f00116136",
+      "rating": 3,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0072_f00089803_r3_frame.png",
+      "source": "output/mone-outfit-picks-frames/0072_f00089803_r3_frame.png",
+      "frame": 89803,
+      "source_id": "f00089805",
+      "rating": 3,
+      "crop": null
+    },
+    {
+      "video": "mone-outfit",
+      "kind": "frames",
+      "path": "dist/mone-outfit/frames/0073_f00107850_r3_frame.png",
+      "source": "output/mone-outfit-picks-frames/0073_f00107850_r3_frame.png",
+      "frame": 107850,
+      "source_id": "f00107850",
+      "rating": 3,
+      "crop": null
+    },
+    {
+      "video": "mone-3d",
+      "kind": "crop",
+      "path": "dist/mone-3d/crop/0001_f00070830_r4_crop.png",
+      "source": "output/mone-3d-picks/0001_f00070830_r4_crop.png",
+      "frame": 70830,
+      "source_id": "f00070830",
+      "rating": 4
+    },
+    {
+      "video": "mone-3d",
+      "kind": "crop",
+      "path": "dist/mone-3d/crop/0002_f00066840_r4_crop.png",
+      "source": "output/mone-3d-picks/0002_f00066840_r4_crop.png",
+      "frame": 66840,
+      "source_id": "f00066840",
+      "rating": 4
+    },
+    {
+      "video": "mone-3d",
+      "kind": "crop",
+      "path": "dist/mone-3d/crop/0007_f00066504_r4_crop.png",
+      "source": "output/mone-3d-picks/0007_f00066504_r4_crop.png",
+      "frame": 66504,
+      "source_id": "f00066504",
+      "rating": 4
+    },
+    {
+      "video": "mone-3d",
+      "kind": "crop",
+      "path": "dist/mone-3d/crop/0012_f00070914_r5_crop.png",
+      "source": "output/mone-3d-picks/0012_f00070914_r5_crop.png",
+      "frame": 70914,
+      "source_id": "f00070914",
+      "rating": 5
+    },
+    {
+      "video": "mone-3d",
+      "kind": "crop",
+      "path": "dist/mone-3d/crop/0013_f00077874_r4_crop.png",
+      "source": "output/mone-3d-picks/0013_f00077874_r4_crop.png",
+      "frame": 77874,
+      "source_id": "f00077874",
+      "rating": 4
+    },
+    {
+      "video": "mone-3d",
+      "kind": "crop",
+      "path": "dist/mone-3d/crop/0023_f00111834_r4_crop.png",
+      "source": "output/mone-3d-picks/0023_f00111834_r4_crop.png",
+      "frame": 111834,
+      "source_id": "f00111834",
+      "rating": 4
+    },
+    {
+      "video": "mone-3d",
+      "kind": "crop",
+      "path": "dist/mone-3d/crop/0024_f00104280_r4_crop.png",
+      "source": "output/mone-3d-picks/0024_f00104280_r4_crop.png",
+      "frame": 104280,
+      "source_id": "f00104280",
+      "rating": 4
+    },
+    {
+      "video": "mone-3d",
+      "kind": "crop",
+      "path": "dist/mone-3d/crop/0037_f00056604_r4_crop.png",
+      "source": "output/mone-3d-picks/0037_f00056604_r4_crop.png",
+      "frame": 56604,
+      "source_id": "f00056604",
+      "rating": 4
+    },
+    {
+      "video": "mone-3d",
+      "kind": "crop",
+      "path": "dist/mone-3d/crop/0042_f00048624_r4_crop.png",
+      "source": "output/mone-3d-picks/0042_f00048624_r4_crop.png",
+      "frame": 48624,
+      "source_id": "f00048624",
+      "rating": 4
+    },
+    {
+      "video": "mone-3d",
+      "kind": "crop",
+      "path": "dist/mone-3d/crop/0052_f00065274_r0_crop.png",
+      "source": "output/mone-3d-picks/0052_f00065274_r0_crop.png",
+      "frame": 65274,
+      "source_id": "f00065274",
+      "rating": 0
+    },
+    {
+      "video": "mone-3d",
+      "kind": "crop",
+      "path": "dist/mone-3d/crop/0053_f00072642_r0_crop.png",
+      "source": "output/mone-3d-picks/0053_f00072642_r0_crop.png",
+      "frame": 72642,
+      "source_id": "f00072642",
+      "rating": 0
+    }
+  ]
+}
