@@ -9,6 +9,13 @@ import { buildRenderManifest, manifestPathFor, readManifestFor, writeRenderManif
 
 const SAMPLE_VIDEO_BYTES = 'これは manifest テスト用の mp4 代替ファイルです。\n';
 
+// プロジェクト相対パスの検証のため projectRoot 配下に作る。tmp/ は gitignore 済みで CI には無い。
+function makeTempDir() {
+  const base = path.join(projectRoot, 'tmp');
+  fs.mkdirSync(base, { recursive: true });
+  return fs.mkdtempSync(path.join(base, 'qc-manifest-'));
+}
+
 function config() {
   return deepMerge(DEFAULTS, {
     select: { mode: 'videoId', videoId: 'abc123' },
@@ -18,7 +25,7 @@ function config() {
 
 describe('render manifest', () => {
   it('生成情報、mp4 識別情報、テロップ矩形をプロジェクト相対パスで組み立てる', async () => {
-    const dir = fs.mkdtempSync(path.join(projectRoot, 'tmp/qc-manifest-'));
+    const dir = makeTempDir();
     const videoOutPath = path.join(dir, 'test-combined.mp4');
     fs.writeFileSync(videoOutPath, SAMPLE_VIDEO_BYTES);
     const sourcePath = path.join(projectRoot, 'public/videos/clip-a.mp4');
@@ -61,7 +68,7 @@ describe('render manifest', () => {
   });
 
   it('補正（enhance）の判断をセグメントに残す', async () => {
-    const dir = fs.mkdtempSync(path.join(projectRoot, 'tmp/qc-manifest-'));
+    const dir = makeTempDir();
     const videoOutPath = path.join(dir, 'enhance.mp4');
     fs.writeFileSync(videoOutPath, SAMPLE_VIDEO_BYTES);
     const segment = (enhance) => ({
@@ -107,7 +114,7 @@ describe('render manifest', () => {
   });
 
   it('write/read で同じ manifest を読める', async () => {
-    const dir = fs.mkdtempSync(path.join(projectRoot, 'tmp/qc-manifest-'));
+    const dir = makeTempDir();
     const videoOutPath = path.join(dir, 'sample.mp4');
     fs.writeFileSync(videoOutPath, SAMPLE_VIDEO_BYTES);
     const { path: outPath, manifest } = await writeRenderManifest({
@@ -134,7 +141,7 @@ describe('render manifest', () => {
   });
 
   it('version 1 manifest は陳腐化確認不可を info で返す', async () => {
-    const dir = fs.mkdtempSync(path.join(projectRoot, 'tmp/qc-manifest-'));
+    const dir = makeTempDir();
     const videoOutPath = path.join(dir, 'sample.mp4');
     const manifestPath = manifestPathFor(videoOutPath);
     fs.writeFileSync(videoOutPath, SAMPLE_VIDEO_BYTES);
@@ -148,7 +155,7 @@ describe('render manifest', () => {
   });
 
   it('mp4 と manifest の識別情報が違えば manifest_stale error にする', async () => {
-    const dir = fs.mkdtempSync(path.join(projectRoot, 'tmp/qc-manifest-'));
+    const dir = makeTempDir();
     const videoOutPath = path.join(dir, 'sample.mp4');
     fs.writeFileSync(videoOutPath, SAMPLE_VIDEO_BYTES);
     await writeRenderManifest({
@@ -170,7 +177,7 @@ describe('render manifest', () => {
   });
 
   it('--allow-stale-manifest 相当では不一致を info に落として続行する', async () => {
-    const dir = fs.mkdtempSync(path.join(projectRoot, 'tmp/qc-manifest-'));
+    const dir = makeTempDir();
     const videoOutPath = path.join(dir, 'sample.mp4');
     fs.writeFileSync(videoOutPath, SAMPLE_VIDEO_BYTES);
     await writeRenderManifest({
