@@ -294,11 +294,15 @@ async function handleTrim(req: IncomingMessage, res: ServerResponse): Promise<vo
 }
 
 async function handleTranscribe(req: IncomingMessage, res: ServerResponse, env: Record<string, string | undefined>, repoRoot: string): Promise<void> {
-  if (!assertLocalRequest(req, res)) return
+  if (!assertLocalRequest(req, res)) {
+    return
+  }
   try {
     const payload = JSON.parse(await readBody(req)) as DeletePayload | null
     const fileBaseName = payload?.fileBaseName
-    if (!resolveDataFile(fileBaseName, res)) return
+    if (!resolveDataFile(fileBaseName, res)) {
+      return
+    }
     const videoPath = path.join(videosDir, `${fileBaseName as string}.mp4`)
     if (!fs.existsSync(videoPath)) {
       sendJson(res, 404, { error: 'video file not found' })
@@ -314,7 +318,9 @@ async function handleTranscribe(req: IncomingMessage, res: ServerResponse, env: 
 }
 
 async function handleRuby(req: IncomingMessage, res: ServerResponse): Promise<void> {
-  if (!assertLocalRequest(req, res)) return
+  if (!assertLocalRequest(req, res)) {
+    return
+  }
   try {
     const payload = JSON.parse(await readBody(req)) as { text?: unknown } | null
     if (typeof payload?.text !== 'string' || payload.text.length > 2000) {

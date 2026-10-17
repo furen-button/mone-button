@@ -13,8 +13,11 @@ function getTokenizer() {
   tokenizerPromise ??= new Promise((resolve, reject) => {
     const dicPath = path.join(path.dirname(require.resolve('kuromoji/package.json')), 'dict');
     kuromoji.builder({ dicPath }).build((error, tokenizer) => {
-      if (error) reject(error);
-      else resolve(tokenizer);
+      if (error) {
+        reject(error);
+      } else {
+        resolve(tokenizer);
+      }
     });
   }).catch((error) => {
     tokenizerPromise = undefined;
@@ -67,8 +70,11 @@ export function cleanTranscript(raw) {
 function runFile(file, args) {
   return new Promise((resolve, reject) => {
     execFile(file, args, { timeout: 120_000, killSignal: 'SIGKILL', maxBuffer: 16 * 1024 * 1024 }, (error) => {
-      if (error) reject(error);
-      else resolve();
+      if (error) {
+        reject(error);
+      } else {
+        resolve();
+      }
     });
   });
 }
@@ -92,7 +98,9 @@ async function transcribeNow({ ffmpeg, videoPath, config }) {
       if (error.code === 'ENOENT') {
         throw new Error('whisper-cli が見つかりません。インストールするか、.env.local の WHISPER_CLI に実行ファイルのパスを設定してください。');
       }
-      if (error.killed) throw new Error('文字起こしがタイムアウトしました（上限120秒）。');
+      if (error.killed) {
+        throw new Error('文字起こしがタイムアウトしました（上限120秒）。');
+      }
       throw error;
     }
     const raw = await readFile(`${outputPrefix}.txt`, 'utf8');

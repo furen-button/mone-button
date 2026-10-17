@@ -39,7 +39,9 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
   }
 
   const handleGenerate = async (kind: 'transcribe' | 'ruby') => {
-    if (generationRequest.current) return
+    if (generationRequest.current) {
+      return
+    }
     const controller = new AbortController()
     generationRequest.current = controller
     setGeneration(kind)
@@ -49,24 +51,32 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
     try {
       if (kind === 'transcribe') {
         const result = await transcribeClip(clip.fileBaseName, controller.signal)
-        if (controller.signal.aborted) return
+        if (controller.signal.aborted) {
+          return
+        }
         setSerif(result.serif)
         setRuby(result.ruby)
         setGenerationMessage('文字起こし結果を入れました（未保存）')
       } else {
         const result = await generateRuby(serif, controller.signal)
-        if (controller.signal.aborted) return
+        if (controller.signal.aborted) {
+          return
+        }
         setRuby(result.ruby)
         setGenerationMessage('serif から読みを作りました（未保存）')
       }
     } catch (error) {
-      if (controller.signal.aborted) return
+      if (controller.signal.aborted) {
+        return
+      }
       setGenerationError(true)
       setGenerationMessage(error instanceof Error ? error.message : String(error))
     } finally {
       if (generationRequest.current === controller) {
         generationRequest.current = null
-        if (!controller.signal.aborted) setGeneration(null)
+        if (!controller.signal.aborted) {
+          setGeneration(null)
+        }
       }
     }
   }
