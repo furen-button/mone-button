@@ -25,6 +25,43 @@ export function createTrimPlan(payload, current, sourceDuration) {
     };
   }
 
+  return {
+    fileBaseName,
+    keepStart,
+    keepEnd,
+    noop: false,
+    updated: createRangeData(current, keepStart, keepEnd),
+  };
+}
+
+export function createExcerptPlan(payload, current, sourceDuration) {
+  const { fileBaseName, keepStart, keepEnd } = parseTrimPayload(payload);
+  assertSourceDuration(sourceDuration);
+  assertTrimRange({ keepStart, keepEnd, sourceDuration });
+
+  const created = createRangeData(current, keepStart, keepEnd);
+  if (typeof current.videoId !== 'string' || !CLIP_BASE_PATTERN.test(current.videoId)) {
+    throw new TrimValidationError(400, 'videoId が不正です');
+  }
+  let date = /^(\d{4}-\d{2}-\d{2})-/u.exec(fileBaseName)?.[1];
+  if (!date) {
+    const uploadDate = current.videoFile?.metadata?.uploadDate;
+    if (typeof uploadDate === 'string' && /^\d{8}$/u.test(uploadDate)) {
+      date = `${uploadDate.slice(0, 4)}-${uploadDate.slice(4, 6)}-${uploadDate.slice(6, 8)}`;
+    }
+  }
+  if (!date) {
+    throw new TrimValidationError(400, 'ファイル名または uploadDate に日付が必要です');
+  }
+  const pad6 = (seconds) => String(Math.floor(seconds)).padStart(6, '0');
+  const targetBaseName = `${date}-${current.videoId}-${pad6(created.trimming.startTime)}-${pad6(created.trimming.endTime)}`;
+  if (targetBaseName === fileBaseName) {
+    throw new TrimValidationError(409, '元のクリップと同じファイル名になります。別の範囲を選択してください。');
+  }
+  return { fileBaseName, targetBaseName, keepStart, keepEnd, created };
+}
+
+function createRangeData(current, keepStart, keepEnd) {
   const trimming = readTrimming(current);
   const nextStartTime = trimming.startTime + keepStart;
   const nextEndTime = trimming.startTime + keepEnd;
@@ -45,15 +82,9 @@ export function createTrimPlan(payload, current, sourceDuration) {
   }
 
   return {
-    fileBaseName,
-    keepStart,
-    keepEnd,
-    noop: false,
-    updated: {
-      ...current,
-      clipUrl: rewriteClipUrl(current.clipUrl, nextStartTime),
-      trimming: nextTrimming,
-    },
+    ...current,
+    clipUrl: rewriteClipUrl(current.clipUrl, nextStartTime),
+    trimming: nextTrimming,
   };
 }
 

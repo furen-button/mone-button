@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from 'react'
 import type { VoiceClip, VoiceData } from '../../voiceData'
-import { trimClipData } from '../../lib/devDataEditor'
+import { excerptClipData, trimClipData } from '../../lib/devDataEditor'
 import { withVideoCacheBust } from '../../lib/videoPath'
 
 type TrimEditorProps = {
@@ -10,7 +10,7 @@ type TrimEditorProps = {
 }
 
 type LoadStatus = 'loading' | 'ready' | 'error'
-type TrimStatus = 'idle' | 'trimming' | 'trimmed' | 'error'
+type TrimStatus = 'idle' | 'trimming' | 'trimmed' | 'excerpting' | 'excerpted' | 'error'
 type DragHandle = 'start' | 'end'
 
 type WaveformPeaks = {
@@ -39,6 +39,7 @@ export function TrimEditor({ clip, onSaved }: TrimEditorProps) {
   const [loadError, setLoadError] = useState('')
   const [trimStatus, setTrimStatus] = useState<TrimStatus>('idle')
   const [trimError, setTrimError] = useState('')
+  const [excerptBaseName, setExcerptBaseName] = useState('')
   const [audioReloadKey, setAudioReloadKey] = useState(() => Date.now())
   const [canvasWidth, setCanvasWidth] = useState(1)
   const [keepStart, setKeepStart] = useState(0)
@@ -65,6 +66,7 @@ export function TrimEditor({ clip, onSaved }: TrimEditorProps) {
   const hasMeaningfulTrim = keepStart >= 0.01 || duration - keepEnd >= 0.01
   const canTrim = loadStatus === 'ready'
     && trimStatus !== 'trimming'
+    && trimStatus !== 'excerpting'
     && selectionDuration >= MIN_SELECTION_SECONDS
     && hasMeaningfulTrim
 
@@ -375,6 +377,21 @@ export function TrimEditor({ clip, onSaved }: TrimEditorProps) {
     }
   }, [clip.fileBaseName, keepEnd, keepStart, onSaved, stopPlayback])
 
+  const handleExcerpt = useCallback(async () => {
+    setTrimStatus('excerpting')
+    setTrimError('')
+    stopPlayback()
+
+    try {
+      const result = await excerptClipData(clip.fileBaseName, keepStart, keepEnd)
+      setExcerptBaseName(result.fileBaseName)
+      setTrimStatus('excerpted')
+    } catch (error) {
+      setTrimStatus('error')
+      setTrimError(error instanceof Error ? error.message : String(error))
+    }
+  }, [clip.fileBaseName, keepEnd, keepStart, stopPlayback])
+
   return (
     <section className="clip-trim" aria-label="波形トリム">
       <div className="clip-trim-header">
@@ -474,9 +491,18 @@ export function TrimEditor({ clip, onSaved }: TrimEditorProps) {
         >
           {trimStatus === 'trimming' ? '切り直し中…' : 'この範囲で切る'}
         </button>
+        <button
+          type="button"
+          className="clip-trim-save is-outline"
+          onClick={() => void handleExcerpt()}
+          disabled={!canTrim}
+        >
+          {trimStatus === 'excerpting' ? '切り出し中…' : 'この範囲を別クリップに切り出す'}
+        </button>
       </div>
 
       {trimStatus === 'trimmed' ? <p className="clip-trim-status is-saved">切り直しました。</p> : null}
+      {trimStatus === 'excerpted' ? <p className="clip-trim-status is-saved">切り出しました: {excerptBaseName}.json</p> : null}
       {trimStatus === 'error' ? <p className="clip-trim-status is-error">⚠ {trimError}</p> : null}
     </section>
   )

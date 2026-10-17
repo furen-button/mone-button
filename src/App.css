@@ -973,6 +973,14 @@
   padding: 8px 16px;
 }
 
+/* 元クリップを書き換えない操作（別クリップへの切り出し）は枠線だけにして、「この範囲で切る」と見分ける。 */
+.clip-trim-save.is-outline {
+  border: 1px solid #7444d3;
+  background: #fff;
+  color: #7444d3;
+  padding: 7px 15px;
+}
+
 .clip-trim-nudge button:hover,
 .clip-trim-secondary:hover,
 .clip-trim-save:hover {
@@ -1024,6 +1032,30 @@
   color: #7a5a44;
   font-size: 13px;
   font-weight: 700;
+}
+
+.clip-edit-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.clip-edit-generate {
+  border: 1px solid #d5c2ab;
+  border-radius: 8px;
+  background: #f7efe5;
+  color: #7a5a44;
+  padding: 5px 9px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.clip-edit-generate:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .clip-edit-input,

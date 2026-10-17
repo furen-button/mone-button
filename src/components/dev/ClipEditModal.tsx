@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { generateRuby, transcribeClip } from '../../lib/devDataEditor'
 import type { KeyboardEvent } from 'react'
 import type { VoiceClip, VoiceData } from '../../voiceData'
 import { TrimEditor } from './TrimEditor'
@@ -23,6 +24,64 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
   const [newCategory, setNewCategory] = useState('')
   const [status, setStatus] = useState<SaveStatus>('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const [generation, setGeneration] = useState<'transcribe' | 'ruby' | null>(null)
+  const [generationMessage, setGenerationMessage] = useState('')
+  const [generationError, setGenerationError] = useState(false)
+  const generationRequest = useRef<AbortController | null>(null)
+
+  useEffect(() => () => {
+    generationRequest.current?.abort()
+  }, [clip.fileBaseName])
+
+  const handleClose = () => {
+    generationRequest.current?.abort()
+    onClose()
+  }
+
+  const handleGenerate = async (kind: 'transcribe' | 'ruby') => {
+    if (generationRequest.current) {
+      return
+    }
+    const controller = new AbortController()
+    generationRequest.current = controller
+    setGeneration(kind)
+    setGenerationMessage('')
+    setGenerationError(false)
+    setStatus('idle')
+    try {
+      if (kind === 'transcribe') {
+        const result = await transcribeClip(clip.fileBaseName, controller.signal)
+        if (controller.signal.aborted) {
+          return
+        }
+        setSerif(result.serif)
+        setRuby(result.ruby)
+        setGenerationMessage('文字起こし結果を入れました（未保存）')
+      } else {
+        const result = await generateRuby(serif, controller.signal)
+        if (controller.signal.aborted) {
+          return
+        }
+        setRuby(result.ruby)
+        setGenerationMessage('serif から読みを作りました（未保存）')
+      }
+    } catch (error) {
+      if (controller.signal.aborted) {
+        return
+      }
+      setGenerationError(true)
+      setGenerationMessage(error instanceof Error ? error.message : String(error))
+    } finally {
+      if (generationRequest.current === controller) {
+        generationRequest.current = null
+        if (!controller.signal.aborted) {
+          setGeneration(null)
+        }
+      }
+    }
+  }
+
+  const generating = generation !== null
 
   const addCategory = (value: string) => {
     const trimmed = value.trim()
@@ -48,6 +107,7 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
   const remainingSuggestions = categorySuggestions.filter((option) => !categories.includes(option))
 
   const handleSave = async () => {
+    setGenerationMessage('')
     setStatus('saving')
     setErrorMessage('')
 
@@ -80,7 +140,7 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
   }
 
   return (
-    <div className="clip-edit-backdrop" role="presentation" onClick={onClose}>
+    <div className="clip-edit-backdrop" role="presentation" onClick={handleClose}>
       <section
         className="clip-edit-modal"
         role="dialog"
@@ -95,25 +155,41 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
 
         <TrimEditor clip={clip} onSaved={onSaved} />
 
-        <label className="clip-edit-field">
-          <span className="clip-edit-label">serif（セリフ）</span>
+        <div className="clip-edit-field">
+          <div className="clip-edit-label-row">
+            <label className="clip-edit-label" htmlFor="clip-edit-serif">serif（セリフ）</label>
+            <button type="button" className="clip-edit-generate" disabled={generating || status === 'saving'} onClick={() => void handleGenerate('transcribe')}>
+              {generation === 'transcribe' ? '文字起こし中…' : '🎤 文字起こし'}
+            </button>
+          </div>
           <textarea
+            id="clip-edit-serif"
             className="clip-edit-textarea"
+            disabled={generating}
             rows={3}
             value={serif}
             onChange={(event) => setSerif(event.target.value)}
           />
-        </label>
+        </div>
 
-        <label className="clip-edit-field">
-          <span className="clip-edit-label">ruby（読み・並び替えキー）</span>
+        <div className="clip-edit-field">
+          <div className="clip-edit-label-row">
+            <label className="clip-edit-label" htmlFor="clip-edit-ruby">ruby（読み・並び替えキー）</label>
+            <button type="button" className="clip-edit-generate" disabled={generating || status === 'saving'} onClick={() => void handleGenerate('ruby')}>
+              {generation === 'ruby' ? '読みを生成中…' : 'serif から読みを作る'}
+            </button>
+          </div>
           <input
             className="clip-edit-input"
             type="text"
+            id="clip-edit-ruby"
+            disabled={generating}
             value={ruby}
             onChange={(event) => setRuby(event.target.value)}
           />
-        </label>
+        </div>
+
+        {generationMessage ? <p className={`clip-edit-status ${generationError ? 'is-error' : 'is-saved'}`} role={generationError ? 'alert' : 'status'}>{generationMessage}</p> : null}
 
         <label className="clip-edit-field">
           <span className="clip-edit-label">memo（メモ）</span>
@@ -184,14 +260,14 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
         {status === 'error' ? <p className="clip-edit-status is-error">⚠ {errorMessage}</p> : null}
 
         <div className="clip-edit-actions">
-          <button type="button" className="clip-edit-cancel" onClick={onClose}>
+          <button type="button" className="clip-edit-cancel" onClick={handleClose}>
             閉じる
           </button>
           <button
             type="button"
             className="clip-edit-save"
             onClick={() => void handleSave()}
-            disabled={status === 'saving'}
+            disabled={status === 'saving' || generating}
           >
             {status === 'saving' ? '保存中…' : '保存'}
           </button>
