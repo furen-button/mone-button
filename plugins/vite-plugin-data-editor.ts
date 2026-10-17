@@ -6,10 +6,10 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { loadEnv, type Plugin } from 'vite'
 import { resolveWhisperConfig, toRuby, transcribeFile } from '../scripts/dev-server/lib/transcribe.js'
 import { assertLocalRequest, readBody, sendJson } from './lib/dev-http'
-import { TrimValidationError, createTrimPlan, parseTrimPayload } from '../scripts/dev-server/lib/trim.js'
+import { TrimValidationError, createExcerptPlan, createTrimPlan, parseTrimPayload } from '../scripts/dev-server/lib/trim.js'
 
 // dev サーバ専用: public/data/*.json の serif/ruby/memo/categories を書き戻すミドルウェアと、
-// クリップ（json + mp4）の削除・トリムと、ローカル音声の文字起こし・読み生成。
+// クリップ（json + mp4）の削除・トリム・切り出しと、ローカル音声の文字起こし・読み生成。
 // apply: 'serve' のため本番ビルドには一切含まれない。
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url))
@@ -112,20 +112,24 @@ async function loadFfmpegModules(): Promise<{ ffmpegModule: FfmpegModule, assets
   }
 }
 
-async function trimVideoFile({
+async function encodeRange({
   ffmpeg,
   audioResample,
   sourcePath,
+  destPath,
+  beforeRename,
   keepStart,
   keepEnd,
 }: {
   ffmpeg: string
   audioResample: string
   sourcePath: string
+  destPath: string
+  beforeRename?: () => void
   keepStart: number
   keepEnd: number
-}): Promise<string> {
-  const tmpPath = `${sourcePath}.trim-${process.pid}-${Date.now()}.mp4`
+}): Promise<void> {
+  const tmpPath = `${destPath}.trim-${process.pid}-${Date.now()}.mp4`
   try {
     await execFileAsync(ffmpeg, [
       '-y',
@@ -144,13 +148,28 @@ async function trimVideoFile({
       '-movflags', '+faststart',
       tmpPath,
     ])
-    const moved = moveToTrash(sourcePath, 'videos')
-    fs.renameSync(tmpPath, sourcePath)
-    return moved
+    beforeRename?.()
+    fs.renameSync(tmpPath, destPath)
   } catch (error) {
     fs.rmSync(tmpPath, { force: true })
     throw error
   }
+}
+
+async function trimVideoFile(options: {
+  ffmpeg: string
+  audioResample: string
+  sourcePath: string
+  keepStart: number
+  keepEnd: number
+}): Promise<string> {
+  let moved = ''
+  await encodeRange({
+    ...options,
+    destPath: options.sourcePath,
+    beforeRename: () => { moved = moveToTrash(options.sourcePath, 'videos') },
+  })
+  return moved
 }
 
 function cacheVideoPath(cacheRoot: string, videoId: unknown, fileBaseName: string): string | null {
@@ -293,6 +312,75 @@ async function handleTrim(req: IncomingMessage, res: ServerResponse): Promise<vo
   }
 }
 
+// 同じ出力への並行リクエストも、エンコード前に 409 にする。
+const pendingExcerpts = new Set<string>()
+
+async function handleExcerpt(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  if (!assertLocalRequest(req, res)) {
+    return
+  }
+
+  let reservedTarget: string | undefined
+  try {
+    const parsed = parseTrimPayload(JSON.parse(await readBody(req)))
+    const filePath = resolveDataFile(parsed.fileBaseName, res)
+    if (!filePath) {
+      return
+    }
+    const videoPath = path.join(videosDir, `${parsed.fileBaseName}.mp4`)
+    if (!fs.existsSync(videoPath)) {
+      sendJson(res, 404, { error: 'video file not found' })
+      return
+    }
+
+    const current = JSON.parse(fs.readFileSync(filePath, 'utf8')) as Record<string, unknown>
+    const { ffmpegModule } = await loadFfmpegModules()
+    const tools = ffmpegModule.resolveFfmpeg()
+    const sourceDuration = ffmpegModule.probeDuration(tools.ffprobe, videoPath)
+    const plan = createExcerptPlan(parsed, current, sourceDuration)
+    const targetJson = path.join(dataDir, `${plan.targetBaseName}.json`)
+    const targetVideo = path.join(videosDir, `${plan.targetBaseName}.mp4`)
+    const assertTargetAbsent = () => {
+      if (fs.existsSync(targetJson) || fs.existsSync(targetVideo)) {
+        throw new TrimValidationError(409, `同じ区間のクリップが既にあります: ${plan.targetBaseName}`)
+      }
+    }
+    assertTargetAbsent()
+    if (pendingExcerpts.has(plan.targetBaseName)) {
+      throw new TrimValidationError(409, `同じ区間のクリップが既にあります: ${plan.targetBaseName}`)
+    }
+    reservedTarget = plan.targetBaseName
+    pendingExcerpts.add(reservedTarget)
+
+    await encodeRange({
+      ffmpeg: tools.ffmpeg,
+      audioResample: ffmpegModule.AUDIO_RESAMPLE,
+      sourcePath: videoPath,
+      destPath: targetVideo,
+      keepStart: plan.keepStart,
+      keepEnd: plan.keepEnd,
+      beforeRename: assertTargetAbsent,
+    })
+    try {
+      fs.writeFileSync(targetJson, JSON.stringify(plan.created, null, 2), { flag: 'wx' })
+    } catch (error) {
+      fs.rmSync(targetVideo, { force: true })
+      throw error
+    }
+    sendJson(res, 200, { fileBaseName: plan.targetBaseName, created: plan.created })
+  } catch (error) {
+    if (error instanceof TrimValidationError) {
+      sendJson(res, error.status, { error: error.message })
+      return
+    }
+    sendJson(res, 500, { error: errorMessage(error) })
+  } finally {
+    if (reservedTarget) {
+      pendingExcerpts.delete(reservedTarget)
+    }
+  }
+}
+
 async function handleTranscribe(req: IncomingMessage, res: ServerResponse, env: Record<string, string | undefined>, repoRoot: string): Promise<void> {
   if (!assertLocalRequest(req, res)) {
     return
@@ -366,6 +454,13 @@ export function dataEditorPlugin(): Plugin {
           return
         }
         void handleDelete(req, res)
+      })
+      server.middlewares.use('/__data/excerpt', (req, res, next) => {
+        if (req.method !== 'POST') {
+          next()
+          return
+        }
+        void handleExcerpt(req, res)
       })
       server.middlewares.use('/__data/trim', (req, res, next) => {
         if (req.method !== 'POST') {

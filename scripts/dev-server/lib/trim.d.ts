@@ -21,3 +21,14 @@ export function createTrimPlan(
   current: Record<string, unknown>,
   sourceDuration: number,
 ): TrimPlan
+
+export type ExcerptPlan = ParsedTrimPayload & {
+  targetBaseName: string
+  created: Record<string, unknown>
+}
+
+export function createExcerptPlan(
+  payload: unknown,
+  current: Record<string, unknown>,
+  sourceDuration: number,
+): ExcerptPlan

@@ -31,6 +31,25 @@ export async function trimClipData(fileBaseName: string, keepStart: number, keep
   return result.updated
 }
 
+export async function excerptClipData(
+  fileBaseName: string,
+  keepStart: number,
+  keepEnd: number,
+): Promise<{ fileBaseName: string; created: VoiceData }> {
+  const response = await fetch('/__data/excerpt', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fileBaseName, keepStart, keepEnd }),
+  })
+
+  if (!response.ok) {
+    const detail = (await response.json().catch(() => null)) as { error?: string } | null
+    throw new Error(detail?.error ?? `切り出しに失敗しました (${response.status})`)
+  }
+
+  return response.json() as Promise<{ fileBaseName: string; created: VoiceData }>
+}
+
 export type TranscribeResult = { serif: string; ruby: string; raw: string; ms: number }
 
 export async function transcribeClip(fileBaseName: string, signal?: AbortSignal): Promise<TranscribeResult> {
