@@ -3,12 +3,13 @@ import path from 'node:path'
 import { execFile } from 'node:child_process'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import type { Plugin } from 'vite'
+import { loadEnv, type Plugin } from 'vite'
+import { resolveWhisperConfig, toRuby, transcribeFile } from '../scripts/dev-server/lib/transcribe.js'
 import { assertLocalRequest, readBody, sendJson } from './lib/dev-http'
 import { TrimValidationError, createTrimPlan, parseTrimPayload } from '../scripts/dev-server/lib/trim.js'
 
 // dev サーバ専用: public/data/*.json の serif/ruby/memo/categories を書き戻すミドルウェアと、
-// クリップ（json + mp4）を trash/ へ退避する削除ミドルウェア。
+// クリップ（json + mp4）の削除・トリムと、ローカル音声の文字起こし・読み生成。
 // apply: 'serve' のため本番ビルドには一切含まれない。
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url))
@@ -292,11 +293,60 @@ async function handleTrim(req: IncomingMessage, res: ServerResponse): Promise<vo
   }
 }
 
+async function handleTranscribe(req: IncomingMessage, res: ServerResponse, env: Record<string, string | undefined>, repoRoot: string): Promise<void> {
+  if (!assertLocalRequest(req, res)) return
+  try {
+    const payload = JSON.parse(await readBody(req)) as DeletePayload | null
+    const fileBaseName = payload?.fileBaseName
+    if (!resolveDataFile(fileBaseName, res)) return
+    const videoPath = path.join(videosDir, `${fileBaseName as string}.mp4`)
+    if (!fs.existsSync(videoPath)) {
+      sendJson(res, 404, { error: 'video file not found' })
+      return
+    }
+    const config = resolveWhisperConfig(env, repoRoot)
+    const { ffmpegModule } = await loadFfmpegModules()
+    const { ffmpeg } = ffmpegModule.resolveFfmpeg()
+    sendJson(res, 200, await transcribeFile({ ffmpeg, videoPath, config }))
+  } catch (error) {
+    sendJson(res, 500, { error: error instanceof Error ? error.message : String(error) })
+  }
+}
+
+async function handleRuby(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  if (!assertLocalRequest(req, res)) return
+  try {
+    const payload = JSON.parse(await readBody(req)) as { text?: unknown } | null
+    if (typeof payload?.text !== 'string' || payload.text.length > 2000) {
+      sendJson(res, 400, { error: 'text は2000文字以内の文字列を指定してください。' })
+      return
+    }
+    sendJson(res, 200, { ruby: await toRuby(payload.text) })
+  } catch (error) {
+    sendJson(res, 500, { error: error instanceof Error ? error.message : String(error) })
+  }
+}
+
 export function dataEditorPlugin(): Plugin {
   return {
     name: 'mone-data-editor',
     apply: 'serve',
     configureServer(server) {
+      const env = { ...loadEnv(server.config.mode, server.config.envDir, 'WHISPER_'), ...process.env }
+      server.middlewares.use('/__data/transcribe', (req, res, next) => {
+        if (req.method !== 'POST') {
+          next()
+          return
+        }
+        void handleTranscribe(req, res, env, server.config.root)
+      })
+      server.middlewares.use('/__data/ruby', (req, res, next) => {
+        if (req.method !== 'POST') {
+          next()
+          return
+        }
+        void handleRuby(req, res)
+      })
       server.middlewares.use('/__data/save', (req, res, next) => {
         if (req.method !== 'POST') {
           next()
