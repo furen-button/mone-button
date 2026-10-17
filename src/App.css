@@ -1026,6 +1026,30 @@
   font-weight: 700;
 }
 
+.clip-edit-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.clip-edit-generate {
+  border: 1px solid #d5c2ab;
+  border-radius: 8px;
+  background: #f7efe5;
+  color: #7a5a44;
+  padding: 5px 9px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.clip-edit-generate:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 .clip-edit-input,
 .clip-edit-textarea {
   width: 100%;

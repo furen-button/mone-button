@@ -30,3 +30,33 @@ export async function trimClipData(fileBaseName: string, keepStart: number, keep
   const result = (await response.json()) as { updated: VoiceData }
   return result.updated
 }
+
+export type TranscribeResult = { serif: string; ruby: string; raw: string; ms: number }
+
+export async function transcribeClip(fileBaseName: string, signal?: AbortSignal): Promise<TranscribeResult> {
+  const response = await fetch('/__data/transcribe', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fileBaseName }),
+    signal,
+  })
+  if (!response.ok) {
+    const detail = (await response.json().catch(() => null)) as { error?: string } | null
+    throw new Error(detail?.error ?? `文字起こしに失敗しました (${response.status})`)
+  }
+  return response.json() as Promise<TranscribeResult>
+}
+
+export async function generateRuby(text: string, signal?: AbortSignal): Promise<{ ruby: string }> {
+  const response = await fetch('/__data/ruby', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text }),
+    signal,
+  })
+  if (!response.ok) {
+    const detail = (await response.json().catch(() => null)) as { error?: string } | null
+    throw new Error(detail?.error ?? `読みの生成に失敗しました (${response.status})`)
+  }
+  return response.json() as Promise<{ ruby: string }>
+}
