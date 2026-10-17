@@ -72,6 +72,7 @@ npm run import   # sync → extract → download を一括実行
 - serif / ruby / categories の入力は **youtube-clip-tool 側で行う**（取込後に上書きされない）。既存クリップの内容を直したい場合は `public/data` を直接編集するか、当該ファイルを削除して再取込する。
 - dev サイトのクリップ編集モーダルの「🎤 文字起こし」は、ローカルの `whisper-cli` と Whisper モデルで現在の mp4 全体を文字起こしする。`WHISPER_CLI` / `WHISPER_MODEL_PATH` / `WHISPER_LANGUAGE` は `.env`・`.env.local` またはプロセス環境変数で設定できる（プロセス環境変数を優先）。`WHISPER_MODEL_PATH`（モデルの絶対パス）は必須で既定値は無く、マシン固有の値なので git 管理外の `.env.local` に書く。ruby は kuromoji で生成し、手修正後は「serif から読みを作る」で再生成できる。結果は入力欄に入り、**「保存」を押すまで JSON に書き込まない**。設定エディタ `editor.html` は対象外。
 - dev サイトのクリップ編集モーダルでは、波形を見ながら先頭・末尾を **短縮のみ** でトリムできる。ファイル名は変えず、旧 `public/videos` は `trash/videos`、高画質キャッシュは `trash/cache` へ退避して次回 createVideo で再 DL させる。
+- 波形の「この範囲を別クリップに切り出す」は、元の JSON・mp4・高画質キャッシュを残して新しい JSON と mp4 を作る。serif / ruby / categories / memo 等は元 JSON からコピーする（`effects.zoom.at` もクリップ先頭からの秒を補正せずコピーし、既存トリムと同じ扱い）。ファイル名は `<YYYY-MM-DD>-<videoId>-<pad6(floor(startTime))>-<pad6(floor(endTime))>`（日付は元ファイル名優先、なければ uploadDate）で、同名の JSON または mp4 があれば 409 で止める。切り出しても ASS golden が変わるため、意図どおりなら `npm run golden:ass` で更新する。
 - トリムすると `public/data` 全体を見ている ASS golden が変わる。意図したトリム後は `npm run golden:ass` で `scripts/create-video/__fixtures__/ass-golden.json` を更新する。
 - データは build 時に glob 取込されるため、取り込み後の表示反映には `npm run dev` または `npm run build` が必要。
 
