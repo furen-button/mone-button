@@ -1,0 +1,37 @@
+{
+  "videoId": "uQBWUjUzJBw",
+  "serif": "バカバカアホアホまぬけ侍",
+  "ruby": "ばかばかあほあほまぬけさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=uQBWUjUzJBw&t=9375s",
+  "memo": "yt-comment-archiver: ライブチャット「新しい侍でてきた」「バカバカアホアホまぬけ侍！？」「また変な侍が来た」「拙者バカバカアホアホマヌケ侍」「バカバカアホアホ間抜け侍」「暴言過ぎる侍」 @2:36:27",
+  "liveChat": {
+    "message": "新しい侍でてきた",
+    "at": 9387,
+    "streamStartedAt": "2025-06-27T12:00:55+09:00"
+  },
+  "trimming": {
+    "startTime": 9375.96262886598,
+    "endTime": 9380.681885125185,
+    "duration": 4.7192562592047125,
+    "original": {
+      "startTime": 9327,
+      "endTime": 9387,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "uQBWUjUzJBw",
+      "title": "【ロックマン１】#4 完全初見🔰最終回(仮)ワイリー倒す✊【にじさんじ/梢桃音】",
+      "duration": 20100,
+      "thumbnail": "https://i.ytimg.com/vi/uQBWUjUzJBw/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250627",
+      "viewCount": 25958,
+      "url": "https://www.youtube.com/watch?v=uQBWUjUzJBw"
+    }
+  }
+}

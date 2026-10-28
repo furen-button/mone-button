@@ -1,0 +1,37 @@
+{
+  "videoId": "01W-2BtWTq0",
+  "serif": "順調侍",
+  "ruby": "じゅんちょうさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=01W-2BtWTq0&t=5795s",
+  "memo": "yt-comment-archiver: ライブチャット「侍」「順調侍もいます」「出たレギュラー陣の侍」「順調侍でござるか」「限界侍でござる」「もねごん侍だったか」「順調侍のシロップ漬け」 @1:36:52",
+  "liveChat": {
+    "message": "侍",
+    "at": 5812,
+    "streamStartedAt": "2025-05-02T13:00:43+09:00"
+  },
+  "trimming": {
+    "startTime": 5795.5889175257735,
+    "endTime": 5803.062684094256,
+    "duration": 7.4737665684830645,
+    "original": {
+      "startTime": 5752,
+      "endTime": 5812,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "01W-2BtWTq0",
+      "title": "【枠ちぎれるまで】超魔界村 ¦ 3日間でクリアチャレンジ #1日目  ＧＷの挑戦開始✨ 【にじさんじ/梢桃音】",
+      "duration": 42554,
+      "thumbnail": "https://i.ytimg.com/vi/01W-2BtWTq0/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250502",
+      "viewCount": 99841,
+      "url": "https://www.youtube.com/watch?v=01W-2BtWTq0"
+    }
+  }
+}

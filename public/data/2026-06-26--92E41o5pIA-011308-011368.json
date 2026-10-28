@@ -1,0 +1,37 @@
+{
+  "videoId": "-92E41o5pIA",
+  "serif": "くやしみの鎌足が 泣いていますが",
+  "ruby": "くやしみのかまたりがないていますが",
+  "categories": [
+    "鎌足"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=-92E41o5pIA&t=11359s",
+  "memo": "yt-comment-archiver: ライブチャット「鎌足も泣きますと」「悔しみの鎌足」「鎌足涙拭けよ…」「誰よその鎌足」「悔しみの鎌足？」「元気出せよ鎌足」 @3:09:28",
+  "liveChat": {
+    "message": "鎌足も泣きますと",
+    "at": 11368,
+    "streamStartedAt": "2026-06-26T12:01:38+09:00"
+  },
+  "trimming": {
+    "startTime": 11359.053277345189,
+    "endTime": 11361.216577687777,
+    "duration": 2.163300342587905,
+    "original": {
+      "startTime": 11308,
+      "endTime": 11368,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "-92E41o5pIA",
+      "title": "【GeoGuessr】お天気の悪い日はお家の中からお散歩☔【にじさんじ/梢桃音】",
+      "duration": 12243,
+      "thumbnail": "https://i.ytimg.com/vi/-92E41o5pIA/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260626",
+      "viewCount": 23133,
+      "url": "https://www.youtube.com/watch?v=-92E41o5pIA"
+    }
+  }
+}

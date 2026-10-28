@@ -1,0 +1,37 @@
+{
+  "videoId": "1epr2SMbjjQ",
+  "serif": "おいしいね侍",
+  "ruby": "おいしいねさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=1epr2SMbjjQ&t=22213s",
+  "memo": "yt-comment-archiver: ライブチャット「また変な侍が……」「新たな侍が」「侍さんも起きてるのね」「陽気な侍だ」「りんご美味しい美味しい侍さんこんばんは」「もねち侍今何人？」「侍なのに語尾がお姉さんっぽい」 @6:10:24",
+  "liveChat": {
+    "message": "また変な侍が……",
+    "at": 22224,
+    "streamStartedAt": "2025-04-12T20:30:16+09:00"
+  },
+  "trimming": {
+    "startTime": 22213.840995647897,
+    "endTime": 22217.387793998525,
+    "duration": 3.5467983506305227,
+    "original": {
+      "startTime": 22164,
+      "endTime": 22224,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "1epr2SMbjjQ",
+      "title": "【9万人＆クリア耐久】2枠目！ロックマン2 Dr.ワイリーの謎 ¦ 初めてのロックマン！🎮【にじさんじ/梢桃音】",
+      "duration": 41168,
+      "thumbnail": "https://i.ytimg.com/vi/1epr2SMbjjQ/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250412",
+      "viewCount": 64754,
+      "url": "https://www.youtube.com/watch?v=1epr2SMbjjQ"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "j2jwE6apnEU",
+  "serif": "みんなが前向き侍でうれしい侍",
+  "ruby": "みんながまえむきさむらいでうれしいさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=j2jwE6apnEU&t=1230s",
+  "memo": "yt-comment-archiver: ライブチャット「うれしい侍？」「俺ら前向き侍だったのか……」「我々は侍」「侍だ！」「嬉しい侍」「もねち大好き侍だからね」「拙者前向き侍…」「嬉しい侍！」「みんなが前向き侍で嬉しい侍さん」「前向きもねゴン侍だぜ」 @0:20:42",
+  "liveChat": {
+    "message": "うれしい侍？",
+    "at": 1242,
+    "streamStartedAt": "2025-10-25T12:00:57+09:00"
+  },
+  "trimming": {
+    "startTime": 1230.1521539027983,
+    "endTime": 1235.2939064801178,
+    "duration": 5.141752577319586,
+    "original": {
+      "startTime": 1182,
+      "endTime": 1242,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "j2jwE6apnEU",
+      "title": "【雑談】一旦話して落ち着こう😭【にじさんじ/梢桃音】",
+      "duration": 1656,
+      "thumbnail": "https://i.ytimg.com/vi/j2jwE6apnEU/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20251025",
+      "viewCount": 12751,
+      "url": "https://www.youtube.com/watch?v=j2jwE6apnEU"
+    }
+  }
+}

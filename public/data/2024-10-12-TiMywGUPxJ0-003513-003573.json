@@ -1,0 +1,37 @@
+{
+  "videoId": "TiMywGUPxJ0",
+  "serif": "悪夢侍",
+  "ruby": "あくむさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=TiMywGUPxJ0&t=3564s",
+  "memo": "yt-comment-archiver: ライブチャット「嫌な侍だなあ」「悪夢侍だれ？」「侍多いなｗ」「ナイトメア侍」「また新しい侍出てる…」「悪夢侍逆に見てみたい」 @0:59:33",
+  "liveChat": {
+    "message": "嫌な侍だなあ",
+    "at": 3573,
+    "streamStartedAt": "2024-10-12T09:00:20+09:00"
+  },
+  "trimming": {
+    "startTime": 3564.664672312224,
+    "endTime": 3570.467783505155,
+    "duration": 5.8031111929307855,
+    "original": {
+      "startTime": 3513,
+      "endTime": 3573,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "TiMywGUPxJ0",
+      "title": "【あつまれどうぶつの森#11】朝のあつ森！お花をお家の周りにたくさん植えたい🌸【にじさんじ/梢桃音】",
+      "duration": 8525,
+      "thumbnail": "https://i.ytimg.com/vi/TiMywGUPxJ0/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241012",
+      "viewCount": 8654,
+      "url": "https://www.youtube.com/watch?v=TiMywGUPxJ0"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "hJjw9cQxquM",
+  "serif": "ツルツル侍",
+  "ruby": "つるつるさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=hJjw9cQxquM&t=9083s",
+  "memo": "yt-comment-archiver: ライブチャット「ツルツル侍？」「でたわね侍」「ツルツル侍」「ツルツル侍」「新しい侍来たな…」「つるつる侍？？？」「ハゲやん侍」「久々な侍シリーズ」「また増える侍」「侍が増えていく」 @2:31:32",
+  "liveChat": {
+    "message": "ツルツル侍？",
+    "at": 9092,
+    "streamStartedAt": "2024-10-27T10:01:03+09:00"
+  },
+  "trimming": {
+    "startTime": 9083.309830633285,
+    "endTime": 9085.616991899853,
+    "duration": 2.3071612665684853,
+    "original": {
+      "startTime": 9032,
+      "endTime": 9092,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "hJjw9cQxquM",
+      "title": "【クリア耐久】伝説のスタフィー⭐🌊日曜日はたっぷりゲームしよ！！🎮【にじさんじ/梢桃音】",
+      "duration": 34779,
+      "thumbnail": "https://i.ytimg.com/vi/hJjw9cQxquM/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241027",
+      "viewCount": 32204,
+      "url": "https://www.youtube.com/watch?v=hJjw9cQxquM"
+    }
+  }
+}

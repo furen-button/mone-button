@@ -1,0 +1,37 @@
+{
+  "videoId": "K5bbHciRSBM",
+  "serif": "コウモリ侍",
+  "ruby": "こうもりさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=K5bbHciRSBM&t=8238s",
+  "memo": "yt-comment-archiver: ライブチャット「侍？」「侍なんだ」「侍？」「侍？」「コウモリ侍」「侍要素どこ…？」「コウモリ侍ね、わかるわかる」「蝙蝠侍w」「頭ふわふわ侍でござる」 @2:17:28",
+  "liveChat": {
+    "message": "侍？",
+    "at": 8248,
+    "streamStartedAt": "2024-08-09T12:00:45+09:00"
+  },
+  "trimming": {
+    "startTime": 8238.362021166524,
+    "endTime": 8241.923065053348,
+    "duration": 3.561043886824221,
+    "original": {
+      "startTime": 8188,
+      "endTime": 8248,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "K5bbHciRSBM",
+      "title": "【スーパーマリオヨッシーアイランド#4】完全初見🦖コソ練！そろそろうまくなってきた【にじさんじ/梢桃音】",
+      "duration": 13266,
+      "thumbnail": "https://i.ytimg.com/vi/K5bbHciRSBM/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240809",
+      "viewCount": 12595,
+      "url": "https://www.youtube.com/watch?v=K5bbHciRSBM"
+    }
+  }
+}

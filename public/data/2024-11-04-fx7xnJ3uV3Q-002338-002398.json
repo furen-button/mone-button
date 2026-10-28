@@ -1,0 +1,37 @@
+{
+  "videoId": "fx7xnJ3uV3Q",
+  "serif": "エミュー大好き侍",
+  "ruby": "えみゅーだいすきさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=fx7xnJ3uV3Q&t=2383s",
+  "memo": "yt-comment-archiver: ライブチャット「侍もそろそろ名簿作りたい」「まず侍だったんだ」「侍多いなぁ」「エミュー侍、ダチョウとの違いがわからぬ」「侍に見分けるのは難しいかもなぁ」 @0:39:58",
+  "liveChat": {
+    "message": "侍もそろそろ名簿作りたい",
+    "at": 2398,
+    "streamStartedAt": "2024-11-04T22:00:19+09:00"
+  },
+  "trimming": {
+    "startTime": 2383.527761636291,
+    "endTime": 2384.790212248213,
+    "duration": 1.2624506119216372,
+    "original": {
+      "startTime": 2338,
+      "endTime": 2398,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "fx7xnJ3uV3Q",
+      "title": "【スーパードンキーコング#３】完全初見🍌🦍そろそろドンキーと仲良くなれたはず！！！【にじさんじ/梢桃音】",
+      "duration": 11033,
+      "thumbnail": "https://i.ytimg.com/vi/fx7xnJ3uV3Q/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241104",
+      "viewCount": 21445,
+      "url": "https://www.youtube.com/watch?v=fx7xnJ3uV3Q"
+    }
+  }
+}

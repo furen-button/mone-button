@@ -1,0 +1,37 @@
+{
+  "videoId": "ntWxZGT-YnY",
+  "serif": "同じ色仕分け侍出動",
+  "ruby": "おなじいろしわけさむらいしゅつどう",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=ntWxZGT-YnY&t=7973s",
+  "memo": "yt-comment-archiver: ライブチャット「新たな侍」「侍ひさびさに見た気がする」「いろんな侍がいますね」「今日も新たな侍がピヨピヨしております」「同じ色仕分け侍さん！？」「同じ色仕分け侍……」 @2:13:04",
+  "liveChat": {
+    "message": "新たな侍",
+    "at": 7984,
+    "streamStartedAt": "2025-04-16T23:00:15+09:00"
+  },
+  "trimming": {
+    "startTime": 7973.888280594643,
+    "endTime": 7980.5979245520375,
+    "duration": 6.709643957393685,
+    "original": {
+      "startTime": 7924,
+      "endTime": 7984,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "ntWxZGT-YnY",
+      "title": "【A Little to the Left】深夜のチルなパズルゲーム🌃まったりゆったりお話しましょ☕【にじさんじ/梢桃音】",
+      "duration": 12258,
+      "thumbnail": "https://i.ytimg.com/vi/ntWxZGT-YnY/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250416",
+      "viewCount": 10420,
+      "url": "https://www.youtube.com/watch?v=ntWxZGT-YnY"
+    }
+  }
+}

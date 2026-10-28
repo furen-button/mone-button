@@ -1,0 +1,37 @@
+{
+  "videoId": "08NZgAiqomA",
+  "serif": "ダンシング侍",
+  "ruby": "だんしんぐさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=08NZgAiqomA&t=7387s",
+  "memo": "yt-comment-archiver: ライブチャット「ダンシング侍」「また侍が増えた」「ダンシング侍もいます」「ダンシング侍もいます　記憶が正しければなんと2回目の登場」「ダンシング侍のもねち！」「もねちダンシング侍なの？」「フレデリックと同じ思想の侍」「嘘つき侍だ！」「ダンシング侍してないんだ…」 @2:03:20",
+  "liveChat": {
+    "message": "ダンシング侍",
+    "at": 7400,
+    "streamStartedAt": "2025-12-17T19:00:28+09:00"
+  },
+  "trimming": {
+    "startTime": 7387.004786450662,
+    "endTime": 7391.627393225332,
+    "duration": 4.622606774668633,
+    "original": {
+      "startTime": 7340,
+      "endTime": 7400,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "08NZgAiqomA",
+      "title": "【 Minecraft 】まったりマイクラ💭エンチャントテーブルを作ってみたい📚✨【にじさんじ/梢桃音】",
+      "duration": 18953,
+      "thumbnail": "https://i.ytimg.com/vi/08NZgAiqomA/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20251217",
+      "viewCount": 13682,
+      "url": "https://www.youtube.com/watch?v=08NZgAiqomA"
+    }
+  }
+}

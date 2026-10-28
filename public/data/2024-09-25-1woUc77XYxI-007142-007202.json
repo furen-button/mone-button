@@ -1,0 +1,37 @@
+{
+  "videoId": "1woUc77XYxI",
+  "serif": "惜しい侍",
+  "ruby": "おしいさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=1woUc77XYxI&t=7190s",
+  "memo": "yt-comment-archiver: ライブチャット「惜しい侍」「邪魔な侍だ…」「今日も侍は沢山」「惜しい侍って踊るんだ…」「また新たな侍が」「新しい侍さん！」「惜しい侍」「侍ってそうだっけ」「侍は「あそれ」って言わない」「惜しい侍:man_dancing:」「その侍いる？」「侍は芸達者やなぁ」「陽気な侍なことで」 @2:00:02",
+  "liveChat": {
+    "message": "惜しい侍",
+    "at": 7202,
+    "streamStartedAt": "2024-09-25T22:00:33+09:00"
+  },
+  "trimming": {
+    "startTime": 7190.253657590436,
+    "endTime": 7196.381890003682,
+    "duration": 6.128232413245581,
+    "original": {
+      "startTime": 7142,
+      "endTime": 7202,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "1woUc77XYxI",
+      "title": "【Q REMASTERED 】物理演算とか分からないけど！！！天才な桃音さんに任せてよ！！！【にじさんじ/梢桃音】",
+      "duration": 11379,
+      "thumbnail": "https://i.ytimg.com/vi/1woUc77XYxI/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240925",
+      "viewCount": 15727,
+      "url": "https://www.youtube.com/watch?v=1woUc77XYxI"
+    }
+  }
+}

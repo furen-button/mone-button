@@ -1,0 +1,37 @@
+{
+  "videoId": "TkrvKpHIWoQ",
+  "serif": "図鑑スカスカ侍",
+  "ruby": "ずかんすかすかさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=TkrvKpHIWoQ&t=1873s",
+  "memo": "yt-comment-archiver: ライブチャット「スカスカ侍w」「図鑑スカスカ侍も出ますと」「すかすか侍」「いろんな侍がいるなあ」「ストーリー重視侍」「無欲侍」 @0:31:23",
+  "liveChat": {
+    "message": "スカスカ侍w",
+    "at": 1883,
+    "streamStartedAt": "2026-03-20T11:01:38+09:00"
+  },
+  "trimming": {
+    "startTime": 1873.6872370381343,
+    "endTime": 1875.6014908374755,
+    "duration": 1.914253799341096,
+    "original": {
+      "startTime": 1823,
+      "endTime": 1883,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "TkrvKpHIWoQ",
+      "title": "【Pokémon LEGENDS Z-A】#9  もう少しでランクA！！！！  【にじさんじ/梢桃音】",
+      "duration": 24462,
+      "thumbnail": "https://i.ytimg.com/vi/TkrvKpHIWoQ/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260320",
+      "viewCount": 14870,
+      "url": "https://www.youtube.com/watch?v=TkrvKpHIWoQ"
+    }
+  }
+}

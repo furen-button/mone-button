@@ -1,0 +1,37 @@
+{
+  "videoId": "xx5Qjk3EmBc",
+  "serif": "あほけち侍",
+  "ruby": "あほけちさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=xx5Qjk3EmBc&t=3664s",
+  "memo": "yt-comment-archiver: ライブチャット「あほけち侍？？」「:_ノーマルもねゴン:アホケチ侍で候」「拙者あほけち侍、義によって助太刀いたす」「拙者アホケチ侍で候」「あほけち侍だよ:_ノーマルもねゴン:」「だーれがアホケチ侍じゃいっ:index_pointing_at_the_viewer::pouting_face:」 @1:01:25",
+  "liveChat": {
+    "message": "あほけち侍？？",
+    "at": 3685,
+    "streamStartedAt": "2025-02-18T19:00:18+09:00"
+  },
+  "trimming": {
+    "startTime": 3664.0422496318115,
+    "endTime": 3668.0269262970974,
+    "duration": 3.9846766652859595,
+    "original": {
+      "startTime": 3625,
+      "endTime": 3685,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "xx5Qjk3EmBc",
+      "title": "【ゼルダの伝説時のオカリナ】#1 シリーズ完全初見🔰伝説のはじまりってわくわくするね✨【にじさんじ/梢桃音】",
+      "duration": 13230,
+      "thumbnail": "https://i.ytimg.com/vi/xx5Qjk3EmBc/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250218",
+      "viewCount": 33338,
+      "url": "https://www.youtube.com/watch?v=xx5Qjk3EmBc"
+    }
+  }
+}

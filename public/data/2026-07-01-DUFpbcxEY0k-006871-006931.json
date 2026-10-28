@@ -1,0 +1,37 @@
+{
+  "videoId": "DUFpbcxEY0k",
+  "serif": "美し侍",
+  "ruby": "うつくしさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=DUFpbcxEY0k&t=6919s",
+  "memo": "yt-comment-archiver: ライブチャット「醜い侍になった？」「美し侍もいます」「美し侍もねち」「美し侍も定時上がりです」「美し侍残業」「侍鳴くんだ」 @1:55:31",
+  "liveChat": {
+    "message": "醜い侍になった？",
+    "at": 6931,
+    "streamStartedAt": "2026-07-01T12:02:14+09:00"
+  },
+  "trimming": {
+    "startTime": 6919.206001472754,
+    "endTime": 6922.428088525367,
+    "duration": 3.2220870526126046,
+    "original": {
+      "startTime": 6871,
+      "endTime": 6931,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "DUFpbcxEY0k",
+      "title": "【ドクターマリオ】お昼のきりきりドクターもねち🩺【にじさんじ/梢桃音】",
+      "duration": 8028,
+      "thumbnail": "https://i.ytimg.com/vi/DUFpbcxEY0k/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260701",
+      "viewCount": 10469,
+      "url": "https://www.youtube.com/watch?v=DUFpbcxEY0k"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "1ucTRPes3r8",
+  "serif": "奥深侍",
+  "ruby": "おくふかさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=1ucTRPes3r8&t=753s",
+  "memo": "yt-comment-archiver: ライブチャット「お、侍だ」「奥深侍」「侍混乱してない？」「侍がピヨピヨするのか…」「誰よその侍！」「奥深侍」「奥深侍」「今日はIQ高い侍」「侍も増えてきたね」 @0:12:49",
+  "liveChat": {
+    "message": "お、侍だ",
+    "at": 769,
+    "streamStartedAt": "2024-11-24T10:00:23+09:00"
+  },
+  "trimming": {
+    "startTime": 753.1246318114875,
+    "endTime": 760.9774885923885,
+    "duration": 7.8528567809009875,
+    "original": {
+      "startTime": 709,
+      "endTime": 769,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "1ucTRPes3r8",
+      "title": "【ポケモンSV#5】朝からぽやっとポケモン！まずは次のスター団のアジトに行こ！！【にじさんじ/梢桃音】",
+      "duration": 22228,
+      "thumbnail": "https://i.ytimg.com/vi/1ucTRPes3r8/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241124",
+      "viewCount": 32987,
+      "url": "https://www.youtube.com/watch?v=1ucTRPes3r8"
+    }
+  }
+}

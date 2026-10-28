@@ -1,0 +1,37 @@
+{
+  "videoId": "6xnWMVFpC9I",
+  "serif": "みんな どうしよう どうしよう どうしよう",
+  "ruby": "みんなどうしようどうしようどうしよう",
+  "categories": [
+    "やられ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=6xnWMVFpC9I&t=6033s",
+  "memo": "yt-comment-archiver: ライブチャット「架空の侍」「今日の侍は歌付きか」「冴えてる侍も絶好調」「冴えてる侍帰った？」「ぽやぽや侍」「侍なんて言ってる？」「冴えてる侍ならご帰宅されました」「侍踊りすぎやね」「侍＝ダンサーっていう概念どうなってんの」「侍おるしな」「侍に乗っ取られつつある」 @1:40:52",
+  "liveChat": {
+    "message": "冴えてる侍帰った？",
+    "at": 6052,
+    "streamStartedAt": "2024-09-26T12:00:26+09:00"
+  },
+  "trimming": {
+    "startTime": 6033.829896907217,
+    "endTime": 6048.317654639175,
+    "duration": 14.487757731958766,
+    "original": {
+      "startTime": 5992,
+      "endTime": 6052,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "6xnWMVFpC9I",
+      "title": "【スーパーマリオヨッシーアイランド#11】完全初見🦖今日もゆったりヨッシーやっていこう！！【にじさんじ/梢桃音】",
+      "duration": 8086,
+      "thumbnail": "https://i.ytimg.com/vi/6xnWMVFpC9I/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240926",
+      "viewCount": 8585,
+      "url": "https://www.youtube.com/watch?v=6xnWMVFpC9I"
+    }
+  }
+}

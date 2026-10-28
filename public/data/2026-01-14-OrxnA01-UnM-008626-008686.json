@@ -1,0 +1,37 @@
+{
+  "videoId": "OrxnA01-UnM",
+  "serif": "限界侍",
+  "ruby": "げんかいさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=OrxnA01-UnM&t=8670s",
+  "memo": "yt-comment-archiver: ライブチャット「限界侍？？？？」「さすがに限界侍か」「まぁ侍の言うことは聞いとき」「さすがにその侍には従っとけ」「侍…！」 @2:24:46",
+  "liveChat": {
+    "message": "限界侍？？？？",
+    "at": 8686,
+    "streamStartedAt": "2026-01-15T00:00:43+09:00"
+  },
+  "trimming": {
+    "startTime": 8670.219331377331,
+    "endTime": 8678.879677037308,
+    "duration": 8.660345659977908,
+    "original": {
+      "startTime": 8626,
+      "endTime": 8686,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "OrxnA01-UnM",
+      "title": "【PowerWash Simulator 2】夜だし！酒で洗い流すか！🧹🧽💧【にじさんじ/梢桃音】",
+      "duration": 8939,
+      "thumbnail": "https://i.ytimg.com/vi/OrxnA01-UnM/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260114",
+      "viewCount": 9018,
+      "url": "https://www.youtube.com/watch?v=OrxnA01-UnM"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "gr9WJDYS_u0",
+  "serif": "申し訳の鎌足",
+  "ruby": "もうしわけのかまたり",
+  "categories": [
+    "鎌足"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=gr9WJDYS_u0&t=26734s",
+  "memo": "yt-comment-archiver: ライブチャット「鎌足に免じて許す」「鎌足定着してきた」「再放送の鎌足」「鎌足たすかる」「申し訳の鎌足」「ロードの鎌足」「鎌足は定着しそうだｗ」 @7:25:44",
+  "liveChat": {
+    "message": "鎌足に免じて許す",
+    "at": 26744,
+    "streamStartedAt": "2024-07-13T12:00:48+09:00"
+  },
+  "trimming": {
+    "startTime": 26734.16219571988,
+    "endTime": 26736.824722200327,
+    "duration": 2.662526480448615,
+    "original": {
+      "startTime": 26684,
+      "endTime": 26744,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "gr9WJDYS_u0",
+      "title": "【クリア耐久】スーパーマリオブラザーズ🍄🌟そろそろ終止符を…打たなくては！【にじさんじ/梢桃音】",
+      "duration": 29991,
+      "thumbnail": "https://i.ytimg.com/vi/gr9WJDYS_u0/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240713",
+      "viewCount": 44018,
+      "url": "https://www.youtube.com/watch?v=gr9WJDYS_u0"
+    }
+  }
+}

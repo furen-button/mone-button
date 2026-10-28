@@ -1,0 +1,37 @@
+{
+  "videoId": "wCXvY_iHjM0",
+  "serif": "委員長配慮（編集中）",
+  "ruby": "いいんちょうはいりょ",
+  "categories": [
+    "委員長配慮"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=wCXvY_iHjM0&t=3613s",
+  "memo": "yt-comment-archiver: ライブチャット「委員長配慮しなきゃ」 @1:00:41",
+  "liveChat": {
+    "message": "委員長配慮しなきゃ",
+    "at": 3641,
+    "streamStartedAt": "2026-02-14T12:03:15+09:00"
+  },
+  "trimming": {
+    "startTime": 3613.834591310751,
+    "endTime": 3617.2062776141383,
+    "duration": 3.371686303387335,
+    "original": {
+      "startTime": 3581,
+      "endTime": 3641,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "wCXvY_iHjM0",
+      "title": "【本紹介】出会えて良かった本をみんなと共有したいんだ！📚【にじさんじ/梢桃音】",
+      "duration": 5258,
+      "thumbnail": "https://i.ytimg.com/vi/wCXvY_iHjM0/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260214",
+      "viewCount": 11643,
+      "url": "https://www.youtube.com/watch?v=wCXvY_iHjM0"
+    }
+  }
+}

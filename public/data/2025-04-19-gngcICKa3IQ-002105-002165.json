@@ -1,0 +1,37 @@
+{
+  "videoId": "gngcICKa3IQ",
+  "serif": "順調侍",
+  "ruby": "じゅんちょうさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=gngcICKa3IQ&t=2153s",
+  "memo": "yt-comment-archiver: ライブチャット「侍もじょぼじょぼ」「学習侍もニコニコしてるよ」「順調侍大泣き」「今日の順調侍は泣いてるのか・・・」「順調侍」「順調侍が泣いて喜ぶ順調っぷり」「順調侍とっくに泡吹いて倒れてるよ」 @0:36:05",
+  "liveChat": {
+    "message": "侍もじょぼじょぼ",
+    "at": 2165,
+    "streamStartedAt": "2025-04-19T12:00:45+09:00"
+  },
+  "trimming": {
+    "startTime": 2153.4600515463917,
+    "endTime": 2158.2552466863035,
+    "duration": 4.795195139911634,
+    "original": {
+      "startTime": 2105,
+      "endTime": 2165,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "gngcICKa3IQ",
+      "title": "【ゼルダの伝説時のオカリナ】#18 最終回 シリーズ完全初見🔰いざガノン城へ！🏰【にじさんじ/梢桃音】",
+      "duration": 36138,
+      "thumbnail": "https://i.ytimg.com/vi/gngcICKa3IQ/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250419",
+      "viewCount": 35402,
+      "url": "https://www.youtube.com/watch?v=gngcICKa3IQ"
+    }
+  }
+}

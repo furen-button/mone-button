@@ -1,0 +1,37 @@
+{
+  "videoId": "c-3Gvr8OOeg",
+  "serif": "委員長配慮",
+  "ruby": "いいんちょうはいりょ",
+  "categories": [
+    "委員長配慮"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=c-3Gvr8OOeg&t=5510s",
+  "memo": "yt-comment-archiver: ライブチャット「委員長対策w」 @1:32:18",
+  "liveChat": {
+    "message": "委員長対策w",
+    "at": 5538,
+    "streamStartedAt": "2025-06-24T18:00:51+09:00"
+  },
+  "trimming": {
+    "startTime": 5510.632662923417,
+    "endTime": 5520.86197533137,
+    "duration": 10.229312407952875,
+    "original": {
+      "startTime": 5478,
+      "endTime": 5538,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "c-3Gvr8OOeg",
+      "title": "【振り返り】気圧に負けるな！！！雑談【にじさんじ/梢桃音】",
+      "duration": 11532,
+      "thumbnail": "https://i.ytimg.com/vi/c-3Gvr8OOeg/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250624",
+      "viewCount": 20571,
+      "url": "https://www.youtube.com/watch?v=c-3Gvr8OOeg"
+    }
+  }
+}

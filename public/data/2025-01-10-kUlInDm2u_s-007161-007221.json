@@ -1,0 +1,37 @@
+{
+  "videoId": "kUlInDm2u_s",
+  "serif": "うそうそ侍",
+  "ruby": "うそうそさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=kUlInDm2u_s&t=7206s",
+  "memo": "yt-comment-archiver: ライブチャット「打ち首にしとくねその侍」「うそうそ侍ってなんだ？」「はい、お侍さんも帰ろうね〜」「また愉快な侍増えたね」「うそうそ侍「時は戻らない」」 @2:00:21",
+  "liveChat": {
+    "message": "打ち首にしとくねその侍",
+    "at": 7221,
+    "streamStartedAt": "2025-01-10T23:00:20+09:00"
+  },
+  "trimming": {
+    "startTime": 7206.662325783551,
+    "endTime": 7211.053386229749,
+    "duration": 4.391060446198454,
+    "original": {
+      "startTime": 7161,
+      "endTime": 7221,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "kUlInDm2u_s",
+      "title": "【Getting Over It】深夜の壺練習！🔰上手になったら耐久配信するんだ！！【にじさんじ/梢桃音】",
+      "duration": 7509,
+      "thumbnail": "https://i.ytimg.com/vi/kUlInDm2u_s/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250110",
+      "viewCount": 12044,
+      "url": "https://www.youtube.com/watch?v=kUlInDm2u_s"
+    }
+  }
+}

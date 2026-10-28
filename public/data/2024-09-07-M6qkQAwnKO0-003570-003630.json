@@ -1,0 +1,37 @@
+{
+  "videoId": "M6qkQAwnKO0",
+  "serif": "ここらへんお手の物になってきた侍",
+  "ruby": "ここらへんおてのものになってきたさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=M6qkQAwnKO0&t=3620s",
+  "memo": "yt-comment-archiver: ライブチャット「侍どうしたの？」「デカルトはベクトル計算を考えた人ですよ侍」「侍すぐ死ぬ」「出たわね侍」「フラグ回収早い侍」 @1:00:30",
+  "liveChat": {
+    "message": "侍どうしたの？",
+    "at": 3630,
+    "streamStartedAt": "2024-09-07T22:00:52+09:00"
+  },
+  "trimming": {
+    "startTime": 3620.1465693853174,
+    "endTime": 3622.4609954331204,
+    "duration": 2.314426047803142,
+    "original": {
+      "startTime": 3570,
+      "endTime": 3630,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "M6qkQAwnKO0",
+      "title": "【初代ドンキーコング】はじめてのドンキーコング！！バナナとか献上したら油断してくれるかな🍌【にじさんじ/梢桃音】",
+      "duration": 8213,
+      "thumbnail": "https://i.ytimg.com/vi/M6qkQAwnKO0/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240907",
+      "viewCount": 15844,
+      "url": "https://www.youtube.com/watch?v=M6qkQAwnKO0"
+    }
+  }
+}

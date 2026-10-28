@@ -1,0 +1,37 @@
+{
+  "videoId": "1woUc77XYxI",
+  "serif": "うにょーん侍",
+  "ruby": "うにょーんさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=1woUc77XYxI&t=2425s",
+  "memo": "yt-comment-archiver: ライブチャット「うにょーん侍の出番か？？？」「うにょーん侍を呼ぼう」「侍要素どこ」「うにょーん侍最強か？」「出番でこざるよ。うにょ～ん侍」「うにょーん侍ってなんなんですか？」「うにょーん侍ってなんですか？？？」「うにょーん侍って有名なキャラなんですか」 @0:40:39",
+  "liveChat": {
+    "message": "侍要素どこ",
+    "at": 2439,
+    "streamStartedAt": "2024-09-25T22:00:33+09:00"
+  },
+  "trimming": {
+    "startTime": 2425.8763807069217,
+    "endTime": 2428.6778350515465,
+    "duration": 2.801454344624439,
+    "original": {
+      "startTime": 2379,
+      "endTime": 2439,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "1woUc77XYxI",
+      "title": "【Q REMASTERED 】物理演算とか分からないけど！！！天才な桃音さんに任せてよ！！！【にじさんじ/梢桃音】",
+      "duration": 11379,
+      "thumbnail": "https://i.ytimg.com/vi/1woUc77XYxI/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240925",
+      "viewCount": 15727,
+      "url": "https://www.youtube.com/watch?v=1woUc77XYxI"
+    }
+  }
+}

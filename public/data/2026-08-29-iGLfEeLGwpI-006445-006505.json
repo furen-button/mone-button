@@ -1,0 +1,37 @@
+{
+  "videoId": "iGLfEeLGwpI",
+  "serif": "オムレツも すき焼きも クレープも？ そう！ お好み焼き なんですね",
+  "ruby": "おむれつもすきやきもくれーぷもそうおこのみやきなんですね",
+  "categories": [
+    "世界"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=iGLfEeLGwpI&t=6491s",
+  "memo": "yt-comment-archiver: ライブチャット「委員長配慮が楽になるやーん」 @1:48:25",
+  "liveChat": {
+    "message": "委員長配慮が楽になるやーん",
+    "at": 6505,
+    "streamStartedAt": "2026-08-29T19:00:15+09:00"
+  },
+  "trimming": {
+    "startTime": 6491.7959545287185,
+    "endTime": 6498.390555964654,
+    "duration": 6.594601435935203,
+    "original": {
+      "startTime": 6445,
+      "endTime": 6505,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "iGLfEeLGwpI",
+      "title": "【雑談】新PC🖥️テスト配信！【にじさんじ/梢桃音】",
+      "duration": 8682,
+      "thumbnail": "https://i.ytimg.com/vi/iGLfEeLGwpI/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260829",
+      "viewCount": 25915,
+      "url": "https://www.youtube.com/watch?v=iGLfEeLGwpI"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "XScqcAv7sxw",
+  "serif": "おにぎり侍",
+  "ruby": "おにぎりさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=XScqcAv7sxw&t=3217s",
+  "memo": "yt-comment-archiver: ライブチャット「おにぎり侍！」「おにぎり侍もあたまの上でピヨピヨしています」「ワンアップ侍って何」「1up侍」「1up侍」「体当たり侍しかいない」「侍要素どこ？」 @0:53:49",
+  "liveChat": {
+    "message": "おにぎり侍！",
+    "at": 3229,
+    "streamStartedAt": "2025-01-04T09:00:46+09:00"
+  },
+  "trimming": {
+    "startTime": 3217.6464469808543,
+    "endTime": 3222.1351251840942,
+    "duration": 4.488678203240063,
+    "original": {
+      "startTime": 3169,
+      "endTime": 3229,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "XScqcAv7sxw",
+      "title": "【星のカービィ64】2025年耐久初め🎍クリアまでやるよ🌟💓【にじさんじ/梢桃音】",
+      "duration": 42263,
+      "thumbnail": "https://i.ytimg.com/vi/XScqcAv7sxw/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250104",
+      "viewCount": 101488,
+      "url": "https://www.youtube.com/watch?v=XScqcAv7sxw"
+    }
+  }
+}

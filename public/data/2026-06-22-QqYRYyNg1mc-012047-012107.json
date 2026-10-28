@@ -1,0 +1,37 @@
+{
+  "videoId": "QqYRYyNg1mc",
+  "serif": "委員長配慮",
+  "ruby": "いいんちょうはいりょ",
+  "categories": [
+    "委員長配慮"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=QqYRYyNg1mc&t=12077s",
+  "memo": "yt-comment-archiver: ライブチャット「委員長配慮ナイス」 @3:21:47",
+  "liveChat": {
+    "message": "委員長配慮ナイス",
+    "at": 12107,
+    "streamStartedAt": "2026-06-22T19:02:26+09:00"
+  },
+  "trimming": {
+    "startTime": 12077.308082538468,
+    "endTime": 12084.814628282296,
+    "duration": 7.50654574382709,
+    "original": {
+      "startTime": 12047,
+      "endTime": 12107,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "QqYRYyNg1mc",
+      "title": "【祝2周年】３Dお披露目⁻魔法のお守り⁻同時視聴しよう📚✨【にじさんじ/梢桃音】",
+      "duration": 13716,
+      "thumbnail": "https://i.ytimg.com/vi/QqYRYyNg1mc/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260622",
+      "viewCount": 11688,
+      "url": "https://www.youtube.com/watch?v=QqYRYyNg1mc"
+    }
+  }
+}

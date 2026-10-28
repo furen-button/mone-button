@@ -1,0 +1,37 @@
+{
+  "videoId": "h6Ebm2VZ9lY",
+  "serif": "気になり侍",
+  "ruby": "きになりさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=h6Ebm2VZ9lY&t=12334s",
+  "memo": "yt-comment-archiver: ライブチャット「そう侍か」「侍出るくらいか」「わかる侍」「侍かあ」「気になり侍～」「侍かあ」「侍出るくらいかぁ」「気になり侍でござるな」「わかる侍ー」「とっても気になり侍もいますと」「気になり侍！！」「気になる侍」「とっても気になり侍！？それは大変だ」「とっても気になり侍さん来てくださったんですね」「侍」「気になり侍！」 @3:25:46",
+  "liveChat": {
+    "message": "そう侍か",
+    "at": 12346,
+    "streamStartedAt": "2025-07-10T18:00:39+09:00"
+  },
+  "trimming": {
+    "startTime": 12334.012702503682,
+    "endTime": 12340.870673784977,
+    "duration": 6.857971281296024,
+    "original": {
+      "startTime": 12286,
+      "endTime": 12346,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "h6Ebm2VZ9lY",
+      "title": "【Detroit: Become Human】#２ 完全初見デトロイト 共存の道を目指して！【にじさんじ/梢桃音】",
+      "duration": 13320,
+      "thumbnail": "https://i.ytimg.com/vi/h6Ebm2VZ9lY/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250710",
+      "viewCount": 19198,
+      "url": "https://www.youtube.com/watch?v=h6Ebm2VZ9lY"
+    }
+  }
+}

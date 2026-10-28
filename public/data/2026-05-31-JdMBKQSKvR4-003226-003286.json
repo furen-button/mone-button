@@ -1,0 +1,37 @@
+{
+  "videoId": "JdMBKQSKvR4",
+  "serif": "有罪侍",
+  "ruby": "ゆうざいさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=JdMBKQSKvR4&t=3277s",
+  "memo": "yt-comment-archiver: ライブチャット「有罪侍もいます」「有罪侍も出ますと」「有罪侍とは」「有罪侍も居ます」「もう侍辞典作ったほうがいい」 @0:54:46",
+  "liveChat": {
+    "message": "有罪侍もいます",
+    "at": 3286,
+    "streamStartedAt": "2026-05-31T12:01:38+09:00"
+  },
+  "trimming": {
+    "startTime": 3277.639819587629,
+    "endTime": 3280.2907768777613,
+    "duration": 2.6509572901325456,
+    "original": {
+      "startTime": 3226,
+      "endTime": 3286,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "JdMBKQSKvR4",
+      "title": "【小学生で知りたい法律 こども裁判クイズ】異議ありっ！！！有罪っ！！！【にじさんじ/梢桃音】",
+      "duration": 6512,
+      "thumbnail": "https://i.ytimg.com/vi/JdMBKQSKvR4/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260531",
+      "viewCount": 20209,
+      "url": "https://www.youtube.com/watch?v=JdMBKQSKvR4"
+    }
+  }
+}

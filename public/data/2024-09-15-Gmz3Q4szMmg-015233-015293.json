@@ -1,0 +1,37 @@
+{
+  "videoId": "Gmz3Q4szMmg",
+  "serif": "サクサク侍",
+  "ruby": "さくさくさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=Gmz3Q4szMmg&t=15278s",
+  "memo": "yt-comment-archiver: ライブチャット「サクサク侍ってなんだ…？」「:_ぽやぽや::_ぽやぽや:侍？」「終始ぽやぽや侍だったぞ」「命サクサク侍」「侍今日も出番多いね」 @4:14:53",
+  "liveChat": {
+    "message": "サクサク侍ってなんだ…？",
+    "at": 15293,
+    "streamStartedAt": "2024-09-15T10:00:31+09:00"
+  },
+  "trimming": {
+    "startTime": 15278.850515463917,
+    "endTime": 15281.907400589102,
+    "duration": 3.0568851251840954,
+    "original": {
+      "startTime": 15233,
+      "endTime": 15293,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "Gmz3Q4szMmg",
+      "title": "【クリア耐久】初代ドラクエ！一緒に世界救いに行こう！！✨ドラゴンクエストⅠ/DQ１【にじさんじ/梢桃音】",
+      "duration": 38840,
+      "thumbnail": "https://i.ytimg.com/vi/Gmz3Q4szMmg/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240915",
+      "viewCount": 63137,
+      "url": "https://www.youtube.com/watch?v=Gmz3Q4szMmg"
+    }
+  }
+}

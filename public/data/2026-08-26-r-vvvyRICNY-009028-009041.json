@@ -1,0 +1,37 @@
+{
+  "videoId": "r-vvvyRICNY",
+  "serif": "おうた",
+  "ruby": "おうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=r-vvvyRICNY&t=9028s",
+  "memo": "yt-comment-archiver: ライブチャット「まずい！委員長配慮しないと！！」 コメント「2:30:40 本日の委員長配慮」 @2:30:40",
+  "liveChat": {
+    "message": "まずい！委員長配慮しないと！！",
+    "at": 9055,
+    "streamStartedAt": "2026-08-26T22:05:40+09:00"
+  },
+  "trimming": {
+    "startTime": 9028.091230209868,
+    "endTime": 9039.297656882824,
+    "duration": 11.206426672956553,
+    "original": {
+      "startTime": 8995,
+      "endTime": 9070,
+      "duration": 75
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "r-vvvyRICNY",
+      "title": "【チルっと焚き火ソン】寝る前に酒飲みながら焚き火を眺める🔥🍶【にじさんじ/梢桃音】",
+      "duration": 14316,
+      "thumbnail": "https://i.ytimg.com/vi/r-vvvyRICNY/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260826",
+      "viewCount": 13213,
+      "url": "https://www.youtube.com/watch?v=r-vvvyRICNY"
+    }
+  }
+}

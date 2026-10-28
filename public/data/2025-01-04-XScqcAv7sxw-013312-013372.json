@@ -1,0 +1,37 @@
+{
+  "videoId": "XScqcAv7sxw",
+  "serif": "順調侍",
+  "ruby": "じゅんちょうさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=XScqcAv7sxw&t=13364s",
+  "memo": "yt-comment-archiver: ライブチャット「順調侍」「流石に順調侍おるで！」「侍ぴよぴよしてるよぉ！」「順調侍だれなのw」「侍ってぴよぴよするんだ」「調子こき侍も踊ってます」 @3:42:52",
+  "liveChat": {
+    "message": "順調侍",
+    "at": 13372,
+    "streamStartedAt": "2025-01-04T09:00:46+09:00"
+  },
+  "trimming": {
+    "startTime": 13364.523472017672,
+    "endTime": 13369.968980117821,
+    "duration": 5.445508100147272,
+    "original": {
+      "startTime": 13312,
+      "endTime": 13372,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "XScqcAv7sxw",
+      "title": "【星のカービィ64】2025年耐久初め🎍クリアまでやるよ🌟💓【にじさんじ/梢桃音】",
+      "duration": 42263,
+      "thumbnail": "https://i.ytimg.com/vi/XScqcAv7sxw/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250104",
+      "viewCount": 101488,
+      "url": "https://www.youtube.com/watch?v=XScqcAv7sxw"
+    }
+  }
+}

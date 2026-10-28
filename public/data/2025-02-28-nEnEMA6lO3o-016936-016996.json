@@ -1,0 +1,37 @@
+{
+  "videoId": "nEnEMA6lO3o",
+  "serif": "悩み侍",
+  "ruby": "なやみさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=nEnEMA6lO3o&t=16985s",
+  "memo": "yt-comment-archiver: ライブチャット「侍も苦悩しておる」「出たな侍」「侍！！！」「なんか侍の登場久しぶりな気がする」「死ぬ時チーズ星人みたいになる侍」 @4:43:16",
+  "liveChat": {
+    "message": "侍も苦悩しておる",
+    "at": 16996,
+    "streamStartedAt": "2025-02-28T19:00:24+09:00"
+  },
+  "trimming": {
+    "startTime": 16985.683357879236,
+    "endTime": 16988.475147275403,
+    "duration": 2.7917893961708415,
+    "original": {
+      "startTime": 16936,
+      "endTime": 16996,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "nEnEMA6lO3o",
+      "title": "【ゼルダの伝説時のオカリナ】#４ シリーズ完全初見🔰⛰️デスマウンテンの頂上へ！⛰️【にじさんじ/梢桃音】",
+      "duration": 18351,
+      "thumbnail": "https://i.ytimg.com/vi/nEnEMA6lO3o/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250228",
+      "viewCount": 18556,
+      "url": "https://www.youtube.com/watch?v=nEnEMA6lO3o"
+    }
+  }
+}

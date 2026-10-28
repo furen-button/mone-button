@@ -1,0 +1,37 @@
+{
+  "videoId": "LPdbz9VdkuU",
+  "serif": "ミンティア侍",
+  "ruby": "みんてぃあさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=LPdbz9VdkuU&t=10145s",
+  "memo": "yt-comment-archiver: ライブチャット「ミンティア侍:_はてなもねゴン:」「ミンティア侍さんだ！」「ミンティア侍:crossed_swords:」「ミンティア侍もねち」「ミンティア侍！推して参る！」 @2:49:23",
+  "liveChat": {
+    "message": "ミンティア侍:_はてなもねゴン:",
+    "at": 10163,
+    "streamStartedAt": "2025-06-28T17:00:15+09:00"
+  },
+  "trimming": {
+    "startTime": 10145.448453608247,
+    "endTime": 10147.108063328424,
+    "duration": 1.6596097201767321,
+    "original": {
+      "startTime": 10103,
+      "endTime": 10163,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "LPdbz9VdkuU",
+      "title": "【弟切草】#1 伝説のホラーサウンドノベル￤完全初見🔰SFC実機でやるよ👻【にじさんじ/梢桃音】",
+      "duration": 15654,
+      "thumbnail": "https://i.ytimg.com/vi/LPdbz9VdkuU/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250628",
+      "viewCount": 23664,
+      "url": "https://www.youtube.com/watch?v=LPdbz9VdkuU"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "TKwpGFJY3m0",
+  "serif": "ずれたまま まっすぐって 面倒だよな",
+  "ruby": "ずれたまままっすぐってめんどうだよな",
+  "categories": [
+    "世界"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=TKwpGFJY3m0&t=12060s",
+  "memo": "yt-comment-archiver: ライブチャット「塩の塊！？委員長配慮しなきゃ……」 @3:21:39",
+  "liveChat": {
+    "message": "塩の塊！？委員長配慮しなきゃ……",
+    "at": 12099,
+    "streamStartedAt": "2026-03-01T12:00:18+09:00"
+  },
+  "trimming": {
+    "startTime": 12060.792042525773,
+    "endTime": 12071.417962997055,
+    "duration": 10.625920471281301,
+    "original": {
+      "startTime": 12039,
+      "endTime": 12099,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "TKwpGFJY3m0",
+      "title": "【Pokémon LEGENDS Z-A】#ナナもね ポケモンZA並走＆バトル！始まっちゃうよ～！！！✨【にじさんじ/梢桃音視点】",
+      "duration": 15166,
+      "thumbnail": "https://i.ytimg.com/vi/TKwpGFJY3m0/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260301",
+      "viewCount": 29855,
+      "url": "https://www.youtube.com/watch?v=TKwpGFJY3m0"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "Xie5J_xqRJY",
+  "serif": "バナナ侍",
+  "ruby": "ばななさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=Xie5J_xqRJY&t=1322s",
+  "memo": "yt-comment-archiver: ライブチャット「:banana:侍」「バナナ侍！？」「バナナ侍」「バナナ侍！？」「バナナ侍！？ｗ」「思い出した…ワイ侍だったわ」「ぽやたぬ侍」 @0:22:11",
+  "liveChat": {
+    "message": ":banana:侍",
+    "at": 1331,
+    "streamStartedAt": "2026-09-04T20:00:30+09:00"
+  },
+  "trimming": {
+    "startTime": 1322.3043078055964,
+    "endTime": 1326.9490058910162,
+    "duration": 4.6446980854197335,
+    "original": {
+      "startTime": 1271,
+      "endTime": 1331,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "Xie5J_xqRJY",
+      "title": "【初代ルイージマンション】完全初見👀兄さんそろそろ出ておいで😭【にじさんじ/梢桃音】",
+      "duration": 17725,
+      "thumbnail": "https://i.ytimg.com/vi/Xie5J_xqRJY/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260904",
+      "viewCount": 32594,
+      "url": "https://www.youtube.com/watch?v=Xie5J_xqRJY"
+    }
+  }
+}

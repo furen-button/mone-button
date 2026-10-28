@@ -1,0 +1,37 @@
+{
+  "videoId": "HJ7fzwhbD94",
+  "serif": "コツをつかみ侍",
+  "ruby": "こつをつかみさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=HJ7fzwhbD94&t=3235s",
+  "memo": "yt-comment-archiver: ライブチャット「まーた侍きた」「コツをつかみ侍やもー」「今日侍の気分なの？」「何だその侍」「もねち侍にジョブチェンジ」「ナイス侍」「うま侍」「ないす侍！」「中間侍ナイス」 @0:54:05",
+  "liveChat": {
+    "message": "まーた侍きた",
+    "at": 3245,
+    "streamStartedAt": "2024-09-04T12:00:48+09:00"
+  },
+  "trimming": {
+    "startTime": 3235.8307253313696,
+    "endTime": 3241.0221833578794,
+    "duration": 5.191458026509565,
+    "original": {
+      "startTime": 3185,
+      "endTime": 3245,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "HJ7fzwhbD94",
+      "title": "【スーパーマリオヨッシーアイランド#8】完全初見🦖今日は3‐4からだよ～！よしお！！【にじさんじ/梢桃音】",
+      "duration": 8496,
+      "thumbnail": "https://i.ytimg.com/vi/HJ7fzwhbD94/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240904",
+      "viewCount": 12767,
+      "url": "https://www.youtube.com/watch?v=HJ7fzwhbD94"
+    }
+  }
+}

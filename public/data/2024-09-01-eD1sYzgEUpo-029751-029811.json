@@ -1,0 +1,37 @@
+{
+  "videoId": "eD1sYzgEUpo",
+  "serif": "焼きそばパンいただき丸侍参上",
+  "ruby": "やきそばぱんいただきまるさむらいさんじょう",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=eD1sYzgEUpo&t=29800s",
+  "memo": "yt-comment-archiver: ライブチャット「色んな侍がいるな」「また侍が出てきた」「こんにちは侍じゃなかったのか」「どんだけ侍おんねん」「パーマンは侍だった…？」「侍…」 @8:16:51",
+  "liveChat": {
+    "message": "色んな侍がいるな",
+    "at": 29811,
+    "streamStartedAt": "2024-09-01T09:00:54+09:00"
+  },
+  "trimming": {
+    "startTime": 29800.375460235642,
+    "endTime": 29803.76095360825,
+    "duration": 3.385493372606774,
+    "original": {
+      "startTime": 29751,
+      "endTime": 29811,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "eD1sYzgEUpo",
+      "title": "【クリア耐久】星のカービィ スーパーデラックス💗終止符をここに！！！カービィと思いっきり遊ぶんだ✨【にじさんじ/梢桃音】",
+      "duration": 39244,
+      "thumbnail": "https://i.ytimg.com/vi/eD1sYzgEUpo/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240901",
+      "viewCount": 66361,
+      "url": "https://www.youtube.com/watch?v=eD1sYzgEUpo"
+    }
+  }
+}

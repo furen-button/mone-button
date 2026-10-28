@@ -1,0 +1,37 @@
+{
+  "videoId": "dyHI3U4fZt0",
+  "serif": "ああああああああああああああああ",
+  "ruby": "ああああああああああああああああ",
+  "categories": [
+    "やられ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=dyHI3U4fZt0&t=10824s",
+  "memo": "yt-comment-archiver: ライブチャット「惜しい！今のは何侍だ」「慢心侍参上」「足滑らせ侍」「油断侍も来ますと」「油断侍ずっと居るじゃん」「油断侍まで！？」「もはや侍いいたいだけw」「慢心侍「俺でええやろ」」「絶望侍」 @3:00:40",
+  "liveChat": {
+    "message": "惜しい！今のは何侍だ",
+    "at": 10840,
+    "streamStartedAt": "2025-12-14T12:00:13+09:00"
+  },
+  "trimming": {
+    "startTime": 10824.628589837997,
+    "endTime": 10840,
+    "duration": 15.371410162002945,
+    "original": {
+      "startTime": 10780,
+      "endTime": 10840,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "dyHI3U4fZt0",
+      "title": "【スーパードンキーコング2】#1５  昼のどきどきドンキー￤ パラシュートパニックから🍌🦍【にじさんじ/梢桃音】",
+      "duration": 19312,
+      "thumbnail": "https://i.ytimg.com/vi/dyHI3U4fZt0/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20251214",
+      "viewCount": 14634,
+      "url": "https://www.youtube.com/watch?v=dyHI3U4fZt0"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "VKGBfta2pR0",
+  "serif": "自立侍",
+  "ruby": "じりつさむらい",
+  "categories": [
+    "侍"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=VKGBfta2pR0&t=5802s",
+  "memo": "yt-comment-archiver: ライブチャット「:_ノーマルもねゴン:自立侍」「自立侍も来ますと」「自立侍って新キャラ？？」「ワイ侍やったんか…」「侍なんだ、俺！友達に自慢してくる！！」「自座侍だったか」 @1:36:50",
+  "liveChat": {
+    "message": ":_ノーマルもねゴン:自立侍",
+    "at": 5810,
+    "streamStartedAt": "2025-12-26T21:01:02+09:00"
+  },
+  "trimming": {
+    "startTime": 5802.875552282769,
+    "endTime": 5804.444035346097,
+    "duration": 1.5684830633284221,
+    "original": {
+      "startTime": 5750,
+      "endTime": 5810,
+      "duration": 60
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "VKGBfta2pR0",
+      "title": "【日本事故物件監視協会2 -JSP2】事故物件を監視するお仕事するよ🥹【にじさんじ/梢桃音】",
+      "duration": 10158,
+      "thumbnail": "https://i.ytimg.com/vi/VKGBfta2pR0/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20251226",
+      "viewCount": 19383,
+      "url": "https://www.youtube.com/watch?v=VKGBfta2pR0"
+    }
+  }
+}
