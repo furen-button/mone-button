@@ -67,6 +67,7 @@
   },
   "voiceCard": {
     "infoAria": "元動画情報を表示",
+    "editAria": "クリップを編集（DEV）",
     "playCount": "{{count}} 回",
     "playCountAria": "再生回数 {{count}} 回"
   },

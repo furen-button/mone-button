@@ -67,6 +67,7 @@
   },
   "voiceCard": {
     "infoAria": "Show source video details",
+    "editAria": "Edit clip (DEV)",
     "playCount": "{{count}} plays",
     "playCountAria": "{{count}} plays"
   },

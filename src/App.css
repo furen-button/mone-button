@@ -635,6 +635,35 @@
   outline-offset: 1px;
 }
 
+/* dev 専用の編集ボタン。i ボタンの左に並べ、情報モーダルの「編集（DEV）」と同じ紫の破線で区別する。 */
+.voice-card.has-edit .voice-card-play {
+  padding-right: 76px;
+}
+
+.voice-card-edit {
+  position: absolute;
+  right: 42px;
+  top: 10px;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px dashed #b78bd8;
+  background: #f6efff;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.voice-card-edit:hover {
+  background: #efe3ff;
+}
+
+.voice-card-edit:focus-visible {
+  outline: 2px solid #342113;
+  outline-offset: 1px;
+}
+
 .info-modal-backdrop {
   position: fixed;
   inset: 0;

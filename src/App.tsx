@@ -178,6 +178,7 @@ function App() {
               playCounts={playCounts}
               onPlayClip={playback.playClip}
               onOpenInfo={setInfoClip}
+              onOpenEdit={enableDevEditor ? handleOpenEdit : undefined}
               onClickStreamGroupLink={handleStreamGroupLinkClick}
             />
 

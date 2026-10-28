@@ -9,6 +9,8 @@ type VoiceListProps = {
   playCounts: Record<string, number>
   onPlayClip: (clip: VoiceClip) => void
   onOpenInfo: (clip: VoiceClip) => void
+  // dev サーバのときだけ渡す。未指定ならカードに編集ボタンを出さない。
+  onOpenEdit?: (clip: VoiceClip) => void
   onClickStreamGroupLink: (group: StreamGroup) => void
 }
 
@@ -17,16 +19,18 @@ function VoiceCard({
   playCount,
   onPlayClip,
   onOpenInfo,
+  onOpenEdit,
 }: {
   clip: VoiceClip
   playCount: number
   onPlayClip: (clip: VoiceClip) => void
   onOpenInfo: (clip: VoiceClip) => void
+  onOpenEdit?: (clip: VoiceClip) => void
 }) {
   const locale = useLocale()
 
   return (
-    <article className="voice-card">
+    <article className={onOpenEdit ? 'voice-card has-edit' : 'voice-card'}>
       <button type="button" className="voice-card-play" onClick={() => onPlayClip(clip)}>
         <span className="voice-card-text">{clip.serif}</span>
         <span className="voice-card-sub">{clip.categories.join(' / ')}</span>
@@ -34,6 +38,17 @@ function VoiceCard({
       <span className="voice-card-count" aria-label={t('voiceCard.playCountAria', { count: playCount }, locale)}>
         {t('voiceCard.playCount', { count: playCount.toLocaleString() }, locale)}
       </span>
+      {onOpenEdit ? (
+        <button
+          type="button"
+          className="voice-card-edit"
+          aria-label={t('voiceCard.editAria', {}, locale)}
+          title={t('voiceCard.editAria', {}, locale)}
+          onClick={() => onOpenEdit(clip)}
+        >
+          🔧
+        </button>
+      ) : null}
       <button
         type="button"
         className="voice-card-info"
@@ -53,6 +68,7 @@ export function VoiceList({
   playCounts,
   onPlayClip,
   onOpenInfo,
+  onOpenEdit,
   onClickStreamGroupLink,
 }: VoiceListProps) {
   const locale = useLocale()
@@ -68,6 +84,7 @@ export function VoiceList({
               playCount={playCounts[clip.fileBaseName] ?? 0}
               onPlayClip={onPlayClip}
               onOpenInfo={onOpenInfo}
+              onOpenEdit={onOpenEdit}
             />
           ))
         ) : (
@@ -102,6 +119,7 @@ export function VoiceList({
                   playCount={playCounts[clip.fileBaseName] ?? 0}
                   onPlayClip={onPlayClip}
                   onOpenInfo={onOpenInfo}
+                  onOpenEdit={onOpenEdit}
                 />
               ))}
             </div>
