@@ -8,6 +8,7 @@ import {
   buildSources,
   buildSummaryEntry,
   chapterLabelFor,
+  groupClipChapters,
   renderCommentList,
   renderYoutubeDescription,
   summaryPathsFor,
@@ -25,6 +26,47 @@ function entry(atSec, videoId, title, serif = 'せりふ') {
     clipUrl: `https://youtube.com/watch?v=${videoId}&t=${atSec}s`,
   };
 }
+
+describe('チャプターの整数秒境界', () => {
+  for (const by of ['clip', 'stream']) {
+    it(`${by}: 丸め後に末尾が 9.6 秒になる場合は結合し、3 個未満なら省く`, () => {
+      const entries = [0, 10.6, 20.6].map((sec, i) => entry(sec, `v${i}`, `配信${i}`));
+      const result = buildChapters(entries, 30.6, { by, minSec: 10 });
+      assert.deepEqual(result.chapters, []);
+      assert.equal(result.warnings.length, 1);
+    });
+
+    it(`${by}: 末尾の実尺が 10 秒ちょうどなら結合しない`, () => {
+      const entries = [0, 10.6, 20.6].map((sec, i) => entry(sec, `v${i}`, `配信${i}`));
+      assert.deepEqual(buildChapters(entries, 31, { by }).chapters.map((c) => c.sec), [0, 11, 21]);
+    });
+
+    it(`${by}: 内部の境界は丸めてから判定し、出力の各区間が minSec を満たす`, () => {
+      const entries = [0, 10.49, 20.51, 30.49].map((sec, i) => entry(sec, `v${i}`, `配信${i}`));
+      const { chapters, warnings } = buildChapters(entries, 40.49, { by });
+      assert.deepEqual(warnings, []);
+      assert.deepEqual(chapters.map((c) => c.sec), by === 'clip' ? [0, 10, 21] : [0, 10, 30]);
+      for (const [i, chapter] of chapters.entries()) {
+        const end = chapters[i + 1]?.sec ?? 40.49;
+        assert.ok(end - chapter.sec >= 10);
+      }
+    });
+
+    it(`${by}: OP があっても先頭は 0 秒から長さを測る`, () => {
+      const entries = [3, 10.4, 20.4].map((sec, i) => entry(sec, `v${i}`, `配信${i}`));
+      assert.deepEqual(buildChapters(entries, 30, { by }).chapters.map((c) => c.sec), [0, 10, 20]);
+    });
+  }
+
+  it('clip の出典も末尾を結合したチャプターと同じまとまりになる', () => {
+    const entries = [0, 10.6, 20.6].map((sec, i) => entry(sec, `v${i}`, `配信${i}`));
+    const groups = groupClipChapters(entries, 30.6);
+    assert.deepEqual(groups.map((g) => [g.start, g.end]), [[0, 11], [11, 30.6]]);
+    assert.deepEqual(buildClipSources(entries, 30.6).map((g) => g.urls), [
+      [entries[0].clipUrl], [entries[1].clipUrl, entries[2].clipUrl],
+    ]);
+  });
+});
 
 describe('chapterLabelFor', () => {
   it('先頭の【】を見出しに、末尾の【演者名】を落とす', () => {

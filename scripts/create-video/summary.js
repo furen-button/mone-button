@@ -104,8 +104,9 @@ function buildClipChapters(entries, totalSec, minSec, labels) {
 export function groupClipChapters(entries, totalSec, minSec = 10) {
   const groups = [];
   for (const [i, entry] of entries.entries()) {
-    const start = i === 0 ? 0 : entry.atSec;
-    const end = i + 1 < entries.length ? entries[i + 1].atSec : Math.max(totalSec, entry.atSec);
+    // 境界は出力と同じ整数秒で判定し、末尾だけは総尺までの実際の長さを使う。
+    const start = i === 0 ? 0 : Math.round(entry.atSec);
+    const end = i + 1 < entries.length ? Math.round(entries[i + 1].atSec) : totalSec;
     const last = groups.at(-1);
     if (last && last.end - last.start < minSec) {
       last.end = end;
@@ -151,10 +152,11 @@ function buildStreamChapters(entries, totalSec, minSec, labels) {
     if (last && last.videoId === entry.videoId) {
       continue;
     }
-    groups.push({ videoId: entry.videoId, start: entry.atSec, title: entry.title });
+    groups.push({ videoId: entry.videoId, start: groups.length === 0 ? 0 : Math.round(entry.atSec), title: entry.title });
   }
   for (const [i, group] of groups.entries()) {
-    group.end = i + 1 < groups.length ? groups[i + 1].start : Math.max(totalSec, group.start);
+    // 末尾は総尺を丸めず、実際の残り時間で判定する。
+    group.end = i + 1 < groups.length ? groups[i + 1].start : totalSec;
   }
 
   // 短い区間は直前へ吸収する。ラベルは既にそのチャプターが始まっている側を残す。
