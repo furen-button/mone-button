@@ -79,6 +79,16 @@ const dataModules = import.meta.glob<VoiceData>('../public/data/*.json', {
 
 const baseUrl = import.meta.env.BASE_URL
 
+// serif の改行はまとめ動画のテロップ専用なので、サイトでは語中を詰め、元の空白区切りは残す。
+// 強調記法も記号だけ落とす（scripts/create-video/ass.js の parseEmphasis と同じ規則）。
+export const normalizeSerifForDisplay = (serif: string): string =>
+  serif
+    .replace(
+      /[^\S\r\n]*\r?\n[^\S\r\n]*/g,
+      (matched) => (/[^\S\r\n]/.test(matched) ? ' ' : ''),
+    )
+    .replace(/\{([^{}|]+)(?:\|[0-9A-Fa-f]{6})?\}/g, '$1')
+
 export const voiceClips: VoiceClip[] = Object.entries(dataModules)
   .map(([path, data]) => {
     const filename = path.split('/').pop()
@@ -89,15 +99,7 @@ export const voiceClips: VoiceClip[] = Object.entries(dataModules)
     const fileBaseName = filename.replace(/\.json$/i, '')
     return {
       ...data,
-      // serif の改行はまとめ動画のテロップ専用の指定なので、サイトでは無かったものとして扱う。
-      // 元から空白で区切られていた箇所は空白を残し、語中で折っただけの箇所は詰める。
-      // 強調記法（{語} / {語|RRGGBB}）もテロップ専用なので記号だけ落とす（scripts/create-video/ass.js の parseEmphasis と同じ規則）。
-      serif: data.serif
-        .replace(
-          /[^\S\r\n]*\r?\n[^\S\r\n]*/g,
-          (matched) => (/[^\S\r\n]/.test(matched) ? ' ' : ''),
-        )
-        .replace(/\{([^{}|]+)(?:\|[0-9A-Fa-f]{6})?\}/g, '$1'),
+      serif: normalizeSerifForDisplay(data.serif),
       fileBaseName,
       videoPath: `${baseUrl}videos/${fileBaseName}.mp4`,
     }
