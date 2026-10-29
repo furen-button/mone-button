@@ -4,6 +4,7 @@ import {
   buildAss,
   charWidth,
   formatDate,
+  fontSize,
   makeTextElement,
   resolveTitleText,
   stripEmoji,
@@ -288,7 +289,7 @@ export function buildEndscreenElements({ config, size, duration }) {
   const thickness = Math.max(1, Math.round(height * (frame.thickness ?? 0.008)));
   const inset = Math.round(width * (frame.labelInset ?? 0.03));
   const gap = Math.round(width * (frame.labelGap ?? 0.01));
-  const fs = Math.round(height * (labelStyle.size ?? 0.06));
+  const fs = fontSize(labelStyle.size ?? 0.06, height);
   // 枠線を途切れさせる幅。elementTextRect の推定（全角 1 字 = fs）は QC 向けに広めなので使わず、
   // libass で Hiragino を描いたときの実測（全角 1 字 ≈ fs × 0.66）から求める。
   const glyphRatio = Number(frame.glyphRatio ?? 0.66);

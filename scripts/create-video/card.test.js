@@ -15,6 +15,19 @@ function endscreenConfig(patch = {}) {
 }
 
 describe('エンドスクリーン', () => {
+  it('ラベルのサイズは高さ比と px の両方を受け付け、枠の切れ目にも同じ値を使う', () => {
+    const render = (labelSize) => buildEndscreenElements({
+      config: endscreenConfig({ endcaps: { ending: { endscreen: { label: { size: labelSize } } } } }),
+      size,
+      duration: 20,
+    });
+    const pixels = render(64);
+    assert.equal(pixels.find((el) => el.name === 'endscreen-top').size, 64);
+    assert.equal(pixels.find((el) => el.name === 'endscreen-bottom').size, 64);
+    assert.deepEqual(render(64 / size.height), pixels);
+    assert.deepEqual(render(0.06), render(65));
+  });
+
   it('枠の左右の縦線と、ラベルの所で途切れた上下の横線を描く', () => {
     const elements = buildEndscreenElements({ config: endscreenConfig(), size, duration: 20 });
     const frame = elements.find((el) => el.name === 'endscreen-frame');
