@@ -439,7 +439,7 @@ function cardBackground({ kind, clips, config, size, duration }) {
     kind: 'lastClip',
     requested: 'lastClip',
     path: source,
-    // 入力シークで末尾 0.5 秒だけを読み、その先頭 1 枚を duration 秒ぶん複製する。
+    // 入力シークで末尾 0.5 秒だけを読み、その最後の 1 枚（最終フレーム）を duration 秒ぶん複製する。
     args: ['-sseof', '-0.5', '-i', source],
     videoFilter: lastFrameBackgroundFilter({ bg, size, duration }),
   };
@@ -449,6 +449,8 @@ export function lastFrameBackgroundFilter({ bg, size, duration }) {
   const blur = Number(bg.blur ?? 40);
   const brightness = Number(bg.brightness ?? -0.08);
   return [
+    // 読み込んだ末尾区間を逆順にして先頭 1 枚を採る＝最終フレーム。区間は 0.5 秒ぶんなのでバッファは小さい。
+    'reverse',
     'trim=end_frame=1',
     'setpts=PTS-STARTPTS',
     `scale=${size.width}:${size.height}:force_original_aspect_ratio=decrease`,

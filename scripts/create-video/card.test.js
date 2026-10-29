@@ -66,7 +66,7 @@ describe('エンドスクリーン', () => {
 
   it('最後のクリップの最終フレームをぼかして duration 秒ぶん複製する', () => {
     const filter = lastFrameBackgroundFilter({ bg: { blur: 40, brightness: -0.08 }, size, duration: 20 });
-    assert.match(filter, /^trim=end_frame=1,setpts=PTS-STARTPTS,/);
+    assert.match(filter, /^reverse,trim=end_frame=1,setpts=PTS-STARTPTS,/);
     assert.match(filter, /gblur=sigma=40,eq=brightness=-0\.08,tpad=stop_mode=clone:stop_duration=20,fps=30,trim=duration=20$/);
   });
 
