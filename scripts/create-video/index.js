@@ -9,6 +9,7 @@ import { renderClip } from './clip.js';
 import { renderClipCard, renderEndingCard, renderOpeningCard } from './card.js';
 import { concatSegments, mixBgm, probeDuration, resolveFfmpeg } from './ffmpeg.js';
 import { buildSummaryEntry, writeSummary } from './summary.js';
+import { planTransitions } from './transition.js';
 import { writeRenderManifest } from './qc/manifest.js';
 import { runQc } from './qc/index.js';
 import { runStaticChecks } from './qc/checks/static.js';
@@ -45,6 +46,11 @@ async function main() {
   };
 
   console.log(`🚀 ${describeSelection(config)} のクリップ ${clips.length} 件をまとめ動画にします（source=${config.source}）`);
+  // クリップ同士の繋ぎ目のトランジション。区切りカードがあると隣り合わないので入らない。
+  const transitions = planTransitions(clips, config);
+  if (config.transitions?.mode && config.transitions.mode !== 'none' && config.cards.enabled) {
+    console.warn('⚠️  cards.enabled=true のためトランジションは入りません（区切りカードを無効にすると効きます）。');
+  }
   if (config.__meta.configPath) console.log(`🧩 config: ${path.relative(projectRoot, config.__meta.configPath)}`);
 
   try {
@@ -70,6 +76,7 @@ async function main() {
         workDir,
         size,
         titleOverride,
+        transition: transitions[i],
       });
       if (!clipSegment) continue;
 

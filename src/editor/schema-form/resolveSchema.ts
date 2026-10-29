@@ -8,6 +8,7 @@ export type FieldKind =
   | 'font'
   | 'box'
   | 'fade'
+  | 'outlines'
   | 'enum'
   | 'boolean'
   | 'number'
@@ -32,6 +33,7 @@ const SPECIAL_DEFS = new Map<string, FieldKind>([
   ['box', 'box'],
   ['fadeMs', 'fade'],
   ['fadeSec', 'fade'],
+  ['outlines', 'outlines'],
 ])
 
 export function derefSchema(node: unknown, root: unknown): DerefResult {

@@ -125,6 +125,8 @@ function wrapSegmentWithKinsoku(segment, maxUnits) {
   const chars = [...String(segment)];
   const out = [];
   let start = 0;
+  // 最後の折り返しが空白の位置だったか。短い最終行の再調整で語を割らないために使う。
+  let tailAfterSpace = false;
   while (start < chars.length) {
     const br = measureBreak(chars, start, maxUnits);
     if (br.cut >= chars.length) {
@@ -144,9 +146,10 @@ function wrapSegmentWithKinsoku(segment, maxUnits) {
     }
 
     out.push(chars.slice(start, cut).join(''));
+    tailAfterSpace = chars[nextStart - 1] === ' ' || chars[nextStart] === ' ';
     start = nextStart;
   }
-  return rebalanceShortTail(out, maxUnits);
+  return rebalanceShortTail(out, maxUnits, { tailAfterSpace });
 }
 
 // \an5 の中央寄せでは行頭・行末の空白がその行だけ中心をずらすため、折り返し後に落とす。
@@ -197,7 +200,7 @@ function violatesKinsoku(chars, cut) {
   );
 }
 
-function rebalanceShortTail(lines, maxUnits) {
+function rebalanceShortTail(lines, maxUnits, { tailAfterSpace = false } = {}) {
   if (lines.length < 2) {
     return lines;
   }
@@ -205,6 +208,9 @@ function rebalanceShortTail(lines, maxUnits) {
   const tail = lines.at(-1);
   if (measureWidth(tail) >= minTail) {
     return lines;
+  }
+  if (tailAfterSpace) {
+    return rebalanceShortTailByWord(lines, maxUnits, minTail);
   }
 
   const prev = lines.at(-2);
@@ -228,6 +234,29 @@ function rebalanceShortTail(lines, maxUnits) {
         prevChars.slice(0, cut).join(''),
         nextTail.join(''),
       ];
+    }
+  }
+  return lines;
+}
+
+// 空白で折った最終行は、前の行の末尾から空白区切りの語ごと送る。serif の半角空白は折り返し位置の
+// 指定として書かれるので、1 文字ずつ送って語の途中で割ったり区切りの空白を詰めたりしない。
+// 送った結果、前の行が短くなる（短い行が上へ移るだけの）場合と、どの語を送っても収まらない場合は、
+// 短い最終行のまま残す。
+function rebalanceShortTailByWord(lines, maxUnits, minTail) {
+  const prevWords = lines.at(-2).replace(/ +$/, '').split(' ');
+  const tail = lines.at(-1).replace(/^ +/, '');
+  for (let move = 1; move < prevWords.length; move++) {
+    const head = prevWords.slice(0, -move).join(' ');
+    const nextTail = [...prevWords.slice(-move), tail].join(' ');
+    if (measureWidth(nextTail) > maxUnits || measureWidth(head) < minTail) {
+      break;
+    }
+    if (violatesKinsoku([...head, ...nextTail], [...head].length)) {
+      continue;
+    }
+    if (measureWidth(nextTail) >= minTail) {
+      return [...lines.slice(0, -2), head, nextTail];
     }
   }
   return lines;
@@ -270,6 +299,38 @@ export function countLines(text) {
   return String(text || '').split(/\r?\n|\\N/).length;
 }
 
+// telops.title.format の {date}（YYYY/MM/DD）と {title} を埋める。改行は 1 行帯に向かないので空白にする。
+export function formatTitleLine(format, { date, title }) {
+  const slashDate = formatDate(date).replaceAll('-', '/');
+  return stripEmoji(String(format).replaceAll('{date}', slashDate).replaceAll('{title}', String(title ?? '')))
+    .replace(/\s*\r?\n\s*/g, ' ');
+}
+
+// 1 行タイトル帯。左右マージン（marginH）の内側に 1 行で収まるよう、size から minSize まで整数で縮める。
+// それでも入らなければタイトル部分の末尾を「…」で省く（日付など書式の残りは削らない）。
+export function fitSingleLineTitle({ format, date, title, style, width, height }) {
+  const marginH = Math.round(width * (style.marginH ?? 0.035));
+  const baseFs = fontSize(style.size, height);
+  const minFs = Math.min(baseFs, fontSize(style.minSize ?? 0.02, height));
+  // wrapText は幅が maxUnits に達した時点で折るので、未満に収める。
+  const fits = (text, fs) => measureWidth(text) < maxUnitsFor(width, marginH, marginH, fs);
+  const full = formatTitleLine(format, { date, title });
+  for (let fs = baseFs; fs >= minFs; fs--) {
+    if (fits(full, fs)) {
+      return { text: full, size: fs, truncated: false };
+    }
+  }
+  const chars = [...stripEmoji(String(title ?? '')).replace(/\s*\r?\n\s*/g, ' ')];
+  let text = full;
+  for (let keep = chars.length - 1; keep >= 0; keep--) {
+    text = formatTitleLine(format, { date, title: `${chars.slice(0, keep).join('').trimEnd()}…` });
+    if (fits(text, minFs)) {
+      break;
+    }
+  }
+  return { text, size: minFs, truncated: true };
+}
+
 export function resolveTitleText({ clip, config, titleOverride }) {
   const meta = clip?.meta || {};
   const videoId = clip?.videoId || clip?.data?.videoId || meta.videoId;
@@ -297,6 +358,85 @@ export function escapeAssText(text) {
     .replace(/\r?\n/g, '\\N');
 }
 
+// serif の強調記法。`{語}` は強調色、`{語|RRGGBB}` はその色で描く。
+// 閉じていない括弧や中身が空のものは記法とみなさず、従来どおり文字として残す（escapeAssText が全角にする）。
+const EMPHASIS_PATTERN = /\{([^{}|]+)(?:\|([0-9A-Fa-f]{6}))?\}/g;
+
+// 記号を取り除いた本文と、強調区間（本文の code point 位置、end は含まない）を返す。
+export function parseEmphasis(text) {
+  const source = String(text ?? '');
+  const spans = [];
+  let plain = '';
+  let plainLength = 0;
+  let last = 0;
+  for (const match of source.matchAll(EMPHASIS_PATTERN)) {
+    const before = source.slice(last, match.index);
+    plain += before;
+    plainLength += [...before].length;
+    const inner = match[1];
+    const innerLength = [...inner].length;
+    spans.push({
+      start: plainLength,
+      end: plainLength + innerLength,
+      color: match[2] ? match[2].toUpperCase() : null,
+    });
+    plain += inner;
+    plainLength += innerLength;
+    last = match.index + match[0].length;
+  }
+  plain += source.slice(last);
+  return { plain, spans };
+}
+
+// テロップ以外（概要欄・固定コメント・一覧など）で serif を出すときは記号だけを落とす。
+export function stripEmphasis(text) {
+  return parseEmphasis(text).plain;
+}
+
+// 折り返し後の各文字が、記号を除いた本文のどの位置に当たるかを返す（改行は -1）。
+// 折り返しで落ちるのは区切りの空白と改行だけなので、本文を先頭から照合すれば位置がずれない。
+function mapWrappedToPlain(wrapped, plain) {
+  const plainChars = [...plain];
+  const out = [];
+  let cursor = 0;
+  for (const ch of wrapped) {
+    if (ch === '\n') {
+      out.push(-1);
+      continue;
+    }
+    while (cursor < plainChars.length && plainChars[cursor] !== ch) {
+      cursor++;
+    }
+    out.push(cursor < plainChars.length ? cursor : -1);
+    cursor++;
+  }
+  return out;
+}
+
+// 折り返し済みの本文に強調色を当てた ASS 本文を作る。ASS の色指定は \N をまたいで続くので、
+// 強調区間が行をまたいでもそのまま続け、区間の終わりで基本色へ戻す。
+function emphasizedAssText(el) {
+  const chars = [...String(el.text)];
+  const positions = mapWrappedToPlain(el.text, el.emphasis.plain);
+  const baseColor = el.color || 'FFFFFF';
+  let current = null;
+  let out = '';
+  for (const [index, ch] of chars.entries()) {
+    if (ch === '\n') {
+      out += '\\N';
+      continue;
+    }
+    const span = el.emphasis.spans.find((item) => positions[index] >= item.start && positions[index] < item.end);
+    const color = span ? (span.color || el.emphasis.color) : null;
+    if (color !== current) {
+      out += `{\\1c${assOverrideColor(color || baseColor)}}`;
+      current = color;
+    }
+    out += escapeAssText(ch);
+  }
+  return out;
+}
+
 export function escapeFilterPath(p) {
   return p.replace(/\\/g, '\\\\').replace(/:/g, '\\:').replace(/'/g, "\\'");
 }
@@ -318,10 +458,19 @@ export function buildAss(elements, { width, height, font }) {
   lines.push('Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text');
 
   for (const el of elements.filter((item) => item && item.text !== false)) {
+    // shapes は本文を持たない図形（エンドスクリーンの枠線など）。塗りの矩形を背面に描く。
+    for (const shape of el.shapes || []) {
+      lines.push(dialogue(shapeDialogue(el, shape.x, shape.y, shape.width, shape.height, shape.color, 0)));
+    }
+    if (el.shapes && !el.text) {
+      continue;
+    }
     for (const box of boxDialogues(el, width, height)) {
       lines.push(dialogue(box));
     }
-    lines.push(dialogue(textDialogue(el, width, height)));
+    for (const text of textDialogues(el, width, height)) {
+      lines.push(dialogue(text));
+    }
     if (el.progress?.bar) {
       for (const bar of progressBarDialogues(el, width, height)) {
         lines.push(dialogue(bar));
@@ -334,6 +483,38 @@ export function buildAss(elements, { width, height, font }) {
 
 function dialogue({ layer = 1, start = '0:00:00.00', end = '9:59:59.99', text }) {
   return `Dialogue: ${layer},${start},${end},Default,,0,0,0,,${text}`;
+}
+
+// outlines（内側→外側の縁取り）があれば、外側ほど太い \bord を持つ同じ本文を外側から順に重ねる。
+// 同じ Layer の Dialogue は記述順に描かれるので、内側（本文の塗りが最後に乗る）を最後に出す。
+// 影は最外層だけに付ける。outlines が無ければ従来どおり 1 行だけ出す。
+function textDialogues(el, width, height) {
+  const outlines = normalizeOutlines(el.outlines);
+  if (outlines.length === 0) {
+    return [textDialogue(el, width, height)];
+  }
+  const out = [];
+  for (let k = outlines.length - 1; k >= 0; k--) {
+    const border = outlines.slice(0, k + 1).reduce((sum, item) => sum + item.width, 0);
+    const outermost = k === outlines.length - 1;
+    out.push(textDialogue({
+      ...el,
+      outline: border,
+      outlineColor: outlines[k].color,
+      shadow: outermost ? el.shadow : 0,
+      shadowColor: outermost ? el.shadowColor : undefined,
+    }, width, height));
+  }
+  return out;
+}
+
+function normalizeOutlines(outlines) {
+  if (!Array.isArray(outlines)) {
+    return [];
+  }
+  return outlines
+    .filter((item) => item && Number(item.width) > 0 && item.color)
+    .map((item) => ({ width: Number(item.width), color: item.color }));
 }
 
 function textDialogue(el, width, height) {
@@ -360,7 +541,14 @@ function textDialogue(el, width, height) {
   if (el.shadowColor) overrides.push(`\\4c${assOverrideColor(el.shadowColor, shadowAlpha(el.shadowColor))}`);
   if (el.fade) overrides.push(`\\fad(${Number(el.fade[0] || 0)},${Number(el.fade[1] || 0)})`);
 
-  const escaped = el.karaoke ? karaokeText(el.text, el.duration) : escapeAssText(el.text);
+  let escaped;
+  if (el.karaoke) {
+    escaped = karaokeText(el.text, el.duration);
+  } else if (el.emphasis?.spans?.length) {
+    escaped = emphasizedAssText(el);
+  } else {
+    escaped = escapeAssText(el.text);
+  }
   return {
     layer: el.layer ?? 5,
     start: el.start,
@@ -408,7 +596,9 @@ function titleBarRect(el, width, height) {
   const fs = fontSize(el.size, height);
   const pad = Number(el.box.pad || 0);
   const border = Number(el.box.borderWidth || 0);
-  const boxHeight = Math.max(boxHeightFor(countLines(el.text), fs, pad, border), Math.round(height * 0.07));
+  // 最低高さ（画面高さ比、既定 0.07）。1 行の細い帯にしたいプリセットは box.minHeight で下げる。
+  const minHeight = Number(el.box.minHeight ?? 0.07);
+  const boxHeight = Math.max(boxHeightFor(countLines(el.text), fs, pad, border), Math.round(height * minHeight));
   el.textPos = { x: width / 2, y: boxHeight / 2 };
   return { x: 0, y: 0, width, height: boxHeight };
 }
@@ -651,11 +841,14 @@ export function makeTextElement({ name, text, style, width, height, duration, in
   const marginL = overrides.marginL ?? marginH;
   const marginR = overrides.marginR ?? marginH;
   let fs = baseFs;
-  const stripped = stripEmoji(text);
+  // serif だけ強調記法（{語} / {語|RRGGBB}）を解く。折り返し・縮小・矩形の計測は記号を除いた本文で行う。
+  const emphasis = name === 'serif' ? parseEmphasis(stripEmoji(text)) : null;
+  const stripped = emphasis ? emphasis.plain : stripEmoji(text);
   let wrapped = wrapText(stripped, maxUnitsFor(width, marginL, marginR, fs));
 
-  // 箱高さ上限に収める自動縮小。実際の折り返し結果を測り、収まる最大の整数 fs を選ぶ。
-  if (style.autoShrink && style.box?.enabled) {
+  // 高さ上限に収める自動縮小。実際の折り返し結果を測り、収まる最大の整数 fs を選ぶ。
+  // ボックスが無い場合は余白・枠を 0 として行数×行送りだけで測る。
+  if (style.autoShrink) {
     const lines = countLines(wrapped);
     if (lines > 1) {
       const minFs = Math.min(baseFs, fontSize(style.minSize ?? 0.05, height));
@@ -668,7 +861,7 @@ export function makeTextElement({ name, text, style, width, height, duration, in
         minFs,
         baseFs,
         budget,
-        box: style.box,
+        box: style.box?.enabled ? style.box : {},
       }));
     }
   }
@@ -694,6 +887,16 @@ export function makeTextElement({ name, text, style, width, height, duration, in
     karaoke: Boolean(style.karaoke),
     ...overrides,
   };
+  if (Array.isArray(style.outlines) && element.outlines === undefined) {
+    element.outlines = style.outlines;
+  }
+  if (emphasis?.spans.length) {
+    element.emphasis = {
+      plain: stripped,
+      spans: emphasis.spans,
+      color: style.emphasis?.color || 'FFD800',
+    };
+  }
   if (index !== undefined && total !== undefined) {
     element.progress = { index, total, bar: Boolean(style.bar) };
   }

@@ -16,7 +16,7 @@ export function StringMapField({ path }: StringMapFieldProps) {
   const rows = edit.source === source ? edit.rows : sourceRows
   const [newKey, setNewKey] = useState('')
   const [newValue, setNewValue] = useState('')
-  const note = path.join('.') === 'summary.chapters.labels' ? 'videoId#2 も指定できます。' : ''
+  const note = path.join('.') === 'summary.chapters.labels' ? 'by=clip はチャプター先頭のクリップ名、by=stream は videoId（videoId#2 も可）で指定します。' : ''
 
   const setRows = (nextRows: StringMapRows) => {
     const nextValue = rowsToObject(nextRows)

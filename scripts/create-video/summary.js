@@ -1,10 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import { formatTimestamp } from './ass.js';
+import { formatTimestamp, stripEmphasis } from './ass.js';
 
 // 出力は 3 系統。用途ごとに文字数上限も分割方針も違うため 1 ファイルにまとめない。
 //   <name>.comment.txt … 固定コメント用のクリップ単位一覧
-//   <name>.youtube.txt … 概要欄にそのまま貼る本文（チャプター + 配信単位の出典）
+//   <name>.youtube.txt … 概要欄にそのまま貼る本文（チャプター + チャプターごとの出典）
 //   <name>.meta.json   … タイトル案 / タグ / チャプター配列。将来の Data API 自動化用
 
 // YouTube のチャプターは先頭 0:00 必須 / 3 つ以上 / 各区間 10 秒以上。
@@ -24,14 +24,17 @@ export function summaryPathsFor(videoOutPath) {
 
 // クリップと動画内の開始秒から 1 エントリ分の情報を作る。
 // チャプター境界の判定と出典一覧に videoId / sourceUrl が要るので併せて持つ。
+// base は QC がチャプターの時刻を manifest のセグメントと突き合わせるのに使う。
 export function buildSummaryEntry(clip, atSec) {
   const meta = clip.meta || {};
-  const serif = String(clip.data?.serif || '').replace(/\s*\n\s*/g, ' ').trim();
+  // 強調記法（{語} / {語|RRGGBB}）はテロップ専用なので、概要欄・固定コメントでは記号を落とす。
+  const serif = stripEmphasis(String(clip.data?.serif || '')).replace(/\s*\n\s*/g, ' ').trim();
   const startSec = Math.round(Number(clip.startTime) || 0);
   const clipUrl = clip.data?.clipUrl
     || (clip.videoId ? `https://youtube.com/watch?v=${clip.videoId}&t=${startSec}s` : '');
   return {
     atSec,
+    base: clip.base || '',
     serif,
     videoId: clip.videoId || '',
     title: (meta.title || '').trim(),
@@ -57,8 +60,8 @@ export function chapterLabelFor(title) {
   return text;
 }
 
-// 直前と videoId が変わった位置でチャプターを切る。
-// 10 秒未満の区間は YouTube の規格を満たさないので隣へ寄せる。
+// チャプターを切る。既定（by: clip）はセリフ（クリップ）ごと、by: stream は直前と videoId が
+// 変わった位置で切る。どちらも 10 秒未満の区間は YouTube の規格を満たさないのでまとめる。
 export function buildChapters(entries, totalSec, options = {}) {
   const minSec = Number(options.minSec ?? 10);
   const labels = options.labels || {};
@@ -66,16 +69,94 @@ export function buildChapters(entries, totalSec, options = {}) {
     return { chapters: [], warnings: [] };
   }
 
+  const chapters = options.by === 'stream'
+    ? buildStreamChapters(entries, totalSec, minSec, labels)
+    : buildClipChapters(entries, totalSec, minSec, labels);
+  if (chapters.length < YOUTUBE_MIN_CHAPTERS) {
+    const warnings = [
+      `チャプターが ${chapters.length} 個しかないため概要欄から省きます`
+      + `（YouTube は 3 つ以上・各 ${minSec} 秒以上を要求します）。`,
+    ];
+    return { chapters: [], warnings };
+  }
+  return { chapters, warnings: [] };
+}
+
+// セリフごとのチャプター。見出しはまとめたセリフを「 / 」でつなぎ、出典用にクリップの URL を持つ。
+// labels はチャプター先頭のクリップ名（base）で見出しを上書きする。
+function buildClipChapters(entries, totalSec, minSec, labels) {
+  return groupClipChapters(entries, totalSec, minSec).map((group, i) => {
+    // 先頭は必ず 0:00 でなければならない。OP カードのぶんだけ最初のクリップは 0 秒に来ない。
+    const sec = i === 0 ? 0 : Math.round(group.start);
+    return {
+      sec,
+      time: formatTimestamp(sec),
+      label: clipChapterLabel(group, labels),
+      videoId: group.entries[0].videoId,
+      bases: group.entries.map((entry) => entry.base),
+      urls: group.entries.map((entry) => entry.clipUrl).filter(Boolean),
+    };
+  });
+}
+
+// クリップを前から順にまとめ、合計が minSec 以上になったら次のチャプターを始める。
+// 末尾だけ短く残ったら直前へ寄せる。先頭のチャプターは 0:00 から始まるものとして長さを測る。
+export function groupClipChapters(entries, totalSec, minSec = 10) {
+  const groups = [];
+  for (const [i, entry] of entries.entries()) {
+    // 境界は出力と同じ整数秒で判定し、末尾だけは総尺までの実際の長さを使う。
+    const start = i === 0 ? 0 : Math.round(entry.atSec);
+    const end = i + 1 < entries.length ? Math.round(entries[i + 1].atSec) : totalSec;
+    const last = groups.at(-1);
+    if (last && last.end - last.start < minSec) {
+      last.end = end;
+      last.entries.push(entry);
+      continue;
+    }
+    groups.push({ start, end, entries: [entry] });
+  }
+  const tail = groups.at(-1);
+  if (groups.length > 1 && tail.end - tail.start < minSec) {
+    groups.pop();
+    groups.at(-1).end = tail.end;
+    groups.at(-1).entries.push(...tail.entries);
+  }
+  return groups;
+}
+
+function clipChapterLabel(group, labels) {
+  const override = labels[group.entries[0].base];
+  if (override) {
+    return override;
+  }
+  const serifs = group.entries.map((entry) => entry.serif).filter(Boolean);
+  return serifs.length > 0 ? serifs.join(' / ') : chapterLabelFor(group.entries[0].title);
+}
+
+// 概要欄の出典（by: clip）。チャプターと同じまとまりごとに、見出しとタイムスタンプ付き URL を並べる。
+// チャプターが 3 個未満で省かれても出典は残すため、チャプターとは別に組み立てる。
+export function buildClipSources(entries, totalSec, options = {}) {
+  const minSec = Number(options.minSec ?? 10);
+  const labels = options.labels || {};
+  return groupClipChapters(entries, totalSec, minSec).map((group) => ({
+    label: clipChapterLabel(group, labels),
+    urls: group.entries.map((entry) => entry.clipUrl).filter(Boolean),
+  }));
+}
+
+// 配信ごとのチャプター。見出しは配信タイトルを整形したもので、labels は videoId / "videoId#N" で上書きする。
+function buildStreamChapters(entries, totalSec, minSec, labels) {
   const groups = [];
   for (const entry of entries) {
     const last = groups.at(-1);
     if (last && last.videoId === entry.videoId) {
       continue;
     }
-    groups.push({ videoId: entry.videoId, start: entry.atSec, title: entry.title });
+    groups.push({ videoId: entry.videoId, start: groups.length === 0 ? 0 : Math.round(entry.atSec), title: entry.title });
   }
   for (const [i, group] of groups.entries()) {
-    group.end = i + 1 < groups.length ? groups[i + 1].start : Math.max(totalSec, group.start);
+    // 末尾は総尺を丸めず、実際の残り時間で判定する。
+    group.end = i + 1 < groups.length ? groups[i + 1].start : totalSec;
   }
 
   // 短い区間は直前へ吸収する。ラベルは既にそのチャプターが始まっている側を残す。
@@ -93,19 +174,10 @@ export function buildChapters(entries, totalSec, options = {}) {
     merged.shift();
   }
 
-  const warnings = [];
-  if (merged.length < YOUTUBE_MIN_CHAPTERS) {
-    warnings.push(
-      `チャプターが ${merged.length} 個しかないため概要欄から省きます`
-      + `（YouTube は 3 つ以上・各 ${minSec} 秒以上を要求します）。`,
-    );
-    return { chapters: [], warnings };
-  }
-
   // 同じ配信が離れた位置で再登場することがある（総集編の末尾に名場面を集めるなど）ので、
   // labels は videoId だけでなく "videoId#2" の形でも指定できるようにする。
   const seenCount = new Map();
-  const chapters = merged.map((group, i) => {
+  return merged.map((group, i) => {
     // 先頭は必ず 0:00 でなければならない。OP カードのぶんだけ最初のクリップは 0 秒に来ない。
     const sec = i === 0 ? 0 : Math.round(group.start);
     const occurrence = (seenCount.get(group.videoId) || 0) + 1;
@@ -121,10 +193,9 @@ export function buildChapters(entries, totalSec, options = {}) {
       occurrence,
     };
   });
-  return { chapters, warnings };
 }
 
-// 出典は配信単位。同じ配信の再登場はまとめる。
+// 配信単位の出典（by: stream の概要欄と meta.json）。同じ配信の再登場はまとめる。
 export function buildSources(entries) {
   const seen = new Map();
   for (const entry of entries) {
@@ -142,7 +213,9 @@ export function buildSources(entries) {
 }
 
 // 概要欄本文。設定が空の節は見出しごと落とす。
-export function renderYoutubeDescription({ chapters, sources, summary }) {
+// clipSources があればチャプターごとの出典（見出し + タイムスタンプ付き URL）、無ければ配信一覧を出す。
+// 出典の見出しには時刻を付けない。行頭の時刻は YouTube がチャプターとして読み取ってしまうため。
+export function renderYoutubeDescription({ chapters, sources, clipSources = [], summary }) {
   const blocks = [];
   const head = [summary.intro, summary.notice].filter(Boolean);
   if (head.length > 0) {
@@ -158,7 +231,10 @@ export function renderYoutubeDescription({ chapters, sources, summary }) {
     const lines = chapters.map((c) => `${c.time} ${c.label}`.trimEnd());
     blocks.push(['▼チャプター', ...lines].join('\n'));
   }
-  if (sources.length > 0) {
+  if (clipSources.length > 0) {
+    const groups = clipSources.map((s) => [s.label, ...s.urls].filter(Boolean).join('\n'));
+    blocks.push(`▼出典\n${groups.join('\n\n')}`);
+  } else if (sources.length > 0) {
     const lines = sources.flatMap((s) => [s.title, s.url].filter(Boolean));
     blocks.push(['▼出典（配信一覧）', ...lines].join('\n'));
   }
@@ -226,7 +302,13 @@ export function buildMeta({ entries, chapters, sources, summary, totalSec, video
     clipCount: entries.length,
     titleCandidates: summary.titleCandidates || [],
     tags: summary.tags || [],
-    chapters: chapters.map(({ sec, time, label }) => ({ sec, time, label })),
+    // by: clip のチャプターは、QC が時刻を突き合わせるクリップ名と出典 URL も残す。
+    chapters: chapters.map(({ sec, time, label, bases, urls }) => ({
+      sec,
+      time,
+      label,
+      ...(bases ? { bases, urls } : {}),
+    })),
     sources,
   };
 }
@@ -245,11 +327,13 @@ export function writeSummary({ videoOutPath, entries, totalSec, config }) {
   warnings.push(...chapterResult.warnings);
 
   const sources = buildSources(entries);
+  const clipSources = chapterOptions.by === 'stream' ? [] : buildClipSources(entries, totalSec, chapterOptions);
   const maxChars = Number(summary.maxChars ?? 5000);
 
   const youtube = renderYoutubeDescription({
     chapters: chapterResult.chapters,
     sources,
+    clipSources,
     summary,
   });
   fs.writeFileSync(paths.youtube, youtube);

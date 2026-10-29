@@ -1,4 +1,4 @@
-import type { VoiceClip, SortType, StreamGroup } from '../voiceData'
+import type { VoiceClip, SameSerifLabel, SortType, StreamGroup } from '../voiceData'
 import { t } from '../i18n'
 import { useLocale } from '../i18n'
 
@@ -6,6 +6,7 @@ type VoiceListProps = {
   sortType: SortType
   sortedClips: VoiceClip[]
   streamGroups: StreamGroup[]
+  sameSerifLabels: Map<string, SameSerifLabel>
   playCounts: Record<string, number>
   onPlayClip: (clip: VoiceClip) => void
   onOpenInfo: (clip: VoiceClip) => void
@@ -16,24 +17,32 @@ type VoiceListProps = {
 
 function VoiceCard({
   clip,
+  sameSerifLabel,
   playCount,
   onPlayClip,
   onOpenInfo,
   onOpenEdit,
 }: {
   clip: VoiceClip
+  sameSerifLabel?: SameSerifLabel
   playCount: number
   onPlayClip: (clip: VoiceClip) => void
   onOpenInfo: (clip: VoiceClip) => void
   onOpenEdit?: (clip: VoiceClip) => void
 }) {
   const locale = useLocale()
+  const sameSerifText = sameSerifLabel
+    ? [sameSerifLabel.date, sameSerifLabel.no === undefined ? '' : t('voiceCard.sameSerifNo', { no: sameSerifLabel.no }, locale)]
+        .filter(Boolean)
+        .join(' ')
+    : ''
+  const subText = [sameSerifText, clip.categories.join(' / ')].filter(Boolean).join(' · ')
 
   return (
     <article className={onOpenEdit ? 'voice-card has-edit' : 'voice-card'}>
       <button type="button" className="voice-card-play" onClick={() => onPlayClip(clip)}>
         <span className="voice-card-text">{clip.serif}</span>
-        <span className="voice-card-sub">{clip.categories.join(' / ')}</span>
+        <span className="voice-card-sub">{subText}</span>
       </button>
       <span className="voice-card-count" aria-label={t('voiceCard.playCountAria', { count: playCount }, locale)}>
         {t('voiceCard.playCount', { count: playCount.toLocaleString() }, locale)}
@@ -65,6 +74,7 @@ export function VoiceList({
   sortType,
   sortedClips,
   streamGroups,
+  sameSerifLabels,
   playCounts,
   onPlayClip,
   onOpenInfo,
@@ -81,6 +91,7 @@ export function VoiceList({
             <VoiceCard
               key={clip.fileBaseName}
               clip={clip}
+              sameSerifLabel={sameSerifLabels.get(clip.fileBaseName)}
               playCount={playCounts[clip.fileBaseName] ?? 0}
               onPlayClip={onPlayClip}
               onOpenInfo={onOpenInfo}
@@ -116,6 +127,7 @@ export function VoiceList({
                 <VoiceCard
                   key={clip.fileBaseName}
                   clip={clip}
+                  sameSerifLabel={sameSerifLabels.get(clip.fileBaseName)}
                   playCount={playCounts[clip.fileBaseName] ?? 0}
                   onPlayClip={onPlayClip}
                   onOpenInfo={onOpenInfo}

@@ -26,6 +26,7 @@ import { withVideoCacheBust } from './lib/videoPath'
 import {
   categoryCounts,
   categoryOptions,
+  withDisplaySerif,
   type SortType,
   type StreamGroup,
   type VoiceClip,
@@ -50,7 +51,7 @@ function App() {
 
   const [sortType, setSortType] = useState<SortType>('reading')
   const [videoVersions, setVideoVersions] = useState<Record<string, number>>({})
-  const { sortedClips, streamGroups, clipIndexMap, applyClipOverride, removeClip } = useClipCollection({
+  const { sortedClips, streamGroups, clipIndexMap, sameSerifLabels, applyClipOverride, removeClip } = useClipCollection({
     selectedCategories,
     sortType,
     playCounts,
@@ -88,7 +89,7 @@ function App() {
         current && current.fileBaseName === fileBaseName
           ? {
               ...current,
-              ...updated,
+              ...withDisplaySerif(updated),
               videoPath: withVideoCacheBust(current.videoPath, nextVideoVersion),
             }
           : current,
@@ -97,7 +98,7 @@ function App() {
         current && current.fileBaseName === fileBaseName
           ? {
               ...current,
-              ...updated,
+              ...withDisplaySerif(updated),
               videoPath: withVideoCacheBust(current.videoPath, nextVideoVersion),
             }
           : current,
@@ -175,6 +176,7 @@ function App() {
               sortType={sortType}
               sortedClips={sortedClips}
               streamGroups={streamGroups}
+              sameSerifLabels={sameSerifLabels}
               playCounts={playCounts}
               onPlayClip={playback.playClip}
               onOpenInfo={setInfoClip}

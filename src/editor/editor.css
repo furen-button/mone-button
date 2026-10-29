@@ -655,6 +655,22 @@
   flex-wrap: wrap;
 }
 
+.cv-outlinesControl {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+}
+
+.cv-outlineRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cv-outlineRow .cv-iconButton {
+  margin-left: 0;
+}
+
 .cv-unitInput .cv-input {
   width: 92px;
 }

@@ -6,6 +6,9 @@ const __filename = fileURLToPath(import.meta.url);
 const moduleDir = path.dirname(__filename);
 export const projectRoot = path.resolve(moduleDir, '../..');
 
+// YouTube のチャプターの最短秒数。summary.chapters.minSec はこれより短くできない。
+const YOUTUBE_MIN_CHAPTER_SEC = 10;
+
 export const ALIGN = {
   'top-left': 7,
   'top-center': 8,
@@ -50,6 +53,10 @@ export const DEFAULTS = {
       marginH: 0.035,
       text: null,
       overrides: {},
+      // {date}（YYYY/MM/DD）と {title} の書式。null なら従来どおりタイトルだけを出す。
+      format: null,
+      // true で 1 行に収まるまで minSize へ縮め、それでも入らなければタイトル末尾を「…」で省く。
+      singleLine: false,
       color: 'FFFFFF',
       box: { enabled: true, fill: '2E9B0E', pad: 12 },
       fade: [200, 200],
@@ -90,6 +97,8 @@ export const DEFAULTS = {
       shadow: 2,
       fade: [150, 150],
       karaoke: false,
+      // serif の {語} を描く色。{語|RRGGBB} と書けばその色が優先される。
+      emphasis: { color: 'FFD800' },
       // 顔検出でセリフボックスが演者の顔と重なるクリップだけ、顔の無い側へ寄せて幅を狭める。
       // gap は顔との間隔、minWidth は狭めたボックスの幅の下限（いずれも画面幅に対する割合）。
       // 下限を満たせないときは従来どおり全幅にし、QC が warn で知らせる。
@@ -174,6 +183,30 @@ export const DEFAULTS = {
       font: null,
       // 完成済み動画を指定するとその動画をそのまま ED に使う（テロップ/SE/duration は無視、音声は動画のもの）。
       video: null,
+      // default は「ご視聴ありがとうございました」のカード、endscreen は YouTube の終了画面の要素を置く枠。
+      layout: 'default',
+      endscreen: {
+        background: { type: 'lastClip', blur: 40, brightness: -0.08 },
+        frame: { x: 0.03, y: 0.08, width: 0.94, height: 0.84, thickness: 0.007, color: 'FFFFFF', labelInset: 0.03, labelGap: 0.01 },
+        labels: { top: 'おすすめアーカイブはこちら', bottom: '登録がまだの方はこちら' },
+        label: { size: 0.06, color: 'FFFFFF', font: null, bold: false, shadow: 0, outlines: [{ width: 6, color: '333333' }] },
+      },
+    },
+  },
+  // 配信（videoId）が変わる繋ぎ目などに入れるトランジション。既定は none（従来どおり素のカット）。
+  // 区切りカードがあるとクリップ同士が隣り合わないので、cards.enabled=false のときだけ効く。
+  transitions: {
+    mode: 'none',
+    type: 'whip',
+    // 出る側・入る側を合わせた長さ（秒）。半分ずつ各クリップの末尾と先頭に入る。
+    duration: 0.5,
+    // 片側で流れる距離（画面幅比）と、切り替わりの瞬間の横ブラーの強さ（gblur の sigma、画面幅比）。
+    shift: 1.0,
+    blur: 0.03,
+    se: {
+      enabled: true,
+      file: 'assets/create-video/シーン切り替え1.mp3',
+      volume: 1.0,
     },
   },
   // YouTube 公開用メタデータの生成。概要欄テンプレートの可変部をここに置く。
@@ -189,6 +222,8 @@ export const DEFAULTS = {
     maxChars: 5000,
     chapters: {
       enabled: true,
+      // clip = セリフごと（10 秒未満はまとめる）/ stream = 配信が変わる位置。
+      by: 'clip',
       minSec: 10,
       labels: {},
     },
@@ -567,10 +602,39 @@ function validateConfig(config) {
   validateTitleOverrides(config, errors);
   validateEffects(config, errors);
   validateEnhance(config, errors);
+  validateTransitions(config, errors);
   validateQc(config, errors);
 
   if (errors.length > 0) {
     throw new Error(errors.map((line) => `- ${line}`).join('\n'));
+  }
+}
+
+function validateTransitions(config, errors) {
+  const transitions = config.transitions || {};
+  if (!['none', 'stream', 'all'].includes(transitions.mode)) {
+    errors.push(`transitions.mode が不正です: ${transitions.mode}`);
+  }
+  if (transitions.type !== 'whip') {
+    errors.push(`transitions.type が不正です: ${transitions.type}`);
+  }
+  for (const key of ['duration', 'shift', 'blur']) {
+    if (!Number.isFinite(Number(transitions[key])) || Number(transitions[key]) < 0) {
+      errors.push(`transitions.${key} は 0 以上で指定してください: ${transitions[key]}`);
+    }
+  }
+  const layout = config.endcaps.ending?.layout;
+  if (layout !== undefined && !['default', 'endscreen'].includes(layout)) {
+    errors.push(`endcaps.ending.layout が不正です: ${layout}`);
+  }
+  const chaptersBy = config.summary?.chapters?.by;
+  if (chaptersBy !== undefined && !['clip', 'stream'].includes(chaptersBy)) {
+    errors.push(`summary.chapters.by が不正です: ${chaptersBy}`);
+  }
+  // チャプターは YouTube の概要欄用で、YouTube は各 10 秒以上を要求する。短くすると概要欄のチャプターが無効になる。
+  const minSec = config.summary?.chapters?.minSec;
+  if (minSec !== undefined && !(Number(minSec) >= YOUTUBE_MIN_CHAPTER_SEC)) {
+    errors.push(`summary.chapters.minSec は ${YOUTUBE_MIN_CHAPTER_SEC} 以上で指定してください（YouTube のチャプターは各 ${YOUTUBE_MIN_CHAPTER_SEC} 秒以上）: ${minSec}`);
   }
 }
 
@@ -689,6 +753,14 @@ function validateColors(config, errors) {
     config.cards.background.gradient?.c0,
     config.cards.background.gradient?.c1,
     config.cards.index.color,
+    config.telops.serif.emphasis?.color,
+    config.endcaps.ending?.endscreen?.frame?.color,
+    config.endcaps.ending?.endscreen?.label?.color,
+    ...[
+      config.telops.title.outlines,
+      config.telops.serif.outlines,
+      config.endcaps.ending?.endscreen?.label?.outlines,
+    ].flatMap((outlines) => (Array.isArray(outlines) ? outlines.map((item) => item?.color) : [])),
   ].filter(Boolean);
   for (const color of candidates) {
     try {

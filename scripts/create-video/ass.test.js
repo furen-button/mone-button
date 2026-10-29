@@ -10,10 +10,14 @@ import {
   charWidth,
   countLines,
   escapeAssText,
+  fitSingleLineTitle,
+  formatTitleLine,
   makeTextElement,
   maxUnitsFor,
+  parseEmphasis,
   resolveTitleText,
   stripEmoji,
+  stripEmphasis,
   wrapText,
 } from './ass.js';
 import { DEFAULTS, deepMerge } from './config.js';
@@ -136,6 +140,17 @@ describe('wrapText の改行制御', () => {
 
   it('泣き別れ回避は 1 行に収まるケースでは発火しない', () => {
     assert.equal(wrapText('あいうえ', 10), 'あいうえ');
+  });
+
+  it('空白で折った短い最終行は、語の途中で割らずに空白区切りの語ごと送る', () => {
+    assert.equal(wrapText('やー！やー！ いや！ やめて！ やめてー！', 15), 'やー！やー！ いや！\nやめて！ やめてー！');
+    assert.equal(wrapText('みんな どうしよう どうしよう どうしよう', 15), 'みんな どうしよう\nどうしよう どうしよう');
+  });
+
+  it('語を送ると前の行が短くなる、または語が収まらないときは短い最終行のまま残す', () => {
+    // 「じゃあ」だけの行を上に作るくらいなら、空白の位置で折ったままにする。
+    assert.equal(wrapText('じゃあ またみんなまた見に来てね バイバイ', 17), 'じゃあ またみんなまた見に来てね\nバイバイ');
+    assert.equal(wrapText('あいうえおかきくけこ さし', 12), 'あいうえおかきくけこ\nさし');
   });
 
   it('実データで禁則有効時の行数が禁則無効時を超えない', () => {
@@ -302,5 +317,134 @@ describe('折り返し行の端の空白', () => {
     for (const line of withKinsoku) {
       assert.equal(line, line.trim());
     }
+  });
+});
+
+describe('二重縁取り（outlines）', () => {
+  const style = {
+    enabled: true,
+    align: 'bottom-center',
+    size: 0.095,
+    color: 'FF4FA0',
+    bold: false,
+    shadow: 2,
+    box: { enabled: false },
+    outlines: [{ width: 9, color: 'FFFFFF' }, { width: 4, color: '6B3FA0' }],
+  };
+
+  function dialogues(element) {
+    return buildAss([element], { width: 1920, height: 1080, font: 'Hiragino Sans' })
+      .split('\n')
+      .filter((line) => line.startsWith('Dialogue:'));
+  }
+
+  it('外側から順に太い \\bord で重ね、影は最外層だけに付ける', () => {
+    const element = makeTextElement({ name: 'serif', text: 'ねえ', style, width: 1920, height: 1080, duration: 3 });
+    const lines = dialogues(element);
+    assert.equal(lines.length, 2);
+    assert.match(lines[0], /\\bord13\\3c&H00A03F6B&\\shad2/);
+    assert.match(lines[1], /\\bord9\\3c&H00FFFFFF&\\shad0/);
+    assert.ok(lines.every((line) => line.endsWith('ねえ')));
+  });
+
+  it('outlines が無ければ従来どおり 1 行だけ出す', () => {
+    const { outlines, ...plain } = style;
+    const element = makeTextElement({ name: 'serif', text: 'ねえ', style: plain, width: 1920, height: 1080, duration: 3 });
+    assert.equal(dialogues(element).length, 1);
+  });
+
+  it('ボックスが無くても autoShrink で maxHeight に収める', () => {
+    const shrinkStyle = { ...style, autoShrink: true, minSize: 0.05, maxHeight: 0.24 };
+    const element = makeTextElement({ name: 'serif', text: 'あ'.repeat(40), style: shrinkStyle, width: 1920, height: 1080, duration: 3 });
+    assert.ok(element.size < fontSizeForTest(0.095, 1080));
+    assert.ok(boxHeightFor(countLines(element.text), element.size, 0, 0) <= Math.round(1080 * 0.24));
+  });
+});
+
+describe('強調記法', () => {
+  it('{語} と {語|RRGGBB} を本文と区間に分ける', () => {
+    const parsed = parseEmphasis('なんか{キャサリン}が今{すごい|9b59d0}気に');
+    assert.equal(parsed.plain, 'なんかキャサリンが今すごい気に');
+    assert.deepEqual(parsed.spans, [
+      { start: 3, end: 8, color: null },
+      { start: 10, end: 13, color: '9B59D0' },
+    ]);
+  });
+
+  it('閉じていない括弧や空の括弧は記法とみなさない', () => {
+    assert.equal(stripEmphasis('a{b'), 'a{b');
+    assert.equal(stripEmphasis('a{}b'), 'a{}b');
+    assert.equal(stripEmphasis('{x|ZZZZZZ}'), '{x|ZZZZZZ}');
+  });
+
+  it('serif の ASS に強調色を当て、区間の後で基本色へ戻す', () => {
+    const element = makeTextElement({
+      name: 'serif',
+      text: 'これ{ほら}?',
+      style: { enabled: true, align: 'bottom-center', size: 0.08, color: 'FF4FA0', box: { enabled: false } },
+      width: 1920,
+      height: 1080,
+      duration: 3,
+    });
+    assert.equal(element.text, 'これほら?');
+    const ass = buildAss([element], { width: 1920, height: 1080, font: 'Hiragino Sans' });
+    assert.match(ass, /これ\{\\1c&H0000D8FF&\}ほら\{\\1c&H00A04FFF&\}\?$/m);
+  });
+
+  it('強調区間が折り返しをまたいでも色が続き、記号は文字数に数えない', () => {
+    const element = makeTextElement({
+      name: 'serif',
+      text: `${'あ'.repeat(8)}{${'い'.repeat(8)}|00FF00}`,
+      style: { enabled: true, align: 'bottom-center', size: 150, color: 'FFFFFF', box: { enabled: false } },
+      width: 1920,
+      height: 1080,
+      duration: 3,
+    });
+    assert.equal(countLines(element.text), 2);
+    assert.equal(stripEmphasis(element.text.replace('\n', '')), `${'あ'.repeat(8)}${'い'.repeat(8)}`);
+    const body = buildAss([element], { width: 1920, height: 1080, font: 'Hiragino Sans' }).trim().split('\n').at(-1);
+    const greenRun = body.slice(body.indexOf('{\\1c&H0000FF00&}'));
+    assert.ok(greenRun.includes('\\N'));
+    assert.equal(greenRun.replace(/\{[^}]*\}|\\N/g, ''), 'い'.repeat(8));
+  });
+
+  it('serif 以外のテロップでは括弧を記法として解かない', () => {
+    const element = makeTextElement({
+      name: 'title',
+      text: '{企画}',
+      style: { enabled: true, align: 'top-center', size: 0.03, box: { enabled: false } },
+      width: 1920,
+      height: 1080,
+      duration: 3,
+    });
+    assert.equal(element.text, '{企画}');
+    assert.equal(element.emphasis, undefined);
+  });
+});
+
+describe('1 行タイトル帯', () => {
+  const style = { size: 0.03, minSize: 0.022, marginH: 0.14 };
+
+  it('{date} を YYYY/MM/DD にして {title} と組む', () => {
+    assert.equal(formatTitleLine('{date}{title}', { date: '20240713', title: '上段\n下段' }), '2024/07/13上段 下段');
+  });
+
+  it('収まる長さなら size のまま 1 行にする', () => {
+    const fit = fitSingleLineTitle({ format: '{date} {title}', date: '20240713', title: '短い', style, width: 1920, height: 1080 });
+    assert.deepEqual(fit, { text: '2024/07/13 短い', size: fontSizeForTest(0.03, 1080), truncated: false });
+  });
+
+  it('入らなければ minSize まで縮め、それでも入らなければタイトル末尾を「…」で省く', () => {
+    const width = 1920;
+    const height = 1080;
+    const marginH = Math.round(width * style.marginH);
+    const fit = fitSingleLineTitle({ format: '{date} {title}', date: '20240713', title: 'あ'.repeat(80), style, width, height });
+    assert.equal(fit.truncated, true);
+    assert.equal(fit.size, fontSizeForTest(0.022, height));
+    assert.ok(fit.text.startsWith('2024/07/13 あ'));
+    assert.ok(fit.text.endsWith('…'));
+    const units = [...fit.text].reduce((sum, ch) => sum + charWidth(ch), 0);
+    assert.ok(units < maxUnitsFor(width, marginH, marginH, fit.size));
+    assert.equal(countLines(wrapText(fit.text, maxUnitsFor(width, marginH, marginH, fit.size))), 1);
   });
 });

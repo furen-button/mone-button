@@ -94,14 +94,16 @@ function runPhashChecks({ tools, videoPath, segments, manifest, config, workDir,
       results.push(result('info', 'sync_phash_source_skip', `${segment.base} のソース映像が無いためクリップ同一性検査をスキップします。`));
       continue;
     }
-    const at = Number(segment.atSec) + Math.min(0.2, Math.max(0.05, Number(segment.durationSec) / 2));
+    // 入りのトランジション中は画面が流れているので、その区間が終わってから比べる。
+    const offset = afterTransitionIn(segment, Math.min(0.2, Math.max(0.05, Number(segment.durationSec) / 2)));
+    const at = Number(segment.atSec) + offset;
     const sourceFrame = path.join(dir, `${safeName(segment.base)}-source.png`);
     const targetFrame = path.join(dir, `${safeName(segment.base)}-target.png`);
     const sourceOk = extractFrame({
       ffmpeg: tools.ffmpeg,
       inputPath: resolvePath(segment.sourcePath),
       outPath: sourceFrame,
-      at: Math.min(0.2, Math.max(0.05, Number(segment.durationSec) / 2)),
+      at: offset,
       vf: [
         `scale=${Number(size.width)}:${Number(size.height)}:force_original_aspect_ratio=decrease`,
         `pad=${Number(size.width)}:${Number(size.height)}:(ow-iw)/2:(oh-ih)/2`,
@@ -227,6 +229,12 @@ function hasPythonModule(python, moduleName) {
 
 function resolvePath(filePath) {
   return path.isAbsolute(filePath) ? filePath : path.resolve(process.cwd(), filePath);
+}
+
+// セグメント先頭からの検査位置。入りのトランジションがあれば、その区間の 50ms 後まで送る。
+export function afterTransitionIn(segment, offset) {
+  const end = Number(segment.transition?.in?.end);
+  return Number.isFinite(end) && end > 0 ? Math.max(offset, end + 0.05) : offset;
 }
 
 function formatSeconds(value) {

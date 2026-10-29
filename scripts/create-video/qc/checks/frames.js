@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { execFileSync } from 'child_process';
 import { fileURLToPath } from 'url';
+import { afterTransitionIn } from './sync.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const moduleDir = path.dirname(__filename);
@@ -46,7 +47,8 @@ export function runTelopFillChecks({ tools, videoPath, manifest, config, workDir
     if (telops.length === 0) {
       continue;
     }
-    const at = Number(segment.atSec) + Math.min(Math.max(Number(segment.durationSec) / 2, 0.05), 0.3);
+    // 入りのトランジション中はテロップも画面ごと流れているので、その区間が終わってから測る。
+    const at = Number(segment.atSec) + afterTransitionIn(segment, Math.min(Math.max(Number(segment.durationSec) / 2, 0.05), 0.3));
     for (const telop of telops) {
       const crop = safeCrop(telop.rect, manifest.signature);
       if (!crop) {

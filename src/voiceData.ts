@@ -45,6 +45,8 @@ export interface VoiceData {
 export interface VoiceClip extends VoiceData {
   fileBaseName: string
   videoPath: string
+  // public/data の serif そのまま（改行・強調記法を含む）。serif は表示用に正規化したもの。
+  rawSerif: string
 }
 
 export interface StreamGroup {
@@ -79,6 +81,24 @@ const dataModules = import.meta.glob<VoiceData>('../public/data/*.json', {
 
 const baseUrl = import.meta.env.BASE_URL
 
+// serif の改行はまとめ動画のテロップ専用なので、サイトでは語中を詰め、元の空白区切りは残す。
+// 強調記法も記号だけ落とす（scripts/create-video/ass.js の parseEmphasis と同じ規則）。
+export const normalizeSerifForDisplay = (serif: string): string =>
+  serif
+    .replace(
+      /[^\S\r\n]*\r?\n[^\S\r\n]*/g,
+      (matched) => (/[^\S\r\n]/.test(matched) ? ' ' : ''),
+    )
+    .replace(/\{([^{}|]+)(?:\|[0-9A-Fa-f]{6})?\}/g, '$1')
+
+// public/data の内容を一覧・モーダル用に整える。serif は表示用に正規化し、編集で書き戻せるよう
+// 元の文字列を rawSerif に残す。初期ロードと dev 保存の反映の両方でこれを通す。
+export const withDisplaySerif = <T extends VoiceData>(data: T): T & { rawSerif: string } => ({
+  ...data,
+  serif: normalizeSerifForDisplay(data.serif),
+  rawSerif: data.serif,
+})
+
 export const voiceClips: VoiceClip[] = Object.entries(dataModules)
   .map(([path, data]) => {
     const filename = path.split('/').pop()
@@ -88,13 +108,7 @@ export const voiceClips: VoiceClip[] = Object.entries(dataModules)
 
     const fileBaseName = filename.replace(/\.json$/i, '')
     return {
-      ...data,
-      // serif の改行はまとめ動画のテロップ専用の指定なので、サイトでは無かったものとして扱う。
-      // 元から空白で区切られていた箇所は空白を残し、語中で折っただけの箇所は詰める。
-      serif: data.serif.replace(
-        /[^\S\r\n]*\r?\n[^\S\r\n]*/g,
-        (matched) => (/[^\S\r\n]/.test(matched) ? ' ' : ''),
-      ),
+      ...withDisplaySerif(data),
       fileBaseName,
       videoPath: `${baseUrl}videos/${fileBaseName}.mp4`,
     }
@@ -147,4 +161,49 @@ export const formatUploadDate = (uploadDate: string): string => {
   }
 
   return uploadDate
+}
+
+export interface SameSerifLabel {
+  date: string
+  no?: number
+}
+
+const groupBy = <K, V>(items: V[], keyOf: (item: V) => K): Map<K, V[]> => {
+  const groups = new Map<K, V[]>()
+  items.forEach((item) => {
+    const key = keyOf(item)
+    const group = groups.get(key)
+    if (group) {
+      group.push(item)
+    } else {
+      groups.set(key, [item])
+    }
+  })
+  return groups
+}
+
+// serif が同じボタンを見分けるための配信日と、同じ日に同じ serif が複数あるときの通し番号を返す。
+// 同じ日の配信の前後はデータから分からないため、番号は videoId → 開始秒の順（一覧の配信順と同じ）で振る。
+export const buildSameSerifLabels = (clips: VoiceClip[]): Map<string, SameSerifLabel> => {
+  const labels = new Map<string, SameSerifLabel>()
+
+  groupBy(clips, (clip) => clip.serif).forEach((sameSerif) => {
+    if (sameSerif.length < 2) {
+      return
+    }
+
+    groupBy(sameSerif, (clip) => clip.videoFile.metadata.uploadDate).forEach((sameDay, uploadDate) => {
+      const ordered = [...sameDay].sort(
+        (a, b) => a.videoId.localeCompare(b.videoId, 'ja') || a.trimming.startTime - b.trimming.startTime,
+      )
+      ordered.forEach((clip, index) => {
+        labels.set(clip.fileBaseName, {
+          date: formatUploadDate(uploadDate),
+          no: ordered.length > 1 ? index + 1 : undefined,
+        })
+      })
+    })
+  })
+
+  return labels
 }

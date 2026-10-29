@@ -147,6 +147,17 @@
               "additionalProperties": { "type": "string" },
               "description": "videoId ごとのタイトル文言上書き。手動改行は \\n を含む文字列で指定できる。"
             },
+            "format": {
+              "type": ["string", "null"],
+              "default": null,
+              "description": "タイトル帯の書式。{date}=配信日（YYYY/MM/DD）、{title}=タイトル文言（text / overrides / --title の解決結果）。null でタイトルだけ。date テロップと二重にならないよう telops.date.enabled は false にする。"
+            },
+            "singleLine": {
+              "type": "boolean",
+              "default": false,
+              "description": "format と併用。marginH の内側に 1 行で収まるまで size から minSize へ縮め、それでも入らなければタイトル末尾を「…」で省く（日付は残す）。"
+            },
+            "outlines": { "$ref": "#/$defs/outlines" },
             "color": { "$ref": "#/$defs/color" },
             "box": { "$ref": "#/$defs/box" },
             "fade": { "$ref": "#/$defs/fadeMs" }
@@ -340,7 +351,95 @@
               "type": ["string", "null"],
               "default": null,
               "description": "完成済み ED 動画のパス。指定するとその動画をそのまま ED に使用（テロップ/SE/duration は無視、音声は動画のもの）。解像度/fps は出力に正規化。null で生成カード。"
+            },
+            "layout": {
+              "type": "string",
+              "enum": ["default", "endscreen"],
+              "default": "default",
+              "description": "default=「ご視聴ありがとうございました」のカード / endscreen=YouTube の終了画面の要素を置く枠（無音。duration は 5〜20 秒が YouTube の範囲）。"
+            },
+            "endscreen": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "layout=endscreen の見た目。画面ほぼいっぱいの枠を 1 つ描き、上辺左寄りと下辺右寄りにラベルを置く（ラベルの所だけ枠線が途切れる）。",
+              "properties": {
+                "background": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "背景。lastClip は最後のクリップの最終フレームをぼかして暗くした静止画。ソースが無ければ cards.background に戻す。",
+                  "properties": {
+                    "type": { "type": "string", "enum": ["lastClip", "card"], "default": "lastClip", "description": "lastClip=最後のクリップの最終フレーム / card=cards.background と同じ。" },
+                    "blur": { "type": "number", "minimum": 0, "default": 40, "description": "ぼかしの強さ（gblur の sigma、px）。0 でぼかさない。" },
+                    "brightness": { "type": "number", "minimum": -1, "maximum": 1, "default": -0.08, "description": "明るさの補正（eq の brightness）。負で暗くする。" }
+                  }
+                },
+                "frame": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "枠。位置と大きさは画面に対する割合。",
+                  "properties": {
+                    "x": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.03, "description": "左端（幅比）。" },
+                    "y": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.08, "description": "上端（高さ比）。" },
+                    "width": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.94, "description": "幅（幅比）。" },
+                    "height": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.84, "description": "高さ（高さ比）。" },
+                    "thickness": { "type": "number", "minimum": 0, "default": 0.007, "description": "線の太さ（高さ比）。" },
+                    "color": { "$ref": "#/$defs/color" },
+                    "labelInset": { "type": "number", "minimum": 0, "default": 0.03, "description": "ラベルを枠の角からどれだけ内側に置くか（幅比）。" },
+                    "labelGap": { "type": "number", "minimum": 0, "default": 0.01, "description": "ラベルと途切れた枠線の間隔（幅比）。" },
+                    "glyphRatio": { "type": "number", "exclusiveMinimum": 0, "default": 0.66, "description": "枠線を途切れさせる幅の見積もり。全角 1 字の幅 = 文字サイズ × この値（libass で Hiragino を描いた実測）。" }
+                  }
+                },
+                "labels": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "ラベル文言。空文字にするとその辺の枠線は途切れない。",
+                  "properties": {
+                    "top": { "type": "string", "default": "おすすめアーカイブはこちら", "description": "上辺の左寄りに置く文言。" },
+                    "bottom": { "type": "string", "default": "登録がまだの方はこちら", "description": "下辺の右寄りに置く文言。" }
+                  }
+                },
+                "label": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "ラベルの文字。",
+                  "properties": {
+                    "size": { "$ref": "#/$defs/size" },
+                    "color": { "$ref": "#/$defs/color" },
+                    "font": { "$ref": "#/$defs/font" },
+                    "bold": { "type": "boolean", "default": false, "description": "太字。" },
+                    "shadow": { "type": "number", "minimum": 0, "default": 0, "description": "影の距離(px 相当)。" },
+                    "outlines": { "$ref": "#/$defs/outlines" }
+                  }
+                }
+              }
             }
+          }
+        }
+      }
+    },
+    "transitions": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "クリップ同士の繋ぎ目のトランジション。区切りカードがあるとクリップが隣り合わないので、cards.enabled=false のときだけ効く。",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["none", "stream", "all"],
+          "default": "none",
+          "description": "none=素のカット / stream=配信（videoId）が変わる繋ぎ目だけ / all=すべての繋ぎ目。"
+        },
+        "type": { "type": "string", "enum": ["whip"], "default": "whip", "description": "whip=横モーションブラーのホイップパン。出る側が左へ加速して流れ、ブラー最大で切り替わり、入る側が右から減速して止まる。" },
+        "duration": { "type": "number", "minimum": 0, "default": 0.5, "description": "出る側と入る側を合わせた長さ（秒）。半分ずつ各クリップの末尾と先頭に入る。片側はクリップ尺の 1/3 まで。" },
+        "shift": { "type": "number", "minimum": 0, "default": 1.0, "description": "片側で流れる距離（画面幅比）。" },
+        "blur": { "type": "number", "minimum": 0, "default": 0.03, "description": "切り替わりの瞬間の横ブラーの強さ（gblur の sigma、画面幅比）。" },
+        "se": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "入る側の先頭（切り替わりの瞬間）に重ねる効果音。素材が無ければ警告して省く。",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "file": { "type": ["string", "null"], "default": "assets/create-video/シーン切り替え1.mp3", "description": "効果音ファイルのパス（プロジェクトルート相対）。" },
+            "volume": { "type": "number", "minimum": 0, "default": 1.0, "description": "音量の倍率。素材の音量が大きければ下げる。" }
           }
         }
       }
@@ -402,24 +501,30 @@
         "chapters": {
           "type": "object",
           "additionalProperties": false,
-          "description": "チャプター生成。境界は直前のクリップと videoId が変わった位置。",
+          "description": "チャプター生成。既定はセリフ（クリップ）ごとに切り、10 秒未満は前から順にまとめる。",
           "properties": {
             "enabled": {
               "type": "boolean",
               "default": true,
               "description": "チャプター節を概要欄に出すかどうか。"
             },
+            "by": {
+              "type": "string",
+              "enum": ["clip", "stream"],
+              "default": "clip",
+              "description": "チャプターの切り方。clip はセリフごと（見出しはまとめたセリフを「 / 」でつなぎ、出典はチャプターごとのタイムスタンプ付き URL）、stream は直前のクリップと videoId が変わった位置（見出しは配信タイトル、出典は配信一覧）。"
+            },
             "minSec": {
               "type": "number",
-              "exclusiveMinimum": 0,
+              "minimum": 10,
               "default": 10,
-              "description": "1 チャプターの最短秒数。これ未満の区間は隣へ吸収する。YouTube の要件は 10 秒。"
+              "description": "1 チャプターの最短秒数。clip はこれに届くまで後続のクリップをまとめ、stream はこれ未満の区間を隣へ吸収する。YouTube の要件（各 10 秒以上）より短くはできない。"
             },
             "labels": {
               "type": "object",
               "additionalProperties": { "type": "string" },
               "default": {},
-              "description": "videoId ごとのチャプター名の上書き。未指定なら配信タイトルから【】を整形して使う。"
+              "description": "チャプター名の上書き。by=clip はチャプター先頭のクリップ名（base）、by=stream は videoId（videoId#2 で 2 回目の登場）で指定する。"
             }
           }
         }
@@ -632,8 +737,26 @@
           "minimum": 0,
           "maximum": 1,
           "description": "不透明度。1=不透明〜0=完全透明。libass の \\1a に変換（\\1c 埋め込みアルファは無視されるため専用タグを使用）。"
+        },
+        "minHeight": {
+          "type": "number",
+          "minimum": 0,
+          "description": "title の帯だけに効く最低高さ（画面高さ比、既定 0.07）。1 行の細い帯にしたいときに下げる。"
         }
       }
+    },
+    "outlines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["width", "color"],
+        "properties": {
+          "width": { "type": "number", "minimum": 0, "description": "この層の太さ(px)。" },
+          "color": { "$ref": "#/$defs/color" }
+        }
+      },
+      "description": "縁取り（内側→外側）。外側の層ほど太い \\bord の同じ本文を下に重ねて二重縁取りにする。影は最外層だけ。ボックス無しの大きな文字向け。"
     },
     "serifStyle": {
       "type": "object",
@@ -647,7 +770,7 @@
         "autoShrink": {
           "type": "boolean",
           "default": true,
-          "description": "複数行のときにボックス高さが maxHeight を超えないようフォントを自動縮小する。単行や上限内の2行は size のまま。"
+          "description": "複数行のときに高さ（ボックスがあれば余白・枠を含む、無ければ行数×行送り）が maxHeight を超えないようフォントを自動縮小する。単行や上限内の2行は size のまま。"
         },
         "minSize": { "$ref": "#/$defs/size", "description": "autoShrink の下限（可読性の床）。maxHeight より優先。0〜1で画面高さ比、1超で px。" },
         "maxHeight": {
@@ -660,6 +783,15 @@
         "shadow": { "type": "number", "minimum": 0, "default": 2, "description": "影の距離(px 相当)。" },
         "fade": { "$ref": "#/$defs/fadeMs" },
         "box": { "$ref": "#/$defs/box" },
+        "outlines": { "$ref": "#/$defs/outlines" },
+        "emphasis": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "serif の強調記法。{語} は color で、{語|RRGGBB} はその色で描く。折り返しは記号を除いた本文で測る。概要欄などテロップ以外では記号だけを落とす。",
+          "properties": {
+            "color": { "$ref": "#/$defs/color" }
+          }
+        },
         "karaoke": { "type": "boolean", "default": false, "description": "カラオケ風に1文字ずつ表示するか。" },
         "marginH": {
           "type": "number",

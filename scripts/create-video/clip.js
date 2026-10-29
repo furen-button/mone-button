@@ -2,11 +2,20 @@ import fs from 'fs';
 import path from 'path';
 import { execFileSync } from 'child_process';
 import { cacheRoot, downloadHighQuality, videosDir } from './assets.js';
-import { buildAss, formatDate, formatTimestamp, makeTextElement, resolveTitleText } from './ass.js';
+import {
+  buildAss,
+  fitSingleLineTitle,
+  formatDate,
+  formatTimestamp,
+  formatTitleLine,
+  makeTextElement,
+  resolveTitleText,
+} from './ass.js';
 import { buildZoomFilterComplex, planZoom, zoomCropFilters } from './effects.js';
 import { formatAvoidLog, planSerifAvoidance } from './avoid.js';
 import { formatEnhanceLog, planEnhance, restoreFilter, upscaleFilter } from './enhance.js';
-import { AUDIO_RESAMPLE, encodeArgs, subtitlesFilter } from './ffmpeg.js';
+import { AUDIO_RESAMPLE, encodeArgs, probeDuration, subtitlesFilter } from './ffmpeg.js';
+import { describeTransition, planClipTransition, transitionAudioGraph, whipFilterChain } from './transition.js';
 
 export function clipSourcePathFor(clip, config) {
   if (config.source === 'existing') {
@@ -37,7 +46,7 @@ export function resolveClipSource(clip, config, { allowDownload = true, log = co
   return sourceMp4;
 }
 
-export async function renderClip({ tools, clip, index, total, config, workDir, size, titleOverride }) {
+export async function renderClip({ tools, clip, index, total, config, workDir, size, titleOverride, transition = null }) {
   const sourceMp4 = resolveClipSource(clip, config, { tools });
   if (!sourceMp4) {
     return null;
@@ -56,6 +65,7 @@ export async function renderClip({ tools, clip, index, total, config, workDir, s
     sourceMp4,
     assPath,
     titleOverride,
+    transition,
   });
   fs.writeFileSync(assPath, plan.ass);
   execClip(tools.ffmpeg, sourceMp4, plan.graph, outPath, config);
@@ -68,6 +78,7 @@ export async function renderClip({ tools, clip, index, total, config, workDir, s
     zoom: plan.zoom,
     avoid: plan.avoid,
     enhance: plan.enhance,
+    transition: describeTransition(plan.transition),
   };
 }
 
@@ -84,6 +95,7 @@ export async function planClipRender({
   titleOverride = null,
   plans = {},
   probe = null,
+  transition = null,
   log = console.log,
 }) {
   // ズームの切り出しで顔の出力座標が変わるため、顔回避はズーム計画の後に決める。
@@ -122,7 +134,25 @@ export async function planClipRender({
   const upscale = enhance?.applied && enhance.upscalePreset ? upscaleFilter(enhance, size) : null;
   const subFilter = subtitlesFilter(assPath, config.fontsDir);
 
+  // トランジション（whip）はテロップを焼いた後に掛け、帯もセリフも画面ごと流す。
+  // 出る側の窓はセグメントの実尺から決めるので、入りか出がある時だけソースの尺を測る。
+  const transitionPlan = transition?.in || transition?.out
+    ? planClipTransition({
+      side: transition,
+      config,
+      duration: positiveNumber(probe?.duration) || probeDuration(tools.ffprobe, sourceMp4),
+      size,
+    })
+    : null;
+  if (transitionPlan) {
+    log(formatTransitionLog(transitionPlan));
+  }
+  const whip = whipFilterChain(transitionPlan, size.width);
+  const audio = transitionAudioGraph(transitionPlan);
+  const inputs = transitionPlan?.se ? [transitionPlan.se.file] : [];
+
   if (zoom && !zoom.skip && zoom.at > 0) {
+    const complex = buildZoomFilterComplex({ baseFilters, subFilter, zoom, size, upscale });
     return {
       zoom,
       enhance,
@@ -130,7 +160,12 @@ export async function planClipRender({
       serifOverrides,
       elements,
       ass,
-      graph: { complex: buildZoomFilterComplex({ baseFilters, subFilter, zoom, size, upscale }) },
+      transition: transitionPlan,
+      graph: {
+        complex: whip ? `${complex.replace(/\[v\]$/, '[vtr]')};[vtr]${whip}[v]` : complex,
+        audio,
+        inputs,
+      },
     };
   }
 
@@ -138,6 +173,7 @@ export async function planClipRender({
     ...baseFilters,
     ...(zoom && !zoom.skip ? zoomCropFilters({ zoom, size, upscale }) : []),
     subFilter,
+    ...(whip ? [whip] : []),
   ].join(',');
 
   return {
@@ -147,8 +183,20 @@ export async function planClipRender({
     serifOverrides,
     elements,
     ass,
-    graph: { vf },
+    transition: transitionPlan,
+    graph: { vf, audio, inputs },
   };
+}
+
+function positiveNumber(value) {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+function formatTransitionLog(plan) {
+  const sides = [plan.in ? '入り' : null, plan.out ? '出' : null].filter(Boolean).join('・');
+  const se = plan.se ? ` + SE ${path.basename(plan.se.file)}` : '';
+  return `   🌀 トランジション: ${plan.type} ${sides} ${plan.half.toFixed(2)}s${se}`;
 }
 
 async function resolveRenderPlan(plan, run) {
@@ -161,13 +209,26 @@ async function resolveRenderPlan(plan, run) {
   return run();
 }
 
-function execClip(ffmpeg, sourceMp4, graph, outPath, config) {
-  fs.mkdirSync(path.dirname(outPath), { recursive: true });
-  fs.rmSync(outPath, { force: true });
+export function clipFfmpegArgs(sourceMp4, graph, outPath, config) {
+  // トランジションの SE を混ぜるときは音声もグラフで組む。-vf の映像列は [0:v]…[v] に包んで 1 本の filter_complex にする
+  // （映像列は split / overlay の内部ラベルを持つが入出力は 1 本ずつなので、そのまま包める）。
+  if (graph.audio) {
+    const video = graph.complex || `[0:v]${graph.vf}[v]`;
+    return [
+      '-y',
+      '-i', sourceMp4,
+      ...(graph.inputs || []).flatMap((input) => ['-i', input]),
+      '-filter_complex', `${video};${graph.audio}`,
+      '-map', '[v]',
+      '-map', '[a]',
+      ...encodeArgs(config),
+      outPath,
+    ];
+  }
   const filterArgs = graph.complex
     ? ['-filter_complex', graph.complex, '-map', '[v]', '-map', '0:a?']
     : ['-vf', graph.vf];
-  const args = [
+  return [
     '-y',
     '-i', sourceMp4,
     ...filterArgs,
@@ -183,7 +244,12 @@ function execClip(ffmpeg, sourceMp4, graph, outPath, config) {
     ...encodeArgs(config),
     outPath,
   ];
-  execFileSync(ffmpeg, args, { stdio: 'inherit' });
+}
+
+function execClip(ffmpeg, sourceMp4, graph, outPath, config) {
+  fs.mkdirSync(path.dirname(outPath), { recursive: true });
+  fs.rmSync(outPath, { force: true });
+  execFileSync(ffmpeg, clipFfmpegArgs(sourceMp4, graph, outPath, config), { stdio: 'inherit' });
 }
 
 function formatZoomLog(zoom) {
@@ -198,17 +264,33 @@ function formatZoomLog(zoom) {
   ].join(' ');
 }
 
+// タイトル帯の文言とスタイル。format があれば日付と組み合わせ、singleLine なら 1 行に収まる size へ縮める。
+// 縮めた size はスタイル側に入れる（makeTextElement は style.size で折り返し幅を測るため）。
+function resolveTitleTelop({ clip, config, size, titleOverride }) {
+  const style = config.telops.title;
+  const title = resolveTitleText({ clip, config, titleOverride });
+  if (!style.format) {
+    return { text: title, style };
+  }
+  const date = clip.meta?.uploadDate;
+  if (!style.singleLine) {
+    return { text: formatTitleLine(style.format, { date, title }), style };
+  }
+  const fit = fitSingleLineTitle({ format: style.format, date, title, style, width: size.width, height: size.height });
+  return { text: fit.text, style: { ...style, size: fit.size, autoShrink: false } };
+}
+
 export function buildClipElements({ clip, index, total, config, size, titleOverride, serifOverrides = null }) {
   const meta = clip.meta || {};
   const dateText = formatDate(meta.uploadDate);
   const duration = clip.duration || Math.max(0.1, clip.endTime - clip.startTime);
-  const titleText = resolveTitleText({ clip, config, titleOverride });
+  const { text: titleText, style: titleStyle } = resolveTitleTelop({ clip, config, size, titleOverride });
   const elements = [];
 
   elements.push(makeTextElement({
     name: 'title',
     text: titleText,
-    style: config.telops.title,
+    style: titleStyle,
     width: size.width,
     height: size.height,
     duration,

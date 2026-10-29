@@ -29,6 +29,7 @@ import { cacheThumbnail } from './assets.js';
 import { zoomCropRect } from './effects.js';
 import { loadConfig, outputSize, parseArgs, projectRoot } from './config.js';
 import { collectClips } from './select.js';
+import { planTransitions } from './transition.js';
 import { resolveFfmpeg } from './ffmpeg.js';
 import { labelDrawtext, resolveContactFont, tileFrames } from './qc/contact.js';
 
@@ -135,6 +136,8 @@ export async function renderStill(request) {
       titleOverride: config.titleOverride || null,
       plans,
       probe: source,
+      // 本番と同じく前後のクリップから入り・出を決め、トランジション中の時刻も同じ絵にする。
+      transition: planTransitions(context.clips, config)[index],
       log,
     });
     fs.mkdirSync(path.dirname(assPath), { recursive: true });
@@ -696,7 +699,15 @@ async function renderCardStill(request, target) {
       assPath = cardStillAssPath({ out, base, at, config, index, total, kind: target.kind });
       fs.mkdirSync(path.dirname(assPath), { recursive: true });
       fs.writeFileSync(assPath, plan.ass);
-      const graph = buildCardVideoGraph({ assPath, config, size, duration, thumbnail: context.thumbnail });
+      const graph = buildCardVideoGraph({
+        kind: context.planArgs.kind,
+        clips: context.clips,
+        assPath,
+        config,
+        size,
+        duration,
+        thumbnail: context.thumbnail,
+      });
       args = cardStillFfmpegArgs({
         inputs: graph.inputs,
         filters: graph.filters,
@@ -858,7 +869,8 @@ function collectCardWarnings({ context, plan, at, requestedAt }) {
       message: `サムネイル未取得: cache/createVideo/thumbnails/${context.clip.videoId}.jpg（プレビューでは取りに行きません）。`,
     });
   }
-  const requestedBackground = config.cards.background?.type;
+  // エンドスクリーンの lastClip 背景は cards.background ではなく endcaps.ending.endscreen.background で決まる。
+  const requestedBackground = plan?.background?.requested || config.cards.background?.type;
   if (plan && requestedBackground && plan.background.kind !== requestedBackground) {
     warnings.push({
       code: 'card_background_fallback',
@@ -918,7 +930,7 @@ function loadStillContext(request) {
   const clip = request.clipPatch
     ? { ...selected.clip, data: { ...selected.clip.data, ...request.clipPatch } }
     : selected.clip;
-  return { config, size, target, index: selected.index, total: clips.length, clip };
+  return { config, size, target, index: selected.index, total: clips.length, clip, clips };
 }
 
 function loadConfigForStill(argv, target) {

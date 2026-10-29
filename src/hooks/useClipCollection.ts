@@ -1,11 +1,36 @@
 import { useCallback, useMemo, useState } from 'react'
 import {
+  buildSameSerifLabels,
   voiceClips,
+  withDisplaySerif,
   type SortType,
   type StreamGroup,
+  type VoiceClip,
   type VoiceData,
 } from '../voiceData'
 import { withVideoCacheBust } from '../lib/videoPath'
+
+// 配信順（日付 → videoId → 開始秒）で比べる。direction は日付の向き。
+// 同じ日の中は常に昇順なので、同じ serif のボタンは buildSameSerifLabels の No の順に並ぶ。
+const compareByStream = (a: VoiceClip, b: VoiceClip, direction = 1): number => {
+  const dateA = a.videoFile.metadata.uploadDate
+  const dateB = b.videoFile.metadata.uploadDate
+
+  if (dateA !== dateB) {
+    return dateA > dateB ? direction : -direction
+  }
+
+  if (a.videoId !== b.videoId) {
+    return a.videoId.localeCompare(b.videoId, 'ja')
+  }
+
+  const startTimeDiff = a.trimming.startTime - b.trimming.startTime
+  if (startTimeDiff !== 0) {
+    return startTimeDiff
+  }
+
+  return a.serif.localeCompare(b.serif, 'ja')
+}
 
 type UseClipCollectionArgs = {
   selectedCategories: string[]
@@ -28,10 +53,15 @@ export function useClipCollection({ selectedCategories, sortType, playCounts, vi
         .map((clip) => {
           const override = clipOverrides[clip.fileBaseName]
           const videoPath = withVideoCacheBust(clip.videoPath, videoVersions[clip.fileBaseName])
-          return override ? { ...clip, ...override, videoPath } : { ...clip, videoPath }
+          return override
+            ? { ...clip, ...withDisplaySerif(override), videoPath }
+            : { ...clip, videoPath }
         }),
     [clipOverrides, deletedClips, videoVersions],
   )
+
+  // 番号が絞り込みで変わらないよう、カテゴリで絞る前の全クリップで振る。
+  const sameSerifLabels = useMemo(() => buildSameSerifLabels(clips), [clips])
 
   const visibleClips = useMemo(
     () => clips.filter((clip) => clip.categories.some((category) => selectedCategories.includes(category))),
@@ -41,8 +71,9 @@ export function useClipCollection({ selectedCategories, sortType, playCounts, vi
   const sortedClips = useMemo(() => {
     const sorted = [...visibleClips]
 
+    // 読みが同じボタン（「あいさつ」など）は配信順に並べ、同じ日の No が前後しないようにする。
     if (sortType === 'reading') {
-      return sorted.sort((a, b) => a.ruby.localeCompare(b.ruby, 'ja'))
+      return sorted.sort((a, b) => a.ruby.localeCompare(b.ruby, 'ja') || compareByStream(a, b))
     }
 
     if (sortType === 'play-count') {
@@ -52,30 +83,12 @@ export function useClipCollection({ selectedCategories, sortType, playCounts, vi
           return countDiff
         }
 
-        return a.ruby.localeCompare(b.ruby, 'ja')
+        return a.ruby.localeCompare(b.ruby, 'ja') || compareByStream(a, b)
       })
     }
 
     const direction = sortType === 'stream-desc' ? -1 : 1
-    return sorted.sort((a, b) => {
-      const dateA = a.videoFile.metadata.uploadDate
-      const dateB = b.videoFile.metadata.uploadDate
-
-      if (dateA !== dateB) {
-        return dateA > dateB ? direction : -direction
-      }
-
-      if (a.videoId !== b.videoId) {
-        return a.videoId.localeCompare(b.videoId, 'ja')
-      }
-
-      const startTimeDiff = a.trimming.startTime - b.trimming.startTime
-      if (startTimeDiff !== 0) {
-        return startTimeDiff
-      }
-
-      return a.serif.localeCompare(b.serif, 'ja')
-    })
+    return sorted.sort((a, b) => compareByStream(a, b, direction))
   }, [sortType, visibleClips, playCounts])
 
   const streamGroups = useMemo(() => {
@@ -116,5 +129,5 @@ export function useClipCollection({ selectedCategories, sortType, playCounts, vi
     setDeletedClips((current) => new Set(current).add(fileBaseName))
   }, [])
 
-  return { sortedClips, streamGroups, clipIndexMap, applyClipOverride, removeClip }
+  return { sortedClips, streamGroups, clipIndexMap, sameSerifLabels, applyClipOverride, removeClip }
 }
