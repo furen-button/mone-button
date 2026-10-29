@@ -2,7 +2,15 @@ import fs from 'fs';
 import path from 'path';
 import { execFileSync } from 'child_process';
 import { cacheRoot, downloadHighQuality, videosDir } from './assets.js';
-import { buildAss, formatDate, formatTimestamp, makeTextElement, resolveTitleText } from './ass.js';
+import {
+  buildAss,
+  fitSingleLineTitle,
+  formatDate,
+  formatTimestamp,
+  formatTitleLine,
+  makeTextElement,
+  resolveTitleText,
+} from './ass.js';
 import { buildZoomFilterComplex, planZoom, zoomCropFilters } from './effects.js';
 import { formatAvoidLog, planSerifAvoidance } from './avoid.js';
 import { formatEnhanceLog, planEnhance, restoreFilter, upscaleFilter } from './enhance.js';
@@ -198,17 +206,33 @@ function formatZoomLog(zoom) {
   ].join(' ');
 }
 
+// タイトル帯の文言とスタイル。format があれば日付と組み合わせ、singleLine なら 1 行に収まる size へ縮める。
+// 縮めた size はスタイル側に入れる（makeTextElement は style.size で折り返し幅を測るため）。
+function resolveTitleTelop({ clip, config, size, titleOverride }) {
+  const style = config.telops.title;
+  const title = resolveTitleText({ clip, config, titleOverride });
+  if (!style.format) {
+    return { text: title, style };
+  }
+  const date = clip.meta?.uploadDate;
+  if (!style.singleLine) {
+    return { text: formatTitleLine(style.format, { date, title }), style };
+  }
+  const fit = fitSingleLineTitle({ format: style.format, date, title, style, width: size.width, height: size.height });
+  return { text: fit.text, style: { ...style, size: fit.size, autoShrink: false } };
+}
+
 export function buildClipElements({ clip, index, total, config, size, titleOverride, serifOverrides = null }) {
   const meta = clip.meta || {};
   const dateText = formatDate(meta.uploadDate);
   const duration = clip.duration || Math.max(0.1, clip.endTime - clip.startTime);
-  const titleText = resolveTitleText({ clip, config, titleOverride });
+  const { text: titleText, style: titleStyle } = resolveTitleTelop({ clip, config, size, titleOverride });
   const elements = [];
 
   elements.push(makeTextElement({
     name: 'title',
     text: titleText,
-    style: config.telops.title,
+    style: titleStyle,
     width: size.width,
     height: size.height,
     duration,

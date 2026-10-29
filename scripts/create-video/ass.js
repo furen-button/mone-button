@@ -270,6 +270,38 @@ export function countLines(text) {
   return String(text || '').split(/\r?\n|\\N/).length;
 }
 
+// telops.title.format の {date}（YYYY/MM/DD）と {title} を埋める。改行は 1 行帯に向かないので空白にする。
+export function formatTitleLine(format, { date, title }) {
+  const slashDate = formatDate(date).replaceAll('-', '/');
+  return stripEmoji(String(format).replaceAll('{date}', slashDate).replaceAll('{title}', String(title ?? '')))
+    .replace(/\s*\r?\n\s*/g, ' ');
+}
+
+// 1 行タイトル帯。左右マージン（marginH）の内側に 1 行で収まるよう、size から minSize まで整数で縮める。
+// それでも入らなければタイトル部分の末尾を「…」で省く（日付など書式の残りは削らない）。
+export function fitSingleLineTitle({ format, date, title, style, width, height }) {
+  const marginH = Math.round(width * (style.marginH ?? 0.035));
+  const baseFs = fontSize(style.size, height);
+  const minFs = Math.min(baseFs, fontSize(style.minSize ?? 0.02, height));
+  // wrapText は幅が maxUnits に達した時点で折るので、未満に収める。
+  const fits = (text, fs) => measureWidth(text) < maxUnitsFor(width, marginH, marginH, fs);
+  const full = formatTitleLine(format, { date, title });
+  for (let fs = baseFs; fs >= minFs; fs--) {
+    if (fits(full, fs)) {
+      return { text: full, size: fs, truncated: false };
+    }
+  }
+  const chars = [...stripEmoji(String(title ?? '')).replace(/\s*\r?\n\s*/g, ' ')];
+  let text = full;
+  for (let keep = chars.length - 1; keep >= 0; keep--) {
+    text = formatTitleLine(format, { date, title: `${chars.slice(0, keep).join('').trimEnd()}…` });
+    if (fits(text, minFs)) {
+      break;
+    }
+  }
+  return { text, size: minFs, truncated: true };
+}
+
 export function resolveTitleText({ clip, config, titleOverride }) {
   const meta = clip?.meta || {};
   const videoId = clip?.videoId || clip?.data?.videoId || meta.videoId;
@@ -528,7 +560,9 @@ function titleBarRect(el, width, height) {
   const fs = fontSize(el.size, height);
   const pad = Number(el.box.pad || 0);
   const border = Number(el.box.borderWidth || 0);
-  const boxHeight = Math.max(boxHeightFor(countLines(el.text), fs, pad, border), Math.round(height * 0.07));
+  // 最低高さ（画面高さ比、既定 0.07）。1 行の細い帯にしたいプリセットは box.minHeight で下げる。
+  const minHeight = Number(el.box.minHeight ?? 0.07);
+  const boxHeight = Math.max(boxHeightFor(countLines(el.text), fs, pad, border), Math.round(height * minHeight));
   el.textPos = { x: width / 2, y: boxHeight / 2 };
   return { x: 0, y: 0, width, height: boxHeight };
 }

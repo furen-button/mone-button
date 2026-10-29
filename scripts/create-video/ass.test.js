@@ -10,6 +10,8 @@ import {
   charWidth,
   countLines,
   escapeAssText,
+  fitSingleLineTitle,
+  formatTitleLine,
   makeTextElement,
   maxUnitsFor,
   parseEmphasis,
@@ -406,5 +408,32 @@ describe('強調記法', () => {
     });
     assert.equal(element.text, '{企画}');
     assert.equal(element.emphasis, undefined);
+  });
+});
+
+describe('1 行タイトル帯', () => {
+  const style = { size: 0.03, minSize: 0.022, marginH: 0.14 };
+
+  it('{date} を YYYY/MM/DD にして {title} と組む', () => {
+    assert.equal(formatTitleLine('{date}{title}', { date: '20240713', title: '上段\n下段' }), '2024/07/13上段 下段');
+  });
+
+  it('収まる長さなら size のまま 1 行にする', () => {
+    const fit = fitSingleLineTitle({ format: '{date} {title}', date: '20240713', title: '短い', style, width: 1920, height: 1080 });
+    assert.deepEqual(fit, { text: '2024/07/13 短い', size: fontSizeForTest(0.03, 1080), truncated: false });
+  });
+
+  it('入らなければ minSize まで縮め、それでも入らなければタイトル末尾を「…」で省く', () => {
+    const width = 1920;
+    const height = 1080;
+    const marginH = Math.round(width * style.marginH);
+    const fit = fitSingleLineTitle({ format: '{date} {title}', date: '20240713', title: 'あ'.repeat(80), style, width, height });
+    assert.equal(fit.truncated, true);
+    assert.equal(fit.size, fontSizeForTest(0.022, height));
+    assert.ok(fit.text.startsWith('2024/07/13 あ'));
+    assert.ok(fit.text.endsWith('…'));
+    const units = [...fit.text].reduce((sum, ch) => sum + charWidth(ch), 0);
+    assert.ok(units < maxUnitsFor(width, marginH, marginH, fit.size));
+    assert.equal(countLines(wrapText(fit.text, maxUnitsFor(width, marginH, marginH, fit.size))), 1);
   });
 });
