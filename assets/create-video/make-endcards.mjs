@@ -28,6 +28,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { escapeFilterPath } from '../../scripts/create-video/ass.js';
 import { resolveFfmpeg } from '../../scripts/create-video/ffmpeg.js';
+import { readEndcardAss } from '../../scripts/create-video/endcard-ass.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const W = 1920;
@@ -89,10 +90,7 @@ function recolorMixer(from, to) {
 }
 
 // ---- 土台の ASS（プリセットの ED を still で書き出したもの） ----
-const assText = execFileSync(process.execPath, [
-  fromRoot('scripts/create-video/preview.js'),
-  '--config', fromRoot(opts.config), '--still', 'ending', '--print-ass',
-], { cwd: ROOT, encoding: 'utf8' });
+const assText = readEndcardAss(fromRoot(opts.config), outDir);
 const header = assText.slice(0, assText.indexOf('Dialogue:'));
 const events = assText.split('\n').filter((l) => l.startsWith('Dialogue:')).map((line) => {
   const [, layer, style, text] = line.match(/^Dialogue: (\d+),[^,]*,[^,]*,([^,]*),[^,]*,\d+,\d+,\d+,[^,]*,(.*)$/);
