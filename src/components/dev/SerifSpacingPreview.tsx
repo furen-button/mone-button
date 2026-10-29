@@ -20,9 +20,20 @@ const charWidth = (ch: string): number => {
   return 1
 }
 
-// 強調記法（{語} / {語|RRGGBB}）の記号は動画に出ないので数えない（ass.js の parseEmphasis と同じ規則）。
+// ass.js の makeTextElement と同じ順序で、stripEmoji → parseEmphasis の plain を作る。
+// ブラウザに Node 依存を持ち込まないよう規則を複製する。空白の整理も stripEmoji に合わせる。
+const previewText = (text: string): string =>
+  text
+    .replace(/\p{Extended_Pictographic}/gu, '')
+    // 異体字セレクタ・ZWJ・肌色修飾子。文字クラスに結合文字を並べると lint が誤読を警告するので選択で書く。
+    .replace(/\uFE0F|\u200D|[\u{1F3FB}-\u{1F3FF}]/gu, '')
+    .replace(/[^\S\r\n]{2,}/g, ' ')
+    .replace(/[^\S\r\n]*\r?\n[^\S\r\n]*/g, '\n')
+    .trim()
+    .replace(/\{([^{}|]+)(?:\|[0-9A-Fa-f]{6})?\}/g, '$1')
+
 const runUnits = (run: string): number =>
-  [...run.replace(/\{([^{}|]+)(?:\|[0-9A-Fa-f]{6})?\}/g, '$1')].reduce((sum, ch) => sum + charWidth(ch), 0)
+  [...run].reduce((sum, ch) => sum + charWidth(ch), 0)
 
 const formatUnits = (units: number): string => (Number.isInteger(units) ? String(units) : units.toFixed(1))
 
@@ -35,7 +46,7 @@ export function SerifSpacingPreview({ serif }: SerifSpacingPreviewProps) {
     return null
   }
 
-  const tokens = serif.split(/( |\r?\n)/)
+  const tokens = previewText(serif).split(/( |\r?\n)/)
   const longRuns = tokens.filter((token) => token !== ' ' && !/^\r?\n$/.test(token) && runUnits(token) > MAX_RUN_UNITS)
 
   return (
