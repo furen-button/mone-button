@@ -108,13 +108,29 @@ const events = assText.split('\n').filter((l) => l.startsWith('Dialogue:')).map(
   };
 });
 const lines = events.filter((e) => e.kind === 'line');
-const [topLabel, bottomLabel] = events.filter((e) => e.kind === 'label').sort((a, b) => a.y - b.y);
+// ラベルは縁取りの層ごとに同じ \pos の Dialogue が外側→内側の順に並ぶ。ラベル単位にまとめ、
+// 計測もアニメーションも全層に同じだけ掛ける（層を別のラベルと取り違えないように）。
+const labelLayers = new Map();
+for (const ev of events.filter((e) => e.kind === 'label')) {
+  const key = `${ev.x},${ev.y}`;
+  if (!labelLayers.has(key)) {
+    labelLayers.set(key, []);
+  }
+  labelLayers.get(key).push(ev);
+}
+const [topLabel, bottomLabel] = [...labelLayers.values()]
+  .map((layers) => ({ layers, y: layers[0].y }))
+  .sort((a, b) => a.y - b.y);
+if (!topLabel || !bottomLabel) {
+  throw new Error(`ED の ASS から上下のラベルを見つけられませんでした（ラベル ${labelLayers.size} 個）。`);
+}
 
 // ラベルの実際の外接矩形を libass で描いて測る（中心基準の拡大・画面外からの移動に使う）。
 // cropdetect は 1 行の平均の明るさで判定するので細い文字は拾えない。bbox を使う。
-function measure(ev) {
+function measure(label) {
   const tmp = path.join(outDir, `.measure-${process.pid}.ass`);
-  fs.writeFileSync(tmp, `${header}Dialogue: ${ev.layer},0:00:00.00,0:00:01.00,${ev.style},,0,0,0,,${ev.text}\n`);
+  const dialogues = label.layers.map((ev) => `Dialogue: ${ev.layer},0:00:00.00,0:00:01.00,${ev.style},,0,0,0,,${ev.text}`);
+  fs.writeFileSync(tmp, `${header}${dialogues.join('\n')}\n`);
   const r = spawnSync(FF, ['-hide_banner', '-f', 'lavfi', '-i', `color=black:s=${W}x${H}:r=${FPS}:d=0.2`,
     '-vf', `subtitles=filename='${escapeFilterPath(tmp)}',bbox=min_val=24`, '-f', 'null', '-'], { encoding: 'utf8' });
   fs.rmSync(tmp);
@@ -371,8 +387,8 @@ function buildAss(pat) {
   const out = [];
   const elements = [
     ...lines.map((l) => ({ ev: l, center: frameCenter, state: (t) => pat.frame(t, l) })),
-    { ev: topLabel, center: topLabel.box, state: pat.top },
-    { ev: bottomLabel, center: bottomLabel.box, state: pat.bottom },
+    ...topLabel.layers.map((ev) => ({ ev, center: topLabel.box, state: pat.top })),
+    ...bottomLabel.layers.map((ev) => ({ ev, center: bottomLabel.box, state: pat.bottom })),
   ];
   const settleFrame = Math.ceil(pat.settle * FPS);
   for (const el of elements) {
