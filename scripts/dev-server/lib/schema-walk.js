@@ -6,6 +6,7 @@ const SPECIAL_DEFS = new Map([
   ['box', 'box'],
   ['fadeMs', 'fade'],
   ['fadeSec', 'fade'],
+  ['outlines', 'outlines'],
 ]);
 
 export function derefSchema(node, root) {

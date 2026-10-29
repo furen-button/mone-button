@@ -10,6 +10,7 @@ import { FadeField } from './fields/FadeField'
 import { FontField } from './fields/FontField'
 import { NullableField } from './fields/NullableField'
 import { NumberField } from './fields/NumberField'
+import { OutlinesField } from './fields/OutlinesField'
 import { ObjectFieldset, type FormExpansion } from './fields/ObjectFieldset'
 import { SizeField } from './fields/SizeField'
 import { StringField } from './fields/StringField'
@@ -154,6 +155,8 @@ function renderScalarControl(kind: FieldKind, schema: SchemaNode, path: string[]
       return <FontField path={path} />
     case 'fade':
       return <FadeField path={path} schema={schema} />
+    case 'outlines':
+      return <OutlinesField path={path} />
     case 'enum':
       return <EnumField path={path} schema={schema} />
     case 'boolean':

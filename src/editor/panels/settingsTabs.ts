@@ -13,7 +13,7 @@ export const SETTINGS_TABS: Array<{ id: SettingsTabId; label: string; rootKeys: 
   { id: 'io', label: '出力・ソース', rootKeys: ['output', 'source', 'normalizeCache', 'font', 'fontsDir'] },
   { id: 'telops', label: 'テロップ', rootKeys: ['telops'] },
   { id: 'cards', label: 'カード・OP/ED', rootKeys: ['cards', 'endcaps', 'bgm'] },
-  { id: 'effects', label: '効果', rootKeys: ['effects'] },
+  { id: 'effects', label: '効果', rootKeys: ['effects', 'transitions'] },
   { id: 'summary', label: '概要欄', rootKeys: ['summary'] },
   { id: 'qc', label: 'QC', rootKeys: ['qc'] },
   { id: 'json', label: 'JSON', rootKeys: null },

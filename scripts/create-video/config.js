@@ -50,6 +50,10 @@ export const DEFAULTS = {
       marginH: 0.035,
       text: null,
       overrides: {},
+      // {date}（YYYY/MM/DD）と {title} の書式。null なら従来どおりタイトルだけを出す。
+      format: null,
+      // true で 1 行に収まるまで minSize へ縮め、それでも入らなければタイトル末尾を「…」で省く。
+      singleLine: false,
       color: 'FFFFFF',
       box: { enabled: true, fill: '2E9B0E', pad: 12 },
       fade: [200, 200],
@@ -90,6 +94,8 @@ export const DEFAULTS = {
       shadow: 2,
       fade: [150, 150],
       karaoke: false,
+      // serif の {語} を描く色。{語|RRGGBB} と書けばその色が優先される。
+      emphasis: { color: 'FFD800' },
       // 顔検出でセリフボックスが演者の顔と重なるクリップだけ、顔の無い側へ寄せて幅を狭める。
       // gap は顔との間隔、minWidth は狭めたボックスの幅の下限（いずれも画面幅に対する割合）。
       // 下限を満たせないときは従来どおり全幅にし、QC が warn で知らせる。
@@ -591,10 +597,30 @@ function validateConfig(config) {
   validateTitleOverrides(config, errors);
   validateEffects(config, errors);
   validateEnhance(config, errors);
+  validateTransitions(config, errors);
   validateQc(config, errors);
 
   if (errors.length > 0) {
     throw new Error(errors.map((line) => `- ${line}`).join('\n'));
+  }
+}
+
+function validateTransitions(config, errors) {
+  const transitions = config.transitions || {};
+  if (!['none', 'stream', 'all'].includes(transitions.mode)) {
+    errors.push(`transitions.mode が不正です: ${transitions.mode}`);
+  }
+  if (transitions.type !== 'whip') {
+    errors.push(`transitions.type が不正です: ${transitions.type}`);
+  }
+  for (const key of ['duration', 'shift', 'blur']) {
+    if (!Number.isFinite(Number(transitions[key])) || Number(transitions[key]) < 0) {
+      errors.push(`transitions.${key} は 0 以上で指定してください: ${transitions[key]}`);
+    }
+  }
+  const layout = config.endcaps.ending?.layout;
+  if (layout !== undefined && !['default', 'endscreen'].includes(layout)) {
+    errors.push(`endcaps.ending.layout が不正です: ${layout}`);
   }
 }
 
@@ -713,6 +739,14 @@ function validateColors(config, errors) {
     config.cards.background.gradient?.c0,
     config.cards.background.gradient?.c1,
     config.cards.index.color,
+    config.telops.serif.emphasis?.color,
+    config.endcaps.ending?.endscreen?.frame?.color,
+    config.endcaps.ending?.endscreen?.label?.color,
+    ...[
+      config.telops.title.outlines,
+      config.telops.serif.outlines,
+      config.endcaps.ending?.endscreen?.label?.outlines,
+    ].flatMap((outlines) => (Array.isArray(outlines) ? outlines.map((item) => item?.color) : [])),
   ].filter(Boolean);
   for (const color of candidates) {
     try {
