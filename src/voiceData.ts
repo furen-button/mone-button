@@ -151,3 +151,48 @@ export const formatUploadDate = (uploadDate: string): string => {
 
   return uploadDate
 }
+
+export interface SameSerifLabel {
+  date: string
+  no?: number
+}
+
+const groupBy = <K, V>(items: V[], keyOf: (item: V) => K): Map<K, V[]> => {
+  const groups = new Map<K, V[]>()
+  items.forEach((item) => {
+    const key = keyOf(item)
+    const group = groups.get(key)
+    if (group) {
+      group.push(item)
+    } else {
+      groups.set(key, [item])
+    }
+  })
+  return groups
+}
+
+// serif が同じボタンを見分けるための配信日と、同じ日に同じ serif が複数あるときの通し番号を返す。
+// 同じ日の配信の前後はデータから分からないため、番号は videoId → 開始秒の順（一覧の配信順と同じ）で振る。
+export const buildSameSerifLabels = (clips: VoiceClip[]): Map<string, SameSerifLabel> => {
+  const labels = new Map<string, SameSerifLabel>()
+
+  groupBy(clips, (clip) => clip.serif).forEach((sameSerif) => {
+    if (sameSerif.length < 2) {
+      return
+    }
+
+    groupBy(sameSerif, (clip) => clip.videoFile.metadata.uploadDate).forEach((sameDay, uploadDate) => {
+      const ordered = [...sameDay].sort(
+        (a, b) => a.videoId.localeCompare(b.videoId, 'ja') || a.trimming.startTime - b.trimming.startTime,
+      )
+      ordered.forEach((clip, index) => {
+        labels.set(clip.fileBaseName, {
+          date: formatUploadDate(uploadDate),
+          no: ordered.length > 1 ? index + 1 : undefined,
+        })
+      })
+    })
+  })
+
+  return labels
+}

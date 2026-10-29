@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import {
+  buildSameSerifLabels,
   voiceClips,
   type SortType,
   type StreamGroup,
@@ -32,6 +33,9 @@ export function useClipCollection({ selectedCategories, sortType, playCounts, vi
         }),
     [clipOverrides, deletedClips, videoVersions],
   )
+
+  // 番号が絞り込みで変わらないよう、カテゴリで絞る前の全クリップで振る。
+  const sameSerifLabels = useMemo(() => buildSameSerifLabels(clips), [clips])
 
   const visibleClips = useMemo(
     () => clips.filter((clip) => clip.categories.some((category) => selectedCategories.includes(category))),
@@ -116,5 +120,5 @@ export function useClipCollection({ selectedCategories, sortType, playCounts, vi
     setDeletedClips((current) => new Set(current).add(fileBaseName))
   }, [])
 
-  return { sortedClips, streamGroups, clipIndexMap, applyClipOverride, removeClip }
+  return { sortedClips, streamGroups, clipIndexMap, sameSerifLabels, applyClipOverride, removeClip }
 }

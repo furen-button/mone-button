@@ -69,7 +69,8 @@
     "infoAria": "Show source video details",
     "editAria": "Edit clip (DEV)",
     "playCount": "{{count}} plays",
-    "playCountAria": "{{count}} plays"
+    "playCountAria": "{{count}} plays",
+    "sameSerifNo": "No.{{no}}"
   },
   "streamGroup": {
     "dateLabel": "Date"
