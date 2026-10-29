@@ -1,0 +1,178 @@
+{
+  "select": {
+    "mode": "category",
+    "videoId": null,
+    "order": "date",
+    "limit": null,
+    "categories": [
+      "侍"
+    ]
+  },
+  "output": {
+    "resolution": "1920x1080",
+    "fps": 30,
+    "name": "output/2024-08-09-category-侍-kirinuki.mp4"
+  },
+  "source": "cache",
+  "normalizeCache": true,
+  "font": "Hiragino Sans",
+  "fontsDir": "/System/Library/Fonts",
+  "telops": {
+    "title": {
+      "enabled": true,
+      "align": "top-center",
+      "size": 0.03,
+      "minSize": 0.022,
+      "marginH": 0.11,
+      "format": "{title}",
+      "singleLine": true,
+      "font": "Hiragino Sans W8",
+      "color": "FFFFFF",
+      "outlines": [
+        {
+          "width": 3,
+          "color": "3B2366"
+        }
+      ],
+      "box": {
+        "enabled": true,
+        "fill": "7E57C2",
+        "pad": 8,
+        "minHeight": 0.055,
+        "opacity": 1
+      },
+      "fade": [
+        0,
+        0
+      ]
+    },
+    "date": {
+      "enabled": true,
+      "align": "top-left",
+      "size": 0.03,
+      "color": "FFFFFF",
+      "marginV": 0.0125
+    },
+    "time": {
+      "enabled": true,
+      "align": "top-right",
+      "size": 0.03,
+      "color": "FFFFFF",
+      "marginV": 0.0125
+    },
+    "serif": {
+      "enabled": true,
+      "align": "bottom-center",
+      "size": 0.195,
+      "font": "Hiragino Sans W9",
+      "autoShrink": true,
+      "minSize": 0.06,
+      "maxHeight": 0.4,
+      "marginH": 0.06,
+      "marginV": 0.04,
+      "color": "FF4FA0",
+      "bold": false,
+      "shadow": 3,
+      "fade": [
+        80,
+        80
+      ],
+      "box": {
+        "enabled": false
+      },
+      "outlines": [
+        {
+          "width": 9,
+          "color": "FFFFFF"
+        },
+        {
+          "width": 4,
+          "color": "6B3FA0"
+        }
+      ],
+      "emphasis": {
+        "color": "FFD800"
+      },
+      "karaoke": false,
+      "avoidFace": {
+        "enabled": false
+      }
+    },
+    "progress": {
+      "enabled": false
+    }
+  },
+  "cards": {
+    "enabled": false,
+    "se": {
+      "enabled": false
+    }
+  },
+  "endcaps": {
+    "opening": {
+      "enabled": false
+    },
+    "ending": {
+      "enabled": true,
+      "video": "assets/create-video/endcard-pink-04-pop-bg035.mp4",
+      "duration": 20,
+      "layout": "endscreen",
+      "font": "Hiragino Sans W9",
+      "endscreen": {
+        "background": {
+          "type": "lastClip",
+          "blur": 40,
+          "brightness": -0.08
+        },
+        "labels": {
+          "top": "おすすめアーカイブはこちら",
+          "bottom": "登録がまだの方はこちら"
+        },
+        "label": {
+          "size": 0.065,
+          "color": "FFFFFF",
+          "outlines": [
+            {
+              "width": 6,
+              "color": "3B2366"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "transitions": {
+    "mode": "stream",
+    "type": "whip",
+    "duration": 0.5,
+    "se": {
+      "enabled": true,
+      "file": "assets/create-video/シーン切り替え1.mp3",
+      "volume": 0.5
+    }
+  },
+  "effects": {
+    "zoom": {
+      "enabled": false
+    },
+    "enhance": {
+      "enabled": true,
+      "restore": "Restore_CNN_M",
+      "upscale": "Upscale_CNN_x2_M",
+      "minSourceHeight": 720,
+      "required": false
+    }
+  },
+  "summary": {
+    "intro": "にじさんじ所属・梢桃音さんの配信から「侍」の名場面をまとめました。",
+    "notice": "※このチャンネルは非公式のファン制作です。",
+    "tags": [
+      "梢桃音",
+      "にじさんじ",
+      "切り抜き",
+      "名場面",
+      "まとめ",
+      "侍"
+    ]
+  }
+}
