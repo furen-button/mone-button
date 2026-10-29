@@ -159,6 +159,10 @@ function segmentManifest(segment, size) {
     sourcePath: relativePath(segment.sourcePath),
     telops: (segment.elements || []).map((el) => telopManifest(el, size)).filter(Boolean),
   };
+  const expectedSec = clip.endTime - clip.startTime;
+  if (segment.kind === 'clip' && Number.isFinite(expectedSec) && expectedSec > 0) {
+    out.expectedSec = roundSec(expectedSec);
+  }
   if (segment.zoom && !segment.zoom.skip) {
     out.zoom = {
       at: roundSec(segment.zoom.at),

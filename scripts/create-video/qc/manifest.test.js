@@ -44,7 +44,7 @@ describe('render manifest', () => {
       renderedSegments: [{
         path: '/tmp/clip-a.mp4',
         kind: 'clip',
-        clip: { base: 'clip-a', videoId: 'abc123' },
+        clip: { base: 'clip-a', videoId: 'abc123', startTime: 10, endTime: 12.4 },
         sourcePath,
         elements: [element],
         atSec: 1.23456,
@@ -55,6 +55,7 @@ describe('render manifest', () => {
       size: { width: 1280, height: 720, fps: 30 },
     });
 
+    assert.ok(Math.abs(manifest.segments[0].expectedSec - 2.4) < 1e-9);
     assert.equal(manifest.version, 2);
     assert.equal(manifest.video, path.relative(projectRoot, videoOutPath));
     assert.equal(manifest.videoBytes, Buffer.byteLength(SAMPLE_VIDEO_BYTES));
@@ -65,6 +66,39 @@ describe('render manifest', () => {
     assert.equal(manifest.segments[0].sourcePath, 'public/videos/clip-a.mp4');
     assert.deepEqual(Object.keys(manifest.segments[0].telops[0].rect), ['x', 'y', 'w', 'h']);
     fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('正の有限なトリム尺だけを clip の期待尺に残す', async () => {
+    const dir = makeTempDir();
+    try {
+      const videoOutPath = path.join(dir, 'duration.mp4');
+      fs.writeFileSync(videoOutPath, SAMPLE_VIDEO_BYTES);
+      const inputs = [
+        { kind: 'clip', startTime: 10, endTime: 12.5 },
+        { kind: 'clip', startTime: 10, endTime: 10 },
+        { kind: 'clip', startTime: 10, endTime: 9 },
+        { kind: 'clip', startTime: 10, endTime: Infinity },
+        { kind: 'clip' },
+        { kind: 'card', startTime: 10, endTime: 12.5 },
+      ];
+      const manifest = await buildRenderManifest({
+        videoOutPath,
+        config: config(),
+        clips: [],
+        renderedSegments: inputs.map(({ kind, ...clip }) => ({
+          kind, clip, path: '/tmp/clip.mp4', atSec: 0, durationSec: 2,
+        })),
+        concatMethod: 'concat-vcopy',
+        totalSec: 12,
+        size: { width: 1280, height: 720, fps: 30 },
+      });
+      assert.equal(manifest.segments[0].expectedSec, 2.5);
+      for (const segment of manifest.segments.slice(1)) {
+        assert.equal('expectedSec' in segment, false);
+      }
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it('補正（enhance）の判断をセグメントに残す', async () => {
@@ -110,6 +144,7 @@ describe('render manifest', () => {
     });
     assert.deepEqual(manifest.segments[1].enhance, { applied: false, fallback: true, reason: 'libplacebo が使えません' });
     assert.equal('enhance' in manifest.segments[2], false);
+    assert.equal('expectedSec' in manifest.segments[2], false);
     fs.rmSync(dir, { recursive: true, force: true });
   });
 

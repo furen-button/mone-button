@@ -11,6 +11,7 @@ export function runProbeChecks({ tools, videoPath, manifest, config }) {
     ...checkAvDurationGap({ probe, config }),
     ...checkAudioPtsHole({ tools, videoPath, config }),
     ...checkTotalDuration({ probe, manifest, config }),
+    ...checkClipDurations({ manifest, config }),
     ...checkConcatMethod({ manifest }),
     ...checkChapterTimes({ videoPath, manifest, config }),
     ...checkFaceAvoidance({ manifest }),
@@ -156,6 +157,28 @@ export function checkAudioPtsHole({ tools, videoPath, config }) {
     )];
   }
   return [];
+}
+
+// 実尺から作る総尺だけでは見つからない、途中で切れた DL やトリム尺からのずれを拾う。
+export function checkClipDurations({ manifest, config }) {
+  const results = [];
+  const thresholdMs = Number(config.qc.thresholds.clipDurationMs ?? 250);
+  for (const segment of manifest?.segments || []) {
+    const { durationSec, expectedSec } = segment;
+    if (segment.kind !== 'clip' || !Number.isFinite(expectedSec) || expectedSec <= 0
+      || !Number.isFinite(durationSec)) {
+      continue;
+    }
+    if (Math.abs(durationSec - expectedSec) > thresholdMs / 1000) {
+      results.push(result(
+        'error',
+        'clip_duration_mismatch',
+        `${segment.base} の尺がトリム尺と一致しません。`,
+        `実尺 ${durationSec.toFixed(3)}s / 期待 ${expectedSec.toFixed(3)}s（トリム尺）`,
+      ));
+    }
+  }
+  return results;
 }
 
 function checkTotalDuration({ probe, manifest, config }) {

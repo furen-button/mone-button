@@ -555,6 +555,7 @@
           "properties": {
             "durationFrames": { "type": "number", "minimum": 0, "default": 1, "description": "総尺ずれを許容するフレーム数。" },
             "driftMs": { "type": "number", "minimum": 0, "default": 50, "description": "A/V 同期ずれの許容ミリ秒。" },
+            "clipDurationMs": { "type": "number", "minimum": 0, "default": 250, "description": "クリップ実尺とトリムで指定した期待尺の差の許容ミリ秒。" },
             "avGapMs": { "type": "number", "minimum": 0, "default": 50, "description": "音声ストリーム尺と映像ストリーム尺の差の許容ミリ秒。" },
             "audioHoleMs": { "type": "number", "minimum": 0, "default": 10, "description": "音声パケットの pts の穴（合計）の許容ミリ秒。穴以降の音声が遅れる。" },
             "phashDistance": { "type": "number", "minimum": 0, "default": 12, "description": "クリップ同一性 pHash の許容ハミング距離。" },

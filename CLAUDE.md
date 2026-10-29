@@ -209,7 +209,7 @@ npm run createVideo -- --videoId xxx --qc   # 生成前 L0 + 生成後 L1
 - 実装は `scripts/create-video/qc/`（index/manifest/report/checks/*）。しきい値は `config.qc.*`。
 - `--qc` を付けると生成時に `output/<name>.render.json`（レンダーマニフェスト）を書き出す。セグメントの実尺・テロップ矩形・zoom・concat 経路を残し、QC の期待値にする。`config.qc.manifest: false` で抑止可。manifest は `--qc` なしの通常実行でも書き出す（出力が 1 ファイル増えるだけで mp4 は変わらない）。
 - **L0（生成前・ffmpeg 不要）**… 素材存在、テロップのはみ出し・重なり、autoShrink の張り付き、行数、禁則残存、クリップ重複、`--order` の単調性、チャプター要件。error があればエンコードを始めずに止める。`npm test` でも回る。
-- **L1（生成後）**… 署名と総尺、A/V 尺差（`probe_av_duration_gap`、`qc.thresholds.avGapMs` 既定 50ms）、音声 pts の穴（`probe_audio_pts_hole`、`qc.thresholds.audioHoleMs` 既定 10ms）、concat 経路、A/V 同期（音声相互相関）、クリップ同一性（pHash）、音量（ebur128）、無音、黒、フリーズ、テロップ焼き込み（矩形内の塗り色一致率）、概要欄の時刻。A/V 尺差と pts の穴は ffprobe だけで測れるので python 不在でも必ず効く。
+- **L1（生成後）**… 署名と総尺、クリップ実尺とトリム期待尺の差（`clip_duration_mismatch`、`qc.thresholds.clipDurationMs` 既定 250ms。`expectedSec` の無い旧 manifest は対象外）、A/V 尺差（`probe_av_duration_gap`、`qc.thresholds.avGapMs` 既定 50ms）、音声 pts の穴（`probe_audio_pts_hole`、`qc.thresholds.audioHoleMs` 既定 10ms）、concat 経路、A/V 同期（音声相互相関）、クリップ同一性（pHash）、音量（ebur128）、無音、黒、フリーズ、テロップ焼き込み（矩形内の塗り色一致率）、概要欄の時刻。A/V 尺差と pts の穴は ffprobe だけで測れるので python 不在でも必ず効く。
 - `sync_audio_drift` は出力を `-ss` で切り出して相互相関を取るため **pts を尊重した位置**を測る。サンプル列を連結し直す測り方（wav に落として numpy で切る等）では pts の穴が消えて 0 に見えるので、検証には使わない。
 - 出力は `output/<name>.qc.json` と `output/<name>.qc.md`。**終了コードは error が 1 件以上で 1、warn / info のみなら 0。**
 - `--contact` は各クリップの代表フレームをラベル付きで並べた `output/<name>.contact.png` を書き出す。`--review` はそれを `claude` CLI に読ませて `output/<name>.review.md` に指摘を残す。どちらも結果は info 扱いで、**合否には影響しない**（LLM の出力は非決定的なため）。
