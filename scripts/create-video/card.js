@@ -1,6 +1,15 @@
 import fs from 'fs';
 import path from 'path';
-import { buildAss, formatDate, makeTextElement, resolveTitleText, stripEmoji, stripEmphasis } from './ass.js';
+import {
+  buildAss,
+  charWidth,
+  formatDate,
+  makeTextElement,
+  resolveTitleText,
+  stripEmoji,
+  stripEmphasis,
+} from './ass.js';
+import { clipSourcePathFor } from './clip.js';
 import { deepMerge, resolveProjectPath } from './config.js';
 import { cacheThumbnail, optionalAsset } from './assets.js';
 import { AUDIO_RESAMPLE, encodeArgs, streamSignature, subtitlesFilter } from './ffmpeg.js';
@@ -107,9 +116,15 @@ async function renderCard({ tools, kind, clip, clips, index, total, config, work
   const outPath = path.join(workDir, `${plan.safeKind}.mp4`);
   fs.writeFileSync(assPath, plan.ass);
 
-  const command = buildCardCommand({ tools, assPath, outPath, config, size, duration, thumbnail });
+  const command = buildCardCommand({ tools, kind, clips, assPath, outPath, config, size, duration, thumbnail });
   execFileSync(tools.ffmpeg, command, { stdio: 'inherit' });
-  return { path: outPath, kind: kind === 'clip' ? 'card' : kind, clip, sourcePath: cardSourcePath(config), elements: plan.elements };
+  return {
+    path: outPath,
+    kind: kind === 'clip' ? 'card' : kind,
+    clip,
+    sourcePath: plan.background.path || cardSourcePath(config),
+    elements: plan.elements,
+  };
 }
 
 // カード 1 枚の「何を描くか」をまとめる。本番（renderCard）と静止画プレビュー（preview.js）が
@@ -125,8 +140,13 @@ export function planCardRender({ kind, clip, clips, index, total, config, size, 
     elements,
     ass: buildAss(elements, { width: size.width, height: size.height, font: config.font }),
     sourcePath: cardSourcePath(config),
-    background: backgroundInput(config, size, duration),
+    background: cardBackground({ kind, clips, config, size, duration }),
   };
+}
+
+// ED をエンドスクリーン（YouTube の終了画面の要素を置く枠）として描くか。
+export function isEndscreen(config) {
+  return config.endcaps.ending?.layout === 'endscreen';
 }
 
 export function buildCardElements({ kind, clip, clips, index, total, config, size, title, duration }) {
@@ -154,6 +174,10 @@ export function buildCardElements({ kind, clip, clips, index, total, config, siz
         overrides: { outline: 3, outlineColor: '000000', shadow: 2, shadowColor: '000000' },
       }),
     ].filter(Boolean);
+  }
+
+  if (kind === 'ending' && isEndscreen(config)) {
+    return buildEndscreenElements({ config, size, duration });
   }
 
   if (kind === 'ending') {
@@ -250,6 +274,82 @@ export function buildCardElements({ kind, clip, clips, index, total, config, siz
   return elements.filter(Boolean);
 }
 
+// エンドスクリーン。画面ほぼいっぱいの枠を 1 つ描き、上辺の左寄りと下辺の右寄りにラベルを載せる。
+// ラベルの所だけ枠線を途切れさせる。要素そのもの（動画・登録ボタン）は YouTube Studio 側で置く。
+export function buildEndscreenElements({ config, size, duration }) {
+  const spec = config.endcaps.ending.endscreen || {};
+  const frame = spec.frame || {};
+  const labelStyle = spec.label || {};
+  const { width, height } = size;
+  const x0 = Math.round(width * (frame.x ?? 0.03));
+  const y0 = Math.round(height * (frame.y ?? 0.08));
+  const x1 = Math.round(width * ((frame.x ?? 0.03) + (frame.width ?? 0.94)));
+  const y1 = Math.round(height * ((frame.y ?? 0.08) + (frame.height ?? 0.84)));
+  const thickness = Math.max(1, Math.round(height * (frame.thickness ?? 0.008)));
+  const inset = Math.round(width * (frame.labelInset ?? 0.03));
+  const gap = Math.round(width * (frame.labelGap ?? 0.01));
+  const fs = Math.round(height * (labelStyle.size ?? 0.06));
+  // 枠線を途切れさせる幅。elementTextRect の推定（全角 1 字 = fs）は QC 向けに広めなので使わず、
+  // libass で Hiragino を描いたときの実測（全角 1 字 ≈ fs × 0.66）から求める。
+  const glyphRatio = Number(frame.glyphRatio ?? 0.66);
+  const labelWidth = (text) => Math.round([...String(text)].reduce((sum, ch) => sum + charWidth(ch), 0) * fs * glyphRatio);
+  const style = {
+    enabled: true,
+    size: fs,
+    color: labelStyle.color || 'FFFFFF',
+    font: labelStyle.font ?? config.endcaps.ending.font,
+    bold: labelStyle.bold ?? false,
+    shadow: labelStyle.shadow ?? 0,
+    outlines: labelStyle.outlines,
+  };
+
+  // 文字の上下中央を枠線に合わせる。\an7 / \an3 の基準は行の上端 / 下端なので fs の半分ずらす。
+  const top = spec.labels?.top
+    ? makeTextElement({
+        name: 'endscreen-top',
+        text: spec.labels.top,
+        style: { ...style, align: 'top-left' },
+        width,
+        height,
+        duration,
+        overrides: { marginH: x0 + inset, marginV: Math.round(y0 - fs / 2) },
+      })
+    : null;
+  const bottom = spec.labels?.bottom
+    ? makeTextElement({
+        name: 'endscreen-bottom',
+        text: spec.labels.bottom,
+        style: { ...style, align: 'bottom-right' },
+        width,
+        height,
+        duration,
+        overrides: { marginH: width - x1 + inset, marginV: Math.round(height - y1 - fs / 2) },
+      })
+    : null;
+
+  const color = frame.color || 'FFFFFF';
+  const hLine = (from, to, y) => (to > from ? [{ x: from, y, width: to - from, height: thickness, color }] : []);
+  // 上のラベルは左端（x0 + inset）から、下のラベルは右端（x1 - inset）までに描かれる。
+  const topFrom = x0 + inset;
+  const topTo = topFrom + (top ? labelWidth(top.text) : 0);
+  const bottomTo = x1 - inset;
+  const bottomFrom = bottomTo - (bottom ? labelWidth(bottom.text) : 0);
+  const shapes = [
+    ...(top ? [...hLine(x0, topFrom - gap, y0), ...hLine(topTo + gap, x1, y0)] : hLine(x0, x1, y0)),
+    ...(bottom
+      ? [...hLine(x0, bottomFrom - gap, y1 - thickness), ...hLine(bottomTo + gap, x1, y1 - thickness)]
+      : hLine(x0, x1, y1 - thickness)),
+    { x: x0, y: y0, width: thickness, height: y1 - y0, color },
+    { x: x1 - thickness, y: y0, width: thickness, height: y1 - y0, color },
+  ];
+
+  return [
+    { name: 'endscreen-frame', text: '', shapes, boxLayer: 2 },
+    top,
+    bottom,
+  ].filter(Boolean);
+}
+
 function makeMatomeTitle(config, firstClip) {
   const categories = config.select.categories?.length ? `${config.select.categories.join('・')}まとめ` : null;
   return categories || stripEmoji(firstClip?.meta?.title || 'まとめ');
@@ -257,8 +357,8 @@ function makeMatomeTitle(config, firstClip) {
 
 // カードの映像グラフ。[v] を作るところまでで、音声には触らない。
 // 静止画プレビューはこれだけを使い、本番は音声グラフを足して 1 本の filter_complex にする。
-export function buildCardVideoGraph({ assPath, config, size, duration, thumbnail }) {
-  const background = backgroundInput(config, size, duration);
+export function buildCardVideoGraph({ kind, clips, assPath, config, size, duration, thumbnail }) {
+  const background = cardBackground({ kind, clips, config, size, duration });
   const inputs = [...background.args];
 
   let inputIndex = 1;
@@ -284,9 +384,10 @@ export function buildCardVideoGraph({ assPath, config, size, duration, thumbnail
   return { inputs, filters, inputCount: inputIndex, hasThumb, background };
 }
 
-// カードの音声グラフ。SE が無ければ無音を敷いて concat の署名を揃える。
-function buildCardAudioGraph({ config, duration, audioIndex }) {
-  const sePath = config.cards.se?.enabled ? optionalAsset(config.cards.se.file, 'カードSE') : null;
+// カードの音声グラフ。SE が無ければ無音を敷いて concat の署名を揃える。エンドスクリーンは常に無音。
+function buildCardAudioGraph({ kind, config, duration, audioIndex }) {
+  const silent = kind === 'ending' && isEndscreen(config);
+  const sePath = !silent && config.cards.se?.enabled ? optionalAsset(config.cards.se.file, 'カードSE') : null;
   const inputs = sePath
     ? ['-i', sePath]
     : ['-f', 'lavfi', '-t', String(duration), '-i', 'anullsrc=r=44100:cl=stereo'];
@@ -302,9 +403,9 @@ function buildCardAudioGraph({ config, duration, audioIndex }) {
   return { inputs, filter: filters.join(',') };
 }
 
-export function buildCardCommand({ assPath, outPath, config, size, duration, thumbnail }) {
-  const video = buildCardVideoGraph({ assPath, config, size, duration, thumbnail });
-  const audio = buildCardAudioGraph({ config, duration, audioIndex: video.inputCount });
+export function buildCardCommand({ kind, clips, assPath, outPath, config, size, duration, thumbnail }) {
+  const video = buildCardVideoGraph({ kind, clips, assPath, config, size, duration, thumbnail });
+  const audio = buildCardAudioGraph({ kind, config, duration, audioIndex: video.inputCount });
 
   return [
     '-y',
@@ -316,6 +417,48 @@ export function buildCardCommand({ assPath, outPath, config, size, duration, thu
     ...encodeArgs(config),
     outPath,
   ];
+}
+
+// カードの背景。エンドスクリーンで background.type が lastClip なら、最後のクリップの最終フレームを
+// ぼかして暗くした静止画にする。ソースが無ければ通常のカード背景へ戻す（requested で元の指定を残す）。
+function cardBackground({ kind, clips, config, size, duration }) {
+  if (kind !== 'ending' || !isEndscreen(config)) {
+    return backgroundInput(config, size, duration);
+  }
+  const bg = config.endcaps.ending.endscreen?.background || {};
+  if (bg.type !== 'lastClip') {
+    return backgroundInput(config, size, duration);
+  }
+  const last = clips?.at(-1);
+  const source = last ? clipSourcePathFor(last, config) : null;
+  if (!source || !fs.existsSync(source)) {
+    return { ...backgroundInput(config, size, duration), requested: 'lastClip' };
+  }
+  return {
+    kind: 'lastClip',
+    requested: 'lastClip',
+    path: source,
+    // 入力シークで末尾 0.5 秒だけを読み、その先頭 1 枚を duration 秒ぶん複製する。
+    args: ['-sseof', '-0.5', '-i', source],
+    videoFilter: lastFrameBackgroundFilter({ bg, size, duration }),
+  };
+}
+
+export function lastFrameBackgroundFilter({ bg, size, duration }) {
+  const blur = Number(bg.blur ?? 40);
+  const brightness = Number(bg.brightness ?? -0.08);
+  return [
+    'trim=end_frame=1',
+    'setpts=PTS-STARTPTS',
+    `scale=${size.width}:${size.height}:force_original_aspect_ratio=decrease`,
+    `pad=${size.width}:${size.height}:(ow-iw)/2:(oh-ih)/2`,
+    'setsar=1',
+    ...(blur > 0 ? [`gblur=sigma=${blur}`] : []),
+    ...(brightness !== 0 ? [`eq=brightness=${brightness}`] : []),
+    `tpad=stop_mode=clone:stop_duration=${duration}`,
+    `fps=${size.fps}`,
+    `trim=duration=${duration}`,
+  ].join(',');
 }
 
 function backgroundInput(config, size, duration) {

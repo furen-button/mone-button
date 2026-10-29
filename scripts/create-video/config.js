@@ -174,6 +174,14 @@ export const DEFAULTS = {
       font: null,
       // 完成済み動画を指定するとその動画をそのまま ED に使う（テロップ/SE/duration は無視、音声は動画のもの）。
       video: null,
+      // default は「ご視聴ありがとうございました」のカード、endscreen は YouTube の終了画面の要素を置く枠。
+      layout: 'default',
+      endscreen: {
+        background: { type: 'lastClip', blur: 40, brightness: -0.08 },
+        frame: { x: 0.03, y: 0.08, width: 0.94, height: 0.84, thickness: 0.007, color: 'FFFFFF', labelInset: 0.03, labelGap: 0.01 },
+        labels: { top: 'おすすめアーカイブはこちら', bottom: '登録がまだの方はこちら' },
+        label: { size: 0.06, color: 'FFFFFF', font: null, bold: false, shadow: 0, outlines: [{ width: 6, color: '333333' }] },
+      },
     },
   },
   // YouTube 公開用メタデータの生成。概要欄テンプレートの可変部をここに置く。

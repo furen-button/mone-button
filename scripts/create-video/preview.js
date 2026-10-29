@@ -696,7 +696,15 @@ async function renderCardStill(request, target) {
       assPath = cardStillAssPath({ out, base, at, config, index, total, kind: target.kind });
       fs.mkdirSync(path.dirname(assPath), { recursive: true });
       fs.writeFileSync(assPath, plan.ass);
-      const graph = buildCardVideoGraph({ assPath, config, size, duration, thumbnail: context.thumbnail });
+      const graph = buildCardVideoGraph({
+        kind: context.planArgs.kind,
+        clips: context.clips,
+        assPath,
+        config,
+        size,
+        duration,
+        thumbnail: context.thumbnail,
+      });
       args = cardStillFfmpegArgs({
         inputs: graph.inputs,
         filters: graph.filters,
@@ -858,7 +866,8 @@ function collectCardWarnings({ context, plan, at, requestedAt }) {
       message: `サムネイル未取得: cache/createVideo/thumbnails/${context.clip.videoId}.jpg（プレビューでは取りに行きません）。`,
     });
   }
-  const requestedBackground = config.cards.background?.type;
+  // エンドスクリーンの lastClip 背景は cards.background ではなく endcaps.ending.endscreen.background で決まる。
+  const requestedBackground = plan?.background?.requested || config.cards.background?.type;
   if (plan && requestedBackground && plan.background.kind !== requestedBackground) {
     warnings.push({
       code: 'card_background_fallback',

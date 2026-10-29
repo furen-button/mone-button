@@ -429,6 +429,13 @@ export function buildAss(elements, { width, height, font }) {
   lines.push('Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text');
 
   for (const el of elements.filter((item) => item && item.text !== false)) {
+    // shapes は本文を持たない図形（エンドスクリーンの枠線など）。塗りの矩形を背面に描く。
+    for (const shape of el.shapes || []) {
+      lines.push(dialogue(shapeDialogue(el, shape.x, shape.y, shape.width, shape.height, shape.color, 0)));
+    }
+    if (el.shapes && !el.text) {
+      continue;
+    }
     for (const box of boxDialogues(el, width, height)) {
       lines.push(dialogue(box));
     }
