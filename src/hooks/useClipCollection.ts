@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from 'react'
 import {
   buildSameSerifLabels,
-  normalizeSerifForDisplay,
   voiceClips,
+  withDisplaySerif,
   type SortType,
   type StreamGroup,
   type VoiceClip,
@@ -54,7 +54,7 @@ export function useClipCollection({ selectedCategories, sortType, playCounts, vi
           const override = clipOverrides[clip.fileBaseName]
           const videoPath = withVideoCacheBust(clip.videoPath, videoVersions[clip.fileBaseName])
           return override
-            ? { ...clip, ...override, serif: normalizeSerifForDisplay(override.serif), videoPath }
+            ? { ...clip, ...withDisplaySerif(override), videoPath }
             : { ...clip, videoPath }
         }),
     [clipOverrides, deletedClips, videoVersions],

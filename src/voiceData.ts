@@ -45,6 +45,8 @@ export interface VoiceData {
 export interface VoiceClip extends VoiceData {
   fileBaseName: string
   videoPath: string
+  // public/data の serif そのまま（改行・強調記法を含む）。serif は表示用に正規化したもの。
+  rawSerif: string
 }
 
 export interface StreamGroup {
@@ -89,6 +91,14 @@ export const normalizeSerifForDisplay = (serif: string): string =>
     )
     .replace(/\{([^{}|]+)(?:\|[0-9A-Fa-f]{6})?\}/g, '$1')
 
+// public/data の内容を一覧・モーダル用に整える。serif は表示用に正規化し、編集で書き戻せるよう
+// 元の文字列を rawSerif に残す。初期ロードと dev 保存の反映の両方でこれを通す。
+export const withDisplaySerif = <T extends VoiceData>(data: T): T & { rawSerif: string } => ({
+  ...data,
+  serif: normalizeSerifForDisplay(data.serif),
+  rawSerif: data.serif,
+})
+
 export const voiceClips: VoiceClip[] = Object.entries(dataModules)
   .map(([path, data]) => {
     const filename = path.split('/').pop()
@@ -98,8 +108,7 @@ export const voiceClips: VoiceClip[] = Object.entries(dataModules)
 
     const fileBaseName = filename.replace(/\.json$/i, '')
     return {
-      ...data,
-      serif: normalizeSerifForDisplay(data.serif),
+      ...withDisplaySerif(data),
       fileBaseName,
       videoPath: `${baseUrl}videos/${fileBaseName}.mp4`,
     }

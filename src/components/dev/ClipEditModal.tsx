@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { generateRuby, transcribeClip } from '../../lib/devDataEditor'
 import type { KeyboardEvent } from 'react'
+import { normalizeSerifForDisplay } from '../../voiceData'
 import type { VoiceClip, VoiceData } from '../../voiceData'
 import { SerifSpacingPreview } from './SerifSpacingPreview'
 import { TrimEditor } from './TrimEditor'
@@ -18,7 +19,9 @@ type ClipEditModalProps = {
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
 export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: ClipEditModalProps) {
-  const [serif, setSerif] = useState(clip.serif)
+  // 表示用に改行・強調記法を落とした serif ではなく JSON の値から始める。そのまま保存しても、
+  // まとめ動画のテロップ用の改行と強調記法が消えないように。
+  const [serif, setSerif] = useState(clip.rawSerif)
   const [ruby, setRuby] = useState(clip.ruby)
   const [memo, setMemo] = useState(clip.memo)
   const [categories, setCategories] = useState<string[]>(clip.categories)
@@ -59,7 +62,8 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
         setRuby(result.ruby)
         setGenerationMessage('文字起こし結果を入れました（未保存）')
       } else {
-        const result = await generateRuby(serif, controller.signal)
+        // 読みは表示上の文字から作る（改行で割った語や強調記法の記号を読みに混ぜない）。
+        const result = await generateRuby(normalizeSerifForDisplay(serif), controller.signal)
         if (controller.signal.aborted) {
           return
         }

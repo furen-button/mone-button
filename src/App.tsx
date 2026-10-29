@@ -26,6 +26,7 @@ import { withVideoCacheBust } from './lib/videoPath'
 import {
   categoryCounts,
   categoryOptions,
+  withDisplaySerif,
   type SortType,
   type StreamGroup,
   type VoiceClip,
@@ -88,7 +89,7 @@ function App() {
         current && current.fileBaseName === fileBaseName
           ? {
               ...current,
-              ...updated,
+              ...withDisplaySerif(updated),
               videoPath: withVideoCacheBust(current.videoPath, nextVideoVersion),
             }
           : current,
@@ -97,7 +98,7 @@ function App() {
         current && current.fileBaseName === fileBaseName
           ? {
               ...current,
-              ...updated,
+              ...withDisplaySerif(updated),
               videoPath: withVideoCacheBust(current.videoPath, nextVideoVersion),
             }
           : current,
