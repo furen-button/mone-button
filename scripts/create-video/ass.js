@@ -125,6 +125,8 @@ function wrapSegmentWithKinsoku(segment, maxUnits) {
   const chars = [...String(segment)];
   const out = [];
   let start = 0;
+  // 最後の折り返しが空白の位置だったか。短い最終行の再調整で語を割らないために使う。
+  let tailAfterSpace = false;
   while (start < chars.length) {
     const br = measureBreak(chars, start, maxUnits);
     if (br.cut >= chars.length) {
@@ -144,9 +146,10 @@ function wrapSegmentWithKinsoku(segment, maxUnits) {
     }
 
     out.push(chars.slice(start, cut).join(''));
+    tailAfterSpace = chars[nextStart - 1] === ' ' || chars[nextStart] === ' ';
     start = nextStart;
   }
-  return rebalanceShortTail(out, maxUnits);
+  return rebalanceShortTail(out, maxUnits, { tailAfterSpace });
 }
 
 // \an5 の中央寄せでは行頭・行末の空白がその行だけ中心をずらすため、折り返し後に落とす。
@@ -197,7 +200,7 @@ function violatesKinsoku(chars, cut) {
   );
 }
 
-function rebalanceShortTail(lines, maxUnits) {
+function rebalanceShortTail(lines, maxUnits, { tailAfterSpace = false } = {}) {
   if (lines.length < 2) {
     return lines;
   }
@@ -205,6 +208,9 @@ function rebalanceShortTail(lines, maxUnits) {
   const tail = lines.at(-1);
   if (measureWidth(tail) >= minTail) {
     return lines;
+  }
+  if (tailAfterSpace) {
+    return rebalanceShortTailByWord(lines, maxUnits, minTail);
   }
 
   const prev = lines.at(-2);
@@ -228,6 +234,29 @@ function rebalanceShortTail(lines, maxUnits) {
         prevChars.slice(0, cut).join(''),
         nextTail.join(''),
       ];
+    }
+  }
+  return lines;
+}
+
+// 空白で折った最終行は、前の行の末尾から空白区切りの語ごと送る。serif の半角空白は折り返し位置の
+// 指定として書かれるので、1 文字ずつ送って語の途中で割ったり区切りの空白を詰めたりしない。
+// 送った結果、前の行が短くなる（短い行が上へ移るだけの）場合と、どの語を送っても収まらない場合は、
+// 短い最終行のまま残す。
+function rebalanceShortTailByWord(lines, maxUnits, minTail) {
+  const prevWords = lines.at(-2).replace(/ +$/, '').split(' ');
+  const tail = lines.at(-1).replace(/^ +/, '');
+  for (let move = 1; move < prevWords.length; move++) {
+    const head = prevWords.slice(0, -move).join(' ');
+    const nextTail = [...prevWords.slice(-move), tail].join(' ');
+    if (measureWidth(nextTail) > maxUnits || measureWidth(head) < minTail) {
+      break;
+    }
+    if (violatesKinsoku([...head, ...nextTail], [...head].length)) {
+      continue;
+    }
+    if (measureWidth(nextTail) >= minTail) {
+      return [...lines.slice(0, -2), head, nextTail];
     }
   }
   return lines;
