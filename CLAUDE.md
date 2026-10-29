@@ -165,6 +165,7 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 - テロップ焼き込みには `subtitles`(libass) 対応の ffmpeg が必要。通常の Homebrew `ffmpeg` は非対応のため `brew install ffmpeg-full` を導入する（keg-only。既存 ffmpeg は壊さない）。スクリプトが `/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg` を自動検出し、`FFMPEG_BIN` 環境変数で上書きも可。
 - 区切りカードの背景/SE/BGM は `assets/create-video/` の素材を参照する。欠落時は該当機能をスキップして続行する。
 - `--enhance` は `libplacebo` フィルタ入りの ffmpeg（`ffmpeg-full`）と Vulkan ドライバが必要。macOS では `brew install molten-vk`（無いと `VK_ERROR_INCOMPATIBLE_DRIVER` で補正だけスキップされる）。シェーダは初回に bloc97/Anime4K の release zip（GLSL テキスト）を `cache/createVideo/tools/anime4k/glsl/` へ自動取得し、連結したプリセットを同所の `.presets/` に置く。
+- 高画質DLは音量正規化・音声尺合わせの前に映像ストリーム尺をトリム期待尺と比較する（ffprobe がある場合）。250ms を超えて短ければ途中ファイルを削除して一度だけ再 DL し、再び短ければキャッシュを削除して生成を停止する。既存キャッシュの再利用時はこの DL 検査を行わない。
 - 高画質DLには yt-dlp が必要。`--source cache` の音量正規化には `ffmpeg-normalize` が必要（不在時は警告して生DLを使用）。映像は copy で高画質のまま、音声のみ正規化する。サムネイルは `cache/createVideo/thumbnails/` にキャッシュする。
 
 ### 静止画プレビュー（still）
@@ -208,7 +209,7 @@ npm run createVideo -- --videoId xxx --qc   # 生成前 L0 + 生成後 L1
 - 実装は `scripts/create-video/qc/`（index/manifest/report/checks/*）。しきい値は `config.qc.*`。
 - `--qc` を付けると生成時に `output/<name>.render.json`（レンダーマニフェスト）を書き出す。セグメントの実尺・テロップ矩形・zoom・concat 経路を残し、QC の期待値にする。`config.qc.manifest: false` で抑止可。manifest は `--qc` なしの通常実行でも書き出す（出力が 1 ファイル増えるだけで mp4 は変わらない）。
 - **L0（生成前・ffmpeg 不要）**… 素材存在、テロップのはみ出し・重なり、autoShrink の張り付き、行数、禁則残存、クリップ重複、`--order` の単調性、チャプター要件。error があればエンコードを始めずに止める。`npm test` でも回る。
-- **L1（生成後）**… 署名と総尺、A/V 尺差（`probe_av_duration_gap`、`qc.thresholds.avGapMs` 既定 50ms）、音声 pts の穴（`probe_audio_pts_hole`、`qc.thresholds.audioHoleMs` 既定 10ms）、concat 経路、A/V 同期（音声相互相関）、クリップ同一性（pHash）、音量（ebur128）、無音、黒、フリーズ、テロップ焼き込み（矩形内の塗り色一致率）、概要欄の時刻。A/V 尺差と pts の穴は ffprobe だけで測れるので python 不在でも必ず効く。
+- **L1（生成後）**… 署名と総尺、クリップ実尺とトリム期待尺の差（`clip_duration_mismatch`、`qc.thresholds.clipDurationMs` 既定 250ms。`expectedSec` の無い旧 manifest は対象外）、A/V 尺差（`probe_av_duration_gap`、`qc.thresholds.avGapMs` 既定 50ms）、音声 pts の穴（`probe_audio_pts_hole`、`qc.thresholds.audioHoleMs` 既定 10ms）、concat 経路、A/V 同期（音声相互相関）、クリップ同一性（pHash）、音量（ebur128）、無音、黒、フリーズ、テロップ焼き込み（矩形内の塗り色一致率）、概要欄の時刻。A/V 尺差と pts の穴は ffprobe だけで測れるので python 不在でも必ず効く。
 - `sync_audio_drift` は出力を `-ss` で切り出して相互相関を取るため **pts を尊重した位置**を測る。サンプル列を連結し直す測り方（wav に落として numpy で切る等）では pts の穴が消えて 0 に見えるので、検証には使わない。
 - 出力は `output/<name>.qc.json` と `output/<name>.qc.md`。**終了コードは error が 1 件以上で 1、warn / info のみなら 0。**
 - `--contact` は各クリップの代表フレームをラベル付きで並べた `output/<name>.contact.png` を書き出す。`--review` はそれを `claude` CLI に読ませて `output/<name>.review.md` に指摘を残す。どちらも結果は info 扱いで、**合否には影響しない**（LLM の出力は非決定的なため）。

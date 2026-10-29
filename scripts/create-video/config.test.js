@@ -14,6 +14,13 @@ function writeTempConfig(value) {
 }
 
 describe('loadConfig', () => {
+  it('qc.thresholds.clipDurationMs の既定値・上書き・不正値を検証する', () => {
+    const load = (value) => loadConfig(['--config', writeTempConfig(value), '--videoId', 'abc123']);
+    assert.equal(load({}).qc.thresholds.clipDurationMs, 250);
+    assert.equal(load({ qc: { thresholds: { clipDurationMs: 100 } } }).qc.thresholds.clipDurationMs, 100);
+    assert.throws(() => load({ qc: { thresholds: { clipDurationMs: 'invalid' } } }), /qc\.thresholds\.clipDurationMs/u);
+  });
+
   it('telops.title.overrides は文字列値だけを受け付ける', () => {
     const valid = writeTempConfig({
       telops: { title: { overrides: { abc123: '手動\nタイトル' } } },

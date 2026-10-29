@@ -239,6 +239,8 @@ export const DEFAULTS = {
     },
     thresholds: {
       durationFrames: 1,
+      // クリップ実尺とトリムで指定した期待尺の差の許容ミリ秒。
+      clipDurationMs: 250,
       driftMs: 50,
       // 音声ストリーム尺 − 映像ストリーム尺。連結の累積音ズレがここに合計として出る。
       avGapMs: 50,
