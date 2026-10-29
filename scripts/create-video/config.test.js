@@ -50,6 +50,16 @@ describe('loadConfig', () => {
     assert.equal(loaded.__meta.cli.enhance, false);
   });
 
+  it('summary.chapters.minSec は YouTube の要件の 10 秒以上だけを受け付ける', () => {
+    const tooShort = writeTempConfig({ summary: { chapters: { minSec: 5 } } });
+    assert.throws(() => loadConfig(['--config', tooShort, '--videoId', 'abc123']), /summary\.chapters\.minSec は 10 以上/u);
+    const notNumber = writeTempConfig({ summary: { chapters: { minSec: 'ten' } } });
+    assert.throws(() => loadConfig(['--config', notNumber, '--videoId', 'abc123']), /summary\.chapters\.minSec/u);
+    const longer = writeTempConfig({ summary: { chapters: { minSec: 15 } } });
+    assert.equal(loadConfig(['--config', longer, '--videoId', 'abc123']).summary.chapters.minSec, 15);
+    assert.equal(loadConfig(['--config', writeTempConfig({}), '--videoId', 'abc123']).summary.chapters.minSec, 10);
+  });
+
   it('effects.enhance の backend とシェーダ名を検証する', () => {
     const badBackend = writeTempConfig({ effects: { enhance: { backend: 'realesrgan' } } });
     assert.throws(() => loadConfig(['--config', badBackend, '--videoId', 'abc123']), /effects\.enhance\.backend/u);

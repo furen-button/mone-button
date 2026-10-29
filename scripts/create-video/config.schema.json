@@ -516,9 +516,9 @@
             },
             "minSec": {
               "type": "number",
-              "exclusiveMinimum": 0,
+              "minimum": 10,
               "default": 10,
-              "description": "1 チャプターの最短秒数。clip はこれに届くまで後続のクリップをまとめ、stream はこれ未満の区間を隣へ吸収する。YouTube の要件は 10 秒。"
+              "description": "1 チャプターの最短秒数。clip はこれに届くまで後続のクリップをまとめ、stream はこれ未満の区間を隣へ吸収する。YouTube の要件（各 10 秒以上）より短くはできない。"
             },
             "labels": {
               "type": "object",

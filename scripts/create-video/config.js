@@ -6,6 +6,9 @@ const __filename = fileURLToPath(import.meta.url);
 const moduleDir = path.dirname(__filename);
 export const projectRoot = path.resolve(moduleDir, '../..');
 
+// YouTube のチャプターの最短秒数。summary.chapters.minSec はこれより短くできない。
+const YOUTUBE_MIN_CHAPTER_SEC = 10;
+
 export const ALIGN = {
   'top-left': 7,
   'top-center': 8,
@@ -627,6 +630,11 @@ function validateTransitions(config, errors) {
   const chaptersBy = config.summary?.chapters?.by;
   if (chaptersBy !== undefined && !['clip', 'stream'].includes(chaptersBy)) {
     errors.push(`summary.chapters.by が不正です: ${chaptersBy}`);
+  }
+  // チャプターは YouTube の概要欄用で、YouTube は各 10 秒以上を要求する。短くすると概要欄のチャプターが無効になる。
+  const minSec = config.summary?.chapters?.minSec;
+  if (minSec !== undefined && !(Number(minSec) >= YOUTUBE_MIN_CHAPTER_SEC)) {
+    errors.push(`summary.chapters.minSec は ${YOUTUBE_MIN_CHAPTER_SEC} 以上で指定してください（YouTube のチャプターは各 ${YOUTUBE_MIN_CHAPTER_SEC} 秒以上）: ${minSec}`);
   }
 }
 
