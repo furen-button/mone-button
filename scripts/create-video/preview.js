@@ -29,6 +29,7 @@ import { cacheThumbnail } from './assets.js';
 import { zoomCropRect } from './effects.js';
 import { loadConfig, outputSize, parseArgs, projectRoot } from './config.js';
 import { collectClips } from './select.js';
+import { planTransitions } from './transition.js';
 import { resolveFfmpeg } from './ffmpeg.js';
 import { labelDrawtext, resolveContactFont, tileFrames } from './qc/contact.js';
 
@@ -135,6 +136,8 @@ export async function renderStill(request) {
       titleOverride: config.titleOverride || null,
       plans,
       probe: source,
+      // 本番と同じく前後のクリップから入り・出を決め、トランジション中の時刻も同じ絵にする。
+      transition: planTransitions(context.clips, config)[index],
       log,
     });
     fs.mkdirSync(path.dirname(assPath), { recursive: true });
@@ -927,7 +930,7 @@ function loadStillContext(request) {
   const clip = request.clipPatch
     ? { ...selected.clip, data: { ...selected.clip.data, ...request.clipPatch } }
     : selected.clip;
-  return { config, size, target, index: selected.index, total: clips.length, clip };
+  return { config, size, target, index: selected.index, total: clips.length, clip, clips };
 }
 
 function loadConfigForStill(argv, target) {

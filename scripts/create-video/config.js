@@ -184,6 +184,22 @@ export const DEFAULTS = {
       },
     },
   },
+  // 配信（videoId）が変わる繋ぎ目などに入れるトランジション。既定は none（従来どおり素のカット）。
+  // 区切りカードがあるとクリップ同士が隣り合わないので、cards.enabled=false のときだけ効く。
+  transitions: {
+    mode: 'none',
+    type: 'whip',
+    // 出る側・入る側を合わせた長さ（秒）。半分ずつ各クリップの末尾と先頭に入る。
+    duration: 0.5,
+    // 片側で流れる距離（画面幅比）と、切り替わりの瞬間の横ブラーの強さ（gblur の sigma、画面幅比）。
+    shift: 1.0,
+    blur: 0.03,
+    se: {
+      enabled: true,
+      file: 'assets/create-video/シーン切り替え1.mp3',
+      volume: 1.0,
+    },
+  },
   // YouTube 公開用メタデータの生成。概要欄テンプレートの可変部をここに置く。
   summary: {
     enabled: true,

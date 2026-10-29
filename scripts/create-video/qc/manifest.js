@@ -177,6 +177,16 @@ function segmentManifest(segment, size) {
       ...(segment.avoid.face ? { face: roundRect(segment.avoid.face) } : {}),
     };
   }
+  // トランジションの区間（セグメント内の秒）。QC の pHash・同期はこの区間を避けて測る。
+  if (segment.transition) {
+    const transition = segment.transition;
+    out.transition = {
+      type: transition.type,
+      in: transition.in ? { start: roundSec(transition.in.start), end: roundSec(transition.in.end) } : null,
+      out: transition.out ? { start: roundSec(transition.out.start), end: roundSec(transition.out.end) } : null,
+      se: transition.se ? { file: relativePath(transition.se.file), volume: transition.se.volume } : null,
+    };
+  }
   // 補正（Anime4K）の判断を残す。見送り（fallback）は QC が warn で拾う。
   if (segment.enhance) {
     const enhance = segment.enhance;
