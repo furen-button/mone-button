@@ -146,6 +146,26 @@ export function alignAudioToVideo({ ffmpeg, ffprobe, filePath, toleranceMs = ALI
   }
 }
 
+// 区間 DL が途中で終わっても yt-dlp が成功扱いにすることがあるため、音声を揃える前に検査する。
+export const DOWNLOAD_SHORT_TOLERANCE_MS = 250;
+
+export function isDownloadTooShort(expectedSec, actualSec) {
+  return Number.isFinite(expectedSec) && expectedSec > 0
+    && Number.isFinite(actualSec) && actualSec < expectedSec - DOWNLOAD_SHORT_TOLERANCE_MS / 1000;
+}
+
+function removeDownloadFiles(downloadTarget, outputPath) {
+  for (const filePath of new Set([downloadTarget, outputPath])) {
+    const dir = path.dirname(filePath);
+    const base = path.basename(filePath, path.extname(filePath));
+    for (const name of fs.readdirSync(dir)) {
+      if (name === path.basename(filePath) || name.startsWith(`${base}.`)) {
+        fs.rmSync(path.join(dir, name), { force: true });
+      }
+    }
+  }
+}
+
 export function downloadHighQuality(clip, outputPath, { normalize = false, tools = null } = {}) {
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   const url = `https://www.youtube.com/watch?v=${clip.videoId}`;
@@ -153,19 +173,34 @@ export function downloadHighQuality(clip, outputPath, { normalize = false, tools
   // 正規化する場合は一旦 raw を落として ffmpeg-normalize で cache 本体へ書き出す。
   const downloadTarget = normalizer ? `${outputPath}.raw.mp4` : outputPath;
 
-  execFileSync('yt-dlp', [
-    '-f',
-    // 96kHz の m4a は区間切り出しで pts の穴が入りやすいので 48kHz 以下を優先する。無ければ従来どおり。
-    'bestvideo[ext=mp4]+bestaudio[ext=m4a][asr<=48000]/bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
-    '--download-sections',
-    `*${clip.startTime}-${clip.endTime}`,
-    '--force-keyframes-at-cuts',
-    '--merge-output-format',
-    'mp4',
-    '-o',
-    downloadTarget,
-    url,
-  ], { stdio: 'inherit' });
+  const expectedSec = clip.endTime - clip.startTime;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    execFileSync('yt-dlp', [
+      '-f',
+      // 96kHz の m4a は区間切り出しで pts の穴が入りやすいので 48kHz 以下を優先する。無ければ従来どおり。
+      'bestvideo[ext=mp4]+bestaudio[ext=m4a][asr<=48000]/bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+      '--download-sections',
+      `*${clip.startTime}-${clip.endTime}`,
+      '--force-keyframes-at-cuts',
+      '--merge-output-format',
+      'mp4',
+      '-o',
+      downloadTarget,
+      url,
+    ], { stdio: 'inherit' });
+    const durations = tools?.ffprobe
+      ? probeStreamDurations({ ffprobe: tools.ffprobe, filePath: downloadTarget })
+      : null;
+    if (!isDownloadTooShort(expectedSec, durations?.video)) {
+      break;
+    }
+    removeDownloadFiles(downloadTarget, outputPath);
+    const detail = `${clip.base}: 期待 ${expectedSec.toFixed(3)}s / 実尺 ${durations.video.toFixed(3)}s`;
+    if (attempt === 1) {
+      throw new Error(`高画質ダウンロードの映像が短すぎます（${detail}）。再ダウンロード後も尺が不足しています。`);
+    }
+    console.warn(`⚠️ 高画質ダウンロードの映像が短いため一度だけ再ダウンロードします（${detail}）。`);
+  }
 
   if (normalizer) {
     // 音声のみ EBU R128 正規化（既定 -23 LUFS。public/videos の download.js と同基準）。映像は copy で高画質維持。
