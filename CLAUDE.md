@@ -99,10 +99,12 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 - `--mode videoId` / `--mode category` / `--mode files` に対応。既定は `videoId`。
 - 既定出力は `output/<YYYY-MM-DD>-<videoId>-combined.mp4`。`--out` または config の `output.name` で上書き可。
 - 併せて YouTube 公開用のメタデータを 3 系統書き出す（実装は `summary.js`、設定は `summary.*`）。時刻は各クリップのブロック先頭（区切りカードがあればその開始）を実尺の積み上げから算出する。
-  - `output/<name>.youtube.txt` … 概要欄本文。チャプター + 配信単位の出典 + 導入文 + 非公式表記。`summary.siteUrl` などが未設定の節は見出しごと省く
+  - `output/<name>.youtube.txt` … 概要欄本文。チャプター + チャプターごとの出典（タイムスタンプ付き URL）+ 導入文 + 非公式表記。`summary.siteUrl` などが未設定の節は見出しごと省く
   - `output/<name>.comment.txt` … 固定コメント用のクリップ単位一覧。1 クリップ = `[動画内での時間] [serif]` / `[元動画タイトル]` / `[clipUrl]` の 2〜3 行で、タイトルは直前と同じなら省略する。`summary.maxChars`（既定 5000）を超えると `.comment-1.txt` … へ分割し、各塊の先頭では必ずタイトルを出す
   - `output/<name>.meta.json` … タイトル案 / タグ / チャプター配列 / 出典。将来の Data API 自動化用
-- チャプターは直前のクリップと videoId が変わった位置で切る。YouTube の要件（先頭 0:00 必須 / 3 つ以上 / 各 10 秒以上）に合わせ、先頭は 0:00 へ丸め、`summary.chapters.minSec` 未満の区間は隣へ吸収し、3 個未満になったら警告して概要欄から省く。ラベルは配信タイトルの `【】` `『』` を整形して使い、`summary.chapters.labels` で `videoId` または `videoId#2`（同じ配信の 2 回目の登場）を指定して上書きできる。
+- チャプターは既定（`summary.chapters.by: clip`）でセリフ（クリップ）ごとに切る。YouTube の要件（先頭 0:00 必須 / 3 つ以上 / 各 10 秒以上）に合わせ、先頭は 0:00 から測り、`summary.chapters.minSec` に届くまで後続のクリップを前から順にまとめ、末尾だけ短く残ったら直前へ寄せる。見出しはまとめたセリフを「 / 」でつなぐ（セリフが無ければ配信タイトル）。出典はチャプターの下に同じまとまりごとに、見出し（時刻なし。行頭の時刻は YouTube がチャプターと読み取るため）+ 各クリップのタイムスタンプ付き URL を並べ、チャプターが 3 個未満で省かれても出典は残す。`summary.chapters.labels` はチャプター先頭のクリップ名（base）で見出しを上書きする。meta.json のチャプターには `bases` と `urls` が入り、QC の `probe_chapter_time` は先頭クリップのブロック先頭と突き合わせる。
+- `summary.chapters.by: stream` は従来の配信単位。直前のクリップと videoId が変わった位置で切り、`minSec` 未満の区間は隣へ吸収し、3 個未満になったら警告して概要欄から省く。ラベルは配信タイトルの `【】` `『』` を整形して使い、`summary.chapters.labels` で `videoId` または `videoId#2`（同じ配信の 2 回目の登場）を指定して上書きできる。出典は配信一覧。
+- `by: clip` の出典はクリップ数に比例して長くなる（25 クリップで約 2200 文字、99 クリップで約 9400 文字）。概要欄が `summary.maxChars`（既定 5000 = YouTube の上限）を超えると警告だけ出る。
 - クリップ、カード、OP/ED はすべて h264/yuv420p/30fps + aac/44100/stereo に正規化してから concat する。署名が揃えば映像は `concat` デムクサで copy、音声は AAC プライミングの累積音ズレを避けるため各セグメントから直接 concat フィルタで再エンコードする（`concat-vcopy`）。署名不一致なら全再エンコードの concat filter に fallback。
 - 音声は常に `AUDIO_RESAMPLE`（`aresample=44100:async=1:min_hard_comp=0.001:first_pts=0`、`ffmpeg.js`）で通す。yt-dlp の区間切り出しで作った **96kHz 音声のソースには数十 ms の pts の穴**（タイムスタンプだけ飛んでサンプルが無い）が混ざり、`async` 無しだと穴が AAC パケット 1 個の長い duration として残る。プレイヤーは pts を尊重するので穴以降の音声が遅れ、連結でクリップごとに積み上がる（2026-09 の 109 クリップ動画で 599ms）。`min_hard_comp` を 1ms に下げるのは、`async=1` だけだと既定 0.1 秒未満の穴が埋まらず、穴を捨てて音声が早まるため。44.1kHz のソースには穴は無い。
 - `execClip` の音声に `apad` + `-shortest` を足してはいけない。`encodeArgs` の `-r`（CFR）と組み合わさると `-shortest` が効かず、無限長になった音声に映像フレームが追従してセグメントが際限なく伸びる（映像 11 秒に対し音声 79 秒、完成動画 147 秒→876 秒を実測）。

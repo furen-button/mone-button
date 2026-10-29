@@ -501,24 +501,30 @@
         "chapters": {
           "type": "object",
           "additionalProperties": false,
-          "description": "チャプター生成。境界は直前のクリップと videoId が変わった位置。",
+          "description": "チャプター生成。既定はセリフ（クリップ）ごとに切り、10 秒未満は前から順にまとめる。",
           "properties": {
             "enabled": {
               "type": "boolean",
               "default": true,
               "description": "チャプター節を概要欄に出すかどうか。"
             },
+            "by": {
+              "type": "string",
+              "enum": ["clip", "stream"],
+              "default": "clip",
+              "description": "チャプターの切り方。clip はセリフごと（見出しはまとめたセリフを「 / 」でつなぎ、出典はチャプターごとのタイムスタンプ付き URL）、stream は直前のクリップと videoId が変わった位置（見出しは配信タイトル、出典は配信一覧）。"
+            },
             "minSec": {
               "type": "number",
               "exclusiveMinimum": 0,
               "default": 10,
-              "description": "1 チャプターの最短秒数。これ未満の区間は隣へ吸収する。YouTube の要件は 10 秒。"
+              "description": "1 チャプターの最短秒数。clip はこれに届くまで後続のクリップをまとめ、stream はこれ未満の区間を隣へ吸収する。YouTube の要件は 10 秒。"
             },
             "labels": {
               "type": "object",
               "additionalProperties": { "type": "string" },
               "default": {},
-              "description": "videoId ごとのチャプター名の上書き。未指定なら配信タイトルから【】を整形して使う。"
+              "description": "チャプター名の上書き。by=clip はチャプター先頭のクリップ名（base）、by=stream は videoId（videoId#2 で 2 回目の登場）で指定する。"
             }
           }
         }

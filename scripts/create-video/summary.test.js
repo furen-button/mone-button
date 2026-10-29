@@ -3,6 +3,8 @@ import { describe, it } from 'node:test';
 
 import {
   buildChapters,
+  buildClipSources,
+  buildMeta,
   buildSources,
   buildSummaryEntry,
   chapterLabelFor,
@@ -14,6 +16,7 @@ import {
 function entry(atSec, videoId, title, serif = 'せりふ') {
   return {
     atSec,
+    base: `${videoId}-${atSec}`,
     serif,
     videoId,
     title,
@@ -40,14 +43,16 @@ describe('chapterLabelFor', () => {
   });
 });
 
-describe('buildChapters', () => {
+describe('buildChapters（by: stream）', () => {
+  const stream = { by: 'stream' };
+
   it('videoId の変わり目で切り、先頭は必ず 0:00 にする', () => {
     const entries = [
       entry(1.5, 'aaa', 'A'), entry(20, 'aaa', 'A'),
       entry(40, 'bbb', 'B'),
       entry(70, 'ccc', 'C'),
     ];
-    const { chapters, warnings } = buildChapters(entries, 100);
+    const { chapters, warnings } = buildChapters(entries, 100, stream);
     assert.deepEqual(warnings, []);
     assert.deepEqual(chapters.map((c) => [c.time, c.videoId]), [
       ['0:00', 'aaa'], ['0:40', 'bbb'], ['1:10', 'ccc'],
@@ -61,7 +66,7 @@ describe('buildChapters', () => {
       entry(33, 'ccc', 'C'),
       entry(60, 'ddd', 'D'),
     ];
-    const { chapters } = buildChapters(entries, 100);
+    const { chapters } = buildChapters(entries, 100, stream);
     // bbb は 30→33 秒の 3 秒しかないので直前の aaa に吸収される
     assert.deepEqual(chapters.map((c) => c.videoId), ['aaa', 'ccc', 'ddd']);
   });
@@ -73,31 +78,92 @@ describe('buildChapters', () => {
       entry(40, 'ccc', 'C'),
       entry(70, 'ddd', 'D'),
     ];
-    const { chapters } = buildChapters(entries, 100);
+    const { chapters } = buildChapters(entries, 100, stream);
     assert.equal(chapters[0].sec, 0);
     assert.equal(chapters[0].videoId, 'bbb');
   });
 
   it('最終チャプターの長さは総尺から測る', () => {
     const entries = [entry(0, 'aaa', 'A'), entry(30, 'bbb', 'B'), entry(60, 'ccc', 'C')];
-    const short = buildChapters(entries, 63).chapters;
+    const short = buildChapters(entries, 63, stream).chapters;
     // ccc が 3 秒しかないので bbb に吸収され、3 個未満になって省かれる
     assert.deepEqual(short, []);
-    const enough = buildChapters(entries, 90).chapters;
+    const enough = buildChapters(entries, 90, stream).chapters;
     assert.equal(enough.length, 3);
   });
 
   it('3 個未満になったら警告してチャプターを省く', () => {
     const entries = [entry(0, 'aaa', 'A'), entry(30, 'bbb', 'B')];
-    const { chapters, warnings } = buildChapters(entries, 60);
+    const { chapters, warnings } = buildChapters(entries, 60, stream);
     assert.deepEqual(chapters, []);
     assert.equal(warnings.length, 1);
   });
 
   it('labels で videoId ごとに名前を上書きできる', () => {
     const entries = [entry(0, 'aaa', 'A'), entry(30, 'bbb', 'B'), entry(60, 'ccc', 'C')];
-    const { chapters } = buildChapters(entries, 90, { labels: { bbb: '手書きの名前' } });
+    const { chapters } = buildChapters(entries, 90, { ...stream, labels: { bbb: '手書きの名前' } });
     assert.equal(chapters[1].label, '手書きの名前');
+  });
+});
+
+describe('buildChapters（by: clip、既定）', () => {
+  it('セリフごとに切り、10 秒未満は前から順にまとめて見出しを「 / 」でつなぐ', () => {
+    const entries = [
+      entry(1.5, 'aaa', 'A', 'いち'), entry(5, 'aaa', 'A', 'に'), entry(15, 'aaa', 'A', 'さん'),
+      entry(30, 'bbb', 'B', 'よん'), entry(33, 'bbb', 'B', 'ご'), entry(45, 'ccc', 'C', 'ろく'),
+    ];
+    const { chapters, warnings } = buildChapters(entries, 60);
+    // 先頭は 0:00 から測るので、いち（0〜5 秒）は に と合わせて 15 秒になる。
+    assert.deepEqual(warnings, []);
+    assert.deepEqual(chapters.map((c) => [c.time, c.label]), [
+      ['0:00', 'いち / に'], ['0:15', 'さん'], ['0:30', 'よん / ご'], ['0:45', 'ろく'],
+    ]);
+  });
+
+  it('末尾だけ短く残ったら直前へ寄せる', () => {
+    const entries = [
+      entry(0, 'aaa', 'A', 'いち'), entry(12, 'aaa', 'A', 'に'),
+      entry(24, 'bbb', 'B', 'さん'), entry(36, 'bbb', 'B', 'よん'),
+    ];
+    const { chapters } = buildChapters(entries, 40);
+    assert.deepEqual(chapters.map((c) => c.label), ['いち', 'に', 'さん / よん']);
+  });
+
+  it('出典用にクリップ名と URL を持ち、labels はチャプター先頭のクリップ名で見出しを上書きする', () => {
+    const entries = [entry(0, 'aaa', 'A', 'いち'), entry(5, 'aaa', 'A', 'に'), entry(12, 'bbb', 'B'), entry(30, 'ccc', 'C')];
+    const { chapters } = buildChapters(entries, 45, { labels: { 'bbb-12': '手書きの名前' } });
+    assert.deepEqual(chapters[0].bases, ['aaa-0', 'aaa-5']);
+    assert.deepEqual(chapters[0].urls, ['https://youtube.com/watch?v=aaa&t=0s', 'https://youtube.com/watch?v=aaa&t=5s']);
+    assert.equal(chapters[1].label, '手書きの名前');
+  });
+
+  it('セリフが空のクリップだけのチャプターは配信タイトルから見出しを作る', () => {
+    const entries = [
+      entry(0, 'aaa', '【雑談】ほげ【梢桃音/にじさんじ】', ''), entry(15, 'bbb', 'B'), entry(30, 'ccc', 'C'),
+    ];
+    assert.equal(buildChapters(entries, 45).chapters[0].label, '雑談 - ほげ');
+  });
+});
+
+describe('buildClipSources', () => {
+  it('チャプターと同じまとまりで URL を並べ、チャプターが 3 個未満で省かれても出典は残す', () => {
+    const entries = [entry(0, 'aaa', 'A', 'いち'), entry(4, 'aaa', 'A', 'に'), entry(15, 'bbb', 'B', 'さん')];
+    assert.deepEqual(buildChapters(entries, 30).chapters, []);
+    assert.deepEqual(buildClipSources(entries, 30), [
+      { label: 'いち / に', urls: ['https://youtube.com/watch?v=aaa&t=0s', 'https://youtube.com/watch?v=aaa&t=4s'] },
+      { label: 'さん', urls: ['https://youtube.com/watch?v=bbb&t=15s'] },
+    ]);
+  });
+});
+
+describe('buildMeta のチャプター', () => {
+  it('by: clip のチャプターはクリップ名と出典 URL も残す', () => {
+    const entries = [entry(0, 'aaa', 'A'), entry(15, 'bbb', 'B'), entry(30, 'ccc', 'C')];
+    const { chapters } = buildChapters(entries, 45);
+    const meta = buildMeta({ entries, chapters, sources: [], summary: {}, totalSec: 45, videoOutPath: '/tmp/x.mp4' });
+    assert.deepEqual(meta.chapters[1], {
+      sec: 15, time: '0:15', label: 'せりふ', bases: ['bbb-15'], urls: ['https://youtube.com/watch?v=bbb&t=15s'],
+    });
   });
 });
 
@@ -138,6 +204,19 @@ describe('renderYoutubeDescription', () => {
   it('チャプターが空なら節ごと出さない', () => {
     const text = renderYoutubeDescription({ chapters: [], sources, summary: {} });
     assert.ok(!text.includes('▼チャプター'));
+  });
+
+  it('clipSources があればチャプターごとに見出しと URL を並べ、配信一覧は出さない', () => {
+    const clipSources = [
+      { label: 'いち / に', urls: ['https://example.test/1', 'https://example.test/2'] },
+      { label: 'さん', urls: ['https://example.test/3'] },
+    ];
+    const text = renderYoutubeDescription({ chapters, sources, clipSources, summary: {} });
+    assert.ok(text.includes('▼出典\nいち / に\nhttps://example.test/1\nhttps://example.test/2\n\nさん\nhttps://example.test/3'));
+    assert.ok(!text.includes('▼出典（配信一覧）'));
+    // 出典の見出しに時刻を付けると、YouTube がそれもチャプターとして読み取ってしまう。
+    const sourceLines = text.split('▼出典\n')[1].split('\n');
+    assert.ok(sourceLines.every((line) => !/^\d+:\d{2}/.test(line)));
   });
 });
 
@@ -190,6 +269,7 @@ describe('同じ配信が再登場するチャプター', () => {
       entry(0, 'aaa', 'A'), entry(30, 'bbb', 'B'), entry(60, 'aaa', 'A'),
     ];
     const { chapters } = buildChapters(entries, 90, {
+      by: 'stream',
       labels: { 'aaa#2': 'フィナーレ' },
     });
     assert.deepEqual(chapters.map((c) => c.label), ['A', 'B', 'フィナーレ']);
@@ -201,6 +281,7 @@ describe('同じ配信が再登場するチャプター', () => {
       entry(0, 'aaa', 'A'), entry(30, 'bbb', 'B'), entry(60, 'aaa', 'A'),
     ];
     const { chapters } = buildChapters(entries, 90, {
+      by: 'stream',
       labels: { aaa: '共通', 'aaa#2': '個別' },
     });
     assert.deepEqual(chapters.map((c) => c.label), ['共通', 'B', '個別']);

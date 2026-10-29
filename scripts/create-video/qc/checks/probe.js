@@ -202,12 +202,21 @@ function checkChapterTimes({ videoPath, manifest, config }) {
   if (chapters.length === 0) {
     return [result('info', 'probe_chapters_empty', 'meta.json にチャプターが無いため概要欄時刻の検査をスキップします。')];
   }
-  const expected = expectedChapterStarts(manifest);
+  // セリフごとのチャプター（by: clip）は、各チャプター先頭のクリップがどこから始まったかを manifest で引く。
+  // 配信ごと（by: stream）は manifest の videoId の変わり目から境界を組み立てる。
+  const byClip = chapters.every((chapter) => Array.isArray(chapter.bases) && chapter.bases.length > 0);
+  const expected = byClip
+    ? chapters.map((chapter, i) => (i === 0 ? 0 : blockStartFor(manifest, chapter.bases[0])))
+    : expectedChapterStarts(manifest);
   const threshold = Number(config.qc.thresholds.chapterDriftSec);
   const results = [];
   for (let i = 0; i < Math.min(chapters.length, expected.length); i++) {
     const actualSec = Number(chapters[i].sec);
     const expectedSec = expected[i];
+    if (expectedSec === null) {
+      results.push(result('warn', 'probe_chapter_clip_missing', `チャプター ${i + 1} の先頭クリップ ${chapters[i].bases[0]} が manifest にありません。`));
+      continue;
+    }
     const diff = Math.abs(actualSec - expectedSec);
     if (diff > threshold) {
       results.push(result(
@@ -218,10 +227,16 @@ function checkChapterTimes({ videoPath, manifest, config }) {
       ));
     }
   }
-  if (chapters.length !== expected.length) {
+  if (!byClip && chapters.length !== expected.length) {
     results.push(result('warn', 'probe_chapter_count', `meta.json のチャプター数 ${chapters.length} と manifest 境界数 ${expected.length} が違います。`));
   }
   return results;
+}
+
+// クリップのブロック先頭（区切りカードがあればその開始）。summary の時刻と同じ基準で比べる。
+function blockStartFor(manifest, base) {
+  const segment = (manifest.segments || []).find((s) => s.base === base);
+  return segment ? Math.round(Number(segment.atSec) || 0) : null;
 }
 
 function expectedChapterStarts(manifest) {

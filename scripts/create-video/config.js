@@ -219,6 +219,8 @@ export const DEFAULTS = {
     maxChars: 5000,
     chapters: {
       enabled: true,
+      // clip = セリフごと（10 秒未満はまとめる）/ stream = 配信が変わる位置。
+      by: 'clip',
       minSec: 10,
       labels: {},
     },
@@ -621,6 +623,10 @@ function validateTransitions(config, errors) {
   const layout = config.endcaps.ending?.layout;
   if (layout !== undefined && !['default', 'endscreen'].includes(layout)) {
     errors.push(`endcaps.ending.layout が不正です: ${layout}`);
+  }
+  const chaptersBy = config.summary?.chapters?.by;
+  if (chaptersBy !== undefined && !['clip', 'stream'].includes(chaptersBy)) {
+    errors.push(`summary.chapters.by が不正です: ${chaptersBy}`);
   }
 }
 
