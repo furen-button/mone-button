@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { generateRuby, transcribeClip } from '../../lib/devDataEditor'
 import type { KeyboardEvent } from 'react'
 import type { VoiceClip, VoiceData } from '../../voiceData'
+import { SerifSpacingPreview } from './SerifSpacingPreview'
 import { TrimEditor } from './TrimEditor'
 
 // dev 限定のクリップ編集モーダル。本番ビルドには含めない（App 側で import.meta.env.DEV でガード）。
@@ -189,6 +190,7 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
             value={serif}
             onChange={(event) => setSerif(event.target.value)}
           />
+          <SerifSpacingPreview serif={serif} />
         </div>
 
         <div className="clip-edit-field">

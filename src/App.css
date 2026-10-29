@@ -1135,6 +1135,59 @@
   line-height: 1.5;
 }
 
+.clip-edit-serif-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.clip-edit-serif-preview-text {
+  margin: 0;
+  border: 1px dashed #e0cdb6;
+  border-radius: 10px;
+  background: #fff7ed;
+  color: #3e2514;
+  font-size: 15px;
+  line-height: 1.8;
+  padding: 6px 11px;
+  word-break: break-all;
+}
+
+.clip-edit-serif-run.is-long {
+  border-radius: 3px;
+  background: #ffe58a;
+  box-shadow: inset 0 -2px 0 #e0a800;
+}
+
+.clip-edit-serif-space,
+.clip-edit-serif-newline {
+  display: inline-block;
+  margin: 0 2px;
+  border-radius: 3px;
+  background: rgba(116, 68, 211, 0.14);
+  color: #7444d3;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  padding: 0 3px;
+}
+
+.clip-edit-serif-wide-space {
+  outline: 1px dashed #c08a5a;
+  outline-offset: -2px;
+}
+
+.clip-edit-serif-preview-note {
+  margin: 0;
+  color: #8a6a52;
+  font-size: 12px;
+}
+
+.clip-edit-serif-preview-note.is-warn {
+  color: #a35a00;
+  font-weight: 700;
+}
+
 .clip-edit-input:focus,
 .clip-edit-textarea:focus {
   outline: none;
