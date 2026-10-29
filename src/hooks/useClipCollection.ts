@@ -5,9 +5,32 @@ import {
   voiceClips,
   type SortType,
   type StreamGroup,
+  type VoiceClip,
   type VoiceData,
 } from '../voiceData'
 import { withVideoCacheBust } from '../lib/videoPath'
+
+// 配信順（日付 → videoId → 開始秒）で比べる。direction は日付の向き。
+// 同じ日の中は常に昇順なので、同じ serif のボタンは buildSameSerifLabels の No の順に並ぶ。
+const compareByStream = (a: VoiceClip, b: VoiceClip, direction = 1): number => {
+  const dateA = a.videoFile.metadata.uploadDate
+  const dateB = b.videoFile.metadata.uploadDate
+
+  if (dateA !== dateB) {
+    return dateA > dateB ? direction : -direction
+  }
+
+  if (a.videoId !== b.videoId) {
+    return a.videoId.localeCompare(b.videoId, 'ja')
+  }
+
+  const startTimeDiff = a.trimming.startTime - b.trimming.startTime
+  if (startTimeDiff !== 0) {
+    return startTimeDiff
+  }
+
+  return a.serif.localeCompare(b.serif, 'ja')
+}
 
 type UseClipCollectionArgs = {
   selectedCategories: string[]
@@ -48,8 +71,9 @@ export function useClipCollection({ selectedCategories, sortType, playCounts, vi
   const sortedClips = useMemo(() => {
     const sorted = [...visibleClips]
 
+    // 読みが同じボタン（「あいさつ」など）は配信順に並べ、同じ日の No が前後しないようにする。
     if (sortType === 'reading') {
-      return sorted.sort((a, b) => a.ruby.localeCompare(b.ruby, 'ja'))
+      return sorted.sort((a, b) => a.ruby.localeCompare(b.ruby, 'ja') || compareByStream(a, b))
     }
 
     if (sortType === 'play-count') {
@@ -59,30 +83,12 @@ export function useClipCollection({ selectedCategories, sortType, playCounts, vi
           return countDiff
         }
 
-        return a.ruby.localeCompare(b.ruby, 'ja')
+        return a.ruby.localeCompare(b.ruby, 'ja') || compareByStream(a, b)
       })
     }
 
     const direction = sortType === 'stream-desc' ? -1 : 1
-    return sorted.sort((a, b) => {
-      const dateA = a.videoFile.metadata.uploadDate
-      const dateB = b.videoFile.metadata.uploadDate
-
-      if (dateA !== dateB) {
-        return dateA > dateB ? direction : -direction
-      }
-
-      if (a.videoId !== b.videoId) {
-        return a.videoId.localeCompare(b.videoId, 'ja')
-      }
-
-      const startTimeDiff = a.trimming.startTime - b.trimming.startTime
-      if (startTimeDiff !== 0) {
-        return startTimeDiff
-      }
-
-      return a.serif.localeCompare(b.serif, 'ja')
-    })
+    return sorted.sort((a, b) => compareByStream(a, b, direction))
   }, [sortType, visibleClips, playCounts])
 
   const streamGroups = useMemo(() => {
