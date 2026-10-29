@@ -321,7 +321,9 @@ export function buildAss(elements, { width, height, font }) {
     for (const box of boxDialogues(el, width, height)) {
       lines.push(dialogue(box));
     }
-    lines.push(dialogue(textDialogue(el, width, height)));
+    for (const text of textDialogues(el, width, height)) {
+      lines.push(dialogue(text));
+    }
     if (el.progress?.bar) {
       for (const bar of progressBarDialogues(el, width, height)) {
         lines.push(dialogue(bar));
@@ -334,6 +336,38 @@ export function buildAss(elements, { width, height, font }) {
 
 function dialogue({ layer = 1, start = '0:00:00.00', end = '9:59:59.99', text }) {
   return `Dialogue: ${layer},${start},${end},Default,,0,0,0,,${text}`;
+}
+
+// outlines（内側→外側の縁取り）があれば、外側ほど太い \bord を持つ同じ本文を外側から順に重ねる。
+// 同じ Layer の Dialogue は記述順に描かれるので、内側（本文の塗りが最後に乗る）を最後に出す。
+// 影は最外層だけに付ける。outlines が無ければ従来どおり 1 行だけ出す。
+function textDialogues(el, width, height) {
+  const outlines = normalizeOutlines(el.outlines);
+  if (outlines.length === 0) {
+    return [textDialogue(el, width, height)];
+  }
+  const out = [];
+  for (let k = outlines.length - 1; k >= 0; k--) {
+    const border = outlines.slice(0, k + 1).reduce((sum, item) => sum + item.width, 0);
+    const outermost = k === outlines.length - 1;
+    out.push(textDialogue({
+      ...el,
+      outline: border,
+      outlineColor: outlines[k].color,
+      shadow: outermost ? el.shadow : 0,
+      shadowColor: outermost ? el.shadowColor : undefined,
+    }, width, height));
+  }
+  return out;
+}
+
+function normalizeOutlines(outlines) {
+  if (!Array.isArray(outlines)) {
+    return [];
+  }
+  return outlines
+    .filter((item) => item && Number(item.width) > 0 && item.color)
+    .map((item) => ({ width: Number(item.width), color: item.color }));
 }
 
 function textDialogue(el, width, height) {
@@ -654,8 +688,9 @@ export function makeTextElement({ name, text, style, width, height, duration, in
   const stripped = stripEmoji(text);
   let wrapped = wrapText(stripped, maxUnitsFor(width, marginL, marginR, fs));
 
-  // 箱高さ上限に収める自動縮小。実際の折り返し結果を測り、収まる最大の整数 fs を選ぶ。
-  if (style.autoShrink && style.box?.enabled) {
+  // 高さ上限に収める自動縮小。実際の折り返し結果を測り、収まる最大の整数 fs を選ぶ。
+  // ボックスが無い場合は余白・枠を 0 として行数×行送りだけで測る。
+  if (style.autoShrink) {
     const lines = countLines(wrapped);
     if (lines > 1) {
       const minFs = Math.min(baseFs, fontSize(style.minSize ?? 0.05, height));
@@ -668,7 +703,7 @@ export function makeTextElement({ name, text, style, width, height, duration, in
         minFs,
         baseFs,
         budget,
-        box: style.box,
+        box: style.box?.enabled ? style.box : {},
       }));
     }
   }
@@ -694,6 +729,9 @@ export function makeTextElement({ name, text, style, width, height, duration, in
     karaoke: Boolean(style.karaoke),
     ...overrides,
   };
+  if (Array.isArray(style.outlines) && element.outlines === undefined) {
+    element.outlines = style.outlines;
+  }
   if (index !== undefined && total !== undefined) {
     element.progress = { index, total, bar: Boolean(style.bar) };
   }

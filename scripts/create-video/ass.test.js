@@ -304,3 +304,44 @@ describe('折り返し行の端の空白', () => {
     }
   });
 });
+
+describe('二重縁取り（outlines）', () => {
+  const style = {
+    enabled: true,
+    align: 'bottom-center',
+    size: 0.095,
+    color: 'FF4FA0',
+    bold: false,
+    shadow: 2,
+    box: { enabled: false },
+    outlines: [{ width: 9, color: 'FFFFFF' }, { width: 4, color: '6B3FA0' }],
+  };
+
+  function dialogues(element) {
+    return buildAss([element], { width: 1920, height: 1080, font: 'Hiragino Sans' })
+      .split('\n')
+      .filter((line) => line.startsWith('Dialogue:'));
+  }
+
+  it('外側から順に太い \\bord で重ね、影は最外層だけに付ける', () => {
+    const element = makeTextElement({ name: 'serif', text: 'ねえ', style, width: 1920, height: 1080, duration: 3 });
+    const lines = dialogues(element);
+    assert.equal(lines.length, 2);
+    assert.match(lines[0], /\\bord13\\3c&H00A03F6B&\\shad2/);
+    assert.match(lines[1], /\\bord9\\3c&H00FFFFFF&\\shad0/);
+    assert.ok(lines.every((line) => line.endsWith('ねえ')));
+  });
+
+  it('outlines が無ければ従来どおり 1 行だけ出す', () => {
+    const { outlines, ...plain } = style;
+    const element = makeTextElement({ name: 'serif', text: 'ねえ', style: plain, width: 1920, height: 1080, duration: 3 });
+    assert.equal(dialogues(element).length, 1);
+  });
+
+  it('ボックスが無くても autoShrink で maxHeight に収める', () => {
+    const shrinkStyle = { ...style, autoShrink: true, minSize: 0.05, maxHeight: 0.24 };
+    const element = makeTextElement({ name: 'serif', text: 'あ'.repeat(40), style: shrinkStyle, width: 1920, height: 1080, duration: 3 });
+    assert.ok(element.size < fontSizeForTest(0.095, 1080));
+    assert.ok(boxHeightFor(countLines(element.text), element.size, 0, 0) <= Math.round(1080 * 0.24));
+  });
+});
