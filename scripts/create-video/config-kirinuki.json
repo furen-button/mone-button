@@ -116,6 +116,7 @@
     },
     "ending": {
       "enabled": true,
+      "video": "assets/create-video/endcard-pink-04-pop-bg035.mp4",
       "duration": 20,
       "layout": "endscreen",
       "font": "Hiragino Sans W9",
