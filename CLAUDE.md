@@ -89,6 +89,7 @@ npm run import   # sync → extract → download を一括実行
 | `config-matome-01.json` | 名場面集 #1。`select.mode files` に 99 件を固定し、概要欄の文言も入る |
 | `config-hq.json` | **公開用 高画質のひな形**。`source cache` 1080p + zoom punch + 顔回避 + Anime4K 補正 + カード/OP/ED。`--videoId` で配信を指定する |
 | `config-category.json` | **カテゴリ横断まとめのひな形**。`select.mode category`（既定は「やられ」）。OP タイトルはカテゴリ名から自動生成される |
+| `config-kirinuki.json` | **切り抜き風のひな形**。紫の 1 行帯（日付 + 配信タイトル、左に進行・右に元動画時刻）+ ボックス無しの二重縁取りセリフ + 配信が変わる所だけホイップパン + 20 秒のエンドスクリーン。OP・区切りカード・zoom 無し、`source cache` + Anime4K。`select.mode category`（既定は「やられ」） |
 
 ```
 npm run createVideo -- --videoId gr9WJDYS_u0
@@ -109,7 +110,10 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 - タイトル文言は `--title` > `telops.title.overrides[videoId]` > `telops.title.text` > `clip.data.title` > メタタイトル（絵文字除去）の順で解決する。手動改行は `telops.title.overrides` の文字列へ直接入れるか、CLI では `--title '上段\n下段'` のように 2 文字の `\n` で渡せる。
 - セリフテロップは `public/data/*.json` の `serif` に生の改行を書ける。動画生成では手動改行を強制改行の起点として扱い、各セグメント内で自動折り返しと禁則処理を行う。Web サイト表示用の `serif` は `src/voiceData.ts` で改行を無かったものとして正規化する（元から空白で区切られていた箇所は空白を残し、語中で折っただけの箇所は詰める）ため、JSON 側の改行は保持される。
 - `wrapText` は行頭禁則（句読点、終わり括弧、小書き仮名など）と行末禁則（始め括弧）を分割位置の後退で避ける。ぶら下げは使わない。`maxUnits < 4` では禁則と泣き別れ回避を無効化し、行数が増える場合も禁則より行数維持を優先する。折り返し後は各行の行頭・行末の空白を落とす（`\an5` の中央寄せでは行端の空白がその行だけ中心をずらすため）。
-- `autoShrink` は実際に折り返した行数から `boxHeightFor(lines, fs, pad, border)` を測り、二分探索で高さ上限に収まる最大の整数フォントサイズを選ぶ。`minSize` が `size` より大きい場合でも拡大しない。
+- `autoShrink` は実際に折り返した行数から `boxHeightFor(lines, fs, pad, border)` を測り、二分探索で高さ上限に収まる最大の整数フォントサイズを選ぶ。`minSize` が `size` より大きい場合でも拡大しない。ボックスが無いときは `pad`・`border` を 0 として行数×行送りだけで測る。
+- `telops.*.outlines`（`[{ width, color }, ...]` 内側→外側）で二重縁取りにできる。外側ほど太い `\bord` の同じ本文を外側から同じ Layer に重ね（同 Layer は記述順に描かれる）、影は最外層だけに付ける。未指定なら従来どおり 1 行。
+- `serif` の強調記法: `{語}` は `telops.serif.emphasis.color`（既定 `FFD800`）、`{語|RRGGBB}` はその色で描く。閉じていない括弧・空の括弧は従来どおり文字（全角 ｛｝）。折り返し・autoShrink・QC の矩形は記号を除いた本文で測り、`wrapText` 自体は変えない（`wrap-golden.json` を守るため、記号除去 → 折り返し → 色の再適用の順）。強調は `serif` という名前のテロップ（クリップのセリフ・区切りカードの nextSerif）だけで解く。概要欄・固定コメント・ED の一覧・Web サイト（`src/voiceData.ts`）では記号だけを落とす。
+- `telops.title.format` に `{date}`（YYYY/MM/DD）と `{title}` を書くと日付と配信タイトルを 1 本の文言にする（`telops.date.enabled: false` と併用）。`singleLine: true` で `marginH` の内側に 1 行で収まるまで `size` から `minSize` へ縮め、それでも入らなければタイトル末尾を「…」で省く。`--title` / `overrides` はタイトル部分だけを置き換える。帯の最低高さは `box.minHeight`（既定 0.07）で下げられる。
 
 注意:
 - 2 行タイトルは横幅も約 1711px（1080p）まで伸びるため、`telops.date`（top-right）と `telops.progress`（top-left）に重なることがある。公開用プリセットでは `telops.title.marginH: 0.16` 程度へ広げて回避する。
@@ -147,6 +151,10 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 クリップ JSON では `effects.zoom` で個別上書きできる。`false` は抑止、`true` は短尺/平坦スキップを無視して自動検出、`{"at": 2.5, "scale": 1.4, "x": 0.8, "y": 0.75}` は開始秒・倍率・焦点を手動指定、`{"mode": "full"}` はそのクリップだけ全編アップにする（`mode` はグローバル設定より優先。`at` 指定時は punch 扱い）。`--no-zoom` はグローバル kill switch として個別指定より優先する。
 
 `telops.serif.avoidFace`（既定 有効）で、セリフボックスが演者の顔と重なるクリップだけ、顔の無い側へ寄せて幅を狭める。ボックスは画面下端に張り付いていて下へ逃がせないため、顔の左右どちらか広い側に収める（既定プリセットでは右に立つ演者を避けて左寄せになり、幅 1612px → 約 1180px）。顔は zoom と同じ `detect_anime_face.py` でクリップ全体から `frames`（既定 3）枚を抜いて検出し、検出した矩形はすべてまとめて避ける。zoom が効くクリップでは切り出し後の座標へ変換してから判定する。`gap`（既定 0.0125 = 24px）は顔との間隔、`minWidth`（既定 0.45）は狭めた幅の下限で、満たせないときは全幅のままにして QC が `serif_face_fallback` を warn で知らせる。顔が検出できない・重ならないときは従来どおり。折り返し幅もボックスに合わせて狭くなるため行数が増えることがある。`--avoid-face` / `--no-avoid-face` でグローバルに切り替え、クリップ JSON の `effects.avoidFace` で `false`（抑止）/ `true` / `{"side": "left"|"right"}`（寄せる側を指定）を個別指定できる。判断は render.json の `avoidFace` に残る。
+
+`transitions`（既定 `mode: none`）は、クリップ同士の繋ぎ目に横モーションブラーのホイップパン（`type: whip`）を入れる。`stream` は直前のクリップと videoId が変わる繋ぎ目だけ、`all` はすべての繋ぎ目。区切りカードがあるとクリップが隣り合わないので、`cards.enabled: false` のときだけ効く。出る側は自分のセグメントの末尾 `duration/2` 秒（既定 0.25 秒、片側はクリップ尺の 1/3 まで）で加速しながら左へ流れ、入る側は先頭 `duration/2` 秒で右から減速して止まる。画面を横に回り込ませる 2 枚の `overlay`（`eval=frame` の `t` 式）と、速さに比例した横だけの `gblur`（`sigmaV=0`）を 1 フレームずつ `enable` で掛ける。ブラーが最大の瞬間に切り替わるので、2 本を素のカットで繋いでも継ぎ目は見えない。テロップを焼いた後に掛けるので帯もセリフも画面ごと流れる。各セグメントの中で完結するため、concat-vcopy・manifest の実尺・summary の時刻・still の共有経路は変わらない（still でトランジション中の時刻を指定すれば本番と同じ絵になる）。入る側の先頭に `transitions.se`（既定 `assets/create-video/シーン切り替え1.mp3`、gitignore 済みの素材なので各自で置く）を、`AUDIO_RESAMPLE` 後のクリップ音声へ `amix duration=first` で重ねる。この SE 単体は -18 LUFS と台詞（-23 LUFS）より大きいので、`config-kirinuki` は `volume: 0.5` にしている（1.0 だと QC の `loudness_segment_range` が 3 LU を超えた）。render.json のセグメントに `transition`（`in` / `out` の区間と SE）が残り、QC の pHash とテロップ焼き込みは入りの区間を避けて測る。
+
+`endcaps.ending.layout: endscreen` で ED を YouTube の終了画面用の枠にする。背景は最後のクリップの最終フレームをぼかして暗くした静止画（`endscreen.background.type: lastClip`、`-sseof -0.5` で末尾だけ読んで 1 枚を `tpad` で複製）。画面ほぼいっぱいの枠を 1 つ描き、上辺左寄りに「おすすめアーカイブはこちら」、下辺右寄りに「登録がまだの方はこちら」を置いて、ラベルの所だけ枠線を途切れさせる。途切れの幅は `elementTextRect` の推定（全角 1 字 = 文字サイズ、QC 向けに広め）ではなく、libass で Hiragino を描いた実測（全角 1 字 ≈ 文字サイズ × 0.66、`frame.glyphRatio`）から求める。音声は無音（カード SE も鳴らさない）。ソースが無ければ `cards.background` に戻し、still は `card_background_fallback` を出す。要素（動画・登録ボタン）は YouTube Studio 側で置く。
 
 `effects.enhance`（既定 無効）は、Anime4K の GLSL シェーダを ffmpeg の `libplacebo` フィルタで掛けるアニメ向け線補正。YouTube 1080p の圧縮でにじんだ線を整える用途で、`--source cache` の 1080p ソースを想定する。scale+pad+fps の後に等倍の復元（`restore`、既定 `Restore_CNN_M`）を入れ、zoom の切り出し後の拡大を lanczos から CNN（`upscale`、既定 `Upscale_CNN_x2_M`）に置き換える（Anime4K 公式の Mode A = Restore → Upscale の順。1080p に復元を 2 回掛けると過剰シャープになるので 1 回だけ）。シェーダ名は `Anime4K_` 接頭辞と `.glsl` を除いた形で、`Restore_CNN_{S,M,L,VL,UL}` / `Restore_CNN_Soft_*`（軽いボケ向き）/ `Upscale_CNN_x2_*` から選ぶ。サイズは 1 段上がるごとに処理時間が約 2 倍。`Anime4K_Clamp_Highlights` を先頭に付けて元より明るくならないよう抑える（`clampHighlights`）。`minSourceHeight`（既定 720）未満のソースには掛けないので `public/videos`（256×144）は自動で対象外。ソースを差し替えるのではなくフィルタ列に入るだけなので、キャッシュ・中間ファイル・追加バイナリは無く、顔検出やテロップ座標も変わらない。`--enhance` / `--no-enhance` でグローバルに切り替え、クリップ JSON の `effects.enhance` で `false` / `true`（`minSourceHeight` を無視）/ `{"restore": "Restore_CNN_Soft_M", "upscale": null}` を個別指定できる。判断は render.json の `enhance` に残り、libplacebo が使えない・シェーダが無いときは警告して補正なしで続行し、QC が `enhance_fallback` を warn で知らせる（`required: true` なら error で停止）。
 
@@ -228,6 +236,7 @@ http://localhost:5173/mone-button/editor.html?tab=preview&preset=config-mone.jso
 ```
 
 - 画面は `クリップ`（select の編集、files + as-listed のときドラッグ&ドロップ / Alt+↑↓ で並べ替え、「この選択を files に固定」）/ `プレビュー`（`npm run still` と同じレンダラで 1 フレーム、矩形オーバーレイ、セリフ改行の試し、`public/data に保存` と `プリセットに保存` の 2 ボタン。`OP / カード / クリップ / ED` の切り替えで区切りカードと OP/ED も見られる）/ `設定`（`config.schema.json` から生成したフォーム。明示 / 継承 / 未保存の 3 状態、× で継承に戻す、「継承項目を隠す」で差分ビュー）/ `ビルド`（`--limit` などを選んで createVideo を起動、SSE ログ、結果の動画・QC・コンタクトシート）/ `概要欄`（`.youtube.txt` / `.comment*.txt` / `meta.json` のコピー）。「＋ 新規」で `config-<name>.json` を空または複製で作る
+- 設定フォームの種類は `$defs` の名前で決まる（`scripts/dev-server/lib/schema-walk.js` と `src/editor/schema-form/resolveSchema.ts` の `SPECIAL_DEFS`）。縁取りの配列（`$defs/outlines`）は 1 層 1 行の専用欄、`transitions` は「効果」タブに出る。オブジェクトの配列を新しく足すときは専用の種類を作らないと `schema walk classification` のテストが落ちる
 - 保存は **`raw ∪ dirty`**（触った項目だけをファイルへ当てる）。解決済み全体や DEFAULTS からの差分は書かない。空 patch の保存は無変更。検証失敗でも保存は止めない
 - 未保存の draft は `cache/createVideo/editor/<preset>.draft.json` に書き、検証（`runPreflight`）とプレビュー（`renderStill`）はそれを `--config` で読む。ビルドは保存済みプリセットで走る
 - API は `/__cv/*`（`plugins/vite-plugin-create-video.ts` → `scripts/dev-server/handlers/*.js`）。ハンドラは遅延 import なので **`scripts/dev-server/**` や `scripts/create-video/**` を直したら dev サーバを再起動する**（`r` + Enter）
