@@ -139,6 +139,18 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
     }
   }
 
+  // 波形の下までスクロールしなくても保存できるよう、上部と下部の両方に置く。
+  const saveButton = (
+    <button
+      type="button"
+      className="clip-edit-save"
+      onClick={() => void handleSave()}
+      disabled={status === 'saving' || generating}
+    >
+      {status === 'saving' ? '保存中…' : '保存'}
+    </button>
+  )
+
   return (
     <div className="clip-edit-backdrop" role="presentation" onClick={handleClose}>
       <section
@@ -149,8 +161,15 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
         onClick={(event) => event.stopPropagation()}
       >
         <header className="clip-edit-header">
-          <h2 className="clip-edit-title">クリップ編集 <span className="clip-edit-badge">DEV</span></h2>
-          <p className="clip-edit-filename">{clip.fileBaseName}.json</p>
+          <div className="clip-edit-header-text">
+            <h2 className="clip-edit-title">クリップ編集 <span className="clip-edit-badge">DEV</span></h2>
+            <p className="clip-edit-filename">{clip.fileBaseName}.json</p>
+          </div>
+          <div className="clip-edit-header-actions">
+            {status === 'saved' ? <span className="clip-edit-header-status is-saved">✓ 保存しました</span> : null}
+            {status === 'error' ? <span className="clip-edit-header-status is-error">⚠ 保存に失敗しました</span> : null}
+            {saveButton}
+          </div>
         </header>
 
         <TrimEditor clip={clip} onSaved={onSaved} />
@@ -263,14 +282,7 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
           <button type="button" className="clip-edit-cancel" onClick={handleClose}>
             閉じる
           </button>
-          <button
-            type="button"
-            className="clip-edit-save"
-            onClick={() => void handleSave()}
-            disabled={status === 'saving' || generating}
-          >
-            {status === 'saving' ? '保存中…' : '保存'}
-          </button>
+          {saveButton}
         </div>
       </section>
     </div>

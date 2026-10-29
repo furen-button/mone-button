@@ -816,8 +816,38 @@
 
 .clip-edit-header {
   display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.clip-edit-header-text {
+  display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
+}
+
+.clip-edit-header-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.clip-edit-header-status {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.clip-edit-header-status.is-saved {
+  color: #2f7a3e;
+}
+
+.clip-edit-header-status.is-error {
+  color: #b3402b;
 }
 
 .clip-edit-title {
