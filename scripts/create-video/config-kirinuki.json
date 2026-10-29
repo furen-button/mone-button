@@ -24,7 +24,7 @@
       "size": 0.03,
       "minSize": 0.022,
       "marginH": 0.11,
-      "format": "{date} {title}",
+      "format": "{title}",
       "singleLine": true,
       "font": "Hiragino Sans W8",
       "color": "FFFFFF",
@@ -47,7 +47,11 @@
       ]
     },
     "date": {
-      "enabled": false
+      "enabled": true,
+      "align": "top-left",
+      "size": 0.03,
+      "color": "FFFFFF",
+      "marginV": 0.0125
     },
     "time": {
       "enabled": true,
@@ -95,13 +99,7 @@
       }
     },
     "progress": {
-      "enabled": true,
-      "align": "top-left",
-      "size": 0.03,
-      "color": "FFFFFF",
-      "marginV": 0.0125,
-      "format": "{i} / {n}",
-      "bar": false
+      "enabled": false
     }
   },
   "cards": {

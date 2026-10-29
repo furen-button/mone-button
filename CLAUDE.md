@@ -89,7 +89,7 @@ npm run import   # sync → extract → download を一括実行
 | `config-matome-01.json` | 名場面集 #1。`select.mode files` に 99 件を固定し、概要欄の文言も入る |
 | `config-hq.json` | **公開用 高画質のひな形**。`source cache` 1080p + zoom punch + 顔回避 + Anime4K 補正 + カード/OP/ED。`--videoId` で配信を指定する |
 | `config-category.json` | **カテゴリ横断まとめのひな形**。`select.mode category`（既定は「やられ」）。OP タイトルはカテゴリ名から自動生成される |
-| `config-kirinuki.json` | **切り抜き風のひな形**。紫の 1 行帯（日付 + 配信タイトル、左に進行・右に元動画時刻）+ ボックス無しの二重縁取りセリフ + 配信が変わる所だけホイップパン + ED はピンクの肉球背景の 10 秒エンドカード動画（`endcaps.ending.video` = `assets/create-video/endcard-pink-04-pop-bg035.mp4`。gitignore 済みの素材で、無ければ 20 秒のエンドスクリーンを生成する）。OP・区切りカード・zoom 無し、`source cache` + Anime4K。`select.mode category`（既定は「やられ」） |
+| `config-kirinuki.json` | **切り抜き風のひな形**。紫の 1 行帯（配信タイトル、左に日付・右に元動画時刻。進行表示は無し）+ ボックス無しの二重縁取りセリフ + 配信が変わる所だけホイップパン + ED はピンクの肉球背景の 10 秒エンドカード動画（`endcaps.ending.video` = `assets/create-video/endcard-pink-04-pop-bg035.mp4`。gitignore 済みの素材で、無ければ 20 秒のエンドスクリーンを生成する）。OP・区切りカード・zoom 無し、`source cache` + Anime4K。`select.mode category`（既定は「やられ」） |
 
 ```
 npm run createVideo -- --videoId gr9WJDYS_u0
