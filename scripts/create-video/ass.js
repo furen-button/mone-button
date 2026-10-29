@@ -297,6 +297,85 @@ export function escapeAssText(text) {
     .replace(/\r?\n/g, '\\N');
 }
 
+// serif の強調記法。`{語}` は強調色、`{語|RRGGBB}` はその色で描く。
+// 閉じていない括弧や中身が空のものは記法とみなさず、従来どおり文字として残す（escapeAssText が全角にする）。
+const EMPHASIS_PATTERN = /\{([^{}|]+)(?:\|([0-9A-Fa-f]{6}))?\}/g;
+
+// 記号を取り除いた本文と、強調区間（本文の code point 位置、end は含まない）を返す。
+export function parseEmphasis(text) {
+  const source = String(text ?? '');
+  const spans = [];
+  let plain = '';
+  let plainLength = 0;
+  let last = 0;
+  for (const match of source.matchAll(EMPHASIS_PATTERN)) {
+    const before = source.slice(last, match.index);
+    plain += before;
+    plainLength += [...before].length;
+    const inner = match[1];
+    const innerLength = [...inner].length;
+    spans.push({
+      start: plainLength,
+      end: plainLength + innerLength,
+      color: match[2] ? match[2].toUpperCase() : null,
+    });
+    plain += inner;
+    plainLength += innerLength;
+    last = match.index + match[0].length;
+  }
+  plain += source.slice(last);
+  return { plain, spans };
+}
+
+// テロップ以外（概要欄・固定コメント・一覧など）で serif を出すときは記号だけを落とす。
+export function stripEmphasis(text) {
+  return parseEmphasis(text).plain;
+}
+
+// 折り返し後の各文字が、記号を除いた本文のどの位置に当たるかを返す（改行は -1）。
+// 折り返しで落ちるのは区切りの空白と改行だけなので、本文を先頭から照合すれば位置がずれない。
+function mapWrappedToPlain(wrapped, plain) {
+  const plainChars = [...plain];
+  const out = [];
+  let cursor = 0;
+  for (const ch of wrapped) {
+    if (ch === '\n') {
+      out.push(-1);
+      continue;
+    }
+    while (cursor < plainChars.length && plainChars[cursor] !== ch) {
+      cursor++;
+    }
+    out.push(cursor < plainChars.length ? cursor : -1);
+    cursor++;
+  }
+  return out;
+}
+
+// 折り返し済みの本文に強調色を当てた ASS 本文を作る。ASS の色指定は \N をまたいで続くので、
+// 強調区間が行をまたいでもそのまま続け、区間の終わりで基本色へ戻す。
+function emphasizedAssText(el) {
+  const chars = [...String(el.text)];
+  const positions = mapWrappedToPlain(el.text, el.emphasis.plain);
+  const baseColor = el.color || 'FFFFFF';
+  let current = null;
+  let out = '';
+  for (const [index, ch] of chars.entries()) {
+    if (ch === '\n') {
+      out += '\\N';
+      continue;
+    }
+    const span = el.emphasis.spans.find((item) => positions[index] >= item.start && positions[index] < item.end);
+    const color = span ? (span.color || el.emphasis.color) : null;
+    if (color !== current) {
+      out += `{\\1c${assOverrideColor(color || baseColor)}}`;
+      current = color;
+    }
+    out += escapeAssText(ch);
+  }
+  return out;
+}
+
 export function escapeFilterPath(p) {
   return p.replace(/\\/g, '\\\\').replace(/:/g, '\\:').replace(/'/g, "\\'");
 }
@@ -394,7 +473,14 @@ function textDialogue(el, width, height) {
   if (el.shadowColor) overrides.push(`\\4c${assOverrideColor(el.shadowColor, shadowAlpha(el.shadowColor))}`);
   if (el.fade) overrides.push(`\\fad(${Number(el.fade[0] || 0)},${Number(el.fade[1] || 0)})`);
 
-  const escaped = el.karaoke ? karaokeText(el.text, el.duration) : escapeAssText(el.text);
+  let escaped;
+  if (el.karaoke) {
+    escaped = karaokeText(el.text, el.duration);
+  } else if (el.emphasis?.spans?.length) {
+    escaped = emphasizedAssText(el);
+  } else {
+    escaped = escapeAssText(el.text);
+  }
   return {
     layer: el.layer ?? 5,
     start: el.start,
@@ -685,7 +771,9 @@ export function makeTextElement({ name, text, style, width, height, duration, in
   const marginL = overrides.marginL ?? marginH;
   const marginR = overrides.marginR ?? marginH;
   let fs = baseFs;
-  const stripped = stripEmoji(text);
+  // serif だけ強調記法（{語} / {語|RRGGBB}）を解く。折り返し・縮小・矩形の計測は記号を除いた本文で行う。
+  const emphasis = name === 'serif' ? parseEmphasis(stripEmoji(text)) : null;
+  const stripped = emphasis ? emphasis.plain : stripEmoji(text);
   let wrapped = wrapText(stripped, maxUnitsFor(width, marginL, marginR, fs));
 
   // 高さ上限に収める自動縮小。実際の折り返し結果を測り、収まる最大の整数 fs を選ぶ。
@@ -731,6 +819,13 @@ export function makeTextElement({ name, text, style, width, height, duration, in
   };
   if (Array.isArray(style.outlines) && element.outlines === undefined) {
     element.outlines = style.outlines;
+  }
+  if (emphasis?.spans.length) {
+    element.emphasis = {
+      plain: stripped,
+      spans: emphasis.spans,
+      color: style.emphasis?.color || 'FFD800',
+    };
   }
   if (index !== undefined && total !== undefined) {
     element.progress = { index, total, bar: Boolean(style.bar) };

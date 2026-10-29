@@ -4,6 +4,7 @@ import { describe, it } from 'node:test';
 import {
   buildChapters,
   buildSources,
+  buildSummaryEntry,
   chapterLabelFor,
   renderCommentList,
   renderYoutubeDescription,
@@ -235,5 +236,17 @@ describe('分割した固定コメントの出典', () => {
   it('途中の同じ配信ではタイトルを繰り返さない', () => {
     const [chunk] = renderCommentList(entries, 100000);
     assert.equal(chunk.split('配信タイトルA').length - 1, 1);
+  });
+});
+
+describe('buildSummaryEntry の強調記法', () => {
+  it('serif の {語} / {語|RRGGBB} は記号を落として固定コメントに出す', () => {
+    const clip = {
+      videoId: 'abc',
+      startTime: 12,
+      meta: { title: '配信', uploadDate: '20240622' },
+      data: { serif: 'なんか{キャサリン}が今\n{すごい|9B59D0}気に' },
+    };
+    assert.equal(buildSummaryEntry(clip, 0).serif, 'なんかキャサリンが今 すごい気に');
   });
 });

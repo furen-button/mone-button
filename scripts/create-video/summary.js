@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { formatTimestamp } from './ass.js';
+import { formatTimestamp, stripEmphasis } from './ass.js';
 
 // 出力は 3 系統。用途ごとに文字数上限も分割方針も違うため 1 ファイルにまとめない。
 //   <name>.comment.txt … 固定コメント用のクリップ単位一覧
@@ -26,7 +26,8 @@ export function summaryPathsFor(videoOutPath) {
 // チャプター境界の判定と出典一覧に videoId / sourceUrl が要るので併せて持つ。
 export function buildSummaryEntry(clip, atSec) {
   const meta = clip.meta || {};
-  const serif = String(clip.data?.serif || '').replace(/\s*\n\s*/g, ' ').trim();
+  // 強調記法（{語} / {語|RRGGBB}）はテロップ専用なので、概要欄・固定コメントでは記号を落とす。
+  const serif = stripEmphasis(String(clip.data?.serif || '')).replace(/\s*\n\s*/g, ' ').trim();
   const startSec = Math.round(Number(clip.startTime) || 0);
   const clipUrl = clip.data?.clipUrl
     || (clip.videoId ? `https://youtube.com/watch?v=${clip.videoId}&t=${startSec}s` : '');

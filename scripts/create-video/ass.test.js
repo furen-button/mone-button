@@ -12,8 +12,10 @@ import {
   escapeAssText,
   makeTextElement,
   maxUnitsFor,
+  parseEmphasis,
   resolveTitleText,
   stripEmoji,
+  stripEmphasis,
   wrapText,
 } from './ass.js';
 import { DEFAULTS, deepMerge } from './config.js';
@@ -343,5 +345,66 @@ describe('二重縁取り（outlines）', () => {
     const element = makeTextElement({ name: 'serif', text: 'あ'.repeat(40), style: shrinkStyle, width: 1920, height: 1080, duration: 3 });
     assert.ok(element.size < fontSizeForTest(0.095, 1080));
     assert.ok(boxHeightFor(countLines(element.text), element.size, 0, 0) <= Math.round(1080 * 0.24));
+  });
+});
+
+describe('強調記法', () => {
+  it('{語} と {語|RRGGBB} を本文と区間に分ける', () => {
+    const parsed = parseEmphasis('なんか{キャサリン}が今{すごい|9b59d0}気に');
+    assert.equal(parsed.plain, 'なんかキャサリンが今すごい気に');
+    assert.deepEqual(parsed.spans, [
+      { start: 3, end: 8, color: null },
+      { start: 10, end: 13, color: '9B59D0' },
+    ]);
+  });
+
+  it('閉じていない括弧や空の括弧は記法とみなさない', () => {
+    assert.equal(stripEmphasis('a{b'), 'a{b');
+    assert.equal(stripEmphasis('a{}b'), 'a{}b');
+    assert.equal(stripEmphasis('{x|ZZZZZZ}'), '{x|ZZZZZZ}');
+  });
+
+  it('serif の ASS に強調色を当て、区間の後で基本色へ戻す', () => {
+    const element = makeTextElement({
+      name: 'serif',
+      text: 'これ{ほら}?',
+      style: { enabled: true, align: 'bottom-center', size: 0.08, color: 'FF4FA0', box: { enabled: false } },
+      width: 1920,
+      height: 1080,
+      duration: 3,
+    });
+    assert.equal(element.text, 'これほら?');
+    const ass = buildAss([element], { width: 1920, height: 1080, font: 'Hiragino Sans' });
+    assert.match(ass, /これ\{\\1c&H0000D8FF&\}ほら\{\\1c&H00A04FFF&\}\?$/m);
+  });
+
+  it('強調区間が折り返しをまたいでも色が続き、記号は文字数に数えない', () => {
+    const element = makeTextElement({
+      name: 'serif',
+      text: `${'あ'.repeat(8)}{${'い'.repeat(8)}|00FF00}`,
+      style: { enabled: true, align: 'bottom-center', size: 150, color: 'FFFFFF', box: { enabled: false } },
+      width: 1920,
+      height: 1080,
+      duration: 3,
+    });
+    assert.equal(countLines(element.text), 2);
+    assert.equal(stripEmphasis(element.text.replace('\n', '')), `${'あ'.repeat(8)}${'い'.repeat(8)}`);
+    const body = buildAss([element], { width: 1920, height: 1080, font: 'Hiragino Sans' }).trim().split('\n').at(-1);
+    const greenRun = body.slice(body.indexOf('{\\1c&H0000FF00&}'));
+    assert.ok(greenRun.includes('\\N'));
+    assert.equal(greenRun.replace(/\{[^}]*\}|\\N/g, ''), 'い'.repeat(8));
+  });
+
+  it('serif 以外のテロップでは括弧を記法として解かない', () => {
+    const element = makeTextElement({
+      name: 'title',
+      text: '{企画}',
+      style: { enabled: true, align: 'top-center', size: 0.03, box: { enabled: false } },
+      width: 1920,
+      height: 1080,
+      duration: 3,
+    });
+    assert.equal(element.text, '{企画}');
+    assert.equal(element.emphasis, undefined);
   });
 });

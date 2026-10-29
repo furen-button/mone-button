@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { buildAss, formatDate, makeTextElement, resolveTitleText, stripEmoji } from './ass.js';
+import { buildAss, formatDate, makeTextElement, resolveTitleText, stripEmoji, stripEmphasis } from './ass.js';
 import { deepMerge, resolveProjectPath } from './config.js';
 import { cacheThumbnail, optionalAsset } from './assets.js';
 import { AUDIO_RESAMPLE, encodeArgs, streamSignature, subtitlesFilter } from './ffmpeg.js';
@@ -172,7 +172,7 @@ export function buildCardElements({ kind, clip, clips, index, total, config, siz
     if (config.endcaps.ending.listClips) {
       elements.push(makeTextElement({
         name: 'ending-list',
-        text: clips.slice(0, 8).map((item, i) => `${i + 1}. ${item.data.serif || item.base}`).join('\n'),
+        text: clips.slice(0, 8).map((item, i) => `${i + 1}. ${stripEmphasis(item.data.serif || '') || item.base}`).join('\n'),
         style: { enabled: true, align: 'bottom-center', size: 0.03, color: 'FFFFFF', font: config.endcaps.ending.font },
         width: size.width,
         height: size.height,
