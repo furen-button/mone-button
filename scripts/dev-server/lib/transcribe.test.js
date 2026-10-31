@@ -5,7 +5,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { toRuby, resolveWhisperConfig, buildWhisperArgs, cleanTranscript } from './transcribe.js';
 
-test('toRuby: 実辞書で読みを生成し数字・英字・長音・小書き仮名を保持する', async () => {
+test('toRuby: 実辞書で読みを生成し数字・英字・長音・小書き仮名を保持し、半角カナはひらがなにする', async () => {
   const cases = [
     ['恋愛スペシャリストって 呼ばれてるの', 'れんあいすぺしゃりすとってよばれてるの'],
     ['わぁ人がいっぱいいる', 'わぁひとがいっぱいいる'],
@@ -14,6 +14,12 @@ test('toRuby: 実辞書で読みを生成し数字・英字・長音・小書き
     ['', ''],
     ['！？ （）★\t', ''],
     ['クォッピョー', 'くぉっぴょー'],
+    // 半角カナは全角に揃えてからひらがなにする（濁点の合成・長音 ｰ・前後の語との混在）
+    ['ｲｷﾞｬｰﾘ！', 'いぎゃーり'],
+    ['朝からｲｷﾞｬｰﾘ！', 'あさからいぎゃーり'],
+    [':_ノーマルもねゴン:ｲｷﾞｬｰﾘ', 'のーまるもねごんいぎゃーり'],
+    ['ﾊﾟﾌｪ食べたい', 'ぱふぇたべたい'],
+    ['ﾞ', ''],
   ];
   await Promise.all(cases.map(async ([text, expected]) => {
     assert.equal(await toRuby(text), expected, text);
