@@ -1,0 +1,37 @@
+{
+  "videoId": "z7nvxm2Oi8A",
+  "serif": "ｲｷﾞｬ-ﾘ カンカン 認めません！ え み み 認められないんですか？",
+  "ruby": "いぎゃりかんかんみとめませんえみみみとめられないんですか",
+  "categories": [
+    "異議あり"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=z7nvxm2Oi8A&t=8129s",
+  "memo": "yt-comment-archiver: ライブチャット「ｲｷﾞｬｰﾘ!」「ｲｷﾞｬｰﾘ!」「ｲｷﾞｬｰﾘ」「ｲｷﾞｬｰﾘ！:_ノーマルもねゴン:」 @2:15:37",
+  "liveChat": {
+    "message": "ｲｷﾞｬｰﾘ!",
+    "at": 8137,
+    "streamStartedAt": "2026-09-30T23:01:04+09:00"
+  },
+  "trimming": {
+    "startTime": 8129.716310751104,
+    "endTime": 8138.000552282769,
+    "duration": 8.284241531664211,
+    "original": {
+      "startTime": 8117,
+      "endTime": 8147,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "z7nvxm2Oi8A",
+      "title": "【Leaf it Alone】深夜のChill🍂秋の夜長はまったり落ち葉掃除【にじさんじ/梢桃音】",
+      "duration": 8409,
+      "thumbnail": "https://i.ytimg.com/vi/z7nvxm2Oi8A/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260930",
+      "viewCount": 21196,
+      "url": "https://www.youtube.com/watch?v=z7nvxm2Oi8A"
+    }
+  }
+}
