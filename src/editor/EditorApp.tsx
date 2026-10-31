@@ -10,7 +10,7 @@ import { PreviewPanel } from './panels/PreviewPanel'
 import { SettingsPanel } from './panels/SettingsPanel'
 import { isSettingsTabId, type SettingsTabId } from './panels/settingsTabs'
 import { SummaryPanel } from './panels/SummaryPanel'
-import { EditorContextProvider } from './schema-form/EditorContext'
+import { EditorContextProvider } from './schema-form/EditorContextProvider'
 import { collectSchemaPathKeys, errorPathFromMessage, pathKey } from './schema-form/resolveSchema'
 import {
   applyPatch,
