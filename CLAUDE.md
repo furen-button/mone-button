@@ -66,7 +66,7 @@ npm run import   # sync → extract → download を一括実行
 
 - `npm run sync` … `youtube-clip-tool/output/json` を再帰探索し、未取込の JSON を `raw/` へコピー（既存はスキップ）。同期元は環境変数 `CLIP_TOOL_OUTPUT` で上書き可。
 - `npm run extract` … `raw/*.json` を整形し `public/data/<YYYY-MM-DD>-<videoId>-<start>-<end>.json` を生成。**既存ファイルはスキップ**（`public/data` で手入力した serif/ruby/categories を保護）。
-- `npm run download` … `public/data/*.json` を元に yt-dlp で区間DL＋200p/crf28圧縮し `public/videos/*.mp4` を生成（既存mp4はスキップ。要 yt-dlp / ffmpeg-normalize）。
+- `npm run download` … `public/data/*.json` を元に yt-dlp で区間DL＋200p/crf28圧縮し `public/videos/*.mp4` を生成（既存mp4はスキップ。要 yt-dlp / ffmpeg-normalize）。 yt-dlp が使う ffmpeg には再接続と 20 秒の読み取りタイムアウトを渡す（googlevideo が無応答だと素の ffmpeg は永久に固まり、途中で切断されると映像だけ短いファイルを成功扱いで残すため。5 秒だと遅いサーバの初回応答に間に合わない）。DL 直後に ffprobe で映像尺をトリム尺と比べ、250ms 超短い・読めない・yt-dlp の異常終了・15 分超（SIGINT で中断。yt-dlp が ffmpeg に q を送って止める）のときは `_temp.mp4` と `.part` を消して 1 回だけ再 DL する。それでも失敗したクリップはスキップして末尾に一覧を出し、終了コード 1 にする。テストは `scripts/download.test.js`。
 
 注意:
 - serif / ruby / categories の入力は **youtube-clip-tool 側で行う**（取込後に上書きされない）。既存クリップの内容を直したい場合は `public/data` を直接編集するか、当該ファイルを削除して再取込する。
