@@ -1662,3 +1662,285 @@
     padding: 10px;
   }
 }
+
+/* ---- dev 限定: 要対応の表示（scripts/dev-server/lib/clip-review.js の判定） ---- */
+
+/* 種類ごとの小さなチップ。カードのバッジと編集モーダルの要対応パネルで共有する。 */
+.review-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.review-chip.is-video {
+  background: #fde2dc;
+  border-color: #f3b9ae;
+  color: #8f2d1d;
+}
+
+.review-chip.is-trim {
+  background: #ffe9cf;
+  border-color: #f2c998;
+  color: #7a4300;
+}
+
+.review-chip.is-ruby {
+  background: #efe3ff;
+  border-color: #d9c2f2;
+  color: #5a2f9e;
+}
+
+.review-chip.is-serif {
+  background: #fff1b8;
+  border-color: #ead27a;
+  color: #6e5000;
+}
+
+.review-chip.is-acked {
+  background: #e8f6ea;
+  border-color: #cfe8d3;
+  color: #2f7a3e;
+}
+
+/* カード。mp4 が無いものは再生できないので、枠を赤の破線にして斜めの縞で遠目にも分かるようにする。 */
+.voice-card.is-missing-video {
+  border: 1px dashed #e07a6a;
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.92) 0 12px,
+    rgba(253, 226, 220, 0.9) 12px 24px
+  );
+}
+
+.voice-card-review {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: auto;
+}
+
+/* 並び替えの下の DEV ツールバー。編集ボタンと同じ紫の破線で dev 専用だと分かるようにする。 */
+.dev-review-toolbar {
+  margin: -8px 0 22px;
+  padding: 10px 14px;
+  border: 1px dashed rgba(183, 139, 216, 0.72);
+  border-radius: 16px;
+  background: rgba(106, 63, 176, 0.16);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: center;
+  justify-content: center;
+}
+
+.dev-review-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 248, 242, 0.88);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.dev-review-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dev-review-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(255, 248, 242, 0.24);
+  border-radius: 999px;
+  padding: 6px 11px;
+  background: rgba(255, 250, 244, 0.08);
+  color: #fff3e8;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    background-color 0.22s ease;
+}
+
+.dev-review-chip:hover {
+  transform: translateY(-1px);
+}
+
+.dev-review-chip:focus-visible {
+  outline: 3px solid rgba(255, 198, 226, 0.88);
+  outline-offset: 2px;
+}
+
+.dev-review-chip.is-active {
+  background: #fff3e8;
+  border-color: #fff3e8;
+  color: #3e2514;
+}
+
+.dev-review-chip.is-active.is-video {
+  background: #fde2dc;
+  border-color: #fde2dc;
+  color: #8f2d1d;
+}
+
+.dev-review-chip.is-active.is-trim {
+  background: #ffe9cf;
+  border-color: #ffe9cf;
+  color: #7a4300;
+}
+
+.dev-review-chip.is-active.is-ruby {
+  background: #efe3ff;
+  border-color: #efe3ff;
+  color: #5a2f9e;
+}
+
+.dev-review-chip.is-active.is-serif {
+  background: #fff1b8;
+  border-color: #fff1b8;
+  color: #6e5000;
+}
+
+.dev-review-count {
+  min-width: 20px;
+  border-radius: 999px;
+  padding: 0 6px;
+  background: rgba(0, 0, 0, 0.24);
+  font-size: 11px;
+  text-align: center;
+}
+
+.dev-review-chip.is-active .dev-review-count {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.dev-review-note {
+  margin: 0;
+  width: 100%;
+  color: rgba(255, 248, 242, 0.64);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* 編集モーダルの要対応パネル。 */
+.clip-edit-review {
+  margin: 0;
+  border: 1px solid #e6d8c7;
+  border-radius: 12px;
+  background: #fff7ed;
+  padding: 10px 12px;
+}
+
+.clip-edit-review.is-ok {
+  border-color: #cfe8d3;
+  background: #e8f6ea;
+  color: #2f7a3e;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.clip-edit-review-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.clip-edit-review-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  color: #3e2514;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.clip-edit-review-item.is-acked {
+  color: #8a6a52;
+}
+
+.clip-edit-review-message {
+  flex: 1 1 240px;
+}
+
+.clip-edit-review-ack {
+  border: 1px solid #d5c2ab;
+  border-radius: 8px;
+  background: #f7efe5;
+  color: #7a5a44;
+  padding: 4px 9px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.clip-edit-review-ack:hover {
+  background: #f1e6d8;
+}
+
+.clip-edit-review-ack:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* 区切りプレビューの半角 ! ?。全角の文に混ざると細く詰まって見えるので、赤で囲って目立たせる。 */
+.clip-edit-serif-halfwidth {
+  display: inline-block;
+  margin: 0 1px;
+  border-radius: 3px;
+  background: rgba(211, 63, 73, 0.14);
+  box-shadow: inset 0 -2px 0 #e06a5a;
+  color: #b3402b;
+  font-weight: 700;
+  padding: 0 3px;
+}
+
+.clip-edit-serif-preview-note.has-action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+/* 編集モーダルの削除。保存から遠い左端に置き、1 回目で赤く塗って「もう一度押すと削除」にする。 */
+.clip-edit-delete {
+  margin-right: auto;
+  border: 1px dashed #e0a497;
+  border-radius: 999px;
+  background: #fdf0ed;
+  color: #b3402b;
+  font-weight: 700;
+  padding: 9px 16px;
+  cursor: pointer;
+}
+
+.clip-edit-delete:hover {
+  background: #fbe3dd;
+}
+
+.clip-edit-delete.is-armed {
+  border-style: solid;
+  border-color: #b3402b;
+  background: #b3402b;
+  color: #fff;
+}
+
+.clip-edit-delete:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

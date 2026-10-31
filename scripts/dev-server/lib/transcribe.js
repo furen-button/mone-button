@@ -26,15 +26,21 @@ function getTokenizer() {
   return tokenizerPromise;
 }
 
+// 半角カナ（U+FF61〜U+FF9F。濁点・半濁点・長音 ｰ を含む）の区間だけ NFKC で全角カタカナに揃える。
+// kuromoji は半角カナを未知語として表層形のまま返すので、揃えないと読みに半角カナが残る。
+// 全文に NFKC を掛けないのは、全角英数や記号まで変わって読みの見た目が変わるのを避けるため。
+const HALFWIDTH_KANA_RUN = /[\uFF61-\uFF9F]+/gu;
+
 export async function toRuby(text) {
   const tokenizer = await getTokenizer();
-  return tokenizer.tokenize(text).map((token) => {
+  const normalized = text.replace(HALFWIDTH_KANA_RUN, (run) => run.normalize('NFKC'));
+  return tokenizer.tokenize(normalized).map((token) => {
     // 数字・英字は辞書に読みがあっても表層形を保持する。
     const reading = /[\p{Number}\p{Script=Latin}]/u.test(token.surface_form)
       ? token.surface_form
       : token.reading && token.reading !== '*' ? token.reading : token.surface_form;
     return reading.replace(/[ァ-ヶ]/gu, (char) => String.fromCharCode(char.charCodeAt(0) - 0x60));
-  }).join('').replace(/[\p{Punctuation}\p{Symbol}\p{Separator}\p{Other}\s]/gu, '');
+  }).join('').replace(/[\p{Punctuation}\p{Symbol}\p{Separator}\p{Other}\p{Mark}\s]/gu, '');
 }
 
 // Whisper と音声抽出はプロセス内で 1 件ずつ実行する。失敗しても次の処理を止めない。

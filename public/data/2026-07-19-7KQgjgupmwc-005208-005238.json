@@ -1,0 +1,37 @@
+{
+  "videoId": "7KQgjgupmwc",
+  "serif": "ｲｷﾞｬｰﾘ",
+  "ruby": "いぎゃーり",
+  "categories": [
+    "異議あり"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=7KQgjgupmwc&t=5221s",
+  "memo": "yt-comment-archiver: ライブチャット「ｲｷﾞｬｰﾘ」「ｲｷﾞｬｰﾘ!」「ｲｷﾞｬｰﾘ！」「ｲｷﾞｬｰﾘ!」「ｲｷﾞｬｰﾘ!」「ｲｷﾞｬｰﾘうおおおおおお」「ｲｷﾞｬｰﾘ!!!」「ｲｷﾞｬｰﾘ」「ｲｷﾞｬｰﾘ!!」「ｲｷﾞｬｰﾘ!」「ｲｷﾞｬｰﾘ!」「ｲｷﾞｬｰﾘ！」「チキンにイギャーリ！」「ｲｷﾞｬｰﾘ!!」 @1:27:08",
+  "liveChat": {
+    "message": "ｲｷﾞｬｰﾘ",
+    "at": 5228,
+    "streamStartedAt": "2026-07-19T13:02:45+09:00"
+  },
+  "trimming": {
+    "startTime": 5221.723536450662,
+    "endTime": 5222.530559646539,
+    "duration": 0.8070231958762903,
+    "original": {
+      "startTime": 5208,
+      "endTime": 5238,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "7KQgjgupmwc",
+      "title": "【昼】にじ３Ｄでお昼ご飯🍗レッドホットチキンとグリーンホットウィング🤤【にじさんじ/梢桃音】",
+      "duration": 7577,
+      "thumbnail": "https://i.ytimg.com/vi/7KQgjgupmwc/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260719",
+      "viewCount": 12158,
+      "url": "https://www.youtube.com/watch?v=7KQgjgupmwc"
+    }
+  }
+}

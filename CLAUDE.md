@@ -66,14 +66,16 @@ npm run import   # sync → extract → download を一括実行
 
 - `npm run sync` … `youtube-clip-tool/output/json` を再帰探索し、未取込の JSON を `raw/` へコピー（既存はスキップ）。同期元は環境変数 `CLIP_TOOL_OUTPUT` で上書き可。
 - `npm run extract` … `raw/*.json` を整形し `public/data/<YYYY-MM-DD>-<videoId>-<start>-<end>.json` を生成。**既存ファイルはスキップ**（`public/data` で手入力した serif/ruby/categories を保護）。
-- `npm run download` … `public/data/*.json` を元に yt-dlp で区間DL＋200p/crf28圧縮し `public/videos/*.mp4` を生成（既存mp4はスキップ。要 yt-dlp / ffmpeg-normalize）。
+- `npm run download` … `public/data/*.json` を元に yt-dlp で区間DL＋200p/crf28圧縮し `public/videos/*.mp4` を生成（既存mp4はスキップ。要 yt-dlp / ffmpeg-normalize）。 yt-dlp が使う ffmpeg には再接続と 20 秒の読み取りタイムアウトを渡す（googlevideo が無応答だと素の ffmpeg は永久に固まり、途中で切断されると映像だけ短いファイルを成功扱いで残すため。5 秒だと遅いサーバの初回応答に間に合わない）。DL 直後に ffprobe で映像尺をトリム尺と比べ、250ms 超短い・読めない・yt-dlp の異常終了・15 分超（SIGINT で中断。yt-dlp が ffmpeg に q を送って止める）のときは `_temp.mp4` と `.part` を消して 1 回だけ再 DL する。それでも失敗したクリップはスキップして末尾に一覧を出し、終了コード 1 にする。テストは `scripts/download.test.js`。
 
 注意:
 - serif / ruby / categories の入力は **youtube-clip-tool 側で行う**（取込後に上書きされない）。既存クリップの内容を直したい場合は `public/data` を直接編集するか、当該ファイルを削除して再取込する。
-- dev サイトのクリップ編集モーダルの「🎤 文字起こし」は、ローカルの `whisper-cli` と Whisper モデルで現在の mp4 全体を文字起こしする。`WHISPER_CLI` / `WHISPER_MODEL_PATH` / `WHISPER_LANGUAGE` は `.env`・`.env.local` またはプロセス環境変数で設定できる（プロセス環境変数を優先）。`WHISPER_MODEL_PATH`（モデルの絶対パス）は必須で既定値は無く、マシン固有の値なので git 管理外の `.env.local` に書く。ruby は kuromoji で生成し、手修正後は「serif から読みを作る」で再生成できる。結果は入力欄に入り、**「保存」を押すまで JSON に書き込まない**。設定エディタ `editor.html` は対象外。
+- dev サイトのクリップ編集モーダルの「🎤 文字起こし」は、ローカルの `whisper-cli` と Whisper モデルで現在の mp4 全体を文字起こしする。`WHISPER_CLI` / `WHISPER_MODEL_PATH` / `WHISPER_LANGUAGE` は `.env`・`.env.local` またはプロセス環境変数で設定できる（プロセス環境変数を優先）。`WHISPER_MODEL_PATH`（モデルの絶対パス）は必須で既定値は無く、マシン固有の値なので git 管理外の `.env.local` に書く。ruby は kuromoji で生成し（半角カナは NFKC で全角に揃えてからひらがなにする）、手修正後は「serif から読みを作る」で再生成できる。結果は入力欄に入り、**「保存」を押すまで JSON に書き込まない**。設定エディタ `editor.html` は対象外。
+- dev サイトのクリップ編集モーダルの serif 区切りプレビューは、半角の `!` `?` を赤く囲って示し、「！？ 全角にする」で serif の半角 `!` `?` を全角 `！` `？` に置き換える（保存まで JSON には書かない）。フッター左の「🗑 削除」は 2 回押し（1 回目で「もう一度押すと削除」に変わり 4 秒で戻る）で、情報モーダルの削除と同じく json と mp4 を `trash/` へ退避してモーダルを閉じる。高画質キャッシュは退避しない。
 - dev サイトのクリップ編集モーダルでは、波形を見ながら先頭・末尾を **短縮のみ** でトリムできる。ファイル名は変えず、旧 `public/videos` は `trash/videos`、高画質キャッシュは `trash/cache` へ退避して次回 createVideo で再 DL させる。
 - 波形の「この範囲を別クリップに切り出す」は、元の JSON・mp4・高画質キャッシュを残して新しい JSON と mp4 を作る。serif / ruby / categories / memo 等は元 JSON からコピーする（`effects.zoom.at` もクリップ先頭からの秒を補正せずコピーし、既存トリムと同じ扱い）。ファイル名は `<YYYY-MM-DD>-<videoId>-<pad6(floor(startTime))>-<pad6(floor(endTime))>`（日付は元ファイル名優先、なければ uploadDate）で、同名の JSON または mp4 があれば 409 で止める。切り出しても ASS golden が変わるため、意図どおりなら `npm run golden:ass` で更新する。
 - トリムすると `public/data` 全体を見ている ASS golden が変わる。意図したトリム後は `npm run golden:ass` で `scripts/create-video/__fixtures__/ass-golden.json` を更新する。
+- dev サイトでは各カードに要対応バッジ（📥 未DL / ✂️ 未カット / 🔤 ルビ / ␣ 区切り）を出し、並び替えの下の DEV ツールバーで件数の確認と種類ごとの絞り込み（絞り込み中はカテゴリの選択を無視）ができる。判定は `scripts/dev-server/lib/clip-review.js` に 1 か所で持つ。未DL は `public/videos` に mp4 が無い（`GET /__data/status` の一覧。タブに戻ると取り直す）、未カットは `trimming.original` が無く長さが 30 秒（youtube-clip-tool の ±15 秒窓）のまま、ルビは toRuby の字種（ひらがな・長音・数字・英字）以外を含むか空、区切りは半角スペース無しで 15 字超。編集モーダルの要対応パネルの「このままで良い」で JSON に `review`（`trim: true` / `ruby` / `serif` は確認したときの値）を記録でき、値が変わる・波形で切ると確認は自動で外れる。詳細は docs/tasks/10-30-clip-review-status.md。
 - データは build 時に glob 取込されるため、取り込み後の表示反映には `npm run dev` または `npm run build` が必要。
 
 詳細は docs/tasks/06-19-clip-import.md を参照。

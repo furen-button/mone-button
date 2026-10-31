@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { generateRuby, transcribeClip } from '../../lib/devDataEditor'
 import type { KeyboardEvent } from 'react'
 import { normalizeSerifForDisplay } from '../../voiceData'
-import type { VoiceClip, VoiceData } from '../../voiceData'
+import type { ClipReview, VoiceClip, VoiceData } from '../../voiceData'
+import { reviewClip, toFullwidthPunctuation } from '../../../scripts/dev-server/lib/clip-review.js'
+import type { AcknowledgeableIssueKind } from '../../../scripts/dev-server/lib/clip-review.js'
+import { ClipReviewPanel } from './ClipReviewPanel'
 import { SerifSpacingPreview } from './SerifSpacingPreview'
 import { TrimEditor } from './TrimEditor'
 
@@ -12,19 +15,25 @@ import { TrimEditor } from './TrimEditor'
 type ClipEditModalProps = {
   clip: VoiceClip
   categorySuggestions: string[]
+  // public/videos に mp4 があるか。undefined は未確認（動画の有無は判定しない）。
+  hasVideo?: boolean
+  // json と mp4 を trash/ へ退避する。成功したら呼び出し側がモーダルを閉じる。失敗時は例外を投げる。
+  onDelete?: (clip: VoiceClip) => Promise<void>
   onClose: () => void
   onSaved: (fileBaseName: string, updated: VoiceData, options?: { cacheBustVideo?: boolean }) => void
 }
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
-export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: ClipEditModalProps) {
+export function ClipEditModal({ clip, categorySuggestions, hasVideo, onDelete, onClose, onSaved }: ClipEditModalProps) {
   // 表示用に改行・強調記法を落とした serif ではなく JSON の値から始める。そのまま保存しても、
   // まとめ動画のテロップ用の改行と強調記法が消えないように。
   const [serif, setSerif] = useState(clip.rawSerif)
   const [ruby, setRuby] = useState(clip.ruby)
   const [memo, setMemo] = useState(clip.memo)
   const [categories, setCategories] = useState<string[]>(clip.categories)
+  // 「このままで良い」の記録。保存するまで JSON には書かない。
+  const [review, setReview] = useState<ClipReview>(clip.review ?? {})
   const [newCategory, setNewCategory] = useState('')
   const [status, setStatus] = useState<SaveStatus>('idle')
   const [errorMessage, setErrorMessage] = useState('')
@@ -32,10 +41,22 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
   const [generationMessage, setGenerationMessage] = useState('')
   const [generationError, setGenerationError] = useState(false)
   const generationRequest = useRef<AbortController | null>(null)
+  // 削除は 2 回押し。1 回目で「もう一度押すと削除」に変わり、4 秒押さなければ戻る。
+  const [deleteArmed, setDeleteArmed] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
 
   useEffect(() => () => {
     generationRequest.current?.abort()
   }, [clip.fileBaseName])
+
+  useEffect(() => {
+    if (!deleteArmed) {
+      return
+    }
+    const timer = window.setTimeout(() => setDeleteArmed(false), 4000)
+    return () => window.clearTimeout(timer)
+  }, [deleteArmed])
 
   const handleClose = () => {
     generationRequest.current?.abort()
@@ -87,6 +108,51 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
   }
 
   const generating = generation !== null
+  // 保存・生成・削除のどれかが走っている間は、ほかの書き込み操作を止める。
+  const busy = generating || status === 'saving' || deleting
+
+  const handleDelete = async () => {
+    if (!onDelete) {
+      return
+    }
+    if (!deleteArmed) {
+      setDeleteArmed(true)
+      return
+    }
+    setDeleteArmed(false)
+    setDeleting(true)
+    setDeleteError('')
+    try {
+      // 成功すると呼び出し側がモーダルを閉じる（このコンポーネントはアンマウントされる）。
+      await onDelete(clip)
+    } catch (error) {
+      setDeleteError(error instanceof Error ? error.message : String(error))
+      setDeleting(false)
+    }
+  }
+
+  // 入力中の値で要対応を判定する（JSON と同じ形にして渡す）。trim の判定は clip の trimming から。
+  const reviewResult = reviewClip({ ...clip, serif, ruby, review }, { hasVideo })
+
+  const acknowledge = (kind: AcknowledgeableIssueKind) => {
+    setReview((current) => {
+      if (kind === 'trim') {
+        return { ...current, trim: true }
+      }
+      if (kind === 'ruby') {
+        return { ...current, ruby }
+      }
+      return { ...current, serif }
+    })
+  }
+
+  const revoke = (kind: AcknowledgeableIssueKind) => {
+    setReview((current) => {
+      const next = { ...current }
+      delete next[kind]
+      return next
+    })
+  }
 
   const addCategory = (value: string) => {
     const trimmed = value.trim()
@@ -126,6 +192,7 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
           ruby,
           memo,
           categories,
+          review,
         }),
       })
 
@@ -137,6 +204,8 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
       const updated = (await response.json()) as VoiceData
       onSaved(clip.fileBaseName, updated)
       setCategories(updated.categories)
+      // サーバ側で今の値と合わない記録は落ちるので、戻ってきた値に揃える。
+      setReview(updated.review ?? {})
       setStatus('saved')
     } catch (error) {
       setStatus('error')
@@ -150,7 +219,7 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
       type="button"
       className="clip-edit-save"
       onClick={() => void handleSave()}
-      disabled={status === 'saving' || generating}
+      disabled={busy}
     >
       {status === 'saving' ? '保存中…' : '保存'}
     </button>
@@ -177,12 +246,27 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
           </div>
         </header>
 
-        <TrimEditor clip={clip} onSaved={onSaved} />
+        <ClipReviewPanel
+          result={reviewResult}
+          review={review}
+          savedReview={clip.review}
+          disabled={busy}
+          onAcknowledge={acknowledge}
+          onRevoke={revoke}
+        />
+
+        <TrimEditor clip={clip} hasVideo={hasVideo} onSaved={onSaved} />
 
         <div className="clip-edit-field">
           <div className="clip-edit-label-row">
             <label className="clip-edit-label" htmlFor="clip-edit-serif">serif（セリフ）</label>
-            <button type="button" className="clip-edit-generate" disabled={generating || status === 'saving'} onClick={() => void handleGenerate('transcribe')}>
+            <button
+              type="button"
+              className="clip-edit-generate"
+              disabled={busy || hasVideo === false}
+              title={hasVideo === false ? '動画が未ダウンロードのため文字起こしできません' : undefined}
+              onClick={() => void handleGenerate('transcribe')}
+            >
               {generation === 'transcribe' ? '文字起こし中…' : '🎤 文字起こし'}
             </button>
           </div>
@@ -194,13 +278,17 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
             value={serif}
             onChange={(event) => setSerif(event.target.value)}
           />
-          <SerifSpacingPreview serif={serif} />
+          <SerifSpacingPreview
+            serif={serif}
+            disabled={busy}
+            onFullwidthPunctuation={() => setSerif((current) => toFullwidthPunctuation(current))}
+          />
         </div>
 
         <div className="clip-edit-field">
           <div className="clip-edit-label-row">
             <label className="clip-edit-label" htmlFor="clip-edit-ruby">ruby（読み・並び替えキー）</label>
-            <button type="button" className="clip-edit-generate" disabled={generating || status === 'saving'} onClick={() => void handleGenerate('ruby')}>
+            <button type="button" className="clip-edit-generate" disabled={busy} onClick={() => void handleGenerate('ruby')}>
               {generation === 'ruby' ? '読みを生成中…' : 'serif から読みを作る'}
             </button>
           </div>
@@ -283,8 +371,20 @@ export function ClipEditModal({ clip, categorySuggestions, onClose, onSaved }: C
           </p>
         ) : null}
         {status === 'error' ? <p className="clip-edit-status is-error">⚠ {errorMessage}</p> : null}
+        {deleteError ? <p className="clip-edit-status is-error">⚠ 削除に失敗しました: {deleteError}</p> : null}
 
         <div className="clip-edit-actions">
+          {onDelete ? (
+            <button
+              type="button"
+              className={deleteArmed ? 'clip-edit-delete is-armed' : 'clip-edit-delete'}
+              onClick={() => void handleDelete()}
+              disabled={busy}
+              title="json と mp4 を trash/ へ退避します（2 回押し）"
+            >
+              {deleting ? '削除中…' : deleteArmed ? 'もう一度押すと削除' : '🗑 削除'}
+            </button>
+          ) : null}
           <button type="button" className="clip-edit-cancel" onClick={handleClose}>
             閉じる
           </button>

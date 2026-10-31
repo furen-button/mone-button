@@ -1,0 +1,37 @@
+{
+  "videoId": "G2T0DLX-P7Q",
+  "serif": "ｲｷﾞｬｰﾘ!",
+  "ruby": "いぎゃーり",
+  "categories": [
+    "異議あり"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=G2T0DLX-P7Q&t=8665s",
+  "memo": "yt-comment-archiver: ライブチャット「ｲｷﾞｬｰﾘ!」「ｲｷﾞｬ-ﾘ！」「ｲｷﾞｬｰﾘ！」「ｲｷﾞｬｰﾘ:double_exclamation_mark:︎」「ｲｷﾞｬｰﾘ！」 @2:24:31",
+  "liveChat": {
+    "message": "ｲｷﾞｬｰﾘ!",
+    "at": 8671,
+    "streamStartedAt": "2026-05-02T12:01:52+09:00"
+  },
+  "trimming": {
+    "startTime": 8665.88609167894,
+    "endTime": 8667.714147643594,
+    "duration": 1.8280559646539025,
+    "original": {
+      "startTime": 8651,
+      "endTime": 8681,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "G2T0DLX-P7Q",
+      "title": "【逆転裁判 蘇る逆転】完全初見￤５話から！開廷だ～！！！！※ネタバレ注意【にじさんじ/梢桃音】",
+      "duration": 13157,
+      "thumbnail": "https://i.ytimg.com/vi/G2T0DLX-P7Q/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260502",
+      "viewCount": 12516,
+      "url": "https://www.youtube.com/watch?v=G2T0DLX-P7Q"
+    }
+  }
+}

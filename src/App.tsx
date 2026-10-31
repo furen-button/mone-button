@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { AmbientLayer } from './components/AmbientLayer'
 import { AnalyticsConsentBanner } from './components/AnalyticsConsentBanner'
@@ -7,6 +7,7 @@ import { AppHeader } from './components/AppHeader'
 import { CategoryToolbar } from './components/CategoryToolbar'
 import { InfoModal } from './components/InfoModal'
 import { ClipEditModal } from './components/dev/ClipEditModal'
+import { DevReviewToolbar } from './components/dev/DevReviewToolbar'
 import { PlaybackControls } from './components/PlaybackControls'
 import { SortToolbar } from './components/SortToolbar'
 import { ToastLayer } from './components/ToastLayer'
@@ -15,6 +16,7 @@ import { VolumeDock } from './components/VolumeDock'
 import { useAnalyticsConsent } from './hooks/useAnalyticsConsent'
 import { useCategoryFilter } from './hooks/useCategoryFilter'
 import { useClipCollection } from './hooks/useClipCollection'
+import { useDevVideoStatus } from './hooks/useDevVideoStatus'
 import { useLocaleController } from './hooks/useLocaleController'
 import { usePlayback } from './hooks/usePlayback'
 import { usePlayCounts } from './hooks/usePlayCounts'
@@ -32,6 +34,8 @@ import {
   type VoiceClip,
   type VoiceData,
 } from './voiceData'
+import { ISSUE_KINDS, summarizeReviews } from '../scripts/dev-server/lib/clip-review.js'
+import type { ClipIssueKind } from '../scripts/dev-server/lib/clip-review.js'
 
 // npm run dev のときだけ有効なクリップ編集機能のフラグ。本番ビルドでは false に畳まれ、
 // ClipEditModal を含む編集 UI は tree-shake で除去される。
@@ -51,12 +55,32 @@ function App() {
 
   const [sortType, setSortType] = useState<SortType>('reading')
   const [videoVersions, setVideoVersions] = useState<Record<string, number>>({})
-  const { sortedClips, streamGroups, clipIndexMap, sameSerifLabels, applyClipOverride, removeClip } = useClipCollection({
+
+  // dev 限定: 要対応バッジの元になる mp4 の一覧と、種類での絞り込み。
+  const { videos, refreshVideos } = useDevVideoStatus(enableDevEditor)
+  const [issueFilter, setIssueFilter] = useState<ReadonlySet<ClipIssueKind> | null>(null)
+  const reviewOptions = useMemo(
+    () => (enableDevEditor ? { videos, filter: issueFilter } : undefined),
+    [videos, issueFilter],
+  )
+
+  const {
+    sortedClips,
+    streamGroups,
+    clipIndexMap,
+    sameSerifLabels,
+    reviews,
+    totalClipCount,
+    applyClipOverride,
+    removeClip,
+  } = useClipCollection({
     selectedCategories,
     sortType,
     playCounts,
     videoVersions,
+    review: reviewOptions,
   })
+  const reviewSummary = useMemo(() => (reviews ? summarizeReviews(reviews.values()) : undefined), [reviews])
   const playback = usePlayback({ sortedClips, clipIndexMap, appShellRef })
   const { volume, setVolume } = useVolume(appShellRef, playback.floatingClips)
 
@@ -66,6 +90,24 @@ function App() {
   const handleSortChange = useCallback((nextSortType: SortType) => {
     setSortType(nextSortType)
     trackSortChange(nextSortType)
+  }, [])
+
+  const toggleIssueKind = useCallback((kind: ClipIssueKind) => {
+    setIssueFilter((current) => {
+      const next = new Set(current ?? [])
+      if (next.has(kind)) {
+        next.delete(kind)
+      } else {
+        next.add(kind)
+      }
+      return next.size > 0 ? next : null
+    })
+  }, [])
+
+  const toggleAllIssues = useCallback(() => {
+    setIssueFilter((current) =>
+      current && ISSUE_KINDS.every((kind) => current.has(kind)) ? null : new Set(ISSUE_KINDS),
+    )
   }, [])
 
   const handleInfoModalLinkClick = useCallback((linkType: 'clip' | 'source_video', clip: VoiceClip) => {
@@ -117,15 +159,24 @@ function App() {
     [videoVersions],
   )
 
-  // dev 限定: json と mp4 を trash/ へ退避し、一覧から外して情報モーダルを閉じる。
-  // 失敗時は例外を InfoModal 側へ投げ返してエラー表示させる。
+  // 編集モーダルを閉じたら mp4 の一覧を取り直す（切り出しで mp4 が増えた・モーダルを開いたまま
+  // npm run download した場合を拾う）。
+  const handleCloseEdit = useCallback(() => {
+    setEditClip(null)
+    refreshVideos()
+  }, [refreshVideos])
+
+  // dev 限定: json と mp4 を trash/ へ退避し、一覧から外して、そのクリップの情報モーダル・編集モーダルを閉じる。
+  // 情報モーダルと編集モーダルの両方から呼ぶ。失敗時は例外を呼び出し側へ投げ返してエラー表示させる。
   const handleClipDelete = useCallback(
     async (clip: VoiceClip) => {
       await deleteClipData(clip.fileBaseName)
       removeClip(clip.fileBaseName)
-      setInfoClip(null)
+      setInfoClip((current) => (current && current.fileBaseName === clip.fileBaseName ? null : current))
+      setEditClip((current) => (current && current.fileBaseName === clip.fileBaseName ? null : current))
+      refreshVideos()
     },
-    [removeClip],
+    [refreshVideos, removeClip],
   )
 
   return (
@@ -172,12 +223,24 @@ function App() {
 
             <SortToolbar sortType={sortType} onChangeSortType={handleSortChange} />
 
+            {enableDevEditor && reviews && reviewSummary ? (
+              <DevReviewToolbar
+                summary={reviewSummary}
+                totalClips={totalClipCount}
+                videosLoaded={videos !== undefined}
+                filter={issueFilter}
+                onToggleKind={toggleIssueKind}
+                onToggleAll={toggleAllIssues}
+              />
+            ) : null}
+
             <VoiceList
               sortType={sortType}
               sortedClips={sortedClips}
               streamGroups={streamGroups}
               sameSerifLabels={sameSerifLabels}
               playCounts={playCounts}
+              reviews={reviews}
               onPlayClip={playback.playClip}
               onOpenInfo={setInfoClip}
               onOpenEdit={enableDevEditor ? handleOpenEdit : undefined}
@@ -201,7 +264,9 @@ function App() {
               <ClipEditModal
                 clip={editClip}
                 categorySuggestions={categoryOptions}
-                onClose={() => setEditClip(null)}
+                hasVideo={videos ? videos.has(editClip.fileBaseName) : undefined}
+                onDelete={handleClipDelete}
+                onClose={handleCloseEdit}
                 onSaved={handleClipSaved}
               />
             ) : null}

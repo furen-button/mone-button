@@ -79,3 +79,16 @@ export async function generateRuby(text: string, signal?: AbortSignal): Promise<
   }
   return response.json() as Promise<{ ruby: string }>
 }
+
+// dev 限定: public/videos にある mp4 の一覧（拡張子なし）。未ダウンロードのクリップを見分けるのに使う。
+export async function fetchVideoStatus(signal?: AbortSignal): Promise<Set<string>> {
+  const response = await fetch('/__data/status', { cache: 'no-store', signal })
+  if (!response.ok) {
+    throw new Error(`動画一覧の取得に失敗しました (${response.status})`)
+  }
+  const result = (await response.json()) as { videos?: unknown }
+  const videos = Array.isArray(result.videos)
+    ? result.videos.filter((entry): entry is string => typeof entry === 'string')
+    : []
+  return new Set(videos)
+}

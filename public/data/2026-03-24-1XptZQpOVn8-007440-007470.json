@@ -1,0 +1,37 @@
+{
+  "videoId": "1XptZQpOVn8",
+  "serif": "ｲｷﾞｬｰﾘ！",
+  "ruby": "いぎゃーり",
+  "categories": [
+    "異議あり"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=1XptZQpOVn8&t=7454s",
+  "memo": "yt-comment-archiver: ライブチャット「ｲｷﾞｬｰﾘ!:_ノーマルもねゴン:」「ｲｷﾞｬｰﾘ！」「ｲｷﾞｬｰﾘ！」「ｲｷﾞｬｰﾘ!」「いぎゃーり！」「ｲｷﾞｬｰﾘ:_ノーマルもねゴン:」「ｲｷﾞｬｰﾘ」「ｲｷﾞｬｰﾘ」「ｲｷﾞｬｰﾘ!」「ｲｷﾞｬｰﾘ!」「ｲｷﾞｬｰﾘ！」「ｲｷﾞｬｰﾘとぬんぬんぬんしか覚えてない」「ｲｷﾞｬｰﾘ」「配信終了？イギャーリ！」「待った！くらえ！ｲｷﾞｬｰﾘ！」「ｲｷﾞｬｰﾘ！」「イギャーリ:_ノーマルもねゴン:」 @2:04:20",
+  "liveChat": {
+    "message": "ｲｷﾞｬｰﾘ！",
+    "at": 7460,
+    "streamStartedAt": "2026-03-24T12:01:30+09:00"
+  },
+  "trimming": {
+    "startTime": 7454.104957385056,
+    "endTime": 7457.474903350515,
+    "duration": 3.3699459654593156,
+    "original": {
+      "startTime": 7440,
+      "endTime": 7470,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "1XptZQpOVn8",
+      "title": "【タピオカ】たぴたぴしてもちもちになる雑談🧋【にじさんじ/梢桃音】",
+      "duration": 8044,
+      "thumbnail": "https://i.ytimg.com/vi/1XptZQpOVn8/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260324",
+      "viewCount": 10203,
+      "url": "https://www.youtube.com/watch?v=1XptZQpOVn8"
+    }
+  }
+}

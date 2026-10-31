@@ -1,8 +1,10 @@
 {
   "videoId": "I98FMV6lWHQ",
-  "serif": "もうめんどくさいとか言っちゃった",
+  "serif": "もうめんどくさいとか 言っちゃった",
   "ruby": "もうめんどくさいとかいっちゃった",
-  "categories": ["世界"],
+  "categories": [
+    "世界"
+  ],
   "clipUrl": "https://youtube.com/watch?v=I98FMV6lWHQ&t=16134s",
   "memo": "",
   "trimming": {

@@ -7,9 +7,11 @@ import { loadEnv, type Plugin } from 'vite'
 import { resolveWhisperConfig, toRuby, transcribeFile } from '../scripts/dev-server/lib/transcribe.js'
 import { assertLocalRequest, readBody, sendJson } from './lib/dev-http'
 import { TrimValidationError, createExcerptPlan, createTrimPlan, parseTrimPayload } from '../scripts/dev-server/lib/trim.js'
+import { normalizeReview } from '../scripts/dev-server/lib/clip-review.js'
 
 // dev サーバ専用: public/data/*.json の serif/ruby/memo/categories を書き戻すミドルウェアと、
-// クリップ（json + mp4）の削除・トリム・切り出しと、ローカル音声の文字起こし・読み生成。
+// クリップ（json + mp4）の削除・トリム・切り出しと、ローカル音声の文字起こし・読み生成、
+// 要対応バッジ用の mp4 一覧。
 // apply: 'serve' のため本番ビルドには一切含まれない。
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url))
@@ -37,6 +39,7 @@ type SavePayload = {
   ruby?: unknown
   memo?: unknown
   categories?: unknown
+  review?: unknown
 }
 
 // fileBaseName を検証し public/data 直下の既存 json パスを返す。不正時はレスポンスを返して null。
@@ -248,9 +251,37 @@ async function handleSave(req: IncomingMessage, res: ServerResponse): Promise<vo
         .filter((entry) => entry.length > 0)
     }
 
+    // 「このままで良い」の記録。今の値と合わないもの・切り終えた trim は落とし、何も残らなければキーごと消す。
+    const nextReview = normalizeReview(Object.hasOwn(payload, 'review') ? payload.review : current.review, current)
+    if (nextReview) {
+      current.review = nextReview
+    } else {
+      delete current.review
+    }
+
     // extract.js と同じフォーマット（2スペースインデント）で書き戻し、差分を最小化する。
     fs.writeFileSync(filePath, JSON.stringify(current, null, 2))
     sendJson(res, 200, current)
+  } catch (error) {
+    sendJson(res, 500, { error: error instanceof Error ? error.message : String(error) })
+  }
+}
+
+// dev サイトの「未DL」バッジ用。public/videos にある mp4 の一覧（拡張子なし）を返す。
+// ダウンロード中の一時ファイル（<base>_temp.mp4）とトリムの一時ファイル（<base>.mp4.trim-*.mp4）は除く。
+function handleStatus(req: IncomingMessage, res: ServerResponse): void {
+  if (!assertLocalRequest(req, res)) {
+    return
+  }
+
+  try {
+    const videos = fs.existsSync(videosDir)
+      ? fs.readdirSync(videosDir)
+          .filter((name) => /^[\w.-]+\.mp4$/.test(name) && !name.endsWith('_temp.mp4') && !name.includes('.mp4.'))
+          .map((name) => name.slice(0, -'.mp4'.length))
+      : []
+    res.setHeader('Cache-Control', 'no-store')
+    sendJson(res, 200, { videos })
   } catch (error) {
     sendJson(res, 500, { error: error instanceof Error ? error.message : String(error) })
   }
@@ -440,6 +471,13 @@ export function dataEditorPlugin(): Plugin {
           return
         }
         void handleRuby(req, res)
+      })
+      server.middlewares.use('/__data/status', (req, res, next) => {
+        if (req.method !== 'GET') {
+          next()
+          return
+        }
+        handleStatus(req, res)
       })
       server.middlewares.use('/__data/save', (req, res, next) => {
         if (req.method !== 'POST') {
