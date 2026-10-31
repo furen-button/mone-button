@@ -79,6 +79,18 @@ export function findLongSerifRuns(serif) {
     .filter((run) => run.units > MAX_RUN_UNITS);
 }
 
+// serif の半角 ! ? 。全角の文に混ざると細く詰まって見えるので、編集モーダルで強調し全角にできるようにする。
+const HALFWIDTH_PUNCTUATION = /[!?]/g;
+const FULLWIDTH_PUNCTUATION = { '!': '！', '?': '？' };
+
+export function countHalfwidthPunctuation(serif) {
+  return (serif.match(HALFWIDTH_PUNCTUATION) ?? []).length;
+}
+
+export function toFullwidthPunctuation(serif) {
+  return serif.replace(HALFWIDTH_PUNCTUATION, (ch) => FULLWIDTH_PUNCTUATION[ch]);
+}
+
 // ruby は読み順の並び替えキー。toRuby（transcribe.js）が出力する字種だけを正とする:
 // ひらがな（ゝゞ を含む）・長音・数字・英字。カタカナ・半角カナ・漢字・記号は要対応。
 const RUBY_ALLOWED_CHAR = /^[\u3041-\u3096\u309D\u309E\u30FC\p{Number}\p{Script=Latin}]$/u;

@@ -3,7 +3,7 @@ import { generateRuby, transcribeClip } from '../../lib/devDataEditor'
 import type { KeyboardEvent } from 'react'
 import { normalizeSerifForDisplay } from '../../voiceData'
 import type { ClipReview, VoiceClip, VoiceData } from '../../voiceData'
-import { reviewClip } from '../../../scripts/dev-server/lib/clip-review.js'
+import { reviewClip, toFullwidthPunctuation } from '../../../scripts/dev-server/lib/clip-review.js'
 import type { AcknowledgeableIssueKind } from '../../../scripts/dev-server/lib/clip-review.js'
 import { ClipReviewPanel } from './ClipReviewPanel'
 import { SerifSpacingPreview } from './SerifSpacingPreview'
@@ -244,7 +244,11 @@ export function ClipEditModal({ clip, categorySuggestions, hasVideo, onClose, on
             value={serif}
             onChange={(event) => setSerif(event.target.value)}
           />
-          <SerifSpacingPreview serif={serif} />
+          <SerifSpacingPreview
+            serif={serif}
+            disabled={busy}
+            onFullwidthPunctuation={() => setSerif((current) => toFullwidthPunctuation(current))}
+          />
         </div>
 
         <div className="clip-edit-field">

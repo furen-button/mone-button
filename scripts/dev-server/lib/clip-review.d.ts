@@ -44,6 +44,8 @@ export function formatUnits(units: number): string
 export function splitSerifTokens(serif: string): string[]
 export function isSerifSeparator(token: string): boolean
 export function findLongSerifRuns(serif: string): SerifRun[]
+export function countHalfwidthPunctuation(serif: string): number
+export function toFullwidthPunctuation(serif: string): string
 export function findInvalidRubyChars(ruby: string): string[]
 export function isUntrimmedImportWindow(data: unknown): boolean
 export function normalizeReview(review: unknown, data: unknown): ClipReview | undefined

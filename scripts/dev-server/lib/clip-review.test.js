@@ -5,6 +5,7 @@ import {
   ACKNOWLEDGEABLE_KINDS,
   ISSUE_KINDS,
   MAX_RUN_UNITS,
+  countHalfwidthPunctuation,
   findInvalidRubyChars,
   findLongSerifRuns,
   isUntrimmedImportWindow,
@@ -12,6 +13,7 @@ import {
   reviewClip,
   splitSerifTokens,
   summarizeReviews,
+  toFullwidthPunctuation,
 } from './clip-review.js';
 
 function clip(overrides = {}) {
@@ -71,6 +73,17 @@ describe('findLongSerifRuns', () => {
     assert.deepEqual(findLongSerifRuns(`{${'あ'.repeat(8)}|FF0000}${'い'.repeat(7)}`), []);
     assert.deepEqual(findLongSerifRuns(`${'あ'.repeat(15)}🍄🌟`), []);
     assert.deepEqual(splitSerifTokens('あい うえ\nおか'), ['あい', ' ', 'うえ', '\n', 'おか']);
+  });
+});
+
+describe('半角の ! ?', () => {
+  it('数えて全角 ！ ？ に置き換える。ほかの文字・改行・強調記法は変えない', () => {
+    assert.equal(countHalfwidthPunctuation('ｲｷﾞｬｰﾘ!!'), 2);
+    assert.equal(countHalfwidthPunctuation('なに?！？'), 1);
+    assert.equal(countHalfwidthPunctuation('あいさつ'), 0);
+    assert.equal(toFullwidthPunctuation('ｲｷﾞｬｰﾘ!!'), 'ｲｷﾞｬｰﾘ！！');
+    assert.equal(toFullwidthPunctuation('{ほんと|FF0000}?\nうん!'), '{ほんと|FF0000}？\nうん！');
+    assert.equal(toFullwidthPunctuation('ABC 123'), 'ABC 123');
   });
 });
 

@@ -82,3 +82,20 @@ serif は JSON の生の値（改行・強調記法入り）で判定する。�
   - 保存 API に `{ review: { trim: true, ruby: "<今の値>", serif: "<違う値>", bogus: 1 } }` を送ると `{ trim: true, ruby }` だけが残り、続けて ruby を変えて保存すると `{ trim: true }` になった
   - コンソールに error は無い
 - 本番ビルドの bundle に `dev-review-toolbar` / `clip-edit-review` は含まれない（DevReviewToolbar と ClipReviewPanel は tree-shake される）。`clip-review.js` の判定関数と VoiceList のバッジ描画の分岐は数 KB だけ残るが、`reviews` が undefined なので動かない。
+
+## 追加（2026-10-31）: 半角の ! ? の全角化
+
+### 半角の ! ?
+
+- 区切りプレビュー（`SerifSpacingPreview`）で、半角の `!` `?` を赤く囲って示す。全角の文に混ざると細く詰まって見えるため
+- 1 個以上あれば「半角の ! ? が N 個あります。[！？ 全角にする]」を出す。押すと serif の state の半角 `!` `?` だけを全角 `！` `？` に置き換える。保存まで JSON には書かない
+- 置き換えと数え方は `clip-review.js` の `toFullwidthPunctuation` / `countHalfwidthPunctuation`。改行・強調記法・ほかの半角文字は変えない
+- 全角は 1 字、半角は 0.5 字で数えるので、置き換えると区切りの字数が増え、「区切り」の警告が新たに出ることがある
+- 要対応バッジの種類には入れていない
+
+### 検証結果
+
+- `clip-review.test.js` に全角化のテストを足して 17 件成功。`npx tsc -b` と `npm run lint` も成功
+- 別ポートの dev サーバで、既存クリップから複製した一時クリップ（serif `削除テスト!? ほんと!`）を headless Chrome で操作した
+  - プレビューで 3 個が強調され、「全角にする」で textarea が `削除テスト！？ ほんと！` になり、強調と案内が消えた
+  - コンソールに error は無い。確認後、一時クリップを消した

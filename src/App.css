@@ -1897,3 +1897,22 @@
   opacity: 0.5;
   cursor: default;
 }
+
+/* 区切りプレビューの半角 ! ?。全角の文に混ざると細く詰まって見えるので、赤で囲って目立たせる。 */
+.clip-edit-serif-halfwidth {
+  display: inline-block;
+  margin: 0 1px;
+  border-radius: 3px;
+  background: rgba(211, 63, 73, 0.14);
+  box-shadow: inset 0 -2px 0 #e06a5a;
+  color: #b3402b;
+  font-weight: 700;
+  padding: 0 3px;
+}
+
+.clip-edit-serif-preview-note.has-action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
