@@ -1,3 +1,7 @@
+import type { ClipReview } from '../scripts/dev-server/lib/clip-review.js'
+
+export type { ClipReview }
+
 export interface ClipZoomEffect {
   mode?: 'punch' | 'full'
   at?: number
@@ -18,6 +22,8 @@ export interface VoiceData {
   clipUrl: string
   memo: string
   effects?: ClipEffects
+  // dev の編集モーダルで「このままで良い」と確認した記録（任意）。判定は scripts/dev-server/lib/clip-review.js。
+  review?: ClipReview
   trimming: {
     startTime: number
     endTime: number

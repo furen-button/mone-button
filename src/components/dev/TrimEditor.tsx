@@ -6,6 +6,8 @@ import { withVideoCacheBust } from '../../lib/videoPath'
 
 type TrimEditorProps = {
   clip: VoiceClip
+  // public/videos に mp4 があるか。false なら読み込まずに未ダウンロードの案内を出す。undefined は未確認。
+  hasVideo?: boolean
   onSaved: (fileBaseName: string, updated: VoiceData, options?: { cacheBustVideo?: boolean }) => void
 }
 
@@ -33,7 +35,7 @@ const TAIL_RELATIVE_DB = -30
 const TAIL_FLOOR_DB = -50
 const WAVEFORM_HEIGHT = 128
 
-export function TrimEditor({ clip, onSaved }: TrimEditorProps) {
+export function TrimEditor({ clip, hasVideo, onSaved }: TrimEditorProps) {
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null)
   const [loadStatus, setLoadStatus] = useState<LoadStatus>('loading')
   const [loadError, setLoadError] = useState('')
@@ -126,11 +128,21 @@ export function TrimEditor({ clip, onSaved }: TrimEditorProps) {
       setTrimStatus('idle')
       setTrimError('')
 
+      const missingMessage = `動画が未ダウンロードです（public/videos/${clip.fileBaseName}.mp4 がありません）。npm run download で取得してから開き直してください。`
+      if (hasVideo === false) {
+        setLoadStatus('error')
+        setLoadError(missingMessage)
+        return
+      }
+
       try {
         const response = await fetch(withVideoCacheBust(clip.videoPath, audioReloadKey), {
           cache: 'no-store',
           signal: controller.signal,
         })
+        if (response.status === 404) {
+          throw new Error(missingMessage)
+        }
         if (!response.ok) {
           throw new Error(`動画の読み込みに失敗しました (${response.status})`)
         }
@@ -160,7 +172,7 @@ export function TrimEditor({ clip, onSaved }: TrimEditorProps) {
       cancelled = true
       controller.abort()
     }
-  }, [audioReloadKey, clip.fileBaseName, clip.videoPath, getAudioContext, stopPlayback])
+  }, [audioReloadKey, clip.fileBaseName, clip.videoPath, getAudioContext, hasVideo, stopPlayback])
 
   useEffect(() => {
     const element = waveformWrapRef.current

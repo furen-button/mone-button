@@ -1,3 +1,5 @@
+import { normalizeReview } from './clip-review.js';
+
 const CLIP_BASE_PATTERN = /^[\w-]+$/u;
 const MIN_TRIM_SECONDS = 0.3;
 const NOOP_EPSILON_SECONDS = 0.01;
@@ -81,11 +83,20 @@ function createRangeData(current, keepStart, keepEnd) {
     };
   }
 
-  return {
+  const next = {
     ...current,
     clipUrl: rewriteClipUrl(current.clipUrl, nextStartTime),
     trimming: nextTrimming,
   };
+  // 切ったあとは「未カットのままで良い」の確認（review.trim）は意味を失うので落とす。
+  // ruby / serif の確認は値が変わらないので残る。
+  const review = normalizeReview(current.review, next);
+  if (review) {
+    next.review = review;
+  } else {
+    delete next.review;
+  }
+  return next;
 }
 
 export function parseTrimPayload(payload) {

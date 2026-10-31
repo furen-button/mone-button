@@ -211,3 +211,30 @@ describe('createExcerptPlan', () => {
     }
   });
 });
+
+describe('createTrimPlan と review', () => {
+  it('切ったあとは review.trim を落とし、ruby / serif の確認は残す', () => {
+    const current = clip({
+      trimming: { startTime: 100, endTime: 130, duration: 30 },
+      review: { trim: true, ruby: 'てすと', serif: 'ちがう' },
+    });
+    const plan = createTrimPlan({
+      fileBaseName: '2024-01-01-abc_123-000100-000130',
+      keepStart: 1,
+      keepEnd: 5,
+    }, current, 30);
+
+    assert.deepEqual(plan.updated.review, { ruby: 'てすと' });
+    assert.deepEqual(current.review, { trim: true, ruby: 'てすと', serif: 'ちがう' });
+  });
+
+  it('review が無いクリップには review を足さない', () => {
+    const plan = createTrimPlan({
+      fileBaseName: '2024-01-01-abc_123-000100-000104',
+      keepStart: 0.5,
+      keepEnd: 3.5,
+    }, clip(), 4);
+
+    assert.equal(Object.hasOwn(plan.updated, 'review'), false);
+  });
+});

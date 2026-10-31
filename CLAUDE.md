@@ -74,6 +74,7 @@ npm run import   # sync → extract → download を一括実行
 - dev サイトのクリップ編集モーダルでは、波形を見ながら先頭・末尾を **短縮のみ** でトリムできる。ファイル名は変えず、旧 `public/videos` は `trash/videos`、高画質キャッシュは `trash/cache` へ退避して次回 createVideo で再 DL させる。
 - 波形の「この範囲を別クリップに切り出す」は、元の JSON・mp4・高画質キャッシュを残して新しい JSON と mp4 を作る。serif / ruby / categories / memo 等は元 JSON からコピーする（`effects.zoom.at` もクリップ先頭からの秒を補正せずコピーし、既存トリムと同じ扱い）。ファイル名は `<YYYY-MM-DD>-<videoId>-<pad6(floor(startTime))>-<pad6(floor(endTime))>`（日付は元ファイル名優先、なければ uploadDate）で、同名の JSON または mp4 があれば 409 で止める。切り出しても ASS golden が変わるため、意図どおりなら `npm run golden:ass` で更新する。
 - トリムすると `public/data` 全体を見ている ASS golden が変わる。意図したトリム後は `npm run golden:ass` で `scripts/create-video/__fixtures__/ass-golden.json` を更新する。
+- dev サイトでは各カードに要対応バッジ（📥 未DL / ✂️ 未カット / 🔤 ルビ / ␣ 区切り）を出し、並び替えの下の DEV ツールバーで件数の確認と種類ごとの絞り込み（絞り込み中はカテゴリの選択を無視）ができる。判定は `scripts/dev-server/lib/clip-review.js` に 1 か所で持つ。未DL は `public/videos` に mp4 が無い（`GET /__data/status` の一覧。タブに戻ると取り直す）、未カットは `trimming.original` が無く長さが 30 秒（youtube-clip-tool の ±15 秒窓）のまま、ルビは toRuby の字種（ひらがな・長音・数字・英字）以外を含むか空、区切りは半角スペース無しで 15 字超。編集モーダルの要対応パネルの「このままで良い」で JSON に `review`（`trim: true` / `ruby` / `serif` は確認したときの値）を記録でき、値が変わる・波形で切ると確認は自動で外れる。詳細は docs/tasks/10-30-clip-review-status.md。
 - データは build 時に glob 取込されるため、取り込み後の表示反映には `npm run dev` または `npm run build` が必要。
 
 詳細は docs/tasks/06-19-clip-import.md を参照。

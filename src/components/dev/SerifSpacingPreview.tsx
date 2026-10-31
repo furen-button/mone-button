@@ -1,41 +1,17 @@
 import { Fragment } from 'react'
+import {
+  MAX_RUN_UNITS,
+  findLongSerifRuns,
+  formatUnits,
+  isSerifSeparator,
+  runUnits,
+  splitSerifTokens,
+} from '../../../scripts/dev-server/lib/clip-review.js'
 
 // dev 限定。serif の半角スペースと改行を見えるようにし、スペース無しで長く続く区間を強調する。
 // 文言はローカル開発専用のため i18n を通さず素の日本語で書く。
-
-// 動画のセリフは 1 行が埋まると直前の半角スペースで折り返す（scripts/create-video/ass.js の wrapText）。
-// スペースの無い区間が 1 行より長いと語の途中で折れるので、1 行の字数を超えた区間を強調する。
-// 字数は config-kirinuki のセリフ（1080p・既定の文字サイズ）で 15。ほかのプリセットは 18。
-const MAX_RUN_UNITS = 15
-
-// scripts/create-video/ass.js の charWidth と同じ規則（半角は 0.5 字）。
-const charWidth = (ch: string): number => {
-  const code = ch.codePointAt(0) ?? 0
-  if (code <= 0x2ff) {
-    return 0.5
-  }
-  if (code >= 0xff61 && code <= 0xff9f) {
-    return 0.5
-  }
-  return 1
-}
-
-// ass.js の makeTextElement と同じ順序で、stripEmoji → parseEmphasis の plain を作る。
-// ブラウザに Node 依存を持ち込まないよう規則を複製する。空白の整理も stripEmoji に合わせる。
-const previewText = (text: string): string =>
-  text
-    .replace(/\p{Extended_Pictographic}/gu, '')
-    // 異体字セレクタ・ZWJ・肌色修飾子。文字クラスに結合文字を並べると lint が誤読を警告するので選択で書く。
-    .replace(/\uFE0F|\u200D|[\u{1F3FB}-\u{1F3FF}]/gu, '')
-    .replace(/[^\S\r\n]{2,}/g, ' ')
-    .replace(/[^\S\r\n]*\r?\n[^\S\r\n]*/g, '\n')
-    .trim()
-    .replace(/\{([^{}|]+)(?:\|[0-9A-Fa-f]{6})?\}/g, '$1')
-
-const runUnits = (run: string): number =>
-  [...run].reduce((sum, ch) => sum + charWidth(ch), 0)
-
-const formatUnits = (units: number): string => (Number.isInteger(units) ? String(units) : units.toFixed(1))
+// 区間の数え方（絵文字・強調記法の除去、半角 0.5 字、1 行 15 字）は scripts/dev-server/lib/clip-review.js に
+// あり、一覧の「区切り」バッジと同じ規則で数える。
 
 type SerifSpacingPreviewProps = {
   serif: string
@@ -46,8 +22,8 @@ export function SerifSpacingPreview({ serif }: SerifSpacingPreviewProps) {
     return null
   }
 
-  const tokens = previewText(serif).split(/( |\r?\n)/)
-  const longRuns = tokens.filter((token) => token !== ' ' && !/^\r?\n$/.test(token) && runUnits(token) > MAX_RUN_UNITS)
+  const tokens = splitSerifTokens(serif)
+  const longRuns = findLongSerifRuns(serif)
 
   return (
     <div className="clip-edit-serif-preview">
@@ -60,7 +36,7 @@ export function SerifSpacingPreview({ serif }: SerifSpacingPreviewProps) {
               </span>
             )
           }
-          if (/^\r?\n$/.test(token)) {
+          if (isSerifSeparator(token)) {
             return (
               <Fragment key={index}>
                 <span className="clip-edit-serif-newline" title="改行">↵</span>
@@ -97,7 +73,7 @@ export function SerifSpacingPreview({ serif }: SerifSpacingPreviewProps) {
       {longRuns.length > 0 ? (
         <p className="clip-edit-serif-preview-note is-warn">
           ⚠ 半角スペース無しで {MAX_RUN_UNITS} 字を超える区間があります（
-          {longRuns.map((run) => `${formatUnits(runUnits(run))} 字`).join('・')}
+          {longRuns.map((run) => `${formatUnits(run.units)} 字`).join('・')}
           ）。動画では語の途中で折り返されます。
         </p>
       ) : (
