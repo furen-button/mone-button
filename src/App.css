@@ -1916,3 +1916,31 @@
   align-items: center;
   gap: 6px 10px;
 }
+
+/* 編集モーダルの削除。保存から遠い左端に置き、1 回目で赤く塗って「もう一度押すと削除」にする。 */
+.clip-edit-delete {
+  margin-right: auto;
+  border: 1px dashed #e0a497;
+  border-radius: 999px;
+  background: #fdf0ed;
+  color: #b3402b;
+  font-weight: 700;
+  padding: 9px 16px;
+  cursor: pointer;
+}
+
+.clip-edit-delete:hover {
+  background: #fbe3dd;
+}
+
+.clip-edit-delete.is-armed {
+  border-style: solid;
+  border-color: #b3402b;
+  background: #b3402b;
+  color: #fff;
+}
+
+.clip-edit-delete:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

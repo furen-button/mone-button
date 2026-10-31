@@ -17,13 +17,15 @@ type ClipEditModalProps = {
   categorySuggestions: string[]
   // public/videos に mp4 があるか。undefined は未確認（動画の有無は判定しない）。
   hasVideo?: boolean
+  // json と mp4 を trash/ へ退避する。成功したら呼び出し側がモーダルを閉じる。失敗時は例外を投げる。
+  onDelete?: (clip: VoiceClip) => Promise<void>
   onClose: () => void
   onSaved: (fileBaseName: string, updated: VoiceData, options?: { cacheBustVideo?: boolean }) => void
 }
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
-export function ClipEditModal({ clip, categorySuggestions, hasVideo, onClose, onSaved }: ClipEditModalProps) {
+export function ClipEditModal({ clip, categorySuggestions, hasVideo, onDelete, onClose, onSaved }: ClipEditModalProps) {
   // 表示用に改行・強調記法を落とした serif ではなく JSON の値から始める。そのまま保存しても、
   // まとめ動画のテロップ用の改行と強調記法が消えないように。
   const [serif, setSerif] = useState(clip.rawSerif)
@@ -39,10 +41,22 @@ export function ClipEditModal({ clip, categorySuggestions, hasVideo, onClose, on
   const [generationMessage, setGenerationMessage] = useState('')
   const [generationError, setGenerationError] = useState(false)
   const generationRequest = useRef<AbortController | null>(null)
+  // 削除は 2 回押し。1 回目で「もう一度押すと削除」に変わり、4 秒押さなければ戻る。
+  const [deleteArmed, setDeleteArmed] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
 
   useEffect(() => () => {
     generationRequest.current?.abort()
   }, [clip.fileBaseName])
+
+  useEffect(() => {
+    if (!deleteArmed) {
+      return
+    }
+    const timer = window.setTimeout(() => setDeleteArmed(false), 4000)
+    return () => window.clearTimeout(timer)
+  }, [deleteArmed])
 
   const handleClose = () => {
     generationRequest.current?.abort()
@@ -94,8 +108,28 @@ export function ClipEditModal({ clip, categorySuggestions, hasVideo, onClose, on
   }
 
   const generating = generation !== null
-  // 保存・生成のどちらかが走っている間は、ほかの書き込み操作を止める。
-  const busy = generating || status === 'saving'
+  // 保存・生成・削除のどれかが走っている間は、ほかの書き込み操作を止める。
+  const busy = generating || status === 'saving' || deleting
+
+  const handleDelete = async () => {
+    if (!onDelete) {
+      return
+    }
+    if (!deleteArmed) {
+      setDeleteArmed(true)
+      return
+    }
+    setDeleteArmed(false)
+    setDeleting(true)
+    setDeleteError('')
+    try {
+      // 成功すると呼び出し側がモーダルを閉じる（このコンポーネントはアンマウントされる）。
+      await onDelete(clip)
+    } catch (error) {
+      setDeleteError(error instanceof Error ? error.message : String(error))
+      setDeleting(false)
+    }
+  }
 
   // 入力中の値で要対応を判定する（JSON と同じ形にして渡す）。trim の判定は clip の trimming から。
   const reviewResult = reviewClip({ ...clip, serif, ruby, review }, { hasVideo })
@@ -337,8 +371,20 @@ export function ClipEditModal({ clip, categorySuggestions, hasVideo, onClose, on
           </p>
         ) : null}
         {status === 'error' ? <p className="clip-edit-status is-error">⚠ {errorMessage}</p> : null}
+        {deleteError ? <p className="clip-edit-status is-error">⚠ 削除に失敗しました: {deleteError}</p> : null}
 
         <div className="clip-edit-actions">
+          {onDelete ? (
+            <button
+              type="button"
+              className={deleteArmed ? 'clip-edit-delete is-armed' : 'clip-edit-delete'}
+              onClick={() => void handleDelete()}
+              disabled={busy}
+              title="json と mp4 を trash/ へ退避します（2 回押し）"
+            >
+              {deleting ? '削除中…' : deleteArmed ? 'もう一度押すと削除' : '🗑 削除'}
+            </button>
+          ) : null}
           <button type="button" className="clip-edit-cancel" onClick={handleClose}>
             閉じる
           </button>

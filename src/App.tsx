@@ -166,13 +166,14 @@ function App() {
     refreshVideos()
   }, [refreshVideos])
 
-  // dev 限定: json と mp4 を trash/ へ退避し、一覧から外して情報モーダルを閉じる。
-  // 失敗時は例外を InfoModal 側へ投げ返してエラー表示させる。
+  // dev 限定: json と mp4 を trash/ へ退避し、一覧から外して、そのクリップの情報モーダル・編集モーダルを閉じる。
+  // 情報モーダルと編集モーダルの両方から呼ぶ。失敗時は例外を呼び出し側へ投げ返してエラー表示させる。
   const handleClipDelete = useCallback(
     async (clip: VoiceClip) => {
       await deleteClipData(clip.fileBaseName)
       removeClip(clip.fileBaseName)
-      setInfoClip(null)
+      setInfoClip((current) => (current && current.fileBaseName === clip.fileBaseName ? null : current))
+      setEditClip((current) => (current && current.fileBaseName === clip.fileBaseName ? null : current))
       refreshVideos()
     },
     [refreshVideos, removeClip],
@@ -264,6 +265,7 @@ function App() {
                 clip={editClip}
                 categorySuggestions={categoryOptions}
                 hasVideo={videos ? videos.has(editClip.fileBaseName) : undefined}
+                onDelete={handleClipDelete}
                 onClose={handleCloseEdit}
                 onSaved={handleClipSaved}
               />
