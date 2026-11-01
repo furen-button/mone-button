@@ -39,6 +39,12 @@ function defaultValueFor(kind: FieldKind, schema: SchemaNode): unknown {
   if (kind === 'stringList' || kind === 'fade') {
     return []
   }
+  if (kind === 'object' && schema.properties && typeof schema.properties === 'object') {
+    return Object.fromEntries(Object.entries(schema.properties).flatMap(([key, value]) => {
+      const child = value as SchemaNode
+      return child.default !== undefined ? [[key, child.default]] : []
+    }))
+  }
   if (kind === 'stringMap' || kind === 'object' || kind === 'box') {
     return {}
   }
