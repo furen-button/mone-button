@@ -58,13 +58,10 @@ describe('チャプターの整数秒境界', () => {
     });
   }
 
-  it('clip の出典も末尾を結合したチャプターと同じまとまりになる', () => {
+  it('clip のまとまりは丸め後に短い末尾を直前へ結合する', () => {
     const entries = [0, 10.6, 20.6].map((sec, i) => entry(sec, `v${i}`, `配信${i}`));
     const groups = groupClipChapters(entries, 30.6);
     assert.deepEqual(groups.map((g) => [g.start, g.end]), [[0, 11], [11, 30.6]]);
-    assert.deepEqual(buildClipSources(entries, 30.6).map((g) => g.urls), [
-      [entries[0].clipUrl], [entries[1].clipUrl, entries[2].clipUrl],
-    ]);
   });
 });
 
@@ -171,7 +168,7 @@ describe('buildChapters（by: clip、既定）', () => {
     assert.deepEqual(chapters.map((c) => c.label), ['いち', 'に', 'さん / よん']);
   });
 
-  it('出典用にクリップ名と URL を持ち、labels はチャプター先頭のクリップ名で見出しを上書きする', () => {
+  it('クリップ名と URL を持ち、labels はチャプター先頭のクリップ名で見出しを上書きする', () => {
     const entries = [entry(0, 'aaa', 'A', 'いち'), entry(5, 'aaa', 'A', 'に'), entry(12, 'bbb', 'B'), entry(30, 'ccc', 'C')];
     const { chapters } = buildChapters(entries, 45, { labels: { 'bbb-12': '手書きの名前' } });
     assert.deepEqual(chapters[0].bases, ['aaa-0', 'aaa-5']);
@@ -188,12 +185,37 @@ describe('buildChapters（by: clip、既定）', () => {
 });
 
 describe('buildClipSources', () => {
-  it('チャプターと同じまとまりで URL を並べ、チャプターが 3 個未満で省かれても出典は残す', () => {
+  it('動画ごとにまとめて初登場の URL だけを出し、チャプターが 3 個未満で省かれても出典は残す', () => {
     const entries = [entry(0, 'aaa', 'A', 'いち'), entry(4, 'aaa', 'A', 'に'), entry(15, 'bbb', 'B', 'さん')];
     assert.deepEqual(buildChapters(entries, 30).chapters, []);
-    assert.deepEqual(buildClipSources(entries, 30), [
-      { label: 'いち / に', urls: ['https://youtube.com/watch?v=aaa&t=0s', 'https://youtube.com/watch?v=aaa&t=4s'] },
-      { label: 'さん', urls: ['https://youtube.com/watch?v=bbb&t=15s'] },
+    assert.deepEqual(buildClipSources(entries), [
+      { label: 'いち / に', url: 'https://youtube.com/watch?v=aaa&t=0s' },
+      { label: 'さん', url: 'https://youtube.com/watch?v=bbb&t=15s' },
+    ]);
+  });
+
+  it('チャプターの切れ目とは関係なく、離れて再登場した動画も初登場の位置にまとめる', () => {
+    const entries = [
+      entry(0, 'aaa', 'A', 'いち'), entry(20, 'bbb', 'B', 'に'),
+      entry(25, 'bbb', 'B', 'さん'), entry(40, 'aaa', 'A', 'よん'),
+    ];
+    assert.deepEqual(buildChapters(entries, 60).chapters.map((c) => c.label), ['いち', 'に / さん', 'よん']);
+    assert.deepEqual(buildClipSources(entries), [
+      { label: 'いち / よん', url: 'https://youtube.com/watch?v=aaa&t=0s' },
+      { label: 'に / さん', url: 'https://youtube.com/watch?v=bbb&t=20s' },
+    ]);
+  });
+
+  it('セリフが無ければ配信タイトルを見出しにし、videoId の無いクリップはまとめない', () => {
+    const entries = [
+      entry(0, 'aaa', '【雑談】ほげ【梢桃音/にじさんじ】', ''),
+      { ...entry(10, '', 'B', 'に'), clipUrl: 'https://example.test/1' },
+      { ...entry(20, '', 'C', 'さん'), clipUrl: 'https://example.test/2' },
+    ];
+    assert.deepEqual(buildClipSources(entries), [
+      { label: '雑談 - ほげ', url: 'https://youtube.com/watch?v=aaa&t=0s' },
+      { label: 'に', url: 'https://example.test/1' },
+      { label: 'さん', url: 'https://example.test/2' },
     ]);
   });
 });
@@ -248,13 +270,13 @@ describe('renderYoutubeDescription', () => {
     assert.ok(!text.includes('▼チャプター'));
   });
 
-  it('clipSources があればチャプターごとに見出しと URL を並べ、配信一覧は出さない', () => {
+  it('clipSources があれば動画ごとに見出しと URL を並べ、配信一覧は出さない', () => {
     const clipSources = [
-      { label: 'いち / に', urls: ['https://example.test/1', 'https://example.test/2'] },
-      { label: 'さん', urls: ['https://example.test/3'] },
+      { label: 'いち / に', url: 'https://example.test/1' },
+      { label: 'さん', url: 'https://example.test/3' },
     ];
     const text = renderYoutubeDescription({ chapters, sources, clipSources, summary: {} });
-    assert.ok(text.includes('▼出典\nいち / に\nhttps://example.test/1\nhttps://example.test/2\n\nさん\nhttps://example.test/3'));
+    assert.ok(text.includes('▼出典\nいち / に\nhttps://example.test/1\n\nさん\nhttps://example.test/3'));
     assert.ok(!text.includes('▼出典（配信一覧）'));
     // 出典の見出しに時刻を付けると、YouTube がそれもチャプターとして読み取ってしまう。
     const sourceLines = text.split('▼出典\n')[1].split('\n');
