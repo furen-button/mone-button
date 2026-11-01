@@ -79,6 +79,7 @@ export type QcResult = {
 }
 
 export type PreflightClip = {
+  updatedAt: number
   base: string
   videoId: string
   duration: number
@@ -119,6 +120,7 @@ export type PreflightState = {
 export type Rect = { x: number; y: number; w: number; h: number }
 
 export type ClipInfo = {
+  updatedAt: number
   base: string
   videoId: string
   serif: string
@@ -180,6 +182,7 @@ export type StillMeta = {
 }
 
 export type StillRequest = {
+  clipUpdatedAt?: number
   name: string
   draft: JsonObject
   kind?: StillKind

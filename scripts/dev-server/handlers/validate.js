@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 
 import { DEFAULTS, deepMerge } from '../../create-video/config.js';
@@ -31,6 +32,7 @@ async function validateDraft(context, body) {
         preflight = {
           clips: preflightResult.clips.map((clip) => ({
             base: clip.base,
+            updatedAt: fs.statSync(clip.filePath).mtimeMs,
             videoId: clip.videoId,
             duration: clip.duration,
             serif: clip.data.serif ?? '',
