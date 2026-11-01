@@ -3,6 +3,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Plugin } from 'vite'
 import { assertLocalRequest, readBody, sendError, sendJson, statusFromError } from './lib/dev-http'
+import { rawBodyContentTypes } from '../scripts/dev-server/lib/guards.js'
 import type { HandlerRequest, HandlerResult, Route } from '../scripts/dev-server/handlers'
 
 type HandlerModule = {
@@ -34,9 +35,6 @@ export function createVideoEditorPlugin(): Plugin {
   }
 }
 
-// rawBody の経路（動画のアップロード）だけが受ける本文の種類。
-const RAW_BODY_CONTENT_TYPES = ['video/', 'application/octet-stream']
-
 async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise<void> {
   const method = req.method || 'GET'
   const { path: requestPath, query } = parseRequestUrl(req.url || '/')
@@ -46,8 +44,9 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
     // 経路によって受ける本文が違うので、ガードより先に経路を決める（URL の解析だけで副作用は無い）。
     const handlers = await loadHandlers()
     const matched = handlers.matchRoute(routesFor(handlers), method, requestPath)
-    const rawBody = matched?.route.rawBody === true
-    if (!assertLocalRequest(req, res, { allowContentTypes: rawBody ? RAW_BODY_CONTENT_TYPES : null })) {
+    const allowedTypes = rawBodyContentTypes(matched?.route.rawBody)
+    const rawBody = allowedTypes !== null
+    if (!assertLocalRequest(req, res, { allowContentTypes: allowedTypes })) {
       return
     }
     if (!matched) {

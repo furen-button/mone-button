@@ -8,6 +8,7 @@ import {
   clipBase,
   outputBaseName,
   presetFileName,
+  rawBodyContentTypes,
 } from './guards.js';
 
 function request(overrides = {}) {
@@ -112,5 +113,15 @@ describe('future filename guards', () => {
   it('accepts simple clip bases only', () => {
     assert.equal(clipBase('clip_01-a'), 'clip_01-a');
     assert.equal(clipBase('clip/01'), null);
+  });
+});
+
+// 経路ごとの raw MIME 許可リスト。JSON 経路と動画アップロードの従来動作も保つ。
+describe('rawBodyContentTypes', () => {
+  it('true・配列・JSON を区別する', () => {
+    assert.deepEqual(rawBodyContentTypes(true), ['video/', 'application/octet-stream']);
+    assert.deepEqual(rawBodyContentTypes(['image/png']), ['image/png']);
+    assert.equal(rawBodyContentTypes(false), null);
+    assert.equal(rawBodyContentTypes(), null);
   });
 });

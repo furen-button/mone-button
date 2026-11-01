@@ -18,3 +18,5 @@ export function assertNoForbiddenKeys(value: unknown, label?: string): void;
 export function assertSafePath(path: unknown): void;
 export function outputBaseName(name: unknown): string | null;
 export function clipBase(name: unknown): string | null;
+
+export function rawBodyContentTypes(rawBody?: boolean | readonly string[]): string[] | null;
