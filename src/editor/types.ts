@@ -241,7 +241,7 @@ export type JobState = 'running' | 'done' | 'error' | 'cancelled'
 
 export type JobSummary = {
   id: string
-  kind: 'build' | 'qc'
+  kind: 'build' | 'qc' | 'crop'
   name: string
   state: JobState
   command: string
@@ -296,4 +296,6 @@ export type ClipDataSave = {
   ruby?: string
   memo?: string
   categories?: string[]
+  // 切り出しツールのキーフレーム。effects.camera[aspect] だけを書き換え、keyframes: null で消す。
+  camera?: { aspect: string; keyframes: unknown[] | null }
 }

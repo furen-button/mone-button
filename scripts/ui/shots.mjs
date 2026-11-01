@@ -7,6 +7,7 @@
 //   npm run shots -- --tab preview,build            # タブを絞る
 //   npm run shots -- --strict                       # コンソールに深刻な出力があれば exit 1
 //   npm run shots -- --out docs/screenshots         # 出力先を変える
+//   npm run shots -- --page crop --clip <base> --at 1.5 --aspect 9:16   # 切り出しツール（crop.html）
 //
 // dev サーバが動いていなければ自分で `npm run dev` を起動し、撮り終えたら止める。
 
@@ -19,6 +20,8 @@ import { capturePage, launchChrome } from './cdp.mjs';
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const EDITOR_PATH = '/mone-button/editor.html';
+const CROP_PATH = '/mone-button/crop.html';
+const PAGES = ['editor', 'crop'];
 const TABS = ['clips', 'preview', 'settings', 'build', 'summary'];
 const CHROME_CANDIDATES = [
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
@@ -42,6 +45,10 @@ function parseArgs(argv) {
     timeoutMs: 45000,
     serverTimeoutMs: 90000,
     kind: null,
+    page: 'editor',
+    clip: null,
+    at: null,
+    aspect: null,
     fullPage: true,
     keepServer: false,
     strict: false,
@@ -66,6 +73,14 @@ function parseArgs(argv) {
       options.height = Number(next());
     } else if (arg === '--kind') {
       options.kind = next();
+    } else if (arg === '--page') {
+      options.page = next();
+    } else if (arg === '--clip') {
+      options.clip = next();
+    } else if (arg === '--at') {
+      options.at = Number(next());
+    } else if (arg === '--aspect') {
+      options.aspect = next();
     } else if (arg === '--settle') {
       options.settleMs = Number(next());
     } else if (arg === '--timeout') {
@@ -83,6 +98,9 @@ function parseArgs(argv) {
     }
   }
 
+  if (!PAGES.includes(options.page)) {
+    throw new Error(`不明なページ: ${options.page}（${PAGES.join(' / ')}）`);
+  }
   const unknown = options.tabs.filter((tab) => !TABS.includes(tab));
   if (unknown.length > 0) {
     throw new Error(`不明なタブ: ${unknown.join(', ')}（${TABS.join(' / ')}）`);
@@ -100,6 +118,10 @@ function usage() {
   --width/--height    ビューポート（既定 1600x1000。既定はページ全体を撮る）
   --viewport          ページ全体ではなくビューポートだけ撮る
   --kind <k>          プレビュー対象（clip / card / opening / ending）
+  --page <p>          editor（既定）/ crop（切り出しツール。--tab / --preset は使わない）
+  --clip <base>       crop: public/data のクリップを開く
+  --at <sec>          crop: 開いたあとシークする秒
+  --aspect <a>        crop: 9:16 / 16:9 / 1:1
   --settle <ms>       load 後に待つ時間（既定 2500）
   --timeout <ms>      1 枚あたりの上限（既定 45000）
   --strict            コンソールに深刻な出力があれば exit 1
@@ -168,6 +190,31 @@ function isSerious(message) {
   return message.level === 'error' || SERIOUS_TEXT.some((pattern) => pattern.test(message.text));
 }
 
+// 撮る画面の一覧。editor はタブごと、crop は 1 枚。
+function shotTargets(options, presetBase) {
+  if (options.page === 'crop') {
+    const params = new URLSearchParams();
+    for (const key of ['clip', 'at', 'aspect']) {
+      if (options[key] !== null && options[key] !== undefined) {
+        params.set(key, String(options[key]));
+      }
+    }
+    const name = ['crop', options.clip, options.aspect?.replace(':', 'x'), options.at !== null ? `t${options.at}` : null]
+      .filter(Boolean).join('-');
+    const query = params.toString();
+    return [{ tab: 'crop', out: path.join(options.out, `${name}.png`), url: `${options.baseUrl}${CROP_PATH}${query ? `?${query}` : ''}` }];
+  }
+  return options.tabs.map((tab) => {
+    const suffix = options.kind && tab === 'preview' ? `-${options.kind}` : '';
+    const kindQuery = options.kind ? `&kind=${encodeURIComponent(options.kind)}` : '';
+    return {
+      tab,
+      out: path.join(options.out, `${presetBase}-${tab}${suffix}.png`),
+      url: `${options.baseUrl}${EDITOR_PATH}?tab=${tab}&preset=${encodeURIComponent(options.preset)}${kindQuery}`,
+    };
+  });
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   if (options.help) {
@@ -187,15 +234,11 @@ async function main() {
     }
   }
 
-  const presetBase = options.preset.replace(/\.json$/u, '');
+  const presetBase = options.page === 'crop' ? 'crop' : options.preset.replace(/\.json$/u, '');
   const results = [];
   const session = await launchChrome({ chrome, width: options.width, height: options.height });
   try {
-    for (const tab of options.tabs) {
-      const suffix = options.kind && tab === 'preview' ? `-${options.kind}` : '';
-      const out = path.join(options.out, `${presetBase}-${tab}${suffix}.png`);
-      const kindQuery = options.kind ? `&kind=${encodeURIComponent(options.kind)}` : '';
-      const url = `${options.baseUrl}${EDITOR_PATH}?tab=${tab}&preset=${encodeURIComponent(options.preset)}${kindQuery}`;
+    for (const { tab, out, url } of shotTargets(options, presetBase)) {
       const startedAt = Date.now();
       try {
         const { data, messages } = await capturePage({
