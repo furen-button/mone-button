@@ -115,7 +115,7 @@ function connect(endpoint) {
 }
 
 // 1 ページ開いて撮る。settleMs は load 後に待つ時間（fetch の結果が描かれるのを待つ）。
-export async function capturePage({ browser, url, width, height, settleMs, timeoutMs, fullPage = true }) {
+export async function capturePage({ browser, url, width, height, settleMs, timeoutMs, fullPage = true, readyExpression = null }) {
   const { targetId } = await browser.send('Target.createTarget', { url: 'about:blank' });
   const { sessionId } = await browser.send('Target.attachToTarget', { targetId, flatten: true });
   const messages = [];
@@ -153,6 +153,23 @@ export async function capturePage({ browser, url, width, height, settleMs, timeo
     await browser.send('Page.navigate', { url }, timeoutMs, sessionId);
     await loaded;
     await new Promise((resolve) => setTimeout(resolve, settleMs));
+
+    // readyExpression が true を返すまで待つ（非同期の描画が終わってから撮る）。
+    if (readyExpression) {
+      const deadline = Date.now() + timeoutMs;
+      let ready = false;
+      while (Date.now() < deadline) {
+        const result = await browser.send('Runtime.evaluate', { expression: readyExpression, returnByValue: true }, timeoutMs, sessionId);
+        if (result.result.value === true) {
+          ready = true;
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      if (!ready) {
+        throw new Error(`描画の準備が ${timeoutMs} ms 以内に終わらない`);
+      }
+    }
 
     let clip;
     if (fullPage) {

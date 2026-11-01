@@ -1,0 +1,282 @@
+:root {
+  font-family: sans-serif;
+  color: #eee5f7;
+  background: #17131f;
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+  background: #30253e;
+  border: 1px solid #574265;
+  border-radius: 6px;
+  padding: 7px 9px;
+  min-width: 0;
+}
+button {
+  cursor: pointer;
+}
+button:hover,
+button[aria-pressed='true'] {
+  background: #634284;
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+a {
+  color: #f5a8d2;
+}
+small {
+  display: block;
+  color: #b9a7ca;
+  font-size: 11px;
+}
+h1 {
+  font-size: 27px;
+  margin: 3px 0;
+}
+h2 {
+  font-size: 16px;
+  margin: 0 0 12px;
+}
+h3 {
+  font-size: 13px;
+}
+.th-app {
+  padding: 22px 24px;
+  max-width: 2100px;
+  margin: auto;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.th-eyebrow {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: #ee91c2;
+}
+.th-toolbar,
+.th-actions {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.th-toolbar label {
+  flex: 1;
+  max-width: 540px;
+}
+label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+}
+.th-toolbar label,
+.th-properties label {
+  flex-wrap: wrap;
+}
+.th-toolbar label > select,
+.th-toolbar label > input {
+  flex-basis: 100%;
+  margin-top: 4px;
+}
+.th-actions {
+  align-items: center;
+}
+.th-actions input:not([type='checkbox']) {
+  width: 160px;
+}
+.th-primary {
+  background: #db438c;
+  color: #fff;
+  font-weight: bold;
+  padding: 10px 28px;
+}
+.th-workspace {
+  display: grid;
+  grid-template-columns: 300px minmax(400px, 1fr) 280px;
+  gap: 16px;
+  align-items: start;
+}
+section {
+  background: #231c2d;
+  padding: 15px;
+  border: 1px solid #3b2e4b;
+  border-radius: 10px;
+}
+.th-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #2a1446;
+  box-shadow: 0 12px 40px #0006;
+  overflow: hidden;
+}
+.th-stage canvas,
+.th-stage svg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+}
+.th-stage svg {
+  touch-action: none;
+  user-select: none;
+}
+.th-stage [data-mode='resize'] {
+  cursor: nwse-resize;
+}
+.th-stage [data-mode='rotate'] {
+  cursor: grab;
+}
+.th-hint {
+  color: #b3a2c4;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.th-assets nav {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 14px;
+}
+.th-assets nav button {
+  font-size: 12px;
+  padding: 6px;
+  flex: 1;
+  white-space: nowrap;
+}
+.th-assets select,
+.th-assets video,
+.th-assets input[type='file'] {
+  width: 100%;
+  margin: 8px 0;
+}
+.th-assets video {
+  max-height: 180px;
+  background: #000;
+}
+.th-faceGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  max-height: 520px;
+  overflow: auto;
+  gap: 5px;
+  margin-top: 10px;
+}
+.th-faceGrid button {
+  padding: 0;
+  background: #42314e;
+}
+.th-faceGrid img {
+  width: 100%;
+  display: block;
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+.th-drop {
+  border: 1px dashed #9f71ba;
+  padding: 10px;
+}
+.th-drop p {
+  font-size: 12px;
+}
+.th-properties fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.th-properties label {
+  margin-bottom: 10px;
+  justify-content: space-between;
+}
+.th-properties input[type='number'] {
+  width: 100px;
+}
+.th-properties input:not([type]),
+.th-properties input[type='text'] {
+  width: 100px;
+}
+.th-properties input[type='color'] {
+  width: 35px;
+  padding: 2px;
+}
+.th-properties select,
+.th-properties textarea {
+  width: 100%;
+}
+.th-properties textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+.th-pair {
+  display: flex;
+  gap: 10px;
+}
+.th-pair input {
+  width: 75px !important;
+}
+.th-outline {
+  background: #30243c;
+  padding: 8px;
+  margin: 6px 0;
+  border-radius: 6px;
+}
+.th-danger {
+  margin-top: 16px;
+  color: #ffb5c8;
+}
+.th-layer {
+  display: flex;
+  gap: 4px;
+  padding: 6px;
+  border-bottom: 1px solid #493452;
+  align-items: center;
+}
+.th-layer.selected {
+  background: #503161;
+}
+.th-layer button {
+  font-size: 11px;
+  padding: 4px 7px;
+}
+.th-layerName {
+  flex: 1;
+  text-align: left;
+}
+.th-error {
+  color: #ffc2ca;
+  background: #6b2639;
+  padding: 12px;
+}
+.th-notice {
+  color: #c4f8df;
+  background: #234537;
+  padding: 10px;
+}
+@media (max-width: 1100px) {
+  .th-workspace {
+    grid-template-columns: 190px minmax(300px, 1fr);
+  }
+  .th-workspace > aside:last-child {
+    grid-column: 1 / -1;
+  }
+  .th-app {
+    padding: 12px;
+  }
+}
