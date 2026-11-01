@@ -124,3 +124,38 @@ export function shiftCamera(keyframes, deltaSec, duration) {
     cameraFrameAt(keyframes, deltaSec + duration)]
     .map((frame) => ({ ...frame, t: frame.t - deltaSec }));
 }
+
+// クリップ JSON の effects.camera[aspect] だけを書き換える。keyframes が null なら消し、
+// 空になった camera / effects も消す。保存 API（/__data/save）から使う。
+export function applyCameraPatch(data, patch) {
+  if (!patch || typeof patch !== 'object' || !CAMERA_ASPECTS.includes(patch.aspect)) {
+    return { error: 'camera.aspect は 9:16 / 16:9 / 1:1 で指定してください。' };
+  }
+  const effects = { ...(isPlainObject(data?.effects) ? data.effects : {}) };
+  const camera = { ...(isPlainObject(effects.camera) ? effects.camera : {}) };
+  if (patch.keyframes === null) {
+    delete camera[patch.aspect];
+  } else {
+    const normalized = normalizeCamera(patch.keyframes);
+    if (normalized.error) {
+      return { error: normalized.error };
+    }
+    camera[patch.aspect] = normalized.keyframes;
+  }
+  const next = { ...data };
+  if (Object.keys(camera).length > 0) {
+    effects.camera = camera;
+  } else {
+    delete effects.camera;
+  }
+  if (Object.keys(effects).length > 0) {
+    next.effects = effects;
+  } else {
+    delete next.effects;
+  }
+  return { data: next };
+}
+
+function isPlainObject(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}

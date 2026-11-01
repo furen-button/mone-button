@@ -3,7 +3,8 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { aspectKey, normalizeCamera, cameraExprAst, exprToString, cameraRectAt } from './camera.js';
 import { ffmpegLibplaceboStatus, probeVideoStream, probeDuration } from './ffmpeg.js';
-import { restoreFilter } from './enhance.js';
+import { DEFAULTS } from './config.js';
+import { planEnhance, restoreFilter } from './enhance.js';
 import { escapeFilterPath } from './ass.js';
 
 export async function planCamera({ tools, clip, sourceMp4, config, size, workDir, probe = null, status = null }) {
@@ -68,4 +69,11 @@ export function cameraFilters(plan, size, { enhance = null, rect = null } = {}) 
     [`libplacebo=w=${size.width}:h=${size.height}`, ...crop,
       ...(enhance?.applied && enhance.upscalePreset ? [`custom_shader_path='${escapeFilterPath(enhance.upscalePreset)}'`] : []),
       'upscaler=ewa_lanczossharp', 'format=yuv420p', 'dithering=none'].join(':'), 'setsar=1'].join(',');
+}
+
+// 書き出し・切り出しツールの確認用の Anime4K。プリセットの effects.enhance に関係なく有効にし、
+// 720p 未満の入力にも掛ける（クリップ上書き {} で minSourceHeight の判定を外す）。
+export async function exportEnhance({ tools, sourceMp4, probe = null }) {
+  const config = { ...DEFAULTS, effects: { ...DEFAULTS.effects, enhance: { ...DEFAULTS.effects.enhance, enabled: true } } };
+  return planEnhance({ tools, clip: { data: { effects: { enhance: {} } } }, sourceMp4, config, probe });
 }

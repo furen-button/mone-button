@@ -52,7 +52,12 @@ export function sendError(res: ServerResponse, status: number, error: string, de
   sendJson(res, status, detail === undefined ? { error } : { error, detail });
 }
 
-export function assertLocalRequest(req: IncomingMessage, res: ServerResponse): boolean {
+// allowContentTypes は JSON 以外の本文を受ける経路（動画のアップロード）だけが渡す。
+export function assertLocalRequest(
+  req: IncomingMessage,
+  res: ServerResponse,
+  { allowContentTypes = null }: { allowContentTypes?: string[] | null } = {},
+): boolean {
   const result = checkLocalRequest({
     method: req.method,
     remoteAddress: req.socket.remoteAddress,
@@ -60,6 +65,7 @@ export function assertLocalRequest(req: IncomingMessage, res: ServerResponse): b
     origin: stringHeader(req.headers.origin),
     secFetchSite: stringHeader(req.headers['sec-fetch-site']),
     contentType: stringHeader(req.headers['content-type']),
+    allowContentTypes,
   });
 
   if (!result.ok) {

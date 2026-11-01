@@ -13,3 +13,7 @@ export function cameraExprAst(keyframes: CameraFrame[], source: CameraSource, as
 export function exprToString(expr: CameraExpr): string;
 export function evalExpr(expr: CameraExpr, t: number): number;
 export function shiftCamera(keyframes: CameraFrame[], deltaSec: number, duration: number): CameraFrame[];
+export function applyCameraPatch<T extends Record<string, unknown>>(
+  data: T,
+  patch: { aspect: string; keyframes: unknown },
+): { data: T; error?: never } | { error: string; data?: never };

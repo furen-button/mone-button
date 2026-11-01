@@ -3,6 +3,8 @@ export type HandlerRequest = {
   path: string;
   query: URLSearchParams;
   body: unknown;
+  // rawBody の経路だけ。本文を読まずに渡すリクエストのストリーム。
+  stream?: import('node:stream').Readable;
   headers: Record<string, string | string[] | undefined>;
   signal: AbortSignal;
 };
@@ -25,6 +27,8 @@ export type HandlerResult =
 export type Route = {
   method: 'GET' | 'POST' | 'HEAD';
   pattern: RegExp;
+  // true なら JSON を解析せず、video/* と application/octet-stream の本文を stream で受ける。
+  rawBody?: boolean;
   handler: (req: HandlerRequest, params: Record<string, string>) => Promise<HandlerResult>;
 };
 

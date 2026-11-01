@@ -4,6 +4,7 @@ import path from 'node:path';
 import { contactSheetPathFor } from '../../create-video/qc/contact.js';
 import { manifestPathFor, reportPathsFor } from '../../create-video/qc/manifest.js';
 import { summaryPathsFor } from '../../create-video/summary.js';
+import { cropDirs, resolveCropRef } from '../lib/crop-source.js';
 import { outputBaseName } from '../lib/guards.js';
 
 const VIDEO_ID_PATTERN = /^[\w-]{6,20}$/u;
@@ -62,6 +63,22 @@ export function resolveOutputFile(context, kind, name, index) {
     }
     baseDir = path.join(context.cacheDir, kind === 'still' ? 'stills' : 'sheets');
     resolved = { file: path.join(baseDir, `${name}.png`), type: 'image/png' };
+  } else if (kind === 'crop') {
+    // 切り出しツールの書き出し結果（output/crop/<name>.mp4）。
+    const base = outputBaseName(name);
+    if (!base) {
+      return null;
+    }
+    baseDir = cropDirs(context.projectRoot).output;
+    resolved = { file: path.join(baseDir, `${base}.mp4`), type: 'video/mp4' };
+  } else if (kind === 'crop-source') {
+    // 切り出しツールの元動画。name は upload:<id> / cache:<base> / public:<base>。
+    const ref = resolveCropRef(context.projectRoot, name);
+    if (!ref) {
+      return null;
+    }
+    baseDir = ref.baseDir;
+    resolved = { file: ref.file, type: ref.contentType };
   } else {
     return null;
   }

@@ -113,3 +113,20 @@ describe('camera の境界と描画経路', () => {
     }
   });
 });
+
+describe('applyCameraPatch', () => {
+  it('その縦横比だけを書き換え、null で消し、空になった camera / effects も消す', async () => {
+    const { applyCameraPatch } = await import('./camera.js');
+    const data = { serif: 'x', effects: { zoom: false, camera: { '16:9': frames } } };
+    const added = applyCameraPatch(data, { aspect: '9:16', keyframes: [...frames].reverse() });
+    assert.deepEqual(added.data.effects.camera['9:16'].map((k) => k.t), [1, 3]);
+    assert.equal(added.data.effects.camera['16:9'], frames);
+    assert.equal(added.data.effects.zoom, false);
+    assert.equal(data.effects.camera['9:16'], undefined);
+
+    const removed = applyCameraPatch({ serif: 'x', effects: { camera: { '9:16': frames } } }, { aspect: '9:16', keyframes: null });
+    assert.deepEqual(removed.data, { serif: 'x' });
+    assert.ok(applyCameraPatch(data, { aspect: '4:3', keyframes: frames }).error);
+    assert.ok(applyCameraPatch(data, { aspect: '9:16', keyframes: [{ ...frames[0], zoom: 9 }] }).error);
+  });
+});

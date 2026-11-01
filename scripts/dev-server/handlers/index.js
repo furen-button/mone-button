@@ -6,8 +6,9 @@ import {
   schemaPath,
 } from '../lib/paths.js';
 import { createClipRoutes } from './clips.js';
+import { createCropRoutes } from './crop.js';
 import { createFileRoutes } from './files.js';
-import { createJobRoutes } from './jobs.js';
+import { JobManager, createJobRoutes } from './jobs.js';
 import { createPresetRoutes } from './presets.js';
 import { createStillRoutes } from './still.js';
 import { createValidateRoutes } from './validate.js';
@@ -24,12 +25,16 @@ export function createHandlers(context = {}) {
     ...context,
   };
 
+  // ビルドと切り出しの書き出しは同じ JobManager に載せ、/build/<id>/log・cancel から両方を見られるようにする。
+  // ジョブは 1 本ずつなので、片方の実行中にもう片方を始めると 409 になる。
+  const jobs = new JobManager(resolvedContext);
   return [
     ...createPresetRoutes(resolvedContext),
     ...createValidateRoutes(resolvedContext),
     ...createClipRoutes(resolvedContext),
     ...createStillRoutes(resolvedContext),
-    ...createJobRoutes(resolvedContext),
+    ...createJobRoutes(resolvedContext, jobs),
+    ...createCropRoutes(resolvedContext, jobs),
     ...createFileRoutes(resolvedContext),
   ];
 }

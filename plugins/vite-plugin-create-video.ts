@@ -34,18 +34,22 @@ export function createVideoEditorPlugin(): Plugin {
   }
 }
 
-async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise<void> {
-  if (!assertLocalRequest(req, res)) {
-    return
-  }
+// rawBody の経路（動画のアップロード）だけが受ける本文の種類。
+const RAW_BODY_CONTENT_TYPES = ['video/', 'application/octet-stream']
 
+async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise<void> {
   const method = req.method || 'GET'
   const { path: requestPath, query } = parseRequestUrl(req.url || '/')
   let abort: (() => void) | null = null
 
   try {
+    // 経路によって受ける本文が違うので、ガードより先に経路を決める（URL の解析だけで副作用は無い）。
     const handlers = await loadHandlers()
     const matched = handlers.matchRoute(routesFor(handlers), method, requestPath)
+    const rawBody = matched?.route.rawBody === true
+    if (!assertLocalRequest(req, res, { allowContentTypes: rawBody ? RAW_BODY_CONTENT_TYPES : null })) {
+      return
+    }
     if (!matched) {
       sendError(res, 404, 'not found')
       return
@@ -55,12 +59,14 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
     abort = () => controller.abort()
     req.socket.once('close', abort)
 
-    const body = method === 'POST' ? await parseJsonBody(req) : undefined
+    // rawBody の経路は本文を読まずにストリームのまま渡す（JSON の 1MB 上限を通らない）。
+    const body = method === 'POST' && !rawBody ? await parseJsonBody(req) : undefined
     const result = await matched.route.handler({
       method,
       path: requestPath,
       query,
       body,
+      ...(rawBody ? { stream: req } : {}),
       headers: req.headers,
       signal: controller.signal,
     } satisfies HandlerRequest, matched.params)

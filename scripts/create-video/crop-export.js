@@ -8,8 +8,7 @@ import { DEFAULTS, parseArgs, projectRoot } from './config.js';
 import { readAllClips } from './select.js';
 import { resolveClipSource } from './clip.js';
 import { resolveFfmpeg, probeVideoStream } from './ffmpeg.js';
-import { planCamera, cameraFilters } from './camera-render.js';
-import { planEnhance } from './enhance.js';
+import { cameraFilters, exportEnhance, planCamera } from './camera-render.js';
 import { CAMERA_ASPECTS, aspectKey } from './camera.js';
 
 export async function exportCrop(opts) {
@@ -41,13 +40,11 @@ export async function exportCrop(opts) {
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'crop-'));
   const out = path.resolve(opts.out || path.join(projectRoot, 'output/crop', `${path.basename(input, path.extname(input))}-${aspect.replace(':', 'x')}.mp4`));
   try {
-    const config = { ...DEFAULTS, effects: { ...DEFAULTS.effects,
-      enhance: { ...DEFAULTS.effects.enhance, enabled: scaler === 'anime4k', minSourceHeight: 1 } } };
-    const plan = await planCamera({ tools, clip: { data: { effects: { camera: { [aspect]: camera } } } }, sourceMp4: input, config, size, workDir, probe });
+    const plan = await planCamera({ tools, clip: { data: { effects: { camera: { [aspect]: camera } } } }, sourceMp4: input, config: DEFAULTS, size, workDir, probe });
     if (!plan) {
       throw new Error('この縦横比のキーフレームがありません。');
     }
-    const enhance = await planEnhance({ tools, clip: { data: { effects: { enhance: scaler === 'anime4k' ? {} : false } } }, sourceMp4: input, config, probe });
+    const enhance = scaler === 'anime4k' ? await exportEnhance({ tools, sourceMp4: input, probe }) : null;
     if (path.resolve(input) === out) {
       throw new Error('入力と出力は別のファイルにしてください。');
     }
