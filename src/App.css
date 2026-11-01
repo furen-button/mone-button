@@ -877,6 +877,24 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
+.clip-edit-link {
+  align-self: flex-start;
+  color: #8a4fc4;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.clip-edit-link:hover {
+  text-decoration: underline;
+}
+
+.clip-edit-link:focus-visible {
+  outline: 3px solid rgba(138, 79, 196, 0.5);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .clip-trim {
   border: 1px solid #e6d8c7;
   border-radius: 12px;
@@ -1823,6 +1841,17 @@
 
 .dev-review-chip.is-active .dev-review-count {
   background: rgba(0, 0, 0, 0.1);
+}
+
+/* dev 専用ページへのリンク。絞り込みのチップと見た目を揃える（幅によって次の行へ折り返す）。 */
+.dev-review-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dev-review-link {
+  text-decoration: none;
 }
 
 .dev-review-note {

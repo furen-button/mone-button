@@ -17,6 +17,12 @@ const KIND_TITLES: Record<ClipIssueKind, string> = {
   serif: 'serif に半角スペース無しで 15 字を超える区間がある',
 }
 
+// dev 専用のページ。URL を覚えていなくても開けるよう、別タブで開くリンクを置く。
+const DEV_PAGES = [
+  { href: `${import.meta.env.BASE_URL}crop.html`, icon: '🖼️', label: '切り出しツール', title: '動画をドロップして枠とキーフレームで切り出す（crop.html）' },
+  { href: `${import.meta.env.BASE_URL}editor.html`, icon: '🎬', label: '設定エディタ', title: 'createVideo のプリセットを編集・プレビュー・ビルドする（editor.html）' },
+]
+
 type DevReviewToolbarProps = {
   summary: ReviewSummary
   totalClips: number
@@ -68,6 +74,20 @@ export function DevReviewToolbar({ summary, totalClips, videosLoaded, filter, on
           )
         })}
       </div>
+      <nav className="dev-review-links" aria-label="dev 専用のページ">
+        {DEV_PAGES.map((page) => (
+          <a
+            key={page.href}
+            className="dev-review-chip dev-review-link"
+            href={page.href}
+            target="_blank"
+            rel="noopener"
+            title={page.title}
+          >
+            <span aria-hidden="true">{page.icon}</span> {page.label}
+          </a>
+        ))}
+      </nav>
       <p className="dev-review-note">{note}</p>
     </section>
   )

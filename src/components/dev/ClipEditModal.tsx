@@ -238,6 +238,15 @@ export function ClipEditModal({ clip, categorySuggestions, hasVideo, onDelete, o
           <div className="clip-edit-header-text">
             <h2 className="clip-edit-title">クリップ編集 <span className="clip-edit-badge">DEV</span></h2>
             <p className="clip-edit-filename">{clip.fileBaseName}.json</p>
+            <a
+              className="clip-edit-link"
+              href={`${import.meta.env.BASE_URL}crop.html?clip=${encodeURIComponent(clip.fileBaseName)}`}
+              target="_blank"
+              rel="noopener"
+              title="このクリップのキーフレーム切り出し（effects.camera）を別タブで編集する"
+            >
+              🖼️ 切り出しツールで開く
+            </a>
           </div>
           <div className="clip-edit-header-actions">
             {status === 'saved' ? <span className="clip-edit-header-status is-saved">✓ 保存しました</span> : null}

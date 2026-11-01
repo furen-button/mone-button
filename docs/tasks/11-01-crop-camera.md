@@ -61,6 +61,7 @@ effects.reframe（Shorts の縦切り出し）と effects.zoom（横動画のパ
 - `CropApp`（状態・読み込み・キーボード）、`SourceView`（動画 + 枠の canvas。ホイールは非 passive のネイティブリスナー）、`OutputPreview`、`Timeline`、`KeyframeFields`、`ExportPanel`、`ClipPanel`
 - 再生位置のキーフレームを「選択中」とみなす（選択状態を別に持たない）。枠や数値を変えると、そこにキーフレームが無ければ差し込む
 - `?clip=<base>&at=<秒>&aspect=<a>` で開ける。`npm run shots -- --page crop --clip <base> --at <秒> --aspect <a>` で撮れる
+- dev サイトの DEV ツールバーに「切り出しツール」「設定エディタ」、クリップ編集モーダルに「切り出しツールで開く」のリンクを置いた（別タブ）
 
 ### ついでに直した既存の不具合
 
@@ -83,7 +84,6 @@ effects.reframe（Shorts の縦切り出し）と effects.zoom（横動画のパ
 - `createVideo --qc` で camera 付きクリップを含む動画を通しで作る確認はしていない（still と書き出しで描画経路は確認済み）
 - トリム後の smooth 補間は、境界の位置は保つが元の速度曲線（smoothstep の途中から）までは保たない
 - 編集中のキーフレームはブラウザに保存しない。クリップに保存するか書き出す前にページを閉じると消える
-- クリップ編集モーダル（dev サイト）からこの画面へ飛ぶ入口は作っていない（`?clip=<base>` で開ける）
 
 ## 変更ファイル
 
