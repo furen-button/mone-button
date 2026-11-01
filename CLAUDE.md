@@ -190,6 +190,22 @@ PATH=/opt/homebrew/bin:$PATH npm run createVideo -- --config scripts/create-vide
 - Shortsのセリフは **marginH=50/1080（各50px、内幅980px）/ size:0.5（上限960px）**、配色は config-kirinuki と同じピンク文字 FF4FA0＋白縁 9px＋紫 6B3FA0 の外縁 4px＋影 3（白＋濃紫の太縁も試したが、ユーザーの判断でこの配色に戻した）。トランジションの SE は鳴らさない（`transitions.se.enabled:false`、ホイップパンの映像は残す）。`telops.serif.faceRange`（既定enabled:false）で上端〜前髪付近に収める。Shortsは `enabled:true / top:0.02 / minHeight:0.12 / maxHeight:0.30 / fallbackBottom:0.24`。顔の枠の上端をreframeの元座標から実出力へ写し、topからそこまでの高さを12〜30%に制限する。reframeなし・顔未検出・手動焦点で顔サイズ不明のときは固定2〜24%。範囲内で上下中央に置き、合計行送りが範囲を超えると全行を同率縮小する（fitSpaceLinesの0.97の余裕は維持）。狭い範囲を最低12%に広げた場合は前髪への軽い重なりを許す。rangeを`serifOverrides`と同じく共有描画計画から渡し、`serifRange`としてセグメントとstillのJSONへ残す。描画・manifestの行別矩形・QCは同じ計画を使う。描画前のL0は未検出相当の固定範囲で検査する。
 - 2026-11-01のデータで、やられ25クリップ→7本（11.01〜51.13秒）、侍73クリップ→23本（10.20〜37.54秒）。本数はクリップの追加で変わるので、`split.test.js` は本数を固定せず「漏れなく分ける・各パートが minSec 以上」だけを実データで確かめる。
 
+### クリップごとのキーフレーム切り出し（effects.camera）
+
+```
+npm run cropVideo -- --input <mp4> --camera <keyframes.json> --aspect 9:16 --size 1080x1920 --scaler anime4k|lanczos [--out output/crop/x.mp4]
+npm run cropVideo -- --clip <base> --aspect 9:16      # public/data のキーフレームと高画質キャッシュで書き出す
+```
+
+- クリップ JSON の `effects.camera` に縦横比（`"9:16"` / `"16:9"` / `"1:1"`）ごとのキーフレーム列 `[{ t, x, y, zoom, ease }]` を持つ。`t` は mp4 先頭からの秒、`x` / `y` は枠の中心（元映像の幅・高さ比）、`zoom` はその縦横比で元映像に収まる最大の枠を 1 とした倍率（1〜4）、`ease` はそのキーフレームから次までの動き（`smooth` 既定 / `linear` / `cut` = 次の時刻まで止めて切り替え）。中心は線形、倍率は対数で補間し、枠は毎フレーム元映像の内側に収める。最初より前・最後より後は端の枠のまま。ふつうは切り出しツール（crop.html）で作って保存する。
+- createVideo は出力サイズの比で該当するキーフレーム列を選び、あればそのクリップでは reframe・zoom・顔回避を使わない（ログに出す）。無ければ従来どおり。`effects.camera.enabled: false` / `--no-camera` で全体を止められる。拡大方法は JSON に持たず、プリセットの `effects.enhance` に従う。
+- 描画は `libplacebo` の `crop_x/y/w/h` に時刻 `t` の式を渡す（フレームごとに評価、小数位置なのでゆっくり寄ってもガタつかない。Anime4K の Upscale_CNN_x2 もそのまま効く。静的 crop との差は PSNR 75.6 dB、CNN 無しとは 35.7 dB）。式は `camera.js` の小さな AST から ffmpeg の文字列（`exprToString`）と JS の評価（`evalExpr`）を作り、`cameraRectAt`（プレビュー・QC・fallback が使う）と一致することをテストで確かめる。書き出した mp4 の各時刻のフレームは、`cameraRectAt` で求めた静的な枠と PSNR 46〜49 dB（crf18 の床）、0.1 秒ずらすと動いている区間で 15〜18 dB。
+- libplacebo が使えないときは `sendcmd` で `crop` の w/h/x/y を毎フレーム変えて `scale=lanczos`（整数 px）にし、QC が `camera_fallback` を warn で出す。`sendcmd` で libplacebo の crop を変える方法は通らなかった（Filter not found）。
+- 元映像の大きさは回転と SAR を考えた表示サイズ（`ffmpeg.js` の `displayVideoSize`）。ブラウザの `videoWidth` / `videoHeight` と同じ座標になる。
+- 波形トリム・切り出しで先頭を切ると、切った位置と新しい末尾に補間したキーフレームを足して `t` をずらす（`shiftCamera`。`effects.zoom.at` は従来どおり補正しない）。
+- `cropVideo` は任意の mp4 を同じフィルタで書き出す（fps は元のまま、h264 crf18、音声は `-map 0:a?` で aac）。`--scaler anime4k` は 720p 未満の入力にも Anime4K を掛ける。進捗は `🎬 [<pct>/100] 描画中: <name>` と `✅ 完成: <path>` で出し、設定エディタのジョブ表示がそのまま読める。1080p 7.5 秒の 9:16 書き出しは Anime4K で約 7.6 秒、Lanczos で約 4.4 秒（2026-11-01 実測）。
+- render.json のセグメントに `camera`（縦横比・キーフレーム・元寸法・`backend` = libplacebo / sendcmd・fallback）が残る。QC の pHash は `-ss` を `-i` の前に置いて `t` が 0 から始まるため、式ではなく比較時刻の `cameraRectAt` で求めた静的な crop で同じ構図を作る。セリフの範囲（faceRange）は顔が分からないので固定範囲になる。
+
 ### 静止画プレビュー（still）
 
 ```
@@ -210,7 +226,7 @@ npm run -s still -- --videoId gr9WJDYS_u0 --limit 3 --still opening     # OP（E
 - `source: cache` のキャッシュミスでも yt-dlp は起動しない。期待パスを `source_missing` warning に出す。
 - 256x144 の既存 mp4 を 1080p へ拡大する場合は `source_upscaled` を出す。
 - 出力は既定で `cache/createVideo/preview/<preset>/`。単体 still は `<base>-t<sec>.png`、シートは `sheet-<n>x<cols>.png`。
-- `--json` は 1 行 JSON。主要キーは `ok,out,assPath,at,requestedAt,index,total,clip,size,source,zoom,avoidFace,enhance,reframe,elements,overlays,warnings,key,ms`。
+- `--json` は 1 行 JSON。主要キーは `ok,out,assPath,at,requestedAt,index,total,clip,size,source,zoom,avoidFace,enhance,reframe,camera,elements,overlays,warnings,key,ms`。
 - 2026-09-11 実測（1080p 出力）: ffmpeg 単体 約 0.6 秒、`renderStill` を同一プロセスで繰り返すと約 0.7 秒/枚（`resolveFfmpeg` はプロセス内で 1 回だけ）、CLI は node 起動込みで約 0.9 秒。`config-mone` の `--zoom --avoid-face` は顔検出込みで約 3.7 秒。3 セルの `--sheet 3` と `--frames 4` はどちらも約 1.2 秒。
 - 本番との一致は「完成セグメントから抜いたフレームとの PSNR」で確認する。値は内容依存で、既定プリセットは 41 dB、zoom 全編は 37 dB。どちらも静止画を x264 crf23 で往復させた圧縮の床（39 dB / 36 dB）と同じ帯にあり、t±1 フレームとは 8 dB 以上離れる。ASS は `--print-ass` で本番 `clip-NNNN.ass` と完全一致する。
 - カード / OP / ED も同様に、既定プリセットで 39.3 / 41.3 / 43.4 dB（それぞれの圧縮床は 40.8 / 42.7 / 44.9 dB）。ASS は本番 `card-NNNN.ass` / `opening.ass` / `ending.ass` と完全一致する。カードは背景がほぼ静止しているため t±1 フレームでも PSNR が下がらず、一致の根拠は ASS の一致と圧縮床との距離で見る。
@@ -241,6 +257,7 @@ npm run createVideo -- --videoId xxx --qc   # 生成前 L0 + 生成後 L1
 - 音量の目標は **-23 LUFS ±2**（取り込み側の `ffmpeg-normalize` が EBU R128 / -23 LUFS で揃えるため）。YouTube 基準に寄せたい場合は `config.qc.thresholds.integratedLufsMin/Max` を変更する。
 - 区切りカード・OP・ED は静止画背景で無音なため、manifest がある場合はフリーズ・無音・音量差の検査をクリップ区間だけに限定する。
 - `reframe` は枠（はみ出し込みのframe）・重なりのcrop・元寸法・焦点の出所（face/manual/config/center）・顔高さ比faceHeight・pick・target・zoom・zoomReason（min/center/face size/cap）・zoomNeeded・fill（未使用null）・前景の出力矩形・fallbackを各セグメントに残す。顔未検出は `reframe_face_fallback` warn、余白使用は `reframe_fill` info。pHashは共有のreframeFiltersで同じ構図を再現する。serifRangeがある新構図では範囲下端＋2.5%より下（最小25%）〜75%を比較し、上のセリフと下のタイトルを避ける。比較余地が5%未満ならinfoでskipする。旧構図の範囲は維持する。space-linesのテロップにはlineSizes/lineRectsも残す。
+- `camera` は縦横比・キーフレーム・元寸法・backend・fallback を各セグメントに残す。libplacebo が使えず sendcmd + Lanczos で切り出したクリップは `camera_fallback` warn。
 - `effects.enhance` を設定したのに libplacebo 不可やシェーダ欠落で補正なしになったクリップは `enhance_fallback` を warn にする。manifest のセグメントに `enhance`（`applied` / `restore` / `upscale` / `from`、または `fallback` と `reason`）が残る。
 - テロップの衝突は重なり面積比（既定 0.2）で判定する。文字矩形の幅は `charWidth` 推定で実測より広く出るため、端が触れただけでは error にしない。
 
@@ -265,6 +282,7 @@ http://localhost:5173/mone-button/editor.html?tab=preview&preset=config-mone.jso
 - 設定フォームの種類は `$defs` の名前で決まる（`scripts/dev-server/lib/schema-walk.js` と `src/editor/schema-form/resolveSchema.ts` の `SPECIAL_DEFS`）。縁取りの配列（`$defs/outlines`）は 1 層 1 行の専用欄、`transitions` は「効果」タブに出る。オブジェクトの配列を新しく足すときは専用の種類を作らないと `schema walk classification` のテストが落ちる
 - 保存は **`raw ∪ dirty`**（触った項目だけをファイルへ当てる）。解決済み全体や DEFAULTS からの差分は書かない。空 patch の保存は無変更。検証失敗でも保存は止めない
 - 未保存の draft は `cache/createVideo/editor/<preset>.draft.json` に書き、検証（`runPreflight`）とプレビュー（`renderStill`）はそれを `--config` で読む。ビルドは保存済みプリセットで走る
+- still / シートのキャッシュキーには入力ファイル（クリップ JSON・`public/videos`・高画質キャッシュ）の mtime と size が入る（`stillFileStamp`。クリップとカードはそのクリップだけ、OP / ED とシートは全件）。エディタ側の LRU もクリップの更新時刻で外すので、波形トリムや保存の後に古い画像は返らない
 - API は `/__cv/*`（`plugins/vite-plugin-create-video.ts` → `scripts/dev-server/handlers/*.js`）。ハンドラは遅延 import なので **`scripts/dev-server/**` や `scripts/create-video/**` を直したら dev サーバを再起動する**（`r` + Enter）
 - ガード: ループバック以外・Origin 不一致・`Sec-Fetch-Site: cross-site` は 403、プリセット名は `config-*.json` のみ、`/file` は kind ごとに基底ディレクトリ固定、ビルドオプションは allowlist。子プロセスは detached でグループ化し、cancel / サーバ close / Ctrl-C でまとめて止める。残った場合は `pkill -f create-video/index.js`
 - テストは `scripts/dev-server/**/*.test.js`（`npm test` に含まれる）。ブラウザ操作テストは無いので、UI は headless Chrome のスクリーンショットで確認する（`?tab=` / `?preset=` / `?job=` / `?kind=` で初期状態を指定できる）
@@ -281,6 +299,7 @@ npm run shots                                # config-matome-01.json の 5 タ�
 npm run shots -- --preset config-mone.json --tab preview,build
 npm run shots -- --tab preview --kind card       # 区切りカードのプレビュー
 npm run shots -- --strict                    # コンソールに深刻な出力があれば exit 1
+npm run shots -- --page crop --clip <base> --at 1.5   # 切り出しツール（crop.html）
 ```
 
 - 実装は `scripts/ui/shots.mjs` と `scripts/ui/cdp.mjs`（Node 組み込みの WebSocket だけで CDP を話す。依存は増やさない）。
@@ -289,6 +308,27 @@ npm run shots -- --strict                    # コンソールに深刻な出力
 - dev サーバが動いていなければ自分で `npm run dev` を起動し、撮り終えたら止める。
 - 出力は `cache/ui-shots/<preset>-<tab>.png` と `<preset>-console.log`（gitignore 済み）。
 - `console.error` / 例外 / `net::ERR` / `Failed to load resource` / React の `Warning:` を要注意として数える。1 枚あたり約 2.8 秒。
+
+## 切り出しツール（crop.html、dev 専用）
+
+任意の動画をドロップし、元映像の上の枠とキーフレームで切り出し・拡大する。dev サーバ専用で、`vite build` には入らない。
+
+```
+npm run crop                # /mone-button/crop.html を開く
+http://localhost:5173/mone-button/crop.html?clip=<base>&at=1.5&aspect=9:16
+```
+
+- 画面: 左に元映像と切り出し枠（中をドラッグで移動、四隅のドラッグとホイールで倍率、外を押すとそこへ中心を移す。枠の外は暗くする）、右に完成形の目安（ブラウザの拡大）、下にタイムライン（◆ = キーフレーム、帯の色 = 区間の動き。帯を押してシーク、◆ を横にドラッグで時刻変更）、数値欄、書き出し、クリップ。縦横比 9:16 / 16:9 / 1:1 ごとにキーフレームを別に持つ
+- 枠を動かす・数値を変えると、再生位置のキーフレームを書き換える（無ければその時刻に差し込む）。再生中に枠を触ると止める。キーボード: Space 再生 / K 追加 / Delete 削除 / ←→ 1 フレーム（Shift で 1 秒）/ [ ] 前後のキーフレーム
+- 読み込んだ動画はすぐ object URL で表示し、裏で `POST /__cv/crop/upload` に本文のまま送る（`cache/crop/uploads/`、上限 4GB、新しい 10 本だけ残す）。ファイル名が `public/data` のクリップ名なら照合し、保存済みのキーフレームを読み込む。サーバ上に同じ大きさの元動画（高画質キャッシュ・`public/videos`）があればアップロードを省く
+- 「高画質で確認」（`POST /__cv/crop/still`）は本番と同じ拡大で 1 枚だけ描く（`-ss` を `-i` の前に置き、枠は時刻で求めた静的な値。1080×1920 の Anime4K で約 1.2 秒）。「書き出す」（`POST /__cv/crop/export`）はキーフレームを `cache/crop/jobs/` に書いて `cropVideo` を走らせ、`output/crop/<名前>-<縦横比>-<日時>.mp4` に出す。ビルドと同じ JobManager を共有するので、どちらかの実行中にもう片方を始めると 409（画面で知らせる）。ログ・キャンセルは `/build/<id>/*`
+- クリップと照合できたら「クリップに保存（縦横比）」で `/__data/save` に `camera: { aspect, keyframes }` を送り、`effects.camera[aspect]` だけを書き換える（`keyframes: null` で消し、空になった `camera` / `effects` も消す）。保存すると createVideo の本番・still・QC にも効く
+- 元動画はブラウザに実パスを渡さず `upload:<id>` / `cache:<base>` / `public:<base>` で指す（`scripts/dev-server/lib/crop-source.js`）。`/file?kind=crop-source`（Range 対応）と `kind=crop`（書き出し結果）で配る
+- プラグインは経路を先に決め、`rawBody: true` の経路（アップロード）だけ JSON の解析を飛ばして `video/*` と `application/octet-stream` を許す。loopback・Origin・Sec-Fetch の検査は他の経路と同じ
+- 実装は `src/crop/`（`CropApp` / `SourceView` / `OutputPreview` / `Timeline` / `KeyframeFields` / `ExportPanel` / `ClipPanel`）と `scripts/dev-server/handlers/crop.js`。枠の計算はブラウザも `scripts/create-video/camera.js` を import して本番と同じ式を使う
+- UI の確認は `npm run shots -- --page crop --clip <base> --at 1.5 --aspect 9:16`
+
+詳細は docs/tasks/11-01-crop-camera.md を参照。
 
 ## ドキュメント管理
 
