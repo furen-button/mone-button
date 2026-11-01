@@ -5,6 +5,7 @@ import { cacheRoot, downloadHighQuality, videosDir } from './assets.js';
 import {
   buildAss,
   fitSingleLineTitle,
+  fitShortsTitle,
   formatDate,
   formatTimestamp,
   formatTitleLine,
@@ -14,6 +15,8 @@ import {
 import { buildZoomFilterComplex, planZoom, zoomCropFilters } from './effects.js';
 import { formatAvoidLog, planSerifAvoidance } from './avoid.js';
 import { formatEnhanceLog, planEnhance, restoreFilter, upscaleFilter } from './enhance.js';
+import { planReframe, reframeFilters } from './reframe.js';
+import { planSerifRange, serifRangeOverrides } from './serif-range.js';
 import { AUDIO_RESAMPLE, encodeArgs, probeDuration, subtitlesFilter } from './ffmpeg.js';
 import { describeTransition, planClipTransition, transitionAudioGraph, whipFilterChain } from './transition.js';
 
@@ -76,6 +79,8 @@ export async function renderClip({ tools, clip, index, total, config, workDir, s
     sourcePath: sourceMp4,
     elements: plan.elements,
     zoom: plan.zoom,
+    reframe: plan.reframe,
+    serifRange: plan.serifRange,
     avoid: plan.avoid,
     enhance: plan.enhance,
     transition: describeTransition(plan.transition),
@@ -98,8 +103,21 @@ export async function planClipRender({
   transition = null,
   log = console.log,
 }) {
+  // 縦長の切り出し（reframe）中は、出力座標を前提にした zoom と顔回避を使わない。
+  const reframe = await resolveRenderPlan(plans.reframe, () => planReframe({ tools, clip, sourceMp4, config, size, workDir, probe }));
+  if (reframe?.applied) {
+    log(`   📱 reframe: ${JSON.stringify(reframe.crop)} 焦点=${reframe.focus.source}`);
+    for (const [name, enabled] of [
+      ['zoom', clip.data?.effects?.zoom ?? config.effects?.zoom?.enabled],
+      ['avoidFace', clip.data?.effects?.avoidFace ?? config.telops?.serif?.avoidFace?.enabled],
+    ]) {
+      if (enabled) {
+        log(`⚠️ reframe 中は ${name} をスキップします。`);
+      }
+    }
+  }
   // ズームの切り出しで顔の出力座標が変わるため、顔回避はズーム計画の後に決める。
-  const zoom = await resolveRenderPlan(plans.zoom, () => planZoom({ tools, clip, sourceMp4, config, size, workDir }));
+  const zoom = reframe?.applied ? null : await resolveRenderPlan(plans.zoom, () => planZoom({ tools, clip, sourceMp4, config, size, workDir }));
   if (zoom?.skip) {
     log(`   🔎 ズーム: なし (${zoom.skip})`);
   } else if (zoom) {
@@ -113,16 +131,18 @@ export async function planClipRender({
     log(enhanceLog);
   }
 
-  const avoid = await resolveRenderPlan(plans.avoid, () => planSerifAvoidance({ tools, clip, sourceMp4, config, size, workDir, zoom }));
+  const avoid = reframe?.applied ? null : await resolveRenderPlan(plans.avoid, () => planSerifAvoidance({ tools, clip, sourceMp4, config, size, workDir, zoom }));
   const avoidLog = formatAvoidLog(avoid);
   if (avoidLog) {
     log(avoidLog);
   }
   const serifOverrides = avoid?.applied ? { marginL: avoid.marginL, marginR: avoid.marginR } : null;
-  const elements = buildClipElements({ clip, index, total, config, size, titleOverride, serifOverrides });
+  const serifRange = planSerifRange({ config, reframe, size });
+  const elements = buildClipElements({ clip, index, total, config, size, titleOverride, serifOverrides, serifRange });
   const ass = buildAss(elements, { width: size.width, height: size.height, font: config.font });
 
-  const baseFilters = [
+  const upscale = enhance?.applied && enhance.upscalePreset ? upscaleFilter(enhance, size) : null;
+  const baseFilters = reframe?.applied ? [reframeFilters(reframe, size, { enhance })] : [
     `scale=${size.width}:${size.height}:force_original_aspect_ratio=decrease`,
     `pad=${size.width}:${size.height}:(ow-iw)/2:(oh-ih)/2`,
     'setsar=1',
@@ -131,7 +151,6 @@ export async function planClipRender({
     ...(enhance?.applied && enhance.restorePreset ? [restoreFilter(enhance), 'setsar=1'] : []),
   ];
   // ズームの切り出し後の拡大。補正が効くときだけ lanczos を CNN 拡大に差し替える。
-  const upscale = enhance?.applied && enhance.upscalePreset ? upscaleFilter(enhance, size) : null;
   const subFilter = subtitlesFilter(assPath, config.fontsDir);
 
   // トランジション（whip）はテロップを焼いた後に掛け、帯もセリフも画面ごと流す。
@@ -158,6 +177,7 @@ export async function planClipRender({
       enhance,
       avoid,
       serifOverrides,
+      serifRange,
       elements,
       ass,
       transition: transitionPlan,
@@ -178,9 +198,11 @@ export async function planClipRender({
 
   return {
     zoom,
+    reframe,
     enhance,
     avoid,
     serifOverrides,
+    serifRange,
     elements,
     ass,
     transition: transitionPlan,
@@ -269,6 +291,10 @@ function formatZoomLog(zoom) {
 function resolveTitleTelop({ clip, config, size, titleOverride }) {
   const style = config.telops.title;
   const title = resolveTitleText({ clip, config, titleOverride });
+  if (style.layout === 'date-title') {
+    const fit = fitShortsTitle({ title, date: clip.meta?.uploadDate, style, width: size.width });
+    return { text: fit.text, style: { ...style, size: fit.size, autoShrink: false } };
+  }
   if (!style.format) {
     return { text: title, style };
   }
@@ -280,7 +306,8 @@ function resolveTitleTelop({ clip, config, size, titleOverride }) {
   return { text: fit.text, style: { ...style, size: fit.size, autoShrink: false } };
 }
 
-export function buildClipElements({ clip, index, total, config, size, titleOverride, serifOverrides = null }) {
+export function buildClipElements({ clip, index, total, config, size, titleOverride, serifOverrides = null, serifRange = undefined }) {
+  const range = serifRange === undefined ? planSerifRange({ config, size }) : serifRange;
   const meta = clip.meta || {};
   const dateText = formatDate(meta.uploadDate);
   const duration = clip.duration || Math.max(0.1, clip.endTime - clip.startTime);
@@ -321,7 +348,7 @@ export function buildClipElements({ clip, index, total, config, size, titleOverr
     height: size.height,
     duration,
     // 顔回避で左右非対称にする場合は marginL / marginR がここから入る。
-    overrides: { layer: 6, ...(serifOverrides || {}) },
+    overrides: { layer: 6, ...(serifOverrides || {}), ...serifRangeOverrides(range, size, serifOverrides || {}) },
   }));
 
   const progressText = (config.telops.progress.format || '{i} / {n}')

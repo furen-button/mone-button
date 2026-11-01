@@ -9,6 +9,7 @@ import { renderClip } from './clip.js';
 import { renderClipCard, renderEndingCard, renderOpeningCard } from './card.js';
 import { concatSegments, mixBgm, probeDuration, resolveFfmpeg } from './ffmpeg.js';
 import { buildSummaryEntry, writeSummary } from './summary.js';
+import { selectParts, partOutputPath } from './split.js';
 import { planTransitions } from './transition.js';
 import { writeRenderManifest } from './qc/manifest.js';
 import { runQc } from './qc/index.js';
@@ -17,9 +18,19 @@ import { exitCodeForResults, formatConsoleSummary, writeQcReport } from './qc/re
 
 async function main() {
   const config = loadConfig();
-  const size = outputSize(config);
   const clips = collectClips(config);
   const outPath = resolveOutputPath(config, clips);
+  const parts = selectParts(clips, config);
+  const tools = resolveFfmpeg();
+  for (const { clips: partClips, part } of parts) {
+    const target = config.output.split ? partOutputPath(outPath, part) : outPath;
+    console.log(`📦 part ${part}: ${partClips.length} clips → ${target}`);
+    await renderVideo({ config, clips: partClips, outPath: target, tools });
+  }
+}
+
+async function renderVideo({ config, clips, outPath, tools }) {
+  const size = outputSize(config);
   const titleOverride = config.titleOverride || null;
   const staticResults = config.qc.enabled
     ? runStaticChecks({ config, clips, size, titleOverride })
@@ -31,7 +42,6 @@ async function main() {
     return;
   }
 
-  const tools = resolveFfmpeg();
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'createVideo-'));
   const segments = [];
   const renderedSegments = [];

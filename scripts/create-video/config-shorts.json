@@ -1,0 +1,188 @@
+{
+  "select": {
+    "mode": "category",
+    "videoId": null,
+    "order": "date",
+    "limit": null,
+    "categories": [
+      "やられ"
+    ]
+  },
+  "output": {
+    "resolution": "1080x1920",
+    "fps": 30,
+    "name": null,
+    "dir": "output/shorts",
+    "split": {
+      "by": "stream",
+      "minSec": 10
+    }
+  },
+  "source": "cache",
+  "normalizeCache": true,
+  "font": "Hiragino Sans",
+  "fontsDir": "/System/Library/Fonts",
+  "telops": {
+    "title": {
+      "enabled": true,
+      "align": "top-center",
+      "size": 50,
+      "minSize": 50,
+      "marginH": 0.035,
+      "format": "{title}",
+      "singleLine": false,
+      "font": "Hiragino Sans W8",
+      "color": "FFFFFF",
+      "outlines": [
+        {
+          "width": 3,
+          "color": "3B2366"
+        }
+      ],
+      "box": {
+        "enabled": true,
+        "fill": "7E57C2",
+        "pad": 8,
+        "minHeight": 0.11,
+        "opacity": 1,
+        "offsetY": 0,
+        "anchor": "bottom"
+      },
+      "fade": [
+        0,
+        0
+      ],
+      "marginV": 0.1,
+      "layout": "date-title"
+    },
+    "date": {
+      "enabled": false,
+      "align": "top-left",
+      "size": 0.03,
+      "color": "FFFFFF",
+      "marginV": 0.0125
+    },
+    "time": {
+      "enabled": false,
+      "align": "top-right",
+      "size": 0.03,
+      "color": "FFFFFF",
+      "marginV": 0.0125
+    },
+    "serif": {
+      "enabled": true,
+      "align": "center",
+      "size": 0.5,
+      "font": "Hiragino Sans W9",
+      "autoShrink": true,
+      "minSize": 0.032,
+      "maxHeight": 0.3,
+      "marginH": 0.046296296296296294,
+      "marginV": 0.02,
+      "color": "FF4FA0",
+      "bold": false,
+      "shadow": 3,
+      "fade": [
+        80,
+        80
+      ],
+      "box": {
+        "enabled": false
+      },
+      "outlines": [
+        {
+          "width": 9,
+          "color": "FFFFFF"
+        },
+        {
+          "width": 4,
+          "color": "6B3FA0"
+        }
+      ],
+      "emphasis": {
+        "color": "FFD800"
+      },
+      "karaoke": false,
+      "avoidFace": {
+        "enabled": false
+      },
+      "layout": "space-lines",
+      "faceRange": {
+        "enabled": true,
+        "top": 0.02,
+        "minHeight": 0.12,
+        "maxHeight": 0.3,
+        "fallbackBottom": 0.24
+      }
+    },
+    "progress": {
+      "enabled": false
+    }
+  },
+  "cards": {
+    "enabled": false,
+    "se": {
+      "enabled": false
+    }
+  },
+  "endcaps": {
+    "opening": {
+      "enabled": false
+    },
+    "ending": {
+      "enabled": false
+    }
+  },
+  "transitions": {
+    "mode": "stream",
+    "type": "whip",
+    "duration": 0.5,
+    "se": {
+      "enabled": false,
+      "file": "assets/create-video/シーン切り替え1.mp3",
+      "volume": 0.5
+    }
+  },
+  "effects": {
+    "zoom": {
+      "enabled": false
+    },
+    "enhance": {
+      "enabled": true,
+      "restore": "Restore_CNN_M",
+      "upscale": "Upscale_CNN_x2_M",
+      "minSourceHeight": 720,
+      "required": false
+    },
+    "reframe": {
+      "enabled": true,
+      "zoom": 1,
+      "frames": 3,
+      "pick": "right",
+      "x": 0.92,
+      "y": 0.72,
+      "target": {
+        "x": 0.5,
+        "y": 0.46
+      },
+      "maxZoom": 1.8,
+      "minFaceHeight": 0.26,
+      "fill": "blur"
+    }
+  },
+  "summary": {
+    "intro": "にじさんじ所属・梢桃音さんの配信から名場面をまとめました。",
+    "notice": "※このチャンネルは非公式のファン制作です。",
+    "tags": [
+      "梢桃音",
+      "にじさんじ",
+      "切り抜き",
+      "名場面",
+      "まとめ",
+      "Shorts"
+    ],
+    "chapters": {
+      "enabled": false
+    }
+  }
+}

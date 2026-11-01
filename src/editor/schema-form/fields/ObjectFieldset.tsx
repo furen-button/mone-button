@@ -25,6 +25,7 @@ const COLLAPSED_PATHS = new Set([
   'effects.zoom.analysis',
   'effects.zoom.focus',
   'effects.enhance',
+  'effects.reframe',
   'telops.serif.avoidFace',
   'cards.background.gradient',
 ])

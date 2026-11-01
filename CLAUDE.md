@@ -93,6 +93,8 @@ npm run import   # sync → extract → download を一括実行
 | `config-category.json` | **カテゴリ横断まとめのひな形**。`select.mode category`（既定は「やられ」）。OP タイトルはカテゴリ名から自動生成される |
 | `config-kirinuki.json` | **切り抜き風のひな形**。紫の 1 行帯（配信タイトル、左に日付・右に元動画時刻。進行表示は無し）+ ボックス無しの二重縁取りセリフ + 配信が変わる所だけホイップパン + ED はピンクの肉球背景の 10 秒エンドカード動画（`endcaps.ending.video` = `assets/create-video/endcard-pink-04-pop-bg035.mp4`。gitignore 済みの素材で、無ければ 20 秒のエンドスクリーンを生成する）。OP・区切りカード・zoom 無し、`source cache` + Anime4K。`select.mode category`（既定は「やられ」） |
 
+| `config-shorts.json` | **Shorts 用**。1080×1920 / 30fps、元映像の顔中心を縦に切り出し + Anime4K CNN 拡大。紫帯とピンク二重縁取り、配信が変わる所だけホイップパン。配信単位で短尺をまとめて分割（既定「やられ」）、OP・カード・ED 無し。`output/shorts/` に出力 |
+
 ```
 npm run createVideo -- --videoId gr9WJDYS_u0
 ```
@@ -170,6 +172,25 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 - 高画質DLは音量正規化・音声尺合わせの前に映像ストリーム尺をトリム期待尺と比較する（ffprobe がある場合）。250ms を超えて短ければ途中ファイルを削除して一度だけ再 DL し、再び短ければキャッシュを削除して生成を停止する。既存キャッシュの再利用時はこの DL 検査を行わない。
 - 高画質DLには yt-dlp が必要。`--source cache` の音量正規化には `ffmpeg-normalize` が必要（不在時は警告して生DLを使用）。映像は copy で高画質のまま、音声のみ正規化する。サムネイルは `cache/createVideo/thumbnails/` にキャッシュする。
 
+### 縦切り出しと分割（Shorts）
+
+```
+PATH=/opt/homebrew/bin:$PATH npm run createVideo -- --config scripts/create-video/config-shorts.json --part 1 --qc
+PATH=/opt/homebrew/bin:$PATH npm run createVideo -- --config scripts/create-video/config-shorts.json --category 侍 --qc
+```
+
+- `effects.reframe` は既定 `enabled: false`。元映像の座標系でクリップ全体から等間隔に `frames`（既定3）枚を抽出し、フレームごとに選んだ顔の中心を各軸の中央値でまとめる。顔の高さの中央値（元高さ比）も `faceHeight` に残す。`detectFaceRects` / `detect_anime_face.py` を共有し、`allFaces: true` のときだけフレームごとの全候補を返す（既存のzoom・顔回避の呼び出しは最大顔のまま）。
+- `pick`（既定 `largest`）は `right` なら最大顔（面積）の高さの50%以上の候補から中心xが最も右の顔を選ぶ。Shortsプリセットは全クリップで演者が右側にいるため `right`。全体設定の `x/y`（既定null、0〜1）は顔未検出時の予備位置で、両方無ければ中央。Shortsは `x: 0.92 / y: 0.72`。Detroitの右端で顔が切れるクリップをstillで確認して採用した。`python` は既定 `python3`、`cascade` は既定null。cv2入りのPythonをPATHで選び、マシン固有のパスは設定に保存しない。
+- `target`（既定 `{x:0.5,y:0.45}`）は出力上の顔中心の目標位置（xは0〜1、yは0〜0.5）。倍率は **max(zoom下限, targetに顔を置いて枠が元映像内に収まる最小倍率, minFaceHeightに届く倍率)** を1〜`maxZoom`に制限する。`zoom`は既定1、`maxZoom`は既定3（ともに1〜3）、`minFaceHeight`は既定0（顔サイズによる追加ズーム無し）。顔未検出・手動位置では顔サイズ条件を使わない。Shortsは **target=(0.5,0.46)、maxZoom=1.8、minFaceHeight=0.26**。指定10クリップのstillで、前回より少し下・中央より上に顔が来ることを確認した。拡大上限1.8は維持する。
+- 上限で枠が収まらなければ横だけ元映像内にクランプし、縦は顔の目標高さを守る。`fill`（既定 `blur`、`blur | black`）で縦の不足を埋める。blurは元映像全体をcoverで敷き、1/4出力サイズでboxblurして少し暗くし、拡大した背景に前景をoverlayする。blackはpad。前景は枠と元映像の重なりだけをcropし、fps → restore → CNN upscale → ASS → whipの順。`reframeFilters` が本番・still（先頭trim付きの-vf）・QCで共有され、QCと補正無効時の前景拡大はLanczos。背景と前景のfpsも揃える。旧横動画のフィルタ順は変えない。
+- クリップJSONの `effects.reframe: false` で個別OFF、`{"x":0.8,"y":0.7,"zoom":1.2}` で手動焦点と倍率の下限を指定（全体OFFでも有効）。zoomのみなら検出を継承。reframe中は `effects.zoom` と `effects.avoidFace` / `telops.serif.avoidFace` を警告してスキップする。個別OFFのクリップは従来のscale+padへ戻る。
+- `output.split` は既定null。`{"by":"stream","minSec":10}` で、選択・除外・並び替え・limit 後のクリップ列を**連続する**同じ videoId の塊へ分け、合計尺が minSec 未満なら次の塊を足し、短い末尾だけ直前へ寄せる。尺は各 `endTime - startTime` の和で、OP/カード/ED は含まない。離れた位置で再登場する配信は別の塊。全体が短ければ1本になる。
+- `<name>-01.mp4`, `-02.mp4` …（1本だけでも `-01`）とし、render.json / youtube.txt / comment.txt / meta.json / QC も同じ連番名で各パートへ出す。自動名の基準日は選択全体の先頭で固定。`--out` のファイル名にも連番を挿入する。`--part N` は分割後の1始まり番号を選び、他パートを描画しない（split 無効・範囲外はエラー）。ffmpeg の解決は全パートを通じて1回。
+- `telops.title.layout` は既定 `default`（従来のformat/singleLine）、Shortsは `date-title`。末尾の【…】/『…』をchapterLabelForの最初の置換と同じ規則で取り、タイトル最大2行＋最下行に日付YYYY/MM/DDの1行にする（帯を最下部に置くので、日付が動画の最下部に来る。ユーザー指定）。【の直前・】の直後で改行し、それぞれを20コードポイントごとに折る。2行を超えたら2行目を最大19文字＋…にする。このモードはsize/minSize/autoShrink/format/singleLineを使わず、20全角文字が内幅へ収まる最大サイズを算出する（1080幅・左右3.5%=38pxずつで48px）。`box.anchor` は既定 `top`、Shortsは **bottom**。`box.offsetY:0` はユーザー指定のまま保ち、`minHeight:0.11 / pad:8` で帯の下端を出力下端に付ける（高さ211px、上端1709px）。offsetYは指定した端からの距離で、anchor未指定の上端配置は変えない。日付を帯の1行目に置くので独立したdateは非表示。元動画時刻・進行表示も非表示。
+- `telops.serif.layout` は既定 `wrap`（既存のwrapText/autoShrink）、Shortsは `space-lines`。半角スペースと手動改行のみで分け（連続区切りの空行は捨てる）、全角空白を区切りへ変換しない。同じ画面のセリフは全行を同じ大きさにする（ユーザー指定）。最も長い行が内幅に収まる大きさ（上限size）に揃え、合計行送りがmaxHeightを超えたら全行を同じだけ縮める。行の幅はlibassで描くHiraginoの実測（全角1字≈fs×0.66、`GLYPH_RATIO`）で見積もる（「1字=fs」の推定だと実際は約2/3の幅にしかならない）。minSize・自動折り返し・禁則での送り・karaokeは使わない。行ごとのDialogueでも強調記法・outlines・fadeを維持し、行サイズと位置は描画・矩形・QCで共有する。意図した行数や禁則はL0で警告せず、画面外・衝突は検査する。
+- Shortsのセリフは **marginH=50/1080（各50px、内幅980px）/ size:0.5（上限960px）**、配色は config-kirinuki と同じピンク文字 FF4FA0＋白縁 9px＋紫 6B3FA0 の外縁 4px＋影 3（白＋濃紫の太縁も試したが、ユーザーの判断でこの配色に戻した）。トランジションの SE は鳴らさない（`transitions.se.enabled:false`、ホイップパンの映像は残す）。`telops.serif.faceRange`（既定enabled:false）で上端〜前髪付近に収める。Shortsは `enabled:true / top:0.02 / minHeight:0.12 / maxHeight:0.30 / fallbackBottom:0.24`。顔の枠の上端をreframeの元座標から実出力へ写し、topからそこまでの高さを12〜30%に制限する。reframeなし・顔未検出・手動焦点で顔サイズ不明のときは固定2〜24%。範囲内で上下中央に置き、合計行送りが範囲を超えると全行を同率縮小する（fitSpaceLinesの0.97の余裕は維持）。狭い範囲を最低12%に広げた場合は前髪への軽い重なりを許す。rangeを`serifOverrides`と同じく共有描画計画から渡し、`serifRange`としてセグメントとstillのJSONへ残す。描画・manifestの行別矩形・QCは同じ計画を使う。描画前のL0は未検出相当の固定範囲で検査する。
+- 2026-11-01のデータで、やられ25クリップ→7本（11.01〜51.13秒）、侍73クリップ→23本（10.20〜37.54秒）。本数はクリップの追加で変わるので、`split.test.js` は本数を固定せず「漏れなく分ける・各パートが minSec 以上」だけを実データで確かめる。
+
 ### 静止画プレビュー（still）
 
 ```
@@ -183,14 +204,14 @@ npm run -s still -- --videoId gr9WJDYS_u0 --limit 3 --still 'card:#2'   # 区切
 npm run -s still -- --videoId gr9WJDYS_u0 --limit 3 --still opening     # OP（ED は ending）
 ```
 
-- 本番と同じ `planClipRender → buildAss → subtitles` を通し、1 フレームだけ PNG に焼く。
+- 本番と同じ `planClipRender → buildAss → subtitles` を通し、1 フレームだけ PNG に焼く。reframe は既定で設定どおり適用し、顔検出・crop・Anime4K 拡大も共有する。`--part N --still '#1'` はそのパートの先頭。part 指定無しの `#N` は選択全体の順番で、番号表示・トランジションは所属パート内の条件に揃える。`--print-ass` は従来どおり検出・動画フィルタを実行しない。
 - 区切りカード（`card:<base>` / `card:#N`）と OP / ED（`opening` / `ending`）も同じ考え方で、`planCardRender` と `buildCardVideoGraph` を本番（`card.js`）と共有する。背景・サムネイル・ASS の入力は本番と同一で、音声グラフだけ外す。`endcaps.*.video` に完成動画が指定されていればその動画から抜く。サムネイルはキャッシュ済みのものだけを使い、未取得なら `thumbnail_missing` を出して背景だけで描く。
 - `-ss` は `-i` の後に置く。libass と zoom の PTS を本番フィルタチェーンと揃えるため。`-vf` 経路では `trim=start=<t-0.5 秒を 1/fps に切り下げ>` を本番チェーンの前に置き、それより前のフレームはデコードだけで捨てる（pts は保たれるので PNG は全フレーム処理と md5 一致。zoom punch の `filter_complex` は `setpts=PTS-STARTPTS` があるため前置しない）。
 - 既定では zoom・顔回避は OFF で、テロップ位置は不変。`--zoom` `--avoid-face` で opt-in でき、顔検出が走ると +2〜3 秒ほど掛かる。
 - `source: cache` のキャッシュミスでも yt-dlp は起動しない。期待パスを `source_missing` warning に出す。
 - 256x144 の既存 mp4 を 1080p へ拡大する場合は `source_upscaled` を出す。
 - 出力は既定で `cache/createVideo/preview/<preset>/`。単体 still は `<base>-t<sec>.png`、シートは `sheet-<n>x<cols>.png`。
-- `--json` は 1 行 JSON。主要キーは `ok,out,assPath,at,requestedAt,index,total,clip,size,source,zoom,avoidFace,enhance,elements,overlays,warnings,key,ms`。
+- `--json` は 1 行 JSON。主要キーは `ok,out,assPath,at,requestedAt,index,total,clip,size,source,zoom,avoidFace,enhance,reframe,elements,overlays,warnings,key,ms`。
 - 2026-09-11 実測（1080p 出力）: ffmpeg 単体 約 0.6 秒、`renderStill` を同一プロセスで繰り返すと約 0.7 秒/枚（`resolveFfmpeg` はプロセス内で 1 回だけ）、CLI は node 起動込みで約 0.9 秒。`config-mone` の `--zoom --avoid-face` は顔検出込みで約 3.7 秒。3 セルの `--sheet 3` と `--frames 4` はどちらも約 1.2 秒。
 - 本番との一致は「完成セグメントから抜いたフレームとの PSNR」で確認する。値は内容依存で、既定プリセットは 41 dB、zoom 全編は 37 dB。どちらも静止画を x264 crf23 で往復させた圧縮の床（39 dB / 36 dB）と同じ帯にあり、t±1 フレームとは 8 dB 以上離れる。ASS は `--print-ass` で本番 `clip-NNNN.ass` と完全一致する。
 - カード / OP / ED も同様に、既定プリセットで 39.3 / 41.3 / 43.4 dB（それぞれの圧縮床は 40.8 / 42.7 / 44.9 dB）。ASS は本番 `card-NNNN.ass` / `opening.ass` / `ending.ass` と完全一致する。カードは背景がほぼ静止しているため t±1 フレームでも PSNR が下がらず、一致の根拠は ASS の一致と圧縮床との距離で見る。
@@ -220,6 +241,7 @@ npm run createVideo -- --videoId xxx --qc   # 生成前 L0 + 生成後 L1
 - ASS 出力は `scripts/create-video/__fixtures__/ass-golden.json` で固定している（3 プリセット × `public/data` 全クリップのハッシュ + 要注意 15 件の全文）。テロップ描画を意図的に変えたときは `npm run golden:ass` で更新する。`wrap-golden.json` は別物で再生成禁止。
 - 音量の目標は **-23 LUFS ±2**（取り込み側の `ffmpeg-normalize` が EBU R128 / -23 LUFS で揃えるため）。YouTube 基準に寄せたい場合は `config.qc.thresholds.integratedLufsMin/Max` を変更する。
 - 区切りカード・OP・ED は静止画背景で無音なため、manifest がある場合はフリーズ・無音・音量差の検査をクリップ区間だけに限定する。
+- `reframe` は枠（はみ出し込みのframe）・重なりのcrop・元寸法・焦点の出所（face/manual/config/center）・顔高さ比faceHeight・pick・target・zoom・zoomReason（min/center/face size/cap）・zoomNeeded・fill（未使用null）・前景の出力矩形・fallbackを各セグメントに残す。顔未検出は `reframe_face_fallback` warn、余白使用は `reframe_fill` info。pHashは共有のreframeFiltersで同じ構図を再現する。serifRangeがある新構図では範囲下端＋2.5%より下（最小25%）〜75%を比較し、上のセリフと下のタイトルを避ける。比較余地が5%未満ならinfoでskipする。旧構図の範囲は維持する。space-linesのテロップにはlineSizes/lineRectsも残す。
 - `effects.enhance` を設定したのに libplacebo 不可やシェーダ欠落で補正なしになったクリップは `enhance_fallback` を warn にする。manifest のセグメントに `enhance`（`applied` / `restore` / `upscale` / `from`、または `fallback` と `reason`）が残る。
 - テロップの衝突は重なり面積比（既定 0.2）で判定する。文字矩形の幅は `charWidth` 推定で実測より広く出るため、端が触れただけでは error にしない。
 

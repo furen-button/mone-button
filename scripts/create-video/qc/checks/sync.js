@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { execFileSync } from 'child_process';
 import { fileURLToPath } from 'url';
+import { reframeFilters } from '../../reframe.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const moduleDir = path.dirname(__filename);
@@ -83,7 +84,6 @@ function runPhashChecks({ tools, videoPath, segments, manifest, config, workDir,
   fs.mkdirSync(dir, { recursive: true });
   const threshold = Number(config.qc.thresholds.phashDistance);
   const size = manifest.signature || {};
-  const compareCrop = centerCompareCrop(size);
 
   for (const segment of segments) {
     if (segment.zoom) {
@@ -95,6 +95,11 @@ function runPhashChecks({ tools, videoPath, segments, manifest, config, workDir,
       continue;
     }
     // 入りのトランジション中は画面が流れているので、その区間が終わってから比べる。
+    const compareCrop = segment.reframe?.applied ? reframeCompareCrop(size, segment) : centerCompareCrop(size);
+    if (!compareCrop) {
+      results.push(result('info', 'sync_phash_telop_skip', `${segment.base} はテロップ外の比較範囲が狭いためpHash検査をスキップします。`));
+      continue;
+    }
     const offset = afterTransitionIn(segment, Math.min(0.2, Math.max(0.05, Number(segment.durationSec) / 2)));
     const at = Number(segment.atSec) + offset;
     const sourceFrame = path.join(dir, `${safeName(segment.base)}-source.png`);
@@ -104,12 +109,7 @@ function runPhashChecks({ tools, videoPath, segments, manifest, config, workDir,
       inputPath: resolvePath(segment.sourcePath),
       outPath: sourceFrame,
       at: offset,
-      vf: [
-        `scale=${Number(size.width)}:${Number(size.height)}:force_original_aspect_ratio=decrease`,
-        `pad=${Number(size.width)}:${Number(size.height)}:(ow-iw)/2:(oh-ih)/2`,
-        'setsar=1',
-        compareCrop,
-      ].join(','),
+      vf: sourceCompareFilters(segment, size, compareCrop),
     });
     const targetOk = extractFrame({ ffmpeg: tools.ffmpeg, inputPath: videoPath, outPath: targetFrame, at, vf: compareCrop });
     if (!sourceOk || !targetOk) {
@@ -131,6 +131,34 @@ function runPhashChecks({ tools, videoPath, segments, manifest, config, workDir,
     }
   }
   return results;
+}
+
+// 新しい構図は上のタイトル帯・下のセリフを外して顔付近で比較する。旧 manifest は元の範囲を保つ。
+export function reframeCompareCrop(size, segment) {
+  const reframe = segment.reframe;
+  if (segment.serifRange) {
+    const top = Math.max(size.height * 0.25, segment.serifRange.bottom + size.height * 0.025);
+    const bottom = size.height * 0.75;
+    if (bottom - top < size.height * 0.05) {
+      return null;
+    }
+    return `crop=${even(size.width * 0.7)}:${even(bottom - top)}:${even(size.width * 0.15)}:${even(top)}`;
+  }
+  if (reframe.target) {
+    return `crop=${even(size.width * 0.7)}:${even(size.height * 0.28)}:${even(size.width * 0.15)}:${even(size.height * 0.25)}`;
+  }
+  return `crop=${even(size.width * 0.7)}:${even(size.height * 0.25)}:${even(size.width * 0.15)}:${even(size.height * 0.5)}`;
+}
+
+// 元映像を出力と同じ構図にしてから比較範囲を切る。reframe のクリップは同じ矩形で切り出して拡大する。
+export function sourceCompareFilters(segment, size, compareCrop) {
+  const framing = segment.reframe?.applied
+    ? [reframeFilters(segment.reframe, size)]
+    : [
+      `scale=${size.width}:${size.height}:force_original_aspect_ratio=decrease`,
+      `pad=${size.width}:${size.height}:(ow-iw)/2:(oh-ih)/2`,
+    ];
+  return [...framing, 'setsar=1', compareCrop].join(',');
 }
 
 function centerCompareCrop(size) {

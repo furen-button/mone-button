@@ -245,6 +245,9 @@ function checkSerifFit(config, element, size, label) {
     return [];
   }
   const results = [];
+  if (element.layout === 'space-lines') {
+    return [];
+  }
   const maxLines = Number(config.qc?.static?.maxSerifLines ?? 4);
   const lines = countLines(element.text);
   if (lines > maxLines) {
@@ -272,6 +275,9 @@ function checkSerifFit(config, element, size, label) {
 }
 
 function checkKinsoku(element, label) {
+  if (element.layout === 'space-lines' || element.layout === 'date-title') {
+    return [];
+  }
   const violations = lineBreakViolations(element.text);
   if (violations.length === 0) {
     return [];

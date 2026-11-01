@@ -24,6 +24,38 @@ function config() {
 }
 
 describe('render manifest', () => {
+  it('space-lines の行サイズと行ごとの矩形を manifest に残す', async () => {
+    const dir = makeTempDir();
+    const videoOutPath = path.join(dir, 'space-lines.mp4');
+    fs.writeFileSync(videoOutPath, SAMPLE_VIDEO_BYTES);
+    const size = { width: 1080, height: 1920, fps: 30 };
+    const element = makeTextElement({ name: 'serif', text: '短い とても長い行だから縮める',
+      style: { enabled: true, layout: 'space-lines', size: 150, align: 'bottom-center', marginV: 0.23, maxHeight: 0.18, box: { enabled: false } },
+      ...size, duration: 2 });
+    const serifRange = { source: 'face', faceTop: 500, top: 38.4, bottom: 500, height: 461.6, clamped: null };
+    const manifest = await buildRenderManifest({ videoOutPath, config: config(), clips: [],
+      renderedSegments: [{ path: '/tmp/a.mp4', kind: 'clip', elements: [element], serifRange }],
+      concatMethod: 'concat-vcopy', totalSec: 2, size });
+    assert.deepEqual(manifest.segments[0].serifRange, serifRange);
+    const telop = manifest.segments[0].telops[0];
+    assert.deepEqual(telop.lineSizes, element.lineSizes);
+    assert.equal(telop.lineRects.length, 2);
+    assert.deepEqual(telop.lineRects.map(rect => rect.h), element.lineSizes);
+    assert.equal(telop.fontSize, Math.max(...element.lineSizes));
+  });
+
+  it('reframe の切り出し矩形と焦点の出所・fallback を残す', async () => {
+    const dir = makeTempDir();
+    const videoOutPath = path.join(dir, 'shorts.mp4');
+    fs.writeFileSync(videoOutPath, SAMPLE_VIDEO_BYTES);
+    const reframe = { applied: true, crop: { x: 1000, y: 0, w: 608, h: 1080 },
+      focus: { x: 0.8, y: 0.6, source: 'config' }, zoom: 1, fallback: true };
+    const manifest = await buildRenderManifest({ videoOutPath, config: config(), clips: [],
+      renderedSegments: [{ path: '/tmp/a.mp4', kind: 'clip', reframe, elements: [] }],
+      concatMethod: 'concat-vcopy', totalSec: 2, size: { width: 1080, height: 1920, fps: 30 } });
+    assert.deepEqual(manifest.segments[0].reframe, reframe);
+  });
+
   it('生成情報、mp4 識別情報、テロップ矩形をプロジェクト相対パスで組み立てる', async () => {
     const dir = makeTempDir();
     const videoOutPath = path.join(dir, 'test-combined.mp4');

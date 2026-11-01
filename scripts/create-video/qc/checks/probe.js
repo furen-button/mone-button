@@ -16,8 +16,26 @@ export function runProbeChecks({ tools, videoPath, manifest, config }) {
     ...checkChapterTimes({ videoPath, manifest, config }),
     ...checkFaceAvoidance({ manifest }),
     ...checkEnhance({ manifest }),
+    ...checkReframe({ manifest }),
   ];
   return { probe, results };
+}
+
+// 縦長の切り出し（effects.reframe）で顔が取れず、設定値や中央で切ったクリップは構図がずれている可能性がある。
+export function checkReframe({ manifest }) {
+  const results = [];
+  for (const segment of manifest?.segments || []) {
+    if (segment.kind !== 'clip') {
+      continue;
+    }
+    if (segment.reframe?.fallback) {
+      results.push(result('warn', 'reframe_face_fallback', `${segment.base} は顔未検出のため ${segment.reframe.focus.source} の焦点で切り出しました。`));
+    }
+    if (segment.reframe?.fill) {
+      results.push(result('info', 'reframe_fill', `${segment.base} は縦の余白を ${segment.reframe.fill} で埋めました。`));
+    }
+  }
+  return results;
 }
 
 // 補正（effects.enhance）を設定したのに libplacebo 不可やシェーダ欠落で素通しになったクリップは、意図した画質でないので知らせる。

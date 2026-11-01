@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import { elementRect, countLines } from '../ass.js';
+import { elementRect, elementTextLineRects, countLines } from '../ass.js';
 import { projectRoot } from '../config.js';
 
 export function manifestPathFor(videoOutPath) {
@@ -171,6 +171,13 @@ function segmentManifest(segment, size) {
       y: roundCoord(segment.zoom.focus?.y),
     };
   }
+  // 縦長の切り出し矩形と焦点の出所。顔が取れなかった（fallback）クリップは QC が warn で拾う。
+  if (segment.reframe?.applied) {
+    out.reframe = segment.reframe;
+  }
+  if (segment.serifRange) {
+    out.serifRange = segment.serifRange;
+  }
   // 顔回避の判断を残す。見送り（fallback）は QC が warn で拾う。
   if (segment.avoid) {
     out.avoidFace = {
@@ -224,7 +231,8 @@ function telopManifest(el, size) {
     name: el.name,
     text: el.text,
     lines: countLines(el.text),
-    fontSize: Number(el.size),
+    fontSize: el.lineSizes ? Math.max(...el.lineSizes) : Number(el.size),
+    ...(el.lineSizes ? { lineSizes: el.lineSizes, lineRects: elementTextLineRects(el, size.width, size.height) } : {}),
     rect,
     boxFill: el.box?.fill || null,
     boxEnabled: Boolean(el.box?.enabled),
