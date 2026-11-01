@@ -238,3 +238,17 @@ describe('createTrimPlan と review', () => {
     assert.equal(Object.hasOwn(plan.updated, 'review'), false);
   });
 });
+
+describe('camera のトリム', () => {
+  it('境界に補間枠を追加し、無変更のトリムでは値を保つ', () => {
+    const frames = [{ t: 0, x: 0.5, y: 0.5, zoom: 1, ease: 'linear' }, { t: 4, x: 0.8, y: 0.5, zoom: 4 }];
+    const current = clip({ effects: { camera: { '9:16': frames } } });
+    const payload = { fileBaseName: 'test', keepStart: 1, keepEnd: 3 };
+    const shifted = createTrimPlan(payload, current, 4).updated.effects.camera['9:16'];
+    assert.equal(shifted[0].t, 0);
+    assert.equal(shifted.at(-1).t, 2);
+    assert.ok(Math.abs(shifted[0].zoom - Math.sqrt(2)) < 1e-10);
+    assert.equal(createTrimPlan({ ...payload, keepStart: 0, keepEnd: 4 }, current, 4).updated, current);
+    assert.equal(current.effects.camera['9:16'], frames);
+  });
+});

@@ -284,6 +284,7 @@ export const DEFAULTS = {
     },
   },
   effects: {
+    camera: { enabled: true },
     reframe: {
       enabled: false,
       zoom: 1,
@@ -540,6 +541,10 @@ function cliConfig(opts) {
     out.effects = { ...(out.effects || {}), zoom: { enabled: zoom } };
   }
 
+  const camera = optBool(opts, 'camera');
+  if (camera !== undefined) {
+    out.effects = { ...(out.effects || {}), camera: { enabled: camera } };
+  }
   const enhance = optBool(opts, 'enhance');
   if (enhance !== undefined) {
     out.effects = { ...(out.effects || {}), enhance: { enabled: enhance } };
@@ -620,6 +625,9 @@ function validateConfig(config) {
   const split = config.output.split;
   if (split != null && (typeof split !== 'object' || split.by !== 'stream' || !Number.isFinite(split.minSec) || split.minSec < 0)) {
     errors.push('output.split は {by: "stream", minSec: 0以上の有限数} または null で指定してください。');
+  }
+  if (typeof config.effects?.camera?.enabled !== 'boolean') {
+    errors.push('effects.camera.enabled は boolean で指定してください。');
   }
   const reframe = config.effects?.reframe;
   if (!reframe || typeof reframe.enabled !== 'boolean' || !Number.isFinite(reframe.zoom) || reframe.zoom < 1 || reframe.zoom > 3

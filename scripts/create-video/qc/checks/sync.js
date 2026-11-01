@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { execFileSync } from 'child_process';
 import { fileURLToPath } from 'url';
+import { cameraRectAt } from '../../camera.js';
+import { staticCameraFilter } from '../../camera-render.js';
 import { reframeFilters } from '../../reframe.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -95,7 +97,7 @@ function runPhashChecks({ tools, videoPath, segments, manifest, config, workDir,
       continue;
     }
     // 入りのトランジション中は画面が流れているので、その区間が終わってから比べる。
-    const compareCrop = segment.reframe?.applied ? reframeCompareCrop(size, segment) : centerCompareCrop(size);
+    const compareCrop = (segment.camera?.applied || segment.reframe?.applied) ? reframeCompareCrop(size, segment) : centerCompareCrop(size);
     if (!compareCrop) {
       results.push(result('info', 'sync_phash_telop_skip', `${segment.base} はテロップ外の比較範囲が狭いためpHash検査をスキップします。`));
       continue;
@@ -109,7 +111,7 @@ function runPhashChecks({ tools, videoPath, segments, manifest, config, workDir,
       inputPath: resolvePath(segment.sourcePath),
       outPath: sourceFrame,
       at: offset,
-      vf: sourceCompareFilters(segment, size, compareCrop),
+      vf: sourceCompareFilters(segment, size, compareCrop, offset),
     });
     const targetOk = extractFrame({ ffmpeg: tools.ffmpeg, inputPath: videoPath, outPath: targetFrame, at, vf: compareCrop });
     if (!sourceOk || !targetOk) {
@@ -144,14 +146,18 @@ export function reframeCompareCrop(size, segment) {
     }
     return `crop=${even(size.width * 0.7)}:${even(bottom - top)}:${even(size.width * 0.15)}:${even(top)}`;
   }
-  if (reframe.target) {
+  if (reframe?.target) {
     return `crop=${even(size.width * 0.7)}:${even(size.height * 0.28)}:${even(size.width * 0.15)}:${even(size.height * 0.25)}`;
   }
   return `crop=${even(size.width * 0.7)}:${even(size.height * 0.25)}:${even(size.width * 0.15)}:${even(size.height * 0.5)}`;
 }
 
 // 元映像を出力と同じ構図にしてから比較範囲を切る。reframe のクリップは同じ矩形で切り出して拡大する。
-export function sourceCompareFilters(segment, size, compareCrop) {
+export function sourceCompareFilters(segment, size, compareCrop, offset = 0) {
+  if (segment.camera?.applied) {
+    const camera = segment.camera;
+    return `scale=${camera.from.width}:${camera.from.height},setsar=1,${staticCameraFilter(cameraRectAt(camera.keyframes, offset, camera.from, camera.aspect), size)},${compareCrop}`;
+  }
   const framing = segment.reframe?.applied
     ? [reframeFilters(segment.reframe, size)]
     : [

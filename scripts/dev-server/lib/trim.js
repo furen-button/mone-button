@@ -1,3 +1,4 @@
+import { shiftCamera } from '../../create-video/camera.js';
 import { normalizeReview } from './clip-review.js';
 
 const CLIP_BASE_PATTERN = /^[\w-]+$/u;
@@ -88,6 +89,10 @@ function createRangeData(current, keepStart, keepEnd) {
     clipUrl: rewriteClipUrl(current.clipUrl, nextStartTime),
     trimming: nextTrimming,
   };
+  if (current.effects?.camera) {
+    next.effects = { ...current.effects, camera: Object.fromEntries(Object.entries(current.effects.camera)
+      .map(([aspect, frames]) => [aspect, shiftCamera(frames, keepStart, nextDuration)])) };
+  }
   // 切ったあとは「未カットのままで良い」の確認（review.trim）は意味を失うので落とす。
   // ruby / serif の確認は値が変わらないので残る。
   const review = normalizeReview(current.review, next);

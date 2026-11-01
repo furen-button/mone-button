@@ -172,6 +172,10 @@ function segmentManifest(segment, size) {
     };
   }
   // 縦長の切り出し矩形と焦点の出所。顔が取れなかった（fallback）クリップは QC が warn で拾う。
+  if (segment.camera?.applied) {
+    const { applied, aspect, keyframes, from, backend, fallback } = segment.camera;
+    out.camera = { applied, aspect, keyframes, from, backend, fallback };
+  }
   if (segment.reframe?.applied) {
     out.reframe = segment.reframe;
   }

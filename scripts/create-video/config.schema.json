@@ -636,6 +636,14 @@
       "additionalProperties": false,
       "description": "動画クリップに適用する演出。今回の zoom はパンチイン用で、将来のズームアウト/モノクロ化などのオチ演出は sibling キーとして追加する。",
       "properties": {
+        "camera": {
+          "type": "object",
+          "title": "キーフレーム切り出し",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean", "default": true, "title": "クリップのカメラを使う" }
+          }
+        },
         "reframe": {
           "type": "object",
           "additionalProperties": false,

@@ -26,12 +26,13 @@ import {
   planCardRender,
 } from './card.js';
 import { cacheThumbnail } from './assets.js';
+import { cameraRectAt } from './camera.js';
 import { zoomCropRect } from './effects.js';
 import { loadConfig, outputSize, parseArgs, projectRoot } from './config.js';
 import { collectClips } from './select.js';
 import { selectParts } from './split.js';
 import { planTransitions } from './transition.js';
-import { resolveFfmpeg } from './ffmpeg.js';
+import { displayVideoSize, resolveFfmpeg } from './ffmpeg.js';
 import { labelDrawtext, resolveContactFont, tileFrames } from './qc/contact.js';
 
 const execFileAsync = promisify(execFile);
@@ -173,6 +174,7 @@ export async function renderStill(request) {
       avoid: plan.avoid,
       enhance: plan.enhance,
       reframe: plan.reframe,
+      camera: plan.camera,
       serifRange: plan.serifRange,
       at,
       requestedAt,
@@ -196,6 +198,7 @@ export async function renderStill(request) {
       avoidFace: visibleAvoid,
       enhance: plan.enhance,
       reframe: plan.reframe,
+      camera: plan.camera,
       serifRange: plan.serifRange,
       elements: elementRects(plan.elements, size),
       overlays: {
@@ -267,6 +270,7 @@ export async function buildStillAss(request) {
       avoid: plan.avoid,
       enhance: plan.enhance,
       reframe: plan.reframe,
+      camera: plan.camera,
       serifRange: plan.serifRange,
       at: null,
       requestedAt: null,
@@ -448,6 +452,7 @@ export function collectStillWarnings({
   avoid,
   enhance,
   reframe,
+  camera,
   at,
   requestedAt,
   clip,
@@ -458,6 +463,11 @@ export function collectStillWarnings({
       code: 'source_missing',
       message: `ソース mp4 が見つかりません: ${source.path}`,
     });
+  } else if (source && camera?.applied) {
+    const rect = cameraRectAt(camera.keyframes, at, camera.from, camera.aspect);
+    if (rect.w < size.width || rect.h < size.height) {
+      warnings.push({ code: 'source_upscaled', message: `camera の枠 ${rect.w.toFixed(1)}x${rect.h.toFixed(1)} → ${size.width}x${size.height} に拡大します。` });
+    }
   } else if (source && reframe?.applied) {
     if (reframe.crop.w < size.width || reframe.crop.h < size.height) {
       warnings.push({
@@ -1003,8 +1013,9 @@ function normalizePlans(plans = {}, cli = {}) {
     avoid: cli['avoid-face'] === true ? true : false,
     enhance: true,
     reframe: true,
+    camera: true,
   };
-  for (const key of ['zoom', 'avoid', 'enhance', 'reframe']) {
+  for (const key of ['zoom', 'avoid', 'enhance', 'reframe', 'camera']) {
     if (plans?.[key] !== undefined) {
       out[key] = plans[key];
     }
@@ -1013,8 +1024,8 @@ function normalizePlans(plans = {}, cli = {}) {
 }
 
 function normalizeAssPlans(plans = {}) {
-  const out = { zoom: false, avoid: false, enhance: false, reframe: false };
-  for (const key of ['zoom', 'avoid', 'enhance', 'reframe']) {
+  const out = { zoom: false, avoid: false, enhance: false, reframe: false, camera: false };
+  for (const key of ['zoom', 'avoid', 'enhance', 'reframe', 'camera']) {
     if (plans?.[key] !== undefined) {
       out[key] = plans[key];
     }
@@ -1026,7 +1037,7 @@ async function probeStillSource({ ffprobe, sourceMp4, kind, signal, timeoutMs })
   const { stdout } = await execFileAsync(ffprobe, [
     '-v', 'error',
     '-select_streams', 'v:0',
-    '-show_entries', 'stream=width,height,r_frame_rate:format=duration',
+    '-show_entries', 'stream=width,height,r_frame_rate,sample_aspect_ratio:stream_side_data=rotation:format=duration',
     '-of', 'json',
     sourceMp4,
   ], {
@@ -1042,8 +1053,7 @@ async function probeStillSource({ ffprobe, sourceMp4, kind, signal, timeoutMs })
   return {
     path: sourceMp4,
     kind,
-    width: Number(stream.width) || 0,
-    height: Number(stream.height) || 0,
+    ...displayVideoSize(stream),
     fps: den ? num / den : 0,
     duration: Number(json.format?.duration) || 0,
   };

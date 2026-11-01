@@ -124,3 +124,12 @@ describe('Shorts settings', () => {
     }
   });
 });
+
+describe('camera の設定', () => {
+  it('既定 true、CLI の kill switch、boolean 検証', () => {
+    const file = writeTempConfig({ select: { videoId: 'abc123' } });
+    assert.equal(loadConfig(['--config', file]).effects.camera.enabled, true);
+    assert.equal(loadConfig(['--config', file, '--no-camera']).effects.camera.enabled, false);
+    assert.throws(() => loadConfig(['--config', writeTempConfig({ effects: { camera: { enabled: 'bad' } } })]), /camera/u);
+  });
+});

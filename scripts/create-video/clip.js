@@ -15,6 +15,7 @@ import {
 import { buildZoomFilterComplex, planZoom, zoomCropFilters } from './effects.js';
 import { formatAvoidLog, planSerifAvoidance } from './avoid.js';
 import { formatEnhanceLog, planEnhance, restoreFilter, upscaleFilter } from './enhance.js';
+import { planCamera, cameraFilters } from './camera-render.js';
 import { planReframe, reframeFilters } from './reframe.js';
 import { planSerifRange, serifRangeOverrides } from './serif-range.js';
 import { AUDIO_RESAMPLE, encodeArgs, probeDuration, subtitlesFilter } from './ffmpeg.js';
@@ -80,6 +81,7 @@ export async function renderClip({ tools, clip, index, total, config, workDir, s
     elements: plan.elements,
     zoom: plan.zoom,
     reframe: plan.reframe,
+    camera: plan.camera,
     serifRange: plan.serifRange,
     avoid: plan.avoid,
     enhance: plan.enhance,
@@ -104,7 +106,21 @@ export async function planClipRender({
   log = console.log,
 }) {
   // 縦長の切り出し（reframe）中は、出力座標を前提にした zoom と顔回避を使わない。
-  const reframe = await resolveRenderPlan(plans.reframe, () => planReframe({ tools, clip, sourceMp4, config, size, workDir, probe }));
+  // クリップごとのキーフレーム切り出し（camera）は reframe・zoom・顔回避より優先する。
+  const camera = await resolveRenderPlan(plans.camera, () => planCamera({ tools, clip, sourceMp4, config, size, workDir, probe }));
+  if (camera?.applied) {
+    log(`   🎥 camera: ${camera.aspect} キーフレーム ${camera.keyframes.length} 件（${camera.backend}）`);
+    for (const [name, enabled] of [
+      ['reframe', clip.data?.effects?.reframe ?? config.effects?.reframe?.enabled],
+      ['zoom', clip.data?.effects?.zoom ?? config.effects?.zoom?.enabled],
+      ['avoidFace', clip.data?.effects?.avoidFace ?? config.telops?.serif?.avoidFace?.enabled],
+    ]) {
+      if (enabled) {
+        log(`⚠️ camera 中は ${name} をスキップします。`);
+      }
+    }
+  }
+  const reframe = camera?.applied ? null : await resolveRenderPlan(plans.reframe, () => planReframe({ tools, clip, sourceMp4, config, size, workDir, probe }));
   if (reframe?.applied) {
     log(`   📱 reframe: ${JSON.stringify(reframe.crop)} 焦点=${reframe.focus.source}`);
     for (const [name, enabled] of [
@@ -117,7 +133,7 @@ export async function planClipRender({
     }
   }
   // ズームの切り出しで顔の出力座標が変わるため、顔回避はズーム計画の後に決める。
-  const zoom = reframe?.applied ? null : await resolveRenderPlan(plans.zoom, () => planZoom({ tools, clip, sourceMp4, config, size, workDir }));
+  const zoom = (camera?.applied || reframe?.applied) ? null : await resolveRenderPlan(plans.zoom, () => planZoom({ tools, clip, sourceMp4, config, size, workDir }));
   if (zoom?.skip) {
     log(`   🔎 ズーム: なし (${zoom.skip})`);
   } else if (zoom) {
@@ -131,7 +147,7 @@ export async function planClipRender({
     log(enhanceLog);
   }
 
-  const avoid = reframe?.applied ? null : await resolveRenderPlan(plans.avoid, () => planSerifAvoidance({ tools, clip, sourceMp4, config, size, workDir, zoom }));
+  const avoid = (camera?.applied || reframe?.applied) ? null : await resolveRenderPlan(plans.avoid, () => planSerifAvoidance({ tools, clip, sourceMp4, config, size, workDir, zoom }));
   const avoidLog = formatAvoidLog(avoid);
   if (avoidLog) {
     log(avoidLog);
@@ -142,7 +158,7 @@ export async function planClipRender({
   const ass = buildAss(elements, { width: size.width, height: size.height, font: config.font });
 
   const upscale = enhance?.applied && enhance.upscalePreset ? upscaleFilter(enhance, size) : null;
-  const baseFilters = reframe?.applied ? [reframeFilters(reframe, size, { enhance })] : [
+  const baseFilters = camera?.applied ? [cameraFilters(camera, size, { enhance })] : reframe?.applied ? [reframeFilters(reframe, size, { enhance })] : [
     `scale=${size.width}:${size.height}:force_original_aspect_ratio=decrease`,
     `pad=${size.width}:${size.height}:(ow-iw)/2:(oh-ih)/2`,
     'setsar=1',
@@ -174,6 +190,8 @@ export async function planClipRender({
     const complex = buildZoomFilterComplex({ baseFilters, subFilter, zoom, size, upscale });
     return {
       zoom,
+      camera,
+      reframe,
       enhance,
       avoid,
       serifOverrides,
@@ -198,6 +216,7 @@ export async function planClipRender({
 
   return {
     zoom,
+    camera,
     reframe,
     enhance,
     avoid,

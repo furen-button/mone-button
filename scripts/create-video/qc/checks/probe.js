@@ -28,6 +28,9 @@ export function checkReframe({ manifest }) {
     if (segment.kind !== 'clip') {
       continue;
     }
+    if (segment.camera?.fallback) {
+      results.push(result('warn', 'camera_fallback', `${segment.base} は sendcmd + Lanczos で切り出しました。`));
+    }
     if (segment.reframe?.fallback) {
       results.push(result('warn', 'reframe_face_fallback', `${segment.base} は顔未検出のため ${segment.reframe.focus.source} の焦点で切り出しました。`));
     }
