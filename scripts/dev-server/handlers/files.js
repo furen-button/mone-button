@@ -3,9 +3,10 @@ import path from 'node:path';
 
 import { contactSheetPathFor } from '../../create-video/qc/contact.js';
 import { manifestPathFor, reportPathsFor } from '../../create-video/qc/manifest.js';
-import { summaryPathsFor } from '../../create-video/summary.js';
+import { summaryPathsFor, thumbnailPathsFor } from '../../create-video/summary.js';
 import { cropDirs, resolveCropRef } from '../lib/crop-source.js';
 import { outputBaseName } from '../lib/guards.js';
+import { safeFile, thumbnailAsset, thumbnailOutput } from '../lib/thumbnail-paths.js';
 
 const VIDEO_ID_PATTERN = /^[\w-]{6,20}$/u;
 const HASH_PATTERN = /^[0-9a-f]{40}$/u;
@@ -51,6 +52,20 @@ export function resolveOutputFile(context, kind, name, index) {
     }
     resolved = outputKinds[kind](base);
     baseDir = kind === 'log' ? path.join(context.outputDir, 'logs') : context.outputDir;
+  } else if (kind === 'thumbnail-asset') {
+    const asset = thumbnailAsset(context, name);
+    if (!asset) {
+      return null;
+    }
+    baseDir = asset.baseDir;
+    resolved = { file: asset.file, type: asset.type };
+  } else if (kind === 'thumbnail-out') {
+    const file = thumbnailOutput(context, name, index === 1 ? 'png' : 'jpg');
+    if (!file) {
+      return null;
+    }
+    baseDir = path.dirname(file);
+    resolved = { file, type: index === 1 ? 'image/png' : 'image/jpeg' };
   } else if (kind === 'thumb') {
     if (typeof name !== 'string' || !VIDEO_ID_PATTERN.test(name)) {
       return null;
@@ -84,7 +99,7 @@ export function resolveOutputFile(context, kind, name, index) {
   }
 
   // 解決後の実パスが基底ディレクトリ直下に収まること、実ファイル（ディレクトリ・シンボリックリンク以外）であることを確認する。
-  if (path.dirname(resolved.file) !== baseDir) {
+  if (path.dirname(resolved.file) !== baseDir || !safeFile(context.projectRoot, resolved.file)) {
     return null;
   }
   let stat;
@@ -179,8 +194,15 @@ export function sidecarsFor(context, base) {
     contact: fs.existsSync(contactSheetPathFor(mp4)),
     youtube: fs.existsSync(summary.youtube),
     meta: fs.existsSync(summary.meta),
+    thumbnail: hasThumbnail(mp4),
     comments: commentFilesFor(context, base),
   };
+}
+
+// サムネイルは JPEG と PNG のどちらで保存してもよい。
+export function hasThumbnail(mp4) {
+  const paths = thumbnailPathsFor(mp4);
+  return fs.existsSync(paths.jpg) || fs.existsSync(paths.png);
 }
 
 function commentFilesFor(context, base) {

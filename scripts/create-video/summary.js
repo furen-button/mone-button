@@ -383,3 +383,9 @@ export function writeSummary({ videoOutPath, entries, totalSec, config }) {
 
   return { written, warnings, chapters: chapterResult.chapters, sources };
 }
+
+// 動画の隣に置くサムネイルと編集プロジェクトの命名。
+export function thumbnailPathsFor(videoOutPath) {
+  const base = videoOutPath.replace(/\.mp4$/iu, '');
+  return { jpg: `${base}.thumbnail.jpg`, png: `${base}.thumbnail.png`, json: `${base}.thumbnail.json` };
+}

@@ -227,6 +227,7 @@ export type BuildOptions = {
 }
 
 export type Sidecars = {
+  thumbnail: boolean
   mp4?: boolean
   render: boolean
   qcJson: boolean

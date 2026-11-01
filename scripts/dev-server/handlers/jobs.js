@@ -8,6 +8,7 @@ import { summaryPathsFor } from '../../create-video/summary.js';
 import { buildArgv, qcArgv } from '../lib/build-options.js';
 import { outputBaseName, presetFileName } from '../lib/guards.js';
 import { createLineSplitter, parseLogLine } from '../lib/log-parser.js';
+import { hasThumbnail } from './files.js';
 
 const MAX_EVENTS = 5000;
 const MAX_JOBS = 5;
@@ -270,6 +271,7 @@ export class JobManager {
       contact: fs.existsSync(contactSheetPathFor(mp4)),
       youtube: fs.existsSync(summary.youtube),
       meta: fs.existsSync(summary.meta),
+      thumbnail: hasThumbnail(mp4),
       comments,
     };
   }
