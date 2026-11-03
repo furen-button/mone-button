@@ -226,13 +226,14 @@ export function ClipEditModal({ clip, categorySuggestions, hasVideo, onDelete, o
   )
 
   return (
-    <div className="clip-edit-backdrop" role="presentation" onClick={handleClose}>
+    // 外側を押しても閉じない。入力中の誤クリックや、波形のハンドルを外までドラッグして離したときの
+    // click（押した要素と離した要素の共通の親 = 背景に飛ぶ）で編集が消えないようにする。
+    <div className="clip-edit-backdrop" role="presentation">
       <section
         className="clip-edit-modal"
         role="dialog"
         aria-modal="true"
         aria-label="クリップ編集"
-        onClick={(event) => event.stopPropagation()}
       >
         <header className="clip-edit-header">
           <div className="clip-edit-header-text">
