@@ -52,9 +52,15 @@ export function outputSidecar(context, name, suffix) {
   if (!video) {
     return null;
   }
+  return videoSidecar(context, video, suffix);
+}
+
+// 明示した動画の隣を最優先にする。CLI からサブディレクトリの動画を指定する場合も共用する。
+export function videoSidecar(context, video, suffix) {
+  const name = path.basename(video, path.extname(video));
   return (
     [path.dirname(video), context.outputDir, path.join(context.outputDir, '0_reviewed')]
-      .map((dir) => path.join(dir, `${name}.${suffix}`))
+      .flatMap((dir) => [suffix].flat().map((ext) => path.join(dir, `${name}.${ext}`)))
       .find((file) => regularFile(context.projectRoot, file)) || null
   );
 }
