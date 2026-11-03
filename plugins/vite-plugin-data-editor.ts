@@ -15,6 +15,8 @@ import {
   parseTrimPayload,
 } from '../scripts/dev-server/lib/trim.js'
 import { normalizeReview } from '../scripts/dev-server/lib/clip-review.js'
+import { loudnessGain, measureLoudness, volumeFilter } from '../scripts/dev-server/lib/loudness.js'
+import type { LoudnessGain, LoudnessMeasurement } from '../scripts/dev-server/lib/loudness.js'
 import { applyCameraPatch } from '../scripts/create-video/camera.js'
 
 // dev サーバ専用: public/data/*.json の serif/ruby/memo/categories を書き戻すミドルウェアと、
@@ -144,8 +146,11 @@ async function encodeRange({
   beforeRename?: () => void
   keepStart: number
   keepEnd: number
-}): Promise<void> {
+}): Promise<LoudnessMeasurement & LoudnessGain> {
   const tmpPath = `${destPath}.trim-${process.pid}-${Date.now()}.mp4`
+  // 元の mp4 は取り込み時の範囲全体で -23 LUFS に揃えてあるので、切った区間だけを測って揃え直す。
+  const measured = await measureLoudness({ ffmpeg, input: sourcePath, start: keepStart, end: keepEnd })
+  const gain = loudnessGain(measured)
   try {
     await execFileAsync(ffmpeg, [
       '-y',
@@ -160,7 +165,7 @@ async function encodeRange({
       '-b:a', '96k',
       '-ar', '44100',
       '-ac', '2',
-      '-af', audioResample,
+      '-af', [audioResample, volumeFilter(gain.gainDb)].filter(Boolean).join(','),
       '-movflags', '+faststart',
       tmpPath,
     ])
@@ -170,6 +175,7 @@ async function encodeRange({
     fs.rmSync(tmpPath, { force: true })
     throw error
   }
+  return { ...measured, ...gain }
 }
 
 async function trimVideoFile(options: {
@@ -178,14 +184,14 @@ async function trimVideoFile(options: {
   sourcePath: string
   keepStart: number
   keepEnd: number
-}): Promise<string> {
+}): Promise<{ moved: string, loudness: LoudnessMeasurement & LoudnessGain }> {
   let moved = ''
-  await encodeRange({
+  const loudness = await encodeRange({
     ...options,
     destPath: options.sourcePath,
     beforeRename: () => { moved = moveToTrash(options.sourcePath, 'videos') },
   })
-  return moved
+  return { moved, loudness }
 }
 
 function cacheVideoPath(cacheRoot: string, videoId: unknown, fileBaseName: string): string | null {
@@ -336,22 +342,21 @@ async function handleTrim(req: IncomingMessage, res: ServerResponse): Promise<vo
     const plan = createTrimPlan(parsed, current, sourceDuration)
 
     if (!plan.noop) {
-      const moved = [
-        await trimVideoFile({
-          ffmpeg: tools.ffmpeg,
-          audioResample: ffmpegModule.AUDIO_RESAMPLE,
-          sourcePath: videoPath,
-          keepStart: plan.keepStart,
-          keepEnd: plan.keepEnd,
-        }),
-      ]
+      const trimmed = await trimVideoFile({
+        ffmpeg: tools.ffmpeg,
+        audioResample: ffmpegModule.AUDIO_RESAMPLE,
+        sourcePath: videoPath,
+        keepStart: plan.keepStart,
+        keepEnd: plan.keepEnd,
+      })
+      const moved = [trimmed.moved]
       const hqCachePath = cacheVideoPath(assetsModule.cacheRoot, plan.updated.videoId, parsed.fileBaseName)
       if (hqCachePath && fs.existsSync(hqCachePath)) {
         moved.push(moveToTrash(hqCachePath, path.join('cache', String(plan.updated.videoId))))
       }
 
       fs.writeFileSync(filePath, JSON.stringify(plan.updated, null, 2))
-      sendJson(res, 200, { updated: plan.updated, moved })
+      sendJson(res, 200, { updated: plan.updated, moved, loudness: trimmed.loudness })
       return
     }
 
@@ -506,7 +511,7 @@ async function handleExcerpt(req: IncomingMessage, res: ServerResponse): Promise
     reservedTarget = plan.targetBaseName
     pendingExcerpts.add(reservedTarget)
 
-    await encodeRange({
+    const loudness = await encodeRange({
       ffmpeg: tools.ffmpeg,
       audioResample: ffmpegModule.AUDIO_RESAMPLE,
       sourcePath: videoPath,
@@ -521,7 +526,7 @@ async function handleExcerpt(req: IncomingMessage, res: ServerResponse): Promise
       fs.rmSync(targetVideo, { force: true })
       throw error
     }
-    sendJson(res, 200, { fileBaseName: plan.targetBaseName, created: plan.created })
+    sendJson(res, 200, { fileBaseName: plan.targetBaseName, created: plan.created, loudness })
   } catch (error) {
     if (error instanceof TrimValidationError) {
       sendJson(res, error.status, { error: error.message })
