@@ -1,0 +1,37 @@
+# 依存の更新を月 1 回、グループにまとめた PR で受け取る。
+# major は壊れる変更を含みうるので minor・patch とは別の PR にする。
+# 公開から 7 日たっていない版は待つ（乗っ取られた版を避けるため。セキュリティ更新は待たない）。
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7
+    groups:
+      npm-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      npm-major:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+      npm-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"
