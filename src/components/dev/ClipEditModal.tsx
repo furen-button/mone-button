@@ -213,7 +213,26 @@ export function ClipEditModal({ clip, categorySuggestions, hasVideo, onDelete, o
     }
   }
 
-  // 波形の下までスクロールしなくても保存できるよう、上部と下部の両方に置く。
+  // 波形の下までスクロールしなくても操作できるよう、削除・閉じる・保存は上部と下部の両方に置く。
+  // 削除の 2 回押しは状態を共有するので、上で 1 回押せば下も「もう一度押すと削除」になる。
+  const deleteButton = onDelete ? (
+    <button
+      type="button"
+      className={deleteArmed ? 'clip-edit-delete is-armed' : 'clip-edit-delete'}
+      onClick={() => void handleDelete()}
+      disabled={busy}
+      title="json と mp4 を trash/ へ退避します（2 回押し）"
+    >
+      {deleting ? '削除中…' : deleteArmed ? 'もう一度押すと削除' : '🗑 削除'}
+    </button>
+  ) : null
+
+  const closeButton = (
+    <button type="button" className="clip-edit-cancel" onClick={handleClose}>
+      閉じる
+    </button>
+  )
+
   const saveButton = (
     <button
       type="button"
@@ -252,6 +271,9 @@ export function ClipEditModal({ clip, categorySuggestions, hasVideo, onDelete, o
           <div className="clip-edit-header-actions">
             {status === 'saved' ? <span className="clip-edit-header-status is-saved">✓ 保存しました</span> : null}
             {status === 'error' ? <span className="clip-edit-header-status is-error">⚠ 保存に失敗しました</span> : null}
+            {deleteError ? <span className="clip-edit-header-status is-error">⚠ 削除に失敗しました</span> : null}
+            {deleteButton}
+            {closeButton}
             {saveButton}
           </div>
         </header>
@@ -384,20 +406,8 @@ export function ClipEditModal({ clip, categorySuggestions, hasVideo, onDelete, o
         {deleteError ? <p className="clip-edit-status is-error">⚠ 削除に失敗しました: {deleteError}</p> : null}
 
         <div className="clip-edit-actions">
-          {onDelete ? (
-            <button
-              type="button"
-              className={deleteArmed ? 'clip-edit-delete is-armed' : 'clip-edit-delete'}
-              onClick={() => void handleDelete()}
-              disabled={busy}
-              title="json と mp4 を trash/ へ退避します（2 回押し）"
-            >
-              {deleting ? '削除中…' : deleteArmed ? 'もう一度押すと削除' : '🗑 削除'}
-            </button>
-          ) : null}
-          <button type="button" className="clip-edit-cancel" onClick={handleClose}>
-            閉じる
-          </button>
+          {deleteButton}
+          {closeButton}
           {saveButton}
         </div>
       </section>
