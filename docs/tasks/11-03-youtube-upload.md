@@ -103,7 +103,7 @@ mp4 の隣 → `output/` → `output/0_reviewed/` の順に探す（`scripts/dev
 
 ## 事前検査（通信しない。--dry-run でも走る）
 
-error が 1 件でもあれば何も送らずに止める。
+全候補を先に検査し、error が 1 件でもあれば何も送らずに止める。
 
 - タイトルが 1〜100 文字で、`<` `>` を含まない
 - 概要欄が **5,000 バイト**以内で、`<` `>` を含まない（API の上限はバイト数。日本語は 1 文字 3 バイトなので約 1,666 字）
@@ -135,7 +135,7 @@ videos.insert の本文:
 ## 送信と失敗時の扱い
 
 - 公式ライブラリの動画送信は 1 回のリクエストで送る（`uploadType=multipart`）。途中から再開する仕組み（resumable）は持っていない（`googleapis-common` 9 の `build/src/apirequest.js` で確認）。現在の mp4 は 7〜128MB なので、一括送信で足りる。
-- 動画の送信中に失敗しても**自動では送り直さない**。サーバ側では受け取れていて、送り直すと同じ動画が 2 本できることがあるため。upload.json に `video: "failed"` を残して止める。Studio で動画ができていないことを確かめてから `--retry-video` で送り直す。
+- 動画の送信中に失敗しても**自動では送り直さない**。サーバ側では受け取れていて、送り直すと同じ動画が 2 本できることがあるため。upload.json の `steps.video` に `"failed"` を残して止める。送信前にこの状態を書き込むので、送信中のプロセス終了でも再送には明示指定が必要になる。Studio で動画ができていないことを確かめてから `--retry-video` で送り直す。
 - サムネイルとコメントの段で失敗した場合は videoId が upload.json に残る。再実行すると、終わっていない段から続ける。
 - mp4 を作り直して SHA-256 が変わった場合は、upload.json があれば止める。古い動画を Studio で消してから upload.json を消して上げ直す。
 
@@ -165,7 +165,7 @@ mp4 と同じ場所に `<name>.upload.json` を書く（git 管理外の `output
 
 ## タイトルのひな形
 
-プリセットに `upload.title` を書き、createVideo の `writeSummary` が解決して meta.json の `upload.title` に入れる。upload は meta.json だけを読む。
+プリセットに `upload.title` を書き、createVideo の `writeSummary` が解決して meta.json の `upload.title` に入れる。upload は meta.json だけを読む。ひな形が未指定なら空のタイトルを書き、アップロード時に `--title` が必要になる。既存プリセットにはひな形を追加しない。
 
 | 置き換え | 中身 |
 |---|---|
@@ -218,6 +218,8 @@ upload は終わりに次の確認項目を出す。
   - `api.js`: channels / videos / thumbnails / comments の呼び出し。テストではクライアントを差し替える
   - `record.js`: upload.json の読み書き
 - `scripts/create-video/summary.js`: `upload` の解決と meta.json への書き出し、`maxBytes` の警告
+- `scripts/create-video/config.js`: upload と summary.maxBytes の既定値
+- 設定エディタの「概要欄」: upload も編集対象にする
 - `scripts/create-video/config.schema.json`: `upload`（`title` / `categoryId` / `containsSyntheticMedia`）と `summary.maxBytes`
 - `package.json`: `@googleapis/youtube` を追加し、`upload` スクリプトを足す
 - `.env.example`: `YOUTUBE_*` のキー
