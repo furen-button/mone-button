@@ -173,7 +173,31 @@ function normalizeAudio(inputPath, outputPath) {
 }
 
 /**
- * 7. 1つのJSONファイルに対する一連の処理を行う関数
+ * 7. 区間 DL → 音量正規化・圧縮 → 途中ファイルの掃除をまとめて行う関数
+ *    失敗したら途中ファイルと不完全な完成ファイルを消して throw する
+ *    （完成ファイルが残ると次回「既に存在」で飛ばされる）。
+ */
+export function fetchClipVideo({ videoUrl, startTime, endTime, tempVideoPath, finalVideoPath, label, ffprobe = 'ffprobe' }) {
+  try {
+    // ダウンロード（映像尺の検査と再試行込み）
+    console.log(`\n⏳ [1/2] ダウンロード中... (${label})`);
+    downloadClip({ videoUrl, startTime, endTime, tempVideoPath, ffprobe });
+
+    // 音量正規化 ＆ 強力圧縮
+    console.log(`\n⏳ [2/2] 音量正規化と動画圧縮中... (${label})`);
+    normalizeAudio(tempVideoPath, finalVideoPath);
+
+    // お掃除
+    removeDownloadArtifacts(tempVideoPath);
+  } catch (err) {
+    removeDownloadArtifacts(tempVideoPath);
+    fs.rmSync(finalVideoPath, { force: true });
+    throw err;
+  }
+}
+
+/**
+ * 8. 1つのJSONファイルに対する一連の処理を行う関数
  *    戻り値は { status: 'skipped' | 'done' | 'failed', message? }
  */
 export function processSingleFile(file, { ffprobe = 'ffprobe' } = {}) {
@@ -200,26 +224,62 @@ export function processSingleFile(file, { ffprobe = 'ffprobe' } = {}) {
     }
 
     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-
-    // ダウンロード（映像尺の検査と再試行込み）
-    console.log(`\n⏳ [1/2] ダウンロード中... (${baseFileName})`);
-    downloadClip({ videoUrl, startTime, endTime, tempVideoPath, ffprobe });
-
-    // 音量正規化 ＆ 強力圧縮
-    console.log(`\n⏳ [2/2] 音量正規化と動画圧縮中... (${baseFileName})`);
-    normalizeAudio(tempVideoPath, finalVideoPath);
-
-    // お掃除
-    removeDownloadArtifacts(tempVideoPath);
+    fetchClipVideo({ videoUrl, startTime, endTime, tempVideoPath, finalVideoPath, label: baseFileName, ffprobe });
     console.log(`✅ 処理完了: ${finalVideoPath}`);
     return { status: 'done' };
   } catch (err) {
+    // 途中ファイルと不完全な完成ファイルは fetchClipVideo が消している。
     console.error(`❌ エラー (${file}):`, err.message);
-    // 途中ファイルと、正規化の途中で止まった不完全な完成ファイルを残さない（残ると次回「既に存在」で飛ばされる）。
-    removeDownloadArtifacts(tempVideoPath);
-    fs.rmSync(finalVideoPath, { force: true });
     return { status: 'failed', message: err.message };
   }
+}
+
+/**
+ * 9. 1 区間だけ取り直す CLI の引数を読む関数
+ *    `--video-id <id> --start <秒> --end <秒> --out <mp4>`。どれも無ければ null（従来の一括 DL）。
+ *    dev サーバのクリップ範囲拡張が、サーバを止めないよう子プロセスとして呼ぶ。
+ */
+export function parseRangeArgs(argv) {
+  if (!argv.some((arg) => arg.startsWith('--'))) {
+    return null;
+  }
+  const values = {};
+  for (let i = 0; i < argv.length; i += 2) {
+    const key = argv[i];
+    if (!['--video-id', '--start', '--end', '--out'].includes(key) || i + 1 >= argv.length) {
+      throw new Error(`不明な引数です: ${key}`);
+    }
+    values[key.slice(2)] = argv[i + 1];
+  }
+  const startTime = Number(values.start);
+  const endTime = Number(values.end);
+  if (!/^[\w-]+$/.test(values['video-id'] ?? '')) {
+    throw new Error('--video-id が不正です');
+  }
+  if (!Number.isFinite(startTime) || !Number.isFinite(endTime) || startTime < 0 || endTime <= startTime) {
+    throw new Error('--start と --end は 0 以上で start < end の秒数にしてください');
+  }
+  if (!values.out?.endsWith('.mp4')) {
+    throw new Error('--out には .mp4 のパスを指定してください');
+  }
+  return { videoId: values['video-id'], startTime, endTime, out: path.resolve(values.out) };
+}
+
+function downloadRange({ videoId, startTime, endTime, out }) {
+  const ffprobe = resolveFfprobe();
+  if (!ffprobe) {
+    console.warn('⚠️ ffprobe が見つからないため、ダウンロード後の尺検査をスキップします。');
+  }
+  fetchClipVideo({
+    videoUrl: `https://www.youtube.com/watch?v=${videoId}`,
+    startTime,
+    endTime,
+    tempVideoPath: out.replace(/\.mp4$/, '_temp.mp4'),
+    finalVideoPath: out,
+    label: path.basename(out),
+    ffprobe,
+  });
+  console.log(`✅ 処理完了: ${out}`);
 }
 
 /**
@@ -275,5 +335,15 @@ function main() {
 
 // スクリプトとして実行されたときだけ動かす（テストからの import では動かさない）
 if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
-  main();
+  try {
+    const range = parseRangeArgs(process.argv.slice(2));
+    if (range) {
+      downloadRange(range);
+    } else {
+      main();
+    }
+  } catch (err) {
+    console.error(`❌ エラー: ${err.message}`);
+    process.exitCode = 1;
+  }
 }
