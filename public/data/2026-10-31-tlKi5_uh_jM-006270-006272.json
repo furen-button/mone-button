@@ -1,0 +1,32 @@
+{
+  "videoId": "tlKi5_uh_jM",
+  "serif": "うわなんかなんか 飛んでっちゃった",
+  "ruby": "うわなんかなんかとんでっちゃった",
+  "categories": [
+    "やられ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=tlKi5_uh_jM&t=6270s",
+  "memo": "",
+  "trimming": {
+    "startTime": 6270.099377121399,
+    "endTime": 6272.529895833333,
+    "duration": 2.430518711934677,
+    "original": {
+      "startTime": 6270,
+      "endTime": 6272.529887343679,
+      "duration": 2.529887343678638
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "tlKi5_uh_jM",
+      "title": "【夜ご飯】パイナップルon好物【にじさんじ/梢桃音】",
+      "duration": 9237,
+      "thumbnail": "https://i.ytimg.com/vi/tlKi5_uh_jM/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20261031",
+      "viewCount": 20293,
+      "url": "https://www.youtube.com/watch?v=tlKi5_uh_jM"
+    }
+  }
+}
