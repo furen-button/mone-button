@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { formatTimestamp, stripEmphasis } from './ass.js';
+import { formatDate, formatTimestamp, stripEmphasis } from './ass.js';
 
 // 出力は 3 系統。用途ごとに文字数上限も分割方針も違うため 1 ファイルにまとめない。
 //   <name>.comment.txt … 固定コメント用のクリップ単位一覧
@@ -309,13 +309,46 @@ export function renderCommentList(entries, maxChars) {
   return chunks;
 }
 
-export function buildMeta({ entries, chapters, sources, summary, totalSec, videoOutPath }) {
+// 長さ調整は差し込み値だけに行い、ひな形の固定部分を保つ。
+export function resolveUpload({ entries, config = {}, part = 1, parts = 1 }) {
+  const upload = config.upload || {};
+  const first = entries[0] || {};
+  const values = {
+    category: (config.select?.categories || []).join('・'),
+    title: chapterLabelFor(first.title),
+    date: formatDate(first.uploadDate || '').replaceAll('-', '/'),
+    serif: stripEmphasis(first.serif || '').replace(/\s*\n\s*/gu, ' ').trim(),
+    n: entries.length, part, parts,
+  };
+  const template = upload.title || '';
+  const render = () => template.replace(/\{(category|title|date|serif|n|part|parts)\}/gu, (_, key) => values[key]);
+  for (const key of ['serif', 'title']) {
+    const original = [...values[key]];
+    let keep = original.length - 1;
+    while ([...render()].length > 100 && template.includes(`{${key}}`) && keep >= 0) {
+      values[key] = `${original.slice(0, keep).join('')}…`;
+      keep--;
+    }
+  }
+  const title = render();
+  const warnings = [];
+  if ([...title].length > 100) {
+    warnings.push('アップロード用タイトルが 100 文字を超えています。');
+  }
+  if (/[<>]/u.test(title)) {
+    warnings.push('アップロード用タイトルに < > が含まれています。');
+  }
+  return { upload: { title, categoryId: upload.categoryId ?? '24', containsSyntheticMedia: upload.containsSyntheticMedia ?? false }, warnings };
+}
+
+export function buildMeta({ entries, chapters, sources, summary, totalSec, videoOutPath, upload }) {
   return {
     output: path.basename(videoOutPath),
     durationSec: Math.round(totalSec * 100) / 100,
     clipCount: entries.length,
     titleCandidates: summary.titleCandidates || [],
     tags: summary.tags || [],
+    upload: upload || resolveUpload({ entries }).upload,
     // by: clip のチャプターは、QC が時刻を突き合わせるクリップ名と出典 URL も残す。
     chapters: chapters.map(({ sec, time, label, bases, urls }) => ({
       sec,
@@ -328,7 +361,7 @@ export function buildMeta({ entries, chapters, sources, summary, totalSec, video
 }
 
 // 3 系統をまとめて書き出す。戻り値は書いたパスと警告。
-export function writeSummary({ videoOutPath, entries, totalSec, config }) {
+export function writeSummary({ videoOutPath, entries, totalSec, config, part = 1, parts = 1 }) {
   const summary = config?.summary || {};
   const paths = summaryPathsFor(videoOutPath);
   const warnings = [];
@@ -355,6 +388,11 @@ export function writeSummary({ videoOutPath, entries, totalSec, config }) {
   if (maxChars > 0 && youtube.length > maxChars) {
     warnings.push(`概要欄が ${youtube.length} 文字で上限 ${maxChars} を超えています。`);
   }
+  const maxBytes = Number(summary.maxBytes ?? 5000);
+  const bytes = Buffer.byteLength(youtube);
+  if (maxBytes > 0 && bytes > maxBytes) {
+    warnings.push(`概要欄が ${bytes} バイトで上限 ${maxBytes} を超えています。`);
+  }
 
   const chunks = renderCommentList(entries, maxChars);
   if (chunks.length === 1) {
@@ -370,7 +408,10 @@ export function writeSummary({ videoOutPath, entries, totalSec, config }) {
     warnings.push(`クリップ一覧が上限 ${maxChars} 文字を超えるため ${chunks.length} 分割しました。`);
   }
 
+  const resolved = resolveUpload({ entries, config, part, parts });
+  warnings.push(...resolved.warnings);
   const meta = buildMeta({
+    upload: resolved.upload,
     entries,
     chapters: chapterResult.chapters,
     sources,

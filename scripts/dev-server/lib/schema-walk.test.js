@@ -51,6 +51,10 @@ describe('schema walk classification', () => {
     const schema = readSchema();
     const fields = new Map();
     walkFields(schema, (node, path) => fields.set(path.join('.'), classifySchema(node, path, schema)));
+    assert.equal(fields.get('upload.title'), 'nullable');
+    assert.equal(fields.get('upload.categoryId'), 'string');
+    assert.equal(fields.get('upload.containsSyntheticMedia'), 'boolean');
+    assert.equal(fields.get('summary.maxBytes'), 'number');
     assert.equal(fields.get('effects.camera.enabled'), 'boolean');
     assert.equal(fields.get('effects.reframe'), 'object');
     assert.equal(fields.get('effects.reframe.frames'), 'number');

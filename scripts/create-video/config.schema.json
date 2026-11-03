@@ -472,6 +472,28 @@
         }
       }
     },
+    "upload": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "非公開アップロード用のメタデータ。meta.json に解決済みの値を書く。",
+      "properties": {
+        "title": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "タイトルのひな形。{category} {title} {date} {serif} {n} {part} {parts} を置換し、100 文字を超えたらセリフ、配信タイトルの順に詰める。未指定時は upload の --title で指定する。"
+        },
+        "categoryId": {
+          "type": "string",
+          "default": "24",
+          "description": "YouTube カテゴリ ID。既定の 24 はエンターテイメント。"
+        },
+        "containsSyntheticMedia": {
+          "type": "boolean",
+          "default": false,
+          "description": "改変・合成コンテンツの申告。"
+        }
+      }
+    },
     "summary": {
       "type": "object",
       "additionalProperties": false,
@@ -519,6 +541,12 @@
           "items": { "type": "string" },
           "default": [],
           "description": "YouTube のタグ。.meta.json にのみ出力する。"
+        },
+        "maxBytes": {
+          "type": "number",
+          "minimum": 0,
+          "default": 5000,
+          "description": "概要欄のバイト数上限。超過は警告する。0 で警告を無効にしても upload の 5,000 バイト検査は有効。"
         },
         "maxChars": {
           "type": "number",

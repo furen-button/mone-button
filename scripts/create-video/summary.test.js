@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { describe, it } from 'node:test';
 
 import {
+  resolveUpload,
+  writeSummary,
   buildChapters,
   buildClipSources,
   buildMeta,
@@ -393,5 +398,56 @@ describe('buildSummaryEntry の強調記法', () => {
       data: { serif: 'なんか{キャサリン}が今\n{すごい|9B59D0}気に' },
     };
     assert.equal(buildSummaryEntry(clip, 0).serif, 'なんかキャサリンが今 すごい気に');
+  });
+});
+
+describe('アップロード用タイトル', () => {
+  it('全ひな形とカテゴリ・配信タイトル・日付・分割数を解決する', () => {
+    const { upload, warnings } = resolveUpload({
+      entries: [entry(0, 'a', '【雑談】こんにちは【梢桃音/にじさんじ】', '{強調|FF0000}\nつぎ'), entry(10, 'b', 'B')],
+      config: { select: { categories: ['侍', 'やられ'] }, upload: { title: '{category}/{title}/{date}/{serif}/{n}/{part}/{parts}', categoryId: '22', containsSyntheticMedia: true } },
+      part: 3, parts: 12,
+    });
+    assert.equal(upload.title, '侍・やられ/雑談 - こんにちは/2024/06/22/強調 つぎ/2/3/12');
+    assert.equal(upload.categoryId, '22');
+    assert.equal(upload.containsSyntheticMedia, true);
+    assert.deepEqual(warnings, []);
+  });
+
+  it('100 文字超過時はセリフ、配信タイトルの順に … で詰める', () => {
+    const config = { upload: { title: '{serif}|{title}末尾' } };
+    const first = entry(0, 'a', '題'.repeat(50), '声'.repeat(70));
+    let result = resolveUpload({ entries: [first], config });
+    assert.equal([...result.upload.title].length, 100);
+    assert.ok(result.upload.title.startsWith('声'.repeat(46) + '…|'));
+    assert.ok(result.upload.title.endsWith('題'.repeat(50) + '末尾'));
+    result = resolveUpload({ entries: [{ ...first, title: '題'.repeat(120) }], config });
+    assert.equal([...result.upload.title].length, 100);
+    assert.ok(result.upload.title.startsWith('…|'));
+    assert.ok(result.upload.title.endsWith('…末尾'));
+  });
+
+  it('繰り返した変数も数え、固定部分の超過と禁止文字を警告する', () => {
+    const result = resolveUpload({ entries: [entry(0, 'a', 'A', '声'.repeat(100))], config: { upload: { title: '{serif}/{serif}' } } });
+    assert.ok([...result.upload.title].length <= 100);
+    assert.equal(resolveUpload({ entries: [], config: { upload: { title: '<' + '題'.repeat(101) } } }).warnings.length, 2);
+    assert.deepEqual(resolveUpload({ entries: [] }).upload, { title: '', categoryId: '24', containsSyntheticMedia: false });
+  });
+
+  it('meta.json に upload を書き、maxBytes は既存 maxChars と別に警告する', (t) => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'youtube-summary-'));
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    const videoOutPath = path.join(root, 'video.mp4');
+    const config = { summary: { intro: 'あ'.repeat(1700), maxChars: 5000, chapters: { enabled: false } }, upload: { title: '題 {part}/{parts}' } };
+    let result = writeSummary({ videoOutPath, entries: [], totalSec: 1, config, part: 2, parts: 9 });
+    assert.ok(result.warnings.some((warning) => warning.includes('バイト')));
+    assert.ok(!result.warnings.some((warning) => warning.includes('文字で上限')));
+    assert.equal(JSON.parse(fs.readFileSync(summaryPathsFor(videoOutPath).meta, 'utf8')).upload.title, '題 2/9');
+    config.summary.maxBytes = 0;
+    result = writeSummary({ videoOutPath, entries: [], totalSec: 1, config });
+    assert.ok(!result.warnings.some((warning) => warning.includes('バイト')));
+    config.summary.maxChars = 10;
+    result = writeSummary({ videoOutPath, entries: [], totalSec: 1, config });
+    assert.ok(result.warnings.some((warning) => warning.includes('文字で上限')));
   });
 });

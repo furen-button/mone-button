@@ -268,6 +268,28 @@ npm run createVideo -- --videoId xxx --qc   # 生成前 L0 + 生成後 L1
 
 詳細は docs/tasks/09-10-video-qc.md を参照。
 
+## YouTube アップロード
+
+createVideo の mp4 と付随ファイルを非公開で上げ、サムネイルとコメントまで投稿する。公開への切り替えは Studio で手作業。
+
+```
+npm run upload -- --login                    # 初回の OAuth 認可（macOS のブラウザで開く）
+npm run upload -- --video 'output/shorts/*.mp4' --dry-run
+npm run upload -- --video output/0_reviewed/example.mp4
+npm run upload -- --video output/0_reviewed/example.mp4 --retry-video
+```
+
+- 実装は `scripts/youtube-upload/`。認証情報は `.env.local` の `YOUTUBE_CLIENT_ID` / `YOUTUBE_CLIENT_SECRET` / `YOUTUBE_REFRESH_TOKEN` / `YOUTUBE_CHANNEL_ID`。優先順位はプロセス環境変数 > `.env.local` > `.env`。`VITE_` を付けない。Google Cloud でデスクトップアプリ用 OAuth クライアントを作り、同意画面を本番にして使う。
+- `--login` は 127.0.0.1 の空きポートで OAuth（PKCE、offline、consent）を受け、認可されたチャンネルを表示する。設定済み ID と違えば token を保存しない。token 行と、未設定時のチャンネル行だけを書き換える。認証情報は端末に出さない。
+- 付随ファイルは mp4 の隣 → output → output/0_reviewed。meta / youtube は必須、サムネイルとコメントは無ければ省略する。`--title` でタイトルを上書き、`--no-thumbnail` / `--no-comment` で段を省略できる。`--video` は繰り返し指定と glob に対応し、順に処理して失敗時は止まる。
+- 事前検査は通信なし。タイトル 1〜100 文字・概要欄 5,000 バイト・両方の `< >`、タグ合計 500 文字（カンマと空白入りタグの引用符も含む）、サムネイル jpeg/png・50MB、manifest v2 の SHA-256、QC の error、二重アップロードを検査する。全候補の error が無い場合だけ送信する。QC は SHA が一致した manifest の隣にあるものだけ採用する。QC の error を目視で誤検出と確かめたときだけ `--allow-qc-error` で警告に下げられ、upload.json に `qcErrorAllowed: true` が残る（qc.json の形式不正は下げない）。
+- 送信前にチャンネルを再確認する。`privacyStatus: private` は固定。動画は公式ライブラリの multipart 一括送信で、自動再送しない。`<name>.upload.json` に段ごとの結果とコメント ID を残し、再実行では未完了の段から再開する。送信中の中断も含め動画送信は `failed` を残すので、Studio で動画が無いことを確認してから `--retry-video`。SHA が変わったら古い動画を Studio で削除してから記録を削除する。
+- プリセットの `upload.title` は `{category}` / `{title}` / `{date}` / `{serif}` / `{n}` / `{part}` / `{parts}` を createVideo が解決して meta.json に書く。100 文字超過時はセリフ、配信タイトルの順に「…」で詰める。未指定なら upload の `--title` が必要。`categoryId` は既定 `24`、`containsSyntheticMedia` は既定 false。設定エディタの「概要欄」で編集できる。`summary.maxBytes` は既定 5000 で概要欄の超過を警告する（既存の maxChars とは独立）。
+- 完了後は Studio で権利の最終確認（二次創作ガイドライン・コラボ相手の条件・出典・非公式表記）、コメントのピン留め、終了画面、公開への切り替えを行う。分割コメントの 2 個目以降は先頭への返信になる。
+- テストは `scripts/youtube-upload/*.test.js`。偽クライアントと一時ディレクトリだけを使い、実 API や手元の認証情報には触れない。
+
+詳細・Google Cloud の準備・残件は docs/tasks/11-03-youtube-upload.md を参照。
+
 ## 設定エディタ（dev 専用 GUI）
 
 `scripts/create-video/config*.json` を GUI で作成・編集・プレビュー・実行する。dev サーバ専用で、`vite build` には入らない。

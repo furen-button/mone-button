@@ -213,6 +213,12 @@ export const DEFAULTS = {
       volume: 1.0,
     },
   },
+  // npm run upload が読む値。title はひな形で、createVideo が解決して meta.json に書く。
+  upload: {
+    title: null,
+    categoryId: '24',
+    containsSyntheticMedia: false,
+  },
   // YouTube 公開用メタデータの生成。概要欄テンプレートの可変部をここに置く。
   summary: {
     enabled: true,
@@ -224,6 +230,7 @@ export const DEFAULTS = {
     titleCandidates: [],
     tags: [],
     maxChars: 5000,
+    maxBytes: 5000,
     chapters: {
       enabled: true,
       // clip = セリフごと（10 秒未満はまとめる）/ stream = 配信が変わる位置。

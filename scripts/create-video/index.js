@@ -9,7 +9,7 @@ import { renderClip } from './clip.js';
 import { renderClipCard, renderEndingCard, renderOpeningCard } from './card.js';
 import { concatSegments, mixBgm, probeDuration, resolveFfmpeg } from './ffmpeg.js';
 import { buildSummaryEntry, writeSummary } from './summary.js';
-import { selectParts, partOutputPath } from './split.js';
+import { selectParts, splitClips, partOutputPath } from './split.js';
 import { planTransitions } from './transition.js';
 import { writeRenderManifest } from './qc/manifest.js';
 import { runQc } from './qc/index.js';
@@ -21,15 +21,16 @@ async function main() {
   const clips = collectClips(config);
   const outPath = resolveOutputPath(config, clips);
   const parts = selectParts(clips, config);
+  const partCount = splitClips(clips, config.output.split).length;
   const tools = resolveFfmpeg();
   for (const { clips: partClips, part } of parts) {
     const target = config.output.split ? partOutputPath(outPath, part) : outPath;
     console.log(`📦 part ${part}: ${partClips.length} clips → ${target}`);
-    await renderVideo({ config, clips: partClips, outPath: target, tools });
+    await renderVideo({ config, clips: partClips, outPath: target, tools, part, parts: partCount });
   }
 }
 
-async function renderVideo({ config, clips, outPath, tools }) {
+async function renderVideo({ config, clips, outPath, tools, part, parts }) {
   const size = outputSize(config);
   const titleOverride = config.titleOverride || null;
   const staticResults = config.qc.enabled
@@ -143,6 +144,8 @@ async function renderVideo({ config, clips, outPath, tools }) {
     if (summaryEntries.length > 0 && config.summary.enabled !== false) {
       // 最終チャプターの長さを測るために ED まで含めた総尺を渡す。
       const summaryResult = writeSummary({
+        part,
+        parts,
         videoOutPath: outPath,
         entries: summaryEntries,
         totalSec: timelineSec,
