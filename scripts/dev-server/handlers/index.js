@@ -11,6 +11,7 @@ import { createFileRoutes } from './files.js';
 import { JobManager, createJobRoutes } from './jobs.js';
 import { createPresetRoutes } from './presets.js';
 import { createStillRoutes } from './still.js';
+import { createThumbnailRoutes } from './thumb.js';
 import { createValidateRoutes } from './validate.js';
 
 export { shutdownJobs } from './jobs.js';
@@ -35,6 +36,7 @@ export function createHandlers(context = {}) {
     ...createStillRoutes(resolvedContext),
     ...createJobRoutes(resolvedContext, jobs),
     ...createCropRoutes(resolvedContext, jobs),
+    ...createThumbnailRoutes(resolvedContext),
     ...createFileRoutes(resolvedContext),
   ];
 }

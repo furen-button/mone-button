@@ -2,16 +2,19 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
-import { Transform } from 'node:stream';
-import { pipeline } from 'node:stream/promises';
 import { promisify } from 'node:util';
 
 import { CAMERA_ASPECTS, cameraRectAt, normalizeCamera } from '../../create-video/camera.js';
 import { cameraFilters, exportEnhance } from '../../create-video/camera-render.js';
 import { ffmpegLibplaceboStatus, probeVideoStream, resolveFfmpeg } from '../../create-video/ffmpeg.js';
+import { writeBounded } from '../lib/bounded-write.js';
 import { UPLOAD_EXTENSIONS, cropDirs, newUploadId, resolveCropRef } from '../lib/crop-source.js';
+import { safeStem } from '../lib/file-names.js';
 import { clipBase as clipBaseGuard } from '../lib/guards.js';
 import { resolveOutputFile } from './files.js';
+
+// 書き出し名の整形はサムネイルの保存でも使うので lib/file-names.js に置く（既存の import 元のため再 export する）。
+export { safeStem };
 
 const execFileAsync = promisify(execFile);
 
@@ -69,25 +72,12 @@ async function upload(context, req, probe) {
   fs.mkdirSync(dirs.uploads, { recursive: true });
   const id = newUploadId();
   const file = path.join(dirs.uploads, `${id}${ext}`);
-  const partial = `${file}.part`;
-  let size = 0;
-  const counter = new Transform({
-    transform(chunk, encoding, callback) {
-      size += chunk.length;
-      if (size > MAX_UPLOAD_BYTES) {
-        callback(Object.assign(new Error('upload too large'), { status: 413 }));
-        return;
-      }
-      callback(null, chunk);
-    },
-  });
+  let size;
   try {
-    await pipeline(req.stream, counter, fs.createWriteStream(partial), { signal: req.signal });
+    size = await writeBounded(req, file, MAX_UPLOAD_BYTES);
   } catch (error) {
-    fs.rmSync(partial, { force: true });
     return { status: error?.status === 413 ? 413 : 400, json: { error: error instanceof Error ? error.message : String(error) } };
   }
-  fs.renameSync(partial, file);
 
   let info;
   try {
@@ -285,12 +275,6 @@ async function startExport(context, manager, body) {
     }
     return jsonError(error);
   }
-}
-
-// 書き出し名に使えない文字を _ にする（outputBaseName と同じ文字種）。
-export function safeStem(label) {
-  const stem = String(label || 'video').replace(/[^\p{L}\p{N}_.\- ]/gu, '_').replace(/^\.+/u, '').slice(0, 80).trim();
-  return stem || 'video';
 }
 
 function pngResponse(file, meta) {

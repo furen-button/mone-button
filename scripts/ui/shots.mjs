@@ -21,7 +21,8 @@ import { capturePage, launchChrome } from './cdp.mjs';
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const EDITOR_PATH = '/mone-button/editor.html';
 const CROP_PATH = '/mone-button/crop.html';
-const PAGES = ['editor', 'crop'];
+const THUMB_PATH = '/mone-button/thumb.html';
+const PAGES = ['editor', 'crop', 'thumb'];
 const TABS = ['clips', 'preview', 'settings', 'build', 'summary'];
 const CHROME_CANDIDATES = [
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
@@ -46,6 +47,8 @@ function parseArgs(argv) {
     serverTimeoutMs: 90000,
     kind: null,
     page: 'editor',
+    base: null,
+    templates: ['kirinuki-left-title'],
     clip: null,
     at: null,
     aspect: null,
@@ -75,6 +78,10 @@ function parseArgs(argv) {
       options.kind = next();
     } else if (arg === '--page') {
       options.page = next();
+    } else if (arg === '--base') {
+      options.base = next();
+    } else if (arg === '--template') {
+      options.templates = next().split(',').map((name) => name.trim()).filter(Boolean);
     } else if (arg === '--clip') {
       options.clip = next();
     } else if (arg === '--at') {
@@ -118,7 +125,9 @@ function usage() {
   --width/--height    ビューポート（既定 1600x1000。既定はページ全体を撮る）
   --viewport          ページ全体ではなくビューポートだけ撮る
   --kind <k>          プレビュー対象（clip / card / opening / ending）
-  --page <p>          editor（既定）/ crop（切り出しツール。--tab / --preset は使わない）
+  --page <p>          editor（既定）/ crop（切り出し）/ thumb（サムネイル）
+  --base <name>       thumb: 動画の出力名
+  --template <a,b,c>  thumb: テンプレートをまとめて撮る
   --clip <base>       crop: public/data のクリップを開く
   --at <sec>          crop: 開いたあとシークする秒
   --aspect <a>        crop: 9:16 / 16:9 / 1:1
@@ -190,8 +199,17 @@ function isSerious(message) {
   return message.level === 'error' || SERIOUS_TEXT.some((pattern) => pattern.test(message.text));
 }
 
-// 撮る画面の一覧。editor はタブごと、crop は 1 枚。
+// 撮る画面の一覧。editor はタブごと、crop は 1 枚、thumb はテンプレートごと。
 function shotTargets(options, presetBase) {
+  if (options.page === 'thumb') {
+    return options.templates.map((template) => {
+      const query = new URLSearchParams({ template });
+      if (options.base) {
+        query.set('base', options.base);
+      }
+      return { tab: template, out: path.join(options.out, `thumb-${template}.png`), url: `${options.baseUrl}${THUMB_PATH}?${query}` };
+    });
+  }
   if (options.page === 'crop') {
     const params = new URLSearchParams();
     for (const key of ['clip', 'at', 'aspect']) {
@@ -234,7 +252,7 @@ async function main() {
     }
   }
 
-  const presetBase = options.page === 'crop' ? 'crop' : options.preset.replace(/\.json$/u, '');
+  const presetBase = options.page !== 'editor' ? options.page : options.preset.replace(/\.json$/u, '');
   const results = [];
   const session = await launchChrome({ chrome, width: options.width, height: options.height });
   try {
@@ -249,6 +267,7 @@ async function main() {
           settleMs: options.settleMs,
           timeoutMs: options.timeoutMs,
           fullPage: options.fullPage,
+          readyExpression: options.page === 'thumb' ? 'document.body.dataset.ready === \'1\'' : null,
         });
         fs.writeFileSync(out, data);
         const serious = messages.filter(isSerious);

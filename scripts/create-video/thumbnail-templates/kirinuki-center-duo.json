@@ -1,0 +1,120 @@
+{
+  "version": 1,
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "layers": [
+    {
+      "id": "purple",
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": 1280,
+      "h": 720,
+      "fill": "#2A1446"
+    },
+    {
+      "id": "bg",
+      "type": "image",
+      "slot": "frame",
+      "x": 640,
+      "y": 360,
+      "scale": 1,
+      "fit": "cover",
+      "filter": {
+        "blur": 12,
+        "brightness": 0.6
+      }
+    },
+    {
+      "id": "left",
+      "type": "image",
+      "slot": "face",
+      "x": 150,
+      "y": 400,
+      "scale": 0.55,
+      "outline": {
+        "width": 10,
+        "color": "#FFFFFF"
+      },
+      "shadow": {
+        "blur": 18,
+        "x": 0,
+        "y": 8,
+        "color": "#00000080"
+      },
+      "flipX": true
+    },
+    {
+      "id": "right",
+      "type": "image",
+      "slot": "face",
+      "x": 1130,
+      "y": 400,
+      "scale": 0.55,
+      "outline": {
+        "width": 10,
+        "color": "#FFFFFF"
+      },
+      "shadow": {
+        "blur": 18,
+        "x": 0,
+        "y": 8,
+        "color": "#00000080"
+      }
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "slot": "title",
+      "text": "{やられ}集",
+      "font": "Dela Gothic One",
+      "weight": 400,
+      "size": 138,
+      "color": "#FF4FA0",
+      "emphasisColor": "#FFD800",
+      "outlines": [
+        {
+          "width": 12,
+          "color": "#FFFFFF"
+        },
+        {
+          "width": 8,
+          "color": "#6B3FA0"
+        }
+      ],
+      "lineHeight": 1.1,
+      "letterSpacing": 0,
+      "align": "center",
+      "x": 640,
+      "y": 300
+    },
+    {
+      "id": "sub",
+      "type": "text",
+      "slot": "subtitle",
+      "text": "もねの名場面",
+      "font": "Dela Gothic One",
+      "weight": 400,
+      "size": 64,
+      "color": "#FF4FA0",
+      "emphasisColor": "#FFD800",
+      "outlines": [
+        {
+          "width": 12,
+          "color": "#FFFFFF"
+        },
+        {
+          "width": 8,
+          "color": "#6B3FA0"
+        }
+      ],
+      "lineHeight": 1.1,
+      "letterSpacing": 0,
+      "align": "center",
+      "x": 640,
+      "y": 520
+    }
+  ]
+}

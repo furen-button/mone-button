@@ -119,3 +119,12 @@ function isObject(value) {
 function formatPath(pathParts) {
   return `[${pathParts.map((part) => `'${part}'`).join(',')}]`;
 }
+
+// rawBody の経路が受ける Content-Type（前方一致）。true は動画のアップロード、配列はその経路専用の型、
+// それ以外は JSON の経路なので null。
+export function rawBodyContentTypes(rawBody) {
+  if (rawBody === true) {
+    return ['video/', 'application/octet-stream'];
+  }
+  return Array.isArray(rawBody) ? [...rawBody] : null;
+}

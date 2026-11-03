@@ -1,0 +1,116 @@
+{
+  "version": 1,
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "layers": [
+    {
+      "id": "purple",
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": 1280,
+      "h": 720,
+      "fill": "#2A1446"
+    },
+    {
+      "id": "bg",
+      "type": "image",
+      "slot": "frame",
+      "x": 640,
+      "y": 360,
+      "scale": 1,
+      "fit": "cover",
+      "filter": {
+        "blur": 0,
+        "brightness": 0.85
+      }
+    },
+    {
+      "id": "shade",
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "w": 1000,
+      "h": 720,
+      "fill": {
+        "type": "linear",
+        "from": "#2A1446F0",
+        "to": "#2A144600",
+        "angle": 90
+      }
+    },
+    {
+      "id": "mone",
+      "type": "image",
+      "slot": "face",
+      "x": 1030,
+      "y": 420,
+      "scale": 0.55,
+      "outline": {
+        "width": 10,
+        "color": "#FFFFFF"
+      },
+      "shadow": {
+        "blur": 18,
+        "x": 0,
+        "y": 8,
+        "color": "#00000080"
+      }
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "slot": "title",
+      "text": "{やられ}集",
+      "font": "Dela Gothic One",
+      "weight": 400,
+      "size": 140,
+      "color": "#FF4FA0",
+      "emphasisColor": "#FFD800",
+      "outlines": [
+        {
+          "width": 12,
+          "color": "#FFFFFF"
+        },
+        {
+          "width": 8,
+          "color": "#6B3FA0"
+        }
+      ],
+      "lineHeight": 1.1,
+      "letterSpacing": 0,
+      "align": "left",
+      "x": 70,
+      "y": 265,
+      "rotation": -4
+    },
+    {
+      "id": "sub",
+      "type": "text",
+      "slot": "subtitle",
+      "text": "もねの名場面",
+      "font": "Dela Gothic One",
+      "weight": 400,
+      "size": 56,
+      "color": "#FF4FA0",
+      "emphasisColor": "#FFD800",
+      "outlines": [
+        {
+          "width": 12,
+          "color": "#FFFFFF"
+        },
+        {
+          "width": 8,
+          "color": "#6B3FA0"
+        }
+      ],
+      "lineHeight": 1.1,
+      "letterSpacing": 0,
+      "align": "left",
+      "x": 80,
+      "y": 560
+    }
+  ]
+}

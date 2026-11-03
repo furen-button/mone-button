@@ -332,6 +332,24 @@ http://localhost:5173/mone-button/crop.html?clip=<base>&at=1.5&aspect=9:16
 
 詳細は docs/tasks/11-01-crop-camera.md を参照。
 
+## サムネイル（thumb.html、dev 専用）
+
+横のまとめ動画の YouTube サムネイルをブラウザの canvas で作る。1280×720。`npm run thumb`、DEV ツールバーの「サムネイル」、設定エディタの概要欄の「サムネイルを作る」から開く。本番ビルドには含めない。
+
+- `thumb.html?base=<出力名>&template=<name>`。output直下と0_reviewed直下のmp4を選び、meta・renderを両方から探す。クリップ一覧の構築ではffprobeを呼ばない。Shortsは対象外。
+- 切り抜き風3テンプレート（左タイトル / 帯とコマ / 中央と左右の顔）から始め、レイヤーを移動・拡大・回転・並べ替え・複製・非表示・ロックできる。文字・図形の追加、画像差し替え、テンプレート保存に対応。矢印1px（Shiftで10px）、Delete、⌘Z / ⌘⇧Z。右下の再生時間領域は表示切替できる。
+- コマは高画質キャッシュのみ。Anime4Kを要求し、Vulkanや描画が失敗したらLanczosへ戻して画面で知らせる。最大2560×1440のRGB PNG。recipeをプロジェクトに保存するのでキャッシュ削除後も再生成できる。
+- もねの透過切り抜きは94枚。rating順・種類フィルタ付き、一覧は256pxプレビュー。アップロード画像はPNG / JPEG / WebP（20MiBまで）をoutput/thumbnail-assetsに保持。
+- Google Fontsの日本語OFLフォント10種を使用（太さと公式metadataの根拠はタスク文書）。各familyのCSSと実文字列のfontロードを待って描く。文字の強調はASSと同じ `{語}` / `{語|RRGGBB}`。多重縁取り、画像の白フチ・影・反転・ぼかし・明るさ、矩形のグラデーションに対応。
+- 保存はmp4の隣の `<base>.thumbnail.jpg` / `.png` と `.thumbnail.json`。出力なしはoutput/thumbnailsへ。JPEGは0.92から品質を下げて2MiB以内に収め、PNGの超過はエラーにする。表示と保存は同じrenderProjectを使う。
+- 実装はsrc/thumbとscripts/dev-server/handlers/thumb.js。共有形式の検証はscripts/create-video/thumbnail.js、強調解析はemphasis.js。サムネイルのAPI・kind・キャッシュはthumbnail名に統一し、従来の配信サムネイルkind=thumbとは区別する。
+- POSTの画像経路だけraw MIME型を指定する。上限付き書き込みはcropと共通。一時ファイルからrenameし、容量超過・中断で既存データを壊さない。テンプレートはscripts/create-video/thumbnail-templatesのJSONでgit管理する。
+- `npm run shots -- --page thumb --base <出力名> --template kirinuki-left-title,kirinuki-band-frame,kirinuki-center-duo`。描画完了のdata-readyを待つ。ハンドラ変更後はdevサーバを再起動する。
+- 2026-11-02 に Chrome で確認: 3 テンプレートの表示、ドラッグ・拡大・元に戻す・文字編集・コマともねの差し替え・保存（1280×720・約 230KB。画面の canvas と構図が一致）、Anime4K のコマ抽出（2560×1440・rgb24）、Google Fonts の描画、レビュー済み出力の横への保存。
+- 切り抜きは正方形で切られているので、白フチは画像の矩形の内側だけに描く（切り口に白い線を出さない）。
+
+詳細・判断・検証残件は docs/tasks/11-02-thumbnail.md を参照。
+
 ## ドキュメント管理
 
 - docs/draft.md - 仕様元

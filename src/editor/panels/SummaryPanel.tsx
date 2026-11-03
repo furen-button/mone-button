@@ -81,6 +81,7 @@ export function SummaryPanel() {
             </option>
           ))}
         </select>
+        <a href={`${import.meta.env.BASE_URL}thumb.html${selectedBase ? `?base=${encodeURIComponent(selectedBase)}` : ''}`} target="_blank" rel="noreferrer">サムネイルを作る</a>
         {copied ? <span className="cv-hint">{copied}</span> : null}
       </div>
       {error ? <p className="cv-alert is-error">{error}</p> : null}

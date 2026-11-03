@@ -19,6 +19,7 @@ const KIND_TITLES: Record<ClipIssueKind, string> = {
 
 // dev 専用のページ。URL を覚えていなくても開けるよう、別タブで開くリンクを置く。
 const DEV_PAGES = [
+  { href: `${import.meta.env.BASE_URL}thumb.html`, icon: '🎨', label: 'サムネイル', title: 'まとめ動画のサムネイルを作る（thumb.html）' },
   { href: `${import.meta.env.BASE_URL}crop.html`, icon: '🖼️', label: '切り出しツール', title: '動画をドロップして枠とキーフレームで切り出す（crop.html）' },
   { href: `${import.meta.env.BASE_URL}editor.html`, icon: '🎬', label: '設定エディタ', title: 'createVideo のプリセットを編集・プレビュー・ビルドする（editor.html）' },
 ]

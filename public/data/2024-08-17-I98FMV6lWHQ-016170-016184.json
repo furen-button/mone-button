@@ -9,8 +9,13 @@
   "memo": "",
   "trimming": {
     "startTime": 16170.572619970313,
-    "endTime": 16184.849559104534,
-    "duration": 14.276939134220811
+    "endTime": 16183.629787709904,
+    "duration": 13.057167739591003,
+    "original": {
+      "startTime": 16170.572619970313,
+      "endTime": 16184.849559104534,
+      "duration": 14.276939134220811
+    }
   },
   "videoFile": {
     "metadata": {

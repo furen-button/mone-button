@@ -27,8 +27,8 @@ export type HandlerResult =
 export type Route = {
   method: 'GET' | 'POST' | 'HEAD';
   pattern: RegExp;
-  // true なら JSON を解析せず、video/* と application/octet-stream の本文を stream で受ける。
-  rawBody?: boolean;
+  // true なら JSON を解析せず、video/* と application/octet-stream の本文を stream で受ける。配列ならその Content-Type（前方一致）だけを受ける。
+  rawBody?: boolean | readonly string[];
   handler: (req: HandlerRequest, params: Record<string, string>) => Promise<HandlerResult>;
 };
 
