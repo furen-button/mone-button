@@ -23,5 +23,18 @@
       "viewCount": 14150,
       "url": "https://www.youtube.com/watch?v=WKHtnq2fVOg"
     }
+  },
+  "effects": {
+    "camera": {
+      "9:16": [
+        {
+          "t": 0,
+          "x": 0.5005,
+          "y": 0.413,
+          "zoom": 1.2108,
+          "ease": "smooth"
+        }
+      ]
+    }
   }
 }
