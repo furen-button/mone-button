@@ -1,0 +1,37 @@
+{
+  "videoId": "O3kaWzTJW_s",
+  "serif": "よ！ たぬき！",
+  "ruby": "よたぬき",
+  "categories": [
+    "世界"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=O3kaWzTJW_s&t=645s",
+  "memo": "yt-comment-archiver: ライブチャットの山 29人 「よ！たぬき！×4」「よっ！たぬき！×4」「東北はいるだろうね」「よったぬ」「うちの方じゃネコより轢死体が多いかも」「草」「意外といるのかもしれない」「野良猫くらいのテンションで言われても」 @10:50",
+  "liveChat": {
+    "message": "東北はいるだろうね",
+    "at": 650,
+    "streamStartedAt": "2024-11-28T16:00:21+09:00"
+  },
+  "trimming": {
+    "startTime": 645.6241513849258,
+    "endTime": 646.4080460695876,
+    "duration": 0.7838946846618802,
+    "original": {
+      "startTime": 630,
+      "endTime": 660,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "O3kaWzTJW_s",
+      "title": "【ぽやラジ#5】人生相談＆みんなのおすすめ回✨まったりゆったり行きましょ！【にじさんじ/梢桃音】",
+      "duration": 3158,
+      "thumbnail": "https://i.ytimg.com/vi/O3kaWzTJW_s/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241128",
+      "viewCount": 6471,
+      "url": "https://www.youtube.com/watch?v=O3kaWzTJW_s"
+    }
+  }
+}

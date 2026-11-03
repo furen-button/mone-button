@@ -1,0 +1,37 @@
+{
+  "videoId": "O3kaWzTJW_s",
+  "serif": "はい ということで お別れの時間に なりました",
+  "ruby": "はいということでおわかれのじかんになりました",
+  "categories": [
+    "あいさつ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=O3kaWzTJW_s&t=3092s",
+  "memo": "yt-comment-archiver: ライブチャットの山 85人 「ばいばーい×9」「あ×3」「あっ×3」「ばいばーい！×3」「冬眠したんじゃね×2」「お疲れ様〜×2」「おつもねー×2」 @51:30",
+  "liveChat": {
+    "message": "冬眠したんじゃね",
+    "at": 3090,
+    "streamStartedAt": "2024-11-28T16:00:21+09:00"
+  },
+  "trimming": {
+    "startTime": 3092.244981935751,
+    "endTime": 3095.782624417035,
+    "duration": 3.5376424812837506,
+    "original": {
+      "startTime": 3070,
+      "endTime": 3100,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "O3kaWzTJW_s",
+      "title": "【ぽやラジ#5】人生相談＆みんなのおすすめ回✨まったりゆったり行きましょ！【にじさんじ/梢桃音】",
+      "duration": 3158,
+      "thumbnail": "https://i.ytimg.com/vi/O3kaWzTJW_s/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241128",
+      "viewCount": 6471,
+      "url": "https://www.youtube.com/watch?v=O3kaWzTJW_s"
+    }
+  }
+}

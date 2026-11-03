@@ -1,0 +1,37 @@
+{
+  "videoId": "O3kaWzTJW_s",
+  "serif": "めっちゃ ふりがな 振ってくれるじゃん",
+  "ruby": "めっちゃふりがなふってくれるじゃん",
+  "categories": [
+    "世界"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=O3kaWzTJW_s&t=2524s",
+  "memo": "yt-comment-archiver: ライブチャットの山 40人 「草×6」「そりゃだって」「まずい」「ま、まぁ…」「調べたらめっちゃかわいい〜」「リスナーは優しいから」「読めないからっすよねぇ」「ふりがな配慮◎」 @42:08",
+  "liveChat": {
+    "message": "そりゃだって",
+    "at": 2528,
+    "streamStartedAt": "2024-11-28T16:00:21+09:00"
+  },
+  "trimming": {
+    "startTime": 2524.9405835787925,
+    "endTime": 2526.9469986883287,
+    "duration": 2.0064151095360825,
+    "original": {
+      "startTime": 2508,
+      "endTime": 2538,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "O3kaWzTJW_s",
+      "title": "【ぽやラジ#5】人生相談＆みんなのおすすめ回✨まったりゆったり行きましょ！【にじさんじ/梢桃音】",
+      "duration": 3158,
+      "thumbnail": "https://i.ytimg.com/vi/O3kaWzTJW_s/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241128",
+      "viewCount": 6471,
+      "url": "https://www.youtube.com/watch?v=O3kaWzTJW_s"
+    }
+  }
+}

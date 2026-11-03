@@ -1,0 +1,37 @@
+{
+  "videoId": "O3kaWzTJW_s",
+  "serif": "ちょっと待って 待って 待って 待って 待って 待って 待って 待って 調べたい ちょっと待って",
+  "ruby": "ちょっとまってまってまってまってまってまってまってまってしらべたいちょっとまって",
+  "categories": [
+    "世界"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=O3kaWzTJW_s&t=2626s",
+  "memo": "yt-comment-archiver: ライブチャットの山 49人 「草×8」「おおお×2」「すごい×2」「集合知すごい×2」「有識者も見ています」「集合知うおおおお」「インターネットってスゲー！」「有識者すげえ」 @43:51",
+  "liveChat": {
+    "message": "おおお",
+    "at": 2631,
+    "streamStartedAt": "2024-11-28T16:00:21+09:00"
+  },
+  "trimming": {
+    "startTime": 2626.856728645066,
+    "endTime": 2632.5983983799706,
+    "duration": 5.741669734904271,
+    "original": {
+      "startTime": 2611,
+      "endTime": 2641,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "O3kaWzTJW_s",
+      "title": "【ぽやラジ#5】人生相談＆みんなのおすすめ回✨まったりゆったり行きましょ！【にじさんじ/梢桃音】",
+      "duration": 3158,
+      "thumbnail": "https://i.ytimg.com/vi/O3kaWzTJW_s/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241128",
+      "viewCount": 6471,
+      "url": "https://www.youtube.com/watch?v=O3kaWzTJW_s"
+    }
+  }
+}

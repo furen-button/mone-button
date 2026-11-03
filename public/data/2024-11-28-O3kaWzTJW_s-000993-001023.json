@@ -1,0 +1,37 @@
+{
+  "videoId": "O3kaWzTJW_s",
+  "serif": "まあ失恋とか したことないので",
+  "ruby": "まあしつれんとかしたことないので",
+  "categories": [
+    "世界"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=O3kaWzTJW_s&t=1016s",
+  "memo": "yt-comment-archiver: ライブチャットの山 36人 「ん？×2」「恋愛スペシャリストさん…」「こんもねーラジオ感謝〜」「走ろうぜ！案外気持ちいいぞ！」「え？」「うーん」「恋愛マスター？？」「あっはい」 @16:53",
+  "liveChat": {
+    "message": "ん？",
+    "at": 1014,
+    "streamStartedAt": "2024-11-28T16:00:21+09:00"
+  },
+  "trimming": {
+    "startTime": 1016.6215811035875,
+    "endTime": 1019.8574976988218,
+    "duration": 3.2359165952342597,
+    "original": {
+      "startTime": 993,
+      "endTime": 1023,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "O3kaWzTJW_s",
+      "title": "【ぽやラジ#5】人生相談＆みんなのおすすめ回✨まったりゆったり行きましょ！【にじさんじ/梢桃音】",
+      "duration": 3158,
+      "thumbnail": "https://i.ytimg.com/vi/O3kaWzTJW_s/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241128",
+      "viewCount": 6471,
+      "url": "https://www.youtube.com/watch?v=O3kaWzTJW_s"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "O3kaWzTJW_s",
+  "serif": "麗しいんだぞ",
+  "ruby": "うるわしいんだぞ",
+  "categories": [
+    "世界"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=O3kaWzTJW_s&t=168s",
+  "memo": "yt-comment-archiver: ライブチャットの山 23人 「今日もぽやってるー」「すでに今日は手遅れだねw」「早速おっちょこちょいのところでました」「最初からオチてんのよね」「もねちの住んでるところ 今日は雨なの」「もうだめぽ」「じゃないのもう無理がある」 @2:51",
+  "liveChat": {
+    "message": "今日もぽやってるー",
+    "at": 171,
+    "streamStartedAt": "2024-11-28T16:00:21+09:00"
+  },
+  "trimming": {
+    "startTime": 168.19463365243004,
+    "endTime": 169.24120457474226,
+    "duration": 1.0465709223122237,
+    "original": {
+      "startTime": 151,
+      "endTime": 181,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "O3kaWzTJW_s",
+      "title": "【ぽやラジ#5】人生相談＆みんなのおすすめ回✨まったりゆったり行きましょ！【にじさんじ/梢桃音】",
+      "duration": 3158,
+      "thumbnail": "https://i.ytimg.com/vi/O3kaWzTJW_s/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241128",
+      "viewCount": 6471,
+      "url": "https://www.youtube.com/watch?v=O3kaWzTJW_s"
+    }
+  }
+}

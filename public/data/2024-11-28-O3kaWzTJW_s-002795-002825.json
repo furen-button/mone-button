@@ -1,0 +1,37 @@
+{
+  "videoId": "O3kaWzTJW_s",
+  "serif": "最近の 私のおすすめは 空のお風呂に 入ることです",
+  "ruby": "さいきんのわたしのおすすめはそらのおふろにはいることです",
+  "categories": [
+    "世界"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=O3kaWzTJW_s&t=2811s",
+  "memo": "yt-comment-archiver: ライブチャットの山 75人 「？？？×12」「？？？？？×4」「？？？？×3」「？？？？？？×3」「病んでる？×2」「？×2」「？？×2」「え？？？？×2」 @46:55",
+  "liveChat": {
+    "message": "え？？？？",
+    "at": 2824,
+    "streamStartedAt": "2024-11-28T16:00:21+09:00"
+  },
+  "trimming": {
+    "startTime": 2811.694817746686,
+    "endTime": 2817.6216102149297,
+    "duration": 5.9267924682437405,
+    "original": {
+      "startTime": 2795,
+      "endTime": 2825,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "O3kaWzTJW_s",
+      "title": "【ぽやラジ#5】人生相談＆みんなのおすすめ回✨まったりゆったり行きましょ！【にじさんじ/梢桃音】",
+      "duration": 3158,
+      "thumbnail": "https://i.ytimg.com/vi/O3kaWzTJW_s/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241128",
+      "viewCount": 6471,
+      "url": "https://www.youtube.com/watch?v=O3kaWzTJW_s"
+    }
+  }
+}
