@@ -1,0 +1,40 @@
+{
+  "videoId": "WKHtnq2fVOg",
+  "serif": "わらいごえ",
+  "ruby": "わらいごえ",
+  "categories": [
+    "笑い声"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=WKHtnq2fVOg&t=5242s",
+  "memo": "",
+  "trimming": {
+    "startTime": 5242.391563872338,
+    "endTime": 5248.947329018465,
+    "duration": 6.55576514612676
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "WKHtnq2fVOg",
+      "title": "【酒雑】色んな事があった一週間！みんなもお疲れ様！！こういう時こそ酒だよね🍶【にじさんじ/梢桃音】",
+      "duration": 7041,
+      "thumbnail": "https://i.ytimg.com/vi/WKHtnq2fVOg/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241006",
+      "viewCount": 14150,
+      "url": "https://www.youtube.com/watch?v=WKHtnq2fVOg"
+    }
+  },
+  "effects": {
+    "camera": {
+      "9:16": [
+        {
+          "t": 0,
+          "x": 0.4365,
+          "y": 0.4,
+          "zoom": 1.2442,
+          "ease": "smooth"
+        }
+      ]
+    }
+  }
+}
