@@ -14,7 +14,7 @@ export const SETTINGS_TABS: Array<{ id: SettingsTabId; label: string; rootKeys: 
   { id: 'telops', label: 'テロップ', rootKeys: ['telops'] },
   { id: 'cards', label: 'カード・OP/ED', rootKeys: ['cards', 'endcaps', 'bgm'] },
   { id: 'effects', label: '効果', rootKeys: ['effects', 'transitions'] },
-  { id: 'summary', label: '概要欄', rootKeys: ['summary'] },
+  { id: 'summary', label: '概要欄', rootKeys: ['summary', 'upload'] },
   { id: 'qc', label: 'QC', rootKeys: ['qc'] },
   { id: 'json', label: 'JSON', rootKeys: null },
 ]
