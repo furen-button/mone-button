@@ -1,0 +1,188 @@
+{
+  "version": 1,
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "layers": [
+    {
+      "id": "3d8d8811-e0e0-46d9-bfbb-6d143d2a737d",
+      "type": "rect",
+      "x": -153.85350318471365,
+      "y": -154.16666666666666,
+      "rotation": 0,
+      "opacity": 1,
+      "hidden": false,
+      "locked": false,
+      "w": 7567.649038548701,
+      "h": 7567.649038548701,
+      "radius": 0,
+      "fill": "#6B3FA0"
+    },
+    {
+      "id": "92c6c260-87cc-45bc-8dca-db4ff0a1a641",
+      "type": "image",
+      "x": 640,
+      "y": 360,
+      "rotation": 0,
+      "opacity": 1,
+      "hidden": false,
+      "locked": false,
+      "scale": 0.6711502771965789,
+      "fit": "free",
+      "flipX": false,
+      "filter": {
+        "blur": 6,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "mone",
+      "type": "image",
+      "x": 907.292993630573,
+      "y": 360,
+      "rotation": 0,
+      "opacity": 1,
+      "hidden": false,
+      "locked": false,
+      "slot": "face",
+      "scale": 0.5787016519273834,
+      "fit": "free",
+      "flipX": false,
+      "outline": {
+        "width": 10,
+        "color": "#FFFFFF"
+      },
+      "shadow": {
+        "blur": 18,
+        "x": 0,
+        "y": 8,
+        "color": "#00000080"
+      },
+      "filter": {
+        "blur": 0,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "x": 55.440552016984896,
+      "y": 480.3290870488324,
+      "rotation": -4,
+      "opacity": 1,
+      "hidden": false,
+      "locked": false,
+      "slot": "title",
+      "text": "うにょーん侍",
+      "font": "Dela Gothic One",
+      "weight": 400,
+      "size": 94.44195902156575,
+      "color": "#FF4FA0",
+      "emphasisColor": "#FFD800",
+      "outlines": [
+        {
+          "width": 12,
+          "color": "#FFFFFF"
+        },
+        {
+          "width": 8,
+          "color": "#6B3FA0"
+        }
+      ],
+      "lineHeight": 1.1,
+      "letterSpacing": 0,
+      "align": "left"
+    },
+    {
+      "id": "sub",
+      "type": "text",
+      "x": 176.13588110403367,
+      "y": 602.4309978768575,
+      "rotation": 3,
+      "opacity": 1,
+      "hidden": false,
+      "locked": false,
+      "slot": "subtitle",
+      "text": "おにぎり侍",
+      "font": "Dela Gothic One",
+      "weight": 400,
+      "size": 97.76727614124029,
+      "color": "#FF4FA0",
+      "emphasisColor": "#FFD800",
+      "outlines": [
+        {
+          "width": 12,
+          "color": "#FFFFFF"
+        },
+        {
+          "width": 8,
+          "color": "#6B3FA0"
+        }
+      ],
+      "lineHeight": 1.1,
+      "letterSpacing": 0,
+      "align": "left"
+    },
+    {
+      "id": "8b0d1fa1-a626-45a7-976d-2d3e147c57a0",
+      "type": "text",
+      "x": 130.51486199575345,
+      "y": 291.10934182590205,
+      "rotation": 1,
+      "opacity": 1,
+      "hidden": false,
+      "locked": false,
+      "slot": "subtitle",
+      "text": "〜Samurai〜",
+      "font": "Reggae One",
+      "weight": 400,
+      "size": 64.84763939170574,
+      "color": "#c52b73",
+      "emphasisColor": "#000000",
+      "outlines": [
+        {
+          "width": 12,
+          "color": "#FFFFFF"
+        },
+        {
+          "width": 8,
+          "color": "#6B3FA0"
+        }
+      ],
+      "lineHeight": 1.1,
+      "letterSpacing": 0,
+      "align": "left"
+    },
+    {
+      "id": "3b59204c-80c0-4ebf-99a2-0cde432de336",
+      "type": "text",
+      "x": 30.85456475583851,
+      "y": 139.04989384288737,
+      "rotation": 1,
+      "opacity": 1,
+      "hidden": false,
+      "locked": false,
+      "slot": "subtitle",
+      "text": "{侍}まとめ",
+      "font": "Reggae One",
+      "weight": 400,
+      "size": 160.09833353281098,
+      "color": "#c52b73",
+      "emphasisColor": "#000000",
+      "outlines": [
+        {
+          "width": 12,
+          "color": "#FFFFFF"
+        },
+        {
+          "width": 8,
+          "color": "#6B3FA0"
+        }
+      ],
+      "lineHeight": 1.1,
+      "letterSpacing": 0,
+      "align": "left"
+    }
+  ]
+}
