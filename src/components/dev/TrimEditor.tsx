@@ -48,6 +48,14 @@ export function TrimEditor({ clip, hasVideo, onSaved }: TrimEditorProps) {
   const [keepEnd, setKeepEnd] = useState(Math.max(clip.trimming.duration, MIN_SELECTION_SECONDS))
   const [draggingHandle, setDraggingHandle] = useState<DragHandle | null>(null)
   const [playheadTime, setPlayheadTime] = useState<number | null>(null)
+  const [statusClip, setStatusClip] = useState(clip.fileBaseName)
+
+  // 切り直しの後も mp4 が変わって波形を読み直すので、結果の表示はクリップが替わったときだけ消す。
+  if (statusClip !== clip.fileBaseName) {
+    setStatusClip(clip.fileBaseName)
+    setTrimStatus('idle')
+    setTrimError('')
+  }
 
   const waveformWrapRef = useRef<HTMLDivElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -125,8 +133,6 @@ export function TrimEditor({ clip, hasVideo, onSaved }: TrimEditorProps) {
       setAudioBuffer(null)
       setLoadStatus('loading')
       setLoadError('')
-      setTrimStatus('idle')
-      setTrimError('')
 
       const missingMessage = `動画が未ダウンロードです（public/videos/${clip.fileBaseName}.mp4 がありません）。npm run download で取得してから開き直してください。`
       if (hasVideo === false) {
