@@ -15,9 +15,7 @@ export type EditorContextValue = {
   preflight: PreflightState
 }
 
-const EditorContext = createContext<EditorContextValue | null>(null)
-
-export const EditorContextProvider = EditorContext.Provider
+export const EditorContext = createContext<EditorContextValue | null>(null)
 
 export function useEditorContext(): EditorContextValue {
   const context = useContext(EditorContext)
