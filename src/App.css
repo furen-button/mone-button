@@ -843,10 +843,6 @@
   font-weight: 700;
 }
 
-.clip-edit-header-status.is-saved {
-  color: #2f7a3e;
-}
-
 .clip-edit-header-status.is-error {
   color: #b3402b;
 }

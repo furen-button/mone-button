@@ -23,7 +23,7 @@ type ClipEditModalProps = {
   onSaved: (fileBaseName: string, updated: VoiceData, options?: { cacheBustVideo?: boolean }) => void
 }
 
-type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
+type SaveStatus = 'idle' | 'saving' | 'error'
 
 export function ClipEditModal({ clip, categorySuggestions, hasVideo, onDelete, onClose, onSaved }: ClipEditModalProps) {
   // 表示用に改行・強調記法を落とした serif ではなく JSON の値から始める。そのまま保存しても、
@@ -203,10 +203,8 @@ export function ClipEditModal({ clip, categorySuggestions, hasVideo, onDelete, o
 
       const updated = (await response.json()) as VoiceData
       onSaved(clip.fileBaseName, updated)
-      setCategories(updated.categories)
-      // サーバ側で今の値と合わない記録は落ちるので、戻ってきた値に揃える。
-      setReview(updated.review ?? {})
-      setStatus('saved')
+      // 保存できたら閉じる。失敗したときは入力を残したまま開いておく。
+      handleClose()
     } catch (error) {
       setStatus('error')
       setErrorMessage(error instanceof Error ? error.message : String(error))
@@ -269,7 +267,6 @@ export function ClipEditModal({ clip, categorySuggestions, hasVideo, onDelete, o
             </a>
           </div>
           <div className="clip-edit-header-actions">
-            {status === 'saved' ? <span className="clip-edit-header-status is-saved">✓ 保存しました</span> : null}
             {status === 'error' ? <span className="clip-edit-header-status is-error">⚠ 保存に失敗しました</span> : null}
             {deleteError ? <span className="clip-edit-header-status is-error">⚠ 削除に失敗しました</span> : null}
             {deleteButton}
@@ -397,11 +394,6 @@ export function ClipEditModal({ clip, categorySuggestions, hasVideo, onDelete, o
           ) : null}
         </div>
 
-        {status === 'saved' ? (
-          <p className="clip-edit-status is-saved">
-            ✓ 保存しました。カテゴリの新設分をフィルタへ反映するにはリロードしてください。
-          </p>
-        ) : null}
         {status === 'error' ? <p className="clip-edit-status is-error">⚠ {errorMessage}</p> : null}
         {deleteError ? <p className="clip-edit-status is-error">⚠ 削除に失敗しました: {deleteError}</p> : null}
 
