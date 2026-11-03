@@ -42,16 +42,23 @@ export function buildPlan({ videoPath, sha256, meta, description, thumbnail = nu
   } else if (manifest.version !== 2 || manifest.videoSha256 !== sha256) {
     errors.push('render.json の SHA-256 が mp4 と一致しません（version 2 が必要です）。');
   }
+  let qcErrorAllowed = false;
   if (!qc || !qcTrusted) {
     warnings.push('対応する QC が無いため QC 結果を確認できません。');
   } else if (!Array.isArray(qc.results) || !qc.summary || !Number.isInteger(qc.summary.error)) {
     errors.push('qc.json の形式が不正です。');
   } else if (qc.summary.error > 0 || qc.results.some((result) => result.level === 'error')) {
-    errors.push('qc.json に error があります。');
+    // 目視で確かめた誤検出だけを通す。形式不正は上書きしない。
+    if (options.allowQcError) {
+      qcErrorAllowed = true;
+      warnings.push('qc.json の error を --allow-qc-error で無視します。');
+    } else {
+      errors.push('qc.json に error があります。目視で問題が無ければ --allow-qc-error を指定してください。');
+    }
   }
   errors.push(...recordErrors(record, sha256, options));
   return {
-    videoPath, sha256, thumbnail, comments, record, errors, warnings,
+    videoPath, sha256, thumbnail, comments, record, errors, warnings, qcErrorAllowed,
     requestBody: {
       snippet: { title, description, tags, categoryId: upload.categoryId ?? '24', defaultLanguage: 'ja', defaultAudioLanguage: 'ja' },
       status: { privacyStatus: 'private', selfDeclaredMadeForKids: false, containsSyntheticMedia: upload.containsSyntheticMedia ?? false },

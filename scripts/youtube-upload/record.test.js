@@ -17,6 +17,11 @@ test('失敗した動画の再送には retry-video が必要で、ハッシュ�
   assert.match(recordErrors(record, 'b'.repeat(64), { retryVideo: true })[0], /SHA-256/u);
 });
 
+test('QC の error を無視して上げたことを記録に残す', () => {
+  assert.equal(createRecord(plan, 'UCtest').qcErrorAllowed, false);
+  assert.equal(createRecord({ ...plan, qcErrorAllowed: true }, 'UCtest').qcErrorAllowed, true);
+});
+
 test('動画のみ成功なら再開し、すべて done または skipped なら二重送信を止める', () => {
   const record = createRecord(plan, 'UCtest');
   record.steps.video = 'done';

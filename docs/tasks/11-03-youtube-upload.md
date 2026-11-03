@@ -87,6 +87,7 @@ npm run upload -- --video 'output/shorts/2024-08-09-category-侍-shorts-*.mp4'
 | `--title <text>` | meta.json のタイトルを上書きする |
 | `--no-thumbnail` / `--no-comment` | その段を飛ばす |
 | `--retry-video` | 前回の動画送信が失敗した状態から送り直す（後述） |
+| `--allow-qc-error` | qc.json の error を警告に下げて上げる。目視で誤検出と確かめたときだけ使う。upload.json に `qcErrorAllowed: true` を残す。形式不正の qc.json は下げない |
 
 ## 付随ファイルの探し方
 

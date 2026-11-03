@@ -54,6 +54,18 @@ test('manifest v2 の SHA が一致し、同じ場所の QC だけを信じる',
   assert.ok(buildPlan({ ...valid, manifest, qc: {}, qcTrusted: true }).errors.length > 0);
 });
 
+test('--allow-qc-error は QC の error だけを警告に下げ、形式不正は止める', () => {
+  const manifest = { version: 2, videoSha256: sha256 };
+  const qc = { summary: { error: 1 }, results: [{ level: 'error' }] };
+  const allowed = buildPlan({ ...valid, manifest, qc, qcTrusted: true, options: { allowQcError: true } });
+  assert.deepEqual(allowed.errors, []);
+  assert.equal(allowed.qcErrorAllowed, true);
+  assert.ok(allowed.warnings.some((warning) => warning.includes('--allow-qc-error')));
+  assert.equal(buildPlan({ ...valid, manifest, qc, qcTrusted: true }).qcErrorAllowed, false);
+  assert.ok(buildPlan({ ...valid, manifest, qc: {}, qcTrusted: true, options: { allowQcError: true } }).errors.length > 0);
+  assert.equal(parseOptions(['--video', 'a.mp4', '--allow-qc-error']).allowQcError, true);
+});
+
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'youtube-plan-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));

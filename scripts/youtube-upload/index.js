@@ -19,6 +19,7 @@ export function parseOptions(args) {
     login: { type: 'boolean' }, video: { type: 'string', multiple: true },
     'dry-run': { type: 'boolean' }, title: { type: 'string' },
     'no-thumbnail': { type: 'boolean' }, 'no-comment': { type: 'boolean' }, 'retry-video': { type: 'boolean' },
+    'allow-qc-error': { type: 'boolean' },
   } });
   if (values.login && Object.keys(values).some((key) => key !== 'login')) {
     throw new Error('--login は単独で指定してください。');
@@ -27,7 +28,8 @@ export function parseOptions(args) {
     throw new Error('--video <mp4> または --login を指定してください。');
   }
   return { login: values.login, videos: values.video || [], dryRun: values['dry-run'], title: values.title,
-    noThumbnail: values['no-thumbnail'], noComment: values['no-comment'], retryVideo: values['retry-video'] };
+    noThumbnail: values['no-thumbnail'], noComment: values['no-comment'], retryVideo: values['retry-video'],
+    allowQcError: values['allow-qc-error'] };
 }
 
 export function expandVideos(patterns, root) {

@@ -49,7 +49,7 @@ export function createRecord(plan, channelId) {
   return {
     version: 1, video: path.basename(plan.videoPath), sha256: plan.sha256, channelId,
     videoId: null, url: null, privacyStatus: 'private', uploadedAt: null,
-    title: plan.requestBody.snippet.title,
+    title: plan.requestBody.snippet.title, qcErrorAllowed: plan.qcErrorAllowed === true,
     steps: { video: 'pending', thumbnail: 'pending', comment: 'pending' }, commentIds: [],
   };
 }
