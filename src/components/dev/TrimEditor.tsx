@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from 'react'
 import type { VoiceClip, VoiceData } from '../../voiceData'
-import { excerptClipData, trimClipData } from '../../lib/devDataEditor'
+import { excerptClipData, extendClipData, trimClipData } from '../../lib/devDataEditor'
 import { withVideoCacheBust } from '../../lib/videoPath'
 
 type TrimEditorProps = {
@@ -12,7 +12,7 @@ type TrimEditorProps = {
 }
 
 type LoadStatus = 'loading' | 'ready' | 'error'
-type TrimStatus = 'idle' | 'trimming' | 'trimmed' | 'excerpting' | 'excerpted' | 'error'
+type TrimStatus = 'idle' | 'trimming' | 'trimmed' | 'excerpting' | 'excerpted' | 'extending' | 'extended' | 'error'
 type DragHandle = 'start' | 'end'
 
 type WaveformPeaks = {
@@ -34,6 +34,9 @@ const FINE_NUDGE_SECONDS = 0.01
 const TAIL_RELATIVE_DB = -30
 const TAIL_FLOOR_DB = -50
 const WAVEFORM_HEIGHT = 128
+// 範囲を広げるボタン 1 回分。手元の mp4 には切った範囲しか無いので、押すたびに YouTube から取り直す。
+const EXTEND_SECONDS = 20
+const EDGE_EPSILON_SECONDS = 0.01
 
 export function TrimEditor({ clip, hasVideo, onSaved }: TrimEditorProps) {
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null)
@@ -42,12 +45,21 @@ export function TrimEditor({ clip, hasVideo, onSaved }: TrimEditorProps) {
   const [trimStatus, setTrimStatus] = useState<TrimStatus>('idle')
   const [trimError, setTrimError] = useState('')
   const [excerptBaseName, setExcerptBaseName] = useState('')
+  const [extendedMessage, setExtendedMessage] = useState('')
   const [audioReloadKey, setAudioReloadKey] = useState(() => Date.now())
   const [canvasWidth, setCanvasWidth] = useState(1)
   const [keepStart, setKeepStart] = useState(0)
   const [keepEnd, setKeepEnd] = useState(Math.max(clip.trimming.duration, MIN_SELECTION_SECONDS))
   const [draggingHandle, setDraggingHandle] = useState<DragHandle | null>(null)
   const [playheadTime, setPlayheadTime] = useState<number | null>(null)
+  const [statusClip, setStatusClip] = useState(clip.fileBaseName)
+
+  // 切り直し・拡張の後も mp4 が変わって波形を読み直すので、結果の表示はクリップが替わったときだけ消す。
+  if (statusClip !== clip.fileBaseName) {
+    setStatusClip(clip.fileBaseName)
+    setTrimStatus('idle')
+    setTrimError('')
+  }
 
   const waveformWrapRef = useRef<HTMLDivElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -66,11 +78,17 @@ export function TrimEditor({ clip, hasVideo, onSaved }: TrimEditorProps) {
   const startPercent = duration > 0 ? clamp(keepStart / duration * 100, 0, 100) : 0
   const endPercent = duration > 0 ? clamp(keepEnd / duration * 100, 0, 100) : 100
   const hasMeaningfulTrim = keepStart >= 0.01 || duration - keepEnd >= 0.01
+  const isBusy = trimStatus === 'trimming' || trimStatus === 'excerpting' || trimStatus === 'extending'
   const canTrim = loadStatus === 'ready'
-    && trimStatus !== 'trimming'
-    && trimStatus !== 'excerpting'
+    && !isBusy
     && selectionDuration >= MIN_SELECTION_SECONDS
     && hasMeaningfulTrim
+  // 配信の先頭・末尾まで来ていたら、それ以上は広げられない。
+  const sourceDuration = clip.videoFile.metadata.duration
+  const canExtendStart = loadStatus === 'ready' && !isBusy && clip.trimming.startTime >= EDGE_EPSILON_SECONDS
+  const canExtendEnd = loadStatus === 'ready'
+    && !isBusy
+    && !(sourceDuration > 0 && clip.trimming.endTime >= sourceDuration - EDGE_EPSILON_SECONDS)
 
   useEffect(() => {
     keepStartRef.current = keepStart
@@ -125,8 +143,6 @@ export function TrimEditor({ clip, hasVideo, onSaved }: TrimEditorProps) {
       setAudioBuffer(null)
       setLoadStatus('loading')
       setLoadError('')
-      setTrimStatus('idle')
-      setTrimError('')
 
       const missingMessage = `動画が未ダウンロードです（public/videos/${clip.fileBaseName}.mp4 がありません）。npm run download で取得してから開き直してください。`
       if (hasVideo === false) {
@@ -404,6 +420,29 @@ export function TrimEditor({ clip, hasVideo, onSaved }: TrimEditorProps) {
     }
   }, [clip.fileBaseName, keepEnd, keepStart, stopPlayback])
 
+  const handleExtend = useCallback(async (side: DragHandle) => {
+    setTrimStatus('extending')
+    setTrimError('')
+    stopPlayback()
+
+    try {
+      const result = await extendClipData(
+        clip.fileBaseName,
+        side === 'start' ? EXTEND_SECONDS : 0,
+        side === 'end' ? EXTEND_SECONDS : 0,
+      )
+      onSaved(clip.fileBaseName, result.updated, { cacheBustVideo: true })
+      setExtendedMessage(side === 'start'
+        ? `前を ${formatSeconds(result.addedStart)} 秒広げました。`
+        : `後ろを ${formatSeconds(result.addedEnd)} 秒広げました。`)
+      setTrimStatus('extended')
+      setAudioReloadKey(Date.now())
+    } catch (error) {
+      setTrimStatus('error')
+      setTrimError(error instanceof Error ? error.message : String(error))
+    }
+  }, [clip.fileBaseName, onSaved, stopPlayback])
+
   return (
     <section className="clip-trim" aria-label="波形トリム">
       <div className="clip-trim-header">
@@ -476,6 +515,24 @@ export function TrimEditor({ clip, hasVideo, onSaved }: TrimEditorProps) {
         >
           末尾を無音手前へ
         </button>
+        <button
+          type="button"
+          className="clip-trim-secondary"
+          onClick={() => void handleExtend('start')}
+          disabled={!canExtendStart}
+          title={`先頭を ${EXTEND_SECONDS} 秒広げて YouTube から取り直します`}
+        >
+          前 +{EXTEND_SECONDS} 秒
+        </button>
+        <button
+          type="button"
+          className="clip-trim-secondary"
+          onClick={() => void handleExtend('end')}
+          disabled={!canExtendEnd}
+          title={`末尾を ${EXTEND_SECONDS} 秒広げて YouTube から取り直します`}
+        >
+          後ろ +{EXTEND_SECONDS} 秒
+        </button>
       </div>
 
       <div className="clip-trim-actions">
@@ -515,6 +572,8 @@ export function TrimEditor({ clip, hasVideo, onSaved }: TrimEditorProps) {
 
       {trimStatus === 'trimmed' ? <p className="clip-trim-status is-saved">切り直しました。</p> : null}
       {trimStatus === 'excerpted' ? <p className="clip-trim-status is-saved">切り出しました: {excerptBaseName}.json</p> : null}
+      {trimStatus === 'extending' ? <p className="clip-trim-status">YouTube から取り直し中…（数十秒かかります）</p> : null}
+      {trimStatus === 'extended' ? <p className="clip-trim-status is-saved">{extendedMessage}</p> : null}
       {trimStatus === 'error' ? <p className="clip-trim-status is-error">⚠ {trimError}</p> : null}
     </section>
   )

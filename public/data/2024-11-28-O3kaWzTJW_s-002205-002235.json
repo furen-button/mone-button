@@ -1,0 +1,37 @@
+{
+  "videoId": "O3kaWzTJW_s",
+  "serif": "わらいごえ",
+  "ruby": "わらいごえ",
+  "categories": [
+    "笑い声"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=O3kaWzTJW_s&t=2221s",
+  "memo": "yt-comment-archiver: ライブチャットの山 19人 「草」「なんだろうｗ」「気になるなww」「わからんなぁ」「どんぶらこっこすこっこしか読んだこと」「クソデカ羅生門は知ってるけど……」「オウオウ」「有識者ー」 @37:05",
+  "liveChat": {
+    "message": "なんだろうｗ",
+    "at": 2225,
+    "streamStartedAt": "2024-11-28T16:00:21+09:00"
+  },
+  "trimming": {
+    "startTime": 2221.1742912371133,
+    "endTime": 2222.6758100147276,
+    "duration": 1.501518777614141,
+    "original": {
+      "startTime": 2205,
+      "endTime": 2235,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "O3kaWzTJW_s",
+      "title": "【ぽやラジ#5】人生相談＆みんなのおすすめ回✨まったりゆったり行きましょ！【にじさんじ/梢桃音】",
+      "duration": 3158,
+      "thumbnail": "https://i.ytimg.com/vi/O3kaWzTJW_s/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241128",
+      "viewCount": 6471,
+      "url": "https://www.youtube.com/watch?v=O3kaWzTJW_s"
+    }
+  }
+}

@@ -9,6 +9,7 @@ import {
   FFMPEG_INPUT_ARGS,
   buildYtDlpArgs,
   downloadClip,
+  parseRangeArgs,
   removeDownloadArtifacts,
 } from './download.js';
 
@@ -177,5 +178,34 @@ describe('downloadClip', () => {
       assert.equal(attemptsMade(), 1);
       assert.equal(fs.readFileSync(tempVideoPath, 'utf8'), '2');
     });
+  });
+});
+
+describe('parseRangeArgs', () => {
+  it('引数が無ければ null（従来の一括 DL）', () => {
+    assert.equal(parseRangeArgs([]), null);
+  });
+
+  it('1 区間の取り直しの引数を読み、出力先を絶対パスにする', () => {
+    assert.deepEqual(
+      parseRangeArgs(['--video-id', 'abc_-1', '--start', '80.5', '--end', '104', '--out', 'cache/x.mp4']),
+      { videoId: 'abc_-1', startTime: 80.5, endTime: 104, out: path.resolve('cache/x.mp4') },
+    );
+  });
+
+  it('不正な引数は日本語のエラーにする', () => {
+    const base = ['--video-id', 'abc', '--start', '1', '--end', '2', '--out', 'x.mp4'];
+    const invalid = [
+      ['--foo', 'bar'],
+      ['--video-id'],
+      base.map((arg) => (arg === 'abc' ? 'a/b' : arg)),
+      base.map((arg) => (arg === '2' ? '1' : arg)),
+      base.map((arg) => (arg === '1' ? '-1' : arg)),
+      base.map((arg) => (arg === 'x.mp4' ? 'x.webm' : arg)),
+      base.slice(0, 6),
+    ];
+    for (const argv of invalid) {
+      assert.throws(() => parseRangeArgs(argv), /不明な引数|不正|秒数|\.mp4/);
+    }
   });
 });

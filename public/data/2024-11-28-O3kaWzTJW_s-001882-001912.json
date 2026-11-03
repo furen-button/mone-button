@@ -1,0 +1,37 @@
+{
+  "videoId": "O3kaWzTJW_s",
+  "serif": "んー…",
+  "ruby": "んー",
+  "categories": [
+    "世界"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=O3kaWzTJW_s&t=1890s",
+  "memo": "yt-comment-archiver: ライブチャットの山 51人 「特には×2」「そもそも勉強しない」「勉強は諦めてた」「上がったことない」「自分に合う参考書見つけるのも悪くない」「自分はご褒美だったかなぁ」「よくゲームだと思えばいいって言うけど」「ないよ！」 @31:42",
+  "liveChat": {
+    "message": "ないよ！",
+    "at": 1906,
+    "streamStartedAt": "2024-11-28T16:00:21+09:00"
+  },
+  "trimming": {
+    "startTime": 1890.9214377761414,
+    "endTime": 1893.2555228276879,
+    "duration": 2.334085051546392,
+    "original": {
+      "startTime": 1882,
+      "endTime": 1912,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "O3kaWzTJW_s",
+      "title": "【ぽやラジ#5】人生相談＆みんなのおすすめ回✨まったりゆったり行きましょ！【にじさんじ/梢桃音】",
+      "duration": 3158,
+      "thumbnail": "https://i.ytimg.com/vi/O3kaWzTJW_s/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241128",
+      "viewCount": 6471,
+      "url": "https://www.youtube.com/watch?v=O3kaWzTJW_s"
+    }
+  }
+}

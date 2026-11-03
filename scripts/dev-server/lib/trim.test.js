@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { TrimValidationError, createExcerptPlan, createTrimPlan } from './trim.js';
+import { TrimValidationError, createExcerptPlan, createExtendPlan, createTrimPlan } from './trim.js';
 
 function clip(overrides = {}) {
   return {
@@ -249,6 +249,97 @@ describe('camera のトリム', () => {
     assert.equal(shifted.at(-1).t, 2);
     assert.ok(Math.abs(shifted[0].zoom - Math.sqrt(2)) < 1e-10);
     assert.equal(createTrimPlan({ ...payload, keepStart: 0, keepEnd: 4 }, current, 4).updated, current);
+    assert.equal(current.effects.camera['9:16'], frames);
+  });
+});
+
+describe('createExtendPlan', () => {
+  const payload = { fileBaseName: '2024-01-01-abc_123-000100-000104', extendStart: 20, extendEnd: 0 };
+
+  it('先頭を広げると trimming と clipUrl を更新し、元の範囲を original に一度だけ残す', () => {
+    const current = clip();
+    const plan = createExtendPlan(payload, current);
+
+    assert.equal(plan.videoId, 'abc_123');
+    assert.equal(plan.addedStart, 20);
+    assert.equal(plan.addedEnd, 0);
+    assert.equal(plan.updated.trimming.startTime, 80);
+    assert.equal(plan.updated.trimming.endTime, 104);
+    assert.equal(plan.updated.trimming.duration, 24);
+    assert.deepEqual(plan.updated.trimming.original, { startTime: 100, endTime: 104, duration: 4 });
+    assert.equal(plan.updated.clipUrl, 'https://youtube.com/watch?v=abc_123&t=80s');
+    assert.deepEqual(current.trimming, { startTime: 100, endTime: 104, duration: 4 });
+  });
+
+  it('末尾を広げても既存の original は書き換えない', () => {
+    const original = { startTime: 90, endTime: 120, duration: 30 };
+    const current = clip({ trimming: { startTime: 100, endTime: 104, duration: 4, original } });
+    const plan = createExtendPlan({ ...payload, extendStart: 0, extendEnd: 20 }, current);
+
+    assert.equal(plan.updated.trimming.startTime, 100);
+    assert.equal(plan.updated.trimming.endTime, 124);
+    assert.equal(plan.updated.trimming.duration, 24);
+    assert.deepEqual(plan.updated.trimming.original, original);
+    assert.equal(plan.updated.clipUrl, 'https://youtube.com/watch?v=abc_123&t=100s');
+  });
+
+  it('配信の先頭とメタデータの尺で切り詰める', () => {
+    const current = clip({
+      trimming: { startTime: 5, endTime: 590, duration: 585 },
+      videoFile: { metadata: { title: 'test', duration: 600 } },
+    });
+    const plan = createExtendPlan({ ...payload, extendStart: 20, extendEnd: 20 }, current);
+
+    assert.equal(plan.addedStart, 5);
+    assert.equal(plan.addedEnd, 10);
+    assert.equal(plan.updated.trimming.startTime, 0);
+    assert.equal(plan.updated.trimming.endTime, 600);
+    assert.equal(plan.updated.trimming.duration, 600);
+  });
+
+  it('どちらにも広がらなければ 400', () => {
+    const current = clip({
+      trimming: { startTime: 0, endTime: 600, duration: 600 },
+      videoFile: { metadata: { title: 'test', duration: 600 } },
+    });
+    for (const amounts of [{ extendStart: 20, extendEnd: 0 }, { extendStart: 0, extendEnd: 20 }]) {
+      assert.throws(
+        () => createExtendPlan({ ...payload, ...amounts }, current),
+        (error) => error instanceof TrimValidationError && error.status === 400,
+      );
+    }
+  });
+
+  it('不正な payload と videoId を 400 にする', () => {
+    const invalid = [
+      null,
+      { ...payload, fileBaseName: '../x' },
+      { ...payload, extendStart: -1 },
+      { ...payload, extendStart: 61 },
+      { ...payload, extendEnd: Number.NaN },
+      { ...payload, extendStart: 0, extendEnd: 0 },
+    ];
+    for (const entry of invalid) {
+      assert.throws(
+        () => createExtendPlan(entry, clip()),
+        (error) => error instanceof TrimValidationError && error.status === 400,
+      );
+    }
+    assert.throws(
+      () => createExtendPlan(payload, clip({ videoId: 'a/b' })),
+      (error) => error instanceof TrimValidationError && error.status === 400,
+    );
+  });
+
+  it('camera のキーフレームを広げた分だけ後ろへずらし、端の枠で埋める', () => {
+    const frames = [{ t: 0, x: 0.5, y: 0.5, zoom: 1, ease: 'linear' }, { t: 4, x: 0.8, y: 0.5, zoom: 2 }];
+    const current = clip({ effects: { camera: { '9:16': frames } } });
+    const shifted = createExtendPlan({ ...payload, extendStart: 20, extendEnd: 20 }, current)
+      .updated.effects.camera['9:16'];
+
+    assert.deepEqual(shifted.map((frame) => frame.t), [0, 20, 24, 44]);
+    assert.equal(shifted[0].x, 0.5);
+    assert.equal(shifted.at(-1).x, 0.8);
     assert.equal(current.effects.camera['9:16'], frames);
   });
 });

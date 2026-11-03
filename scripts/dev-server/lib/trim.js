@@ -4,6 +4,8 @@ import { normalizeReview } from './clip-review.js';
 const CLIP_BASE_PATTERN = /^[\w-]+$/u;
 const MIN_TRIM_SECONDS = 0.3;
 const NOOP_EPSILON_SECONDS = 0.01;
+// 1 回で広げられる上限。取り直しは区間の長さに比例して時間が掛かる。
+const MAX_EXTEND_SECONDS = 60;
 
 export class TrimValidationError extends Error {
   constructor(status, message) {
@@ -62,6 +64,50 @@ export function createExcerptPlan(payload, current, sourceDuration) {
     throw new TrimValidationError(409, '元のクリップと同じファイル名になります。別の範囲を選択してください。');
   }
   return { fileBaseName, targetBaseName, keepStart, keepEnd, created };
+}
+
+// 先頭を extendStart 秒・末尾を extendEnd 秒広げた範囲を求める。配信の先頭（0 秒）と
+// メタデータの尺を超える分は切り詰め、どちらにも広がらなければ 400。
+// 手元の mp4 は切った範囲しか持たないので、呼び出し側で新しい範囲を YouTube から取り直す。
+export function createExtendPlan(payload, current) {
+  const { fileBaseName, extendStart, extendEnd } = parseExtendPayload(payload);
+  if (typeof current.videoId !== 'string' || !CLIP_BASE_PATTERN.test(current.videoId)) {
+    throw new TrimValidationError(400, 'videoId が不正です');
+  }
+  const trimming = readTrimming(current);
+  const sourceDuration = current.videoFile?.metadata?.duration;
+  const startTime = Math.max(0, trimming.startTime - extendStart);
+  const endTime = Number.isFinite(sourceDuration) && sourceDuration > 0
+    ? Math.min(sourceDuration, trimming.endTime + extendEnd)
+    : trimming.endTime + extendEnd;
+  const addedStart = trimming.startTime - startTime;
+  const addedEnd = endTime - trimming.endTime;
+  if (addedStart < NOOP_EPSILON_SECONDS && addedEnd < NOOP_EPSILON_SECONDS) {
+    throw new TrimValidationError(400, 'これ以上広げられません（配信の先頭または末尾です）');
+  }
+
+  const updated = createRangeData(current, -addedStart, trimming.endTime - trimming.startTime + addedEnd);
+  return { fileBaseName, videoId: current.videoId, addedStart, addedEnd, updated };
+}
+
+export function parseExtendPayload(payload) {
+  if (!isPlainObject(payload)) {
+    throw new TrimValidationError(400, 'payload must be an object');
+  }
+
+  const { fileBaseName, extendStart, extendEnd } = payload;
+  if (typeof fileBaseName !== 'string' || !CLIP_BASE_PATTERN.test(fileBaseName)) {
+    throw new TrimValidationError(400, 'invalid fileBaseName');
+  }
+  const isValidAmount = (value) => Number.isFinite(value) && value >= 0 && value <= MAX_EXTEND_SECONDS;
+  if (!isValidAmount(extendStart) || !isValidAmount(extendEnd)) {
+    throw new TrimValidationError(400, `extendStart and extendEnd must be between 0 and ${MAX_EXTEND_SECONDS} seconds`);
+  }
+  if (extendStart === 0 && extendEnd === 0) {
+    throw new TrimValidationError(400, 'extendStart or extendEnd must be positive');
+  }
+
+  return { fileBaseName, extendStart, extendEnd };
 }
 
 function createRangeData(current, keepStart, keepEnd) {
