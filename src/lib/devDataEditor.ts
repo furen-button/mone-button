@@ -31,6 +31,24 @@ export async function trimClipData(fileBaseName: string, keepStart: number, keep
   return result.updated
 }
 
+export type ExtendResult = { updated: VoiceData; addedStart: number; addedEnd: number }
+
+// 先頭・末尾を広げた範囲を YouTube から取り直し、mp4 と JSON を置き換える。数十秒かかる。
+export async function extendClipData(fileBaseName: string, extendStart: number, extendEnd: number): Promise<ExtendResult> {
+  const response = await fetch('/__data/extend', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fileBaseName, extendStart, extendEnd }),
+  })
+
+  if (!response.ok) {
+    const detail = (await response.json().catch(() => null)) as { error?: string } | null
+    throw new Error(detail?.error ?? `範囲の拡張に失敗しました (${response.status})`)
+  }
+
+  return response.json() as Promise<ExtendResult>
+}
+
 export async function excerptClipData(
   fileBaseName: string,
   keepStart: number,

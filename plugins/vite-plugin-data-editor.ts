@@ -1,17 +1,24 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { execFile } from 'node:child_process'
+import { execFile, spawn } from 'node:child_process'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { loadEnv, type Plugin } from 'vite'
 import { resolveWhisperConfig, toRuby, transcribeFile } from '../scripts/dev-server/lib/transcribe.js'
 import { assertLocalRequest, readBody, sendJson } from './lib/dev-http'
-import { TrimValidationError, createExcerptPlan, createTrimPlan, parseTrimPayload } from '../scripts/dev-server/lib/trim.js'
+import {
+  TrimValidationError,
+  createExcerptPlan,
+  createExtendPlan,
+  createTrimPlan,
+  parseExtendPayload,
+  parseTrimPayload,
+} from '../scripts/dev-server/lib/trim.js'
 import { normalizeReview } from '../scripts/dev-server/lib/clip-review.js'
 import { applyCameraPatch } from '../scripts/create-video/camera.js'
 
 // dev サーバ専用: public/data/*.json の serif/ruby/memo/categories を書き戻すミドルウェアと、
-// クリップ（json + mp4）の削除・トリム・切り出しと、ローカル音声の文字起こし・読み生成、
+// クリップ（json + mp4）の削除・トリム・切り出し・範囲拡張（YouTube から取り直し）と、ローカル音声の文字起こし・読み生成、
 // 要対応バッジ用の mp4 一覧。
 // apply: 'serve' のため本番ビルドには一切含まれない。
 
@@ -20,6 +27,9 @@ const dataDir = path.resolve(currentDir, '../public/data')
 const videosDir = path.resolve(currentDir, '../public/videos')
 // 削除は完全消去ではなく trash/ への移動（誤削除時に手で戻せるようにする）。
 const trashDir = path.resolve(currentDir, '../trash')
+// 範囲拡張の取り直し先。public/ に置くと途中で止まったファイルが build に混ざるので cache/ に置く。
+const extendTmpDir = path.resolve(currentDir, '../cache/clip-extend')
+const downloadScript = path.resolve(currentDir, '../scripts/download.js')
 
 // serif/ruby/memo は文字列としてそのまま上書きする対象。
 const EDITABLE_STRING_FIELDS = ['serif', 'ruby', 'memo'] as const
@@ -355,6 +365,107 @@ async function handleTrim(req: IncomingMessage, res: ServerResponse): Promise<vo
   }
 }
 
+// download.js の 1 区間モードで YouTube から取り直す。download.js は execFileSync で yt-dlp を待つので、
+// dev サーバを止めないよう子プロセスで走らせる。失敗時は出力の末尾をエラーにする。
+function downloadRange(options: { videoId: string, startTime: number, endTime: number, outPath: string }): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [
+      downloadScript,
+      '--video-id', options.videoId,
+      '--start', String(options.startTime),
+      '--end', String(options.endTime),
+      '--out', options.outPath,
+    ], { stdio: ['ignore', 'pipe', 'pipe'] })
+    const lines: string[] = []
+    const keepTail = (chunk: Buffer) => {
+      lines.push(...chunk.toString().split(/[\r\n]+/).filter(Boolean))
+      lines.splice(0, Math.max(0, lines.length - 20))
+    }
+    child.stdout.on('data', keepTail)
+    child.stderr.on('data', keepTail)
+    child.on('error', reject)
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve()
+        return
+      }
+      const detail = lines.filter((line) => /❌|ERROR|失敗/.test(line)).pop() ?? lines.pop()
+      reject(new Error(detail ?? `download.js が終了コード ${code} で失敗しました`))
+    })
+  })
+}
+
+// 同じクリップへの並行リクエストは取り直し前に 409 にする。
+const pendingExtends = new Set<string>()
+
+async function handleExtend(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  if (!assertLocalRequest(req, res)) {
+    return
+  }
+
+  let reserved: string | undefined
+  let tmpPath: string | undefined
+  try {
+    const parsed = parseExtendPayload(JSON.parse(await readBody(req)))
+    const filePath = resolveDataFile(parsed.fileBaseName, res)
+    if (!filePath) {
+      return
+    }
+    if (pendingExtends.has(parsed.fileBaseName)) {
+      throw new TrimValidationError(409, 'このクリップは取り直し中です')
+    }
+    reserved = parsed.fileBaseName
+    pendingExtends.add(reserved)
+
+    const readCurrent = () => JSON.parse(fs.readFileSync(filePath, 'utf8')) as Record<string, unknown>
+    const plan = createExtendPlan(parsed, readCurrent())
+    fs.mkdirSync(extendTmpDir, { recursive: true })
+    tmpPath = path.join(extendTmpDir, `${parsed.fileBaseName}-${process.pid}-${Date.now()}.mp4`)
+    await downloadRange({
+      videoId: plan.videoId,
+      startTime: plan.updated.trimming.startTime,
+      endTime: plan.updated.trimming.endTime,
+      outPath: tmpPath,
+    })
+
+    // 取り直しの間に serif などが保存されていても消さないよう、JSON を読み直してから当てる。
+    const latest = createExtendPlan(parsed, readCurrent())
+    if (latest.updated.trimming.startTime !== plan.updated.trimming.startTime
+      || latest.updated.trimming.endTime !== plan.updated.trimming.endTime) {
+      throw new TrimValidationError(409, '取り直しの間に範囲が変わりました。もう一度押してください。')
+    }
+
+    const videoPath = path.join(videosDir, `${parsed.fileBaseName}.mp4`)
+    const moved: string[] = []
+    if (fs.existsSync(videoPath)) {
+      moved.push(moveToTrash(videoPath, 'videos'))
+    }
+    fs.renameSync(tmpPath, videoPath)
+    tmpPath = undefined
+    const { assetsModule } = await loadFfmpegModules()
+    const hqCachePath = cacheVideoPath(assetsModule.cacheRoot, latest.videoId, parsed.fileBaseName)
+    if (hqCachePath && fs.existsSync(hqCachePath)) {
+      moved.push(moveToTrash(hqCachePath, path.join('cache', latest.videoId)))
+    }
+
+    fs.writeFileSync(filePath, JSON.stringify(latest.updated, null, 2))
+    sendJson(res, 200, { updated: latest.updated, moved, addedStart: latest.addedStart, addedEnd: latest.addedEnd })
+  } catch (error) {
+    if (error instanceof TrimValidationError) {
+      sendJson(res, error.status, { error: error.message })
+      return
+    }
+    sendJson(res, 500, { error: errorMessage(error) })
+  } finally {
+    if (tmpPath) {
+      fs.rmSync(tmpPath, { force: true })
+    }
+    if (reserved) {
+      pendingExtends.delete(reserved)
+    }
+  }
+}
+
 // 同じ出力への並行リクエストも、エンコード前に 409 にする。
 const pendingExcerpts = new Set<string>()
 
@@ -518,6 +629,13 @@ export function dataEditorPlugin(): Plugin {
           return
         }
         void handleTrim(req, res)
+      })
+      server.middlewares.use('/__data/extend', (req, res, next) => {
+        if (req.method !== 'POST') {
+          next()
+          return
+        }
+        void handleExtend(req, res)
       })
     },
   }
