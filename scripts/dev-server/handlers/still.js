@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { dataDir } from '../../create-video/assets.js';
+import { cacheRoot, videosDir, dataDir } from '../../create-video/assets.js';
 import { renderSheet, renderStill, StillAbortedError } from '../../create-video/preview.js';
 import { assertNoForbiddenKeys, clipBase as clipBaseGuard, presetFileName } from '../lib/guards.js';
 import { stripInternal } from '../lib/patch.js';
@@ -32,6 +32,8 @@ async function still(context, req) {
   }
 
   const key = sha1(JSON.stringify({
+    // OP / ED はクリップ一覧から作るので全体、クリップとカードはそのクリップだけを見る。
+    files: stillFileStamp(undefined, payload.clipBase ?? null),
     draft: stripInternal(payload.draft),
     kind: payload.kind,
     clipBase: payload.clipBase,
@@ -90,7 +92,7 @@ async function sheet(context, req) {
     return jsonError(400, error);
   }
 
-  const key = sha1(JSON.stringify({ draft: stripInternal(payload.draft), columns: payload.columns ?? null, sheet: true }));
+  const key = sha1(JSON.stringify({ draft: stripInternal(payload.draft), columns: payload.columns ?? null, sheet: true, files: stillFileStamp() }));
   const outDir = path.join(context.cacheDir, 'sheets');
   const out = path.join(outDir, `${key}.png`);
   const metaPath = path.join(outDir, `${key}.json`);
@@ -205,6 +207,9 @@ function pickMeta(result) {
     zoom: result.zoom,
     avoidFace: result.avoidFace,
     enhance: result.enhance,
+    camera: result.camera,
+    reframe: result.reframe,
+    serifRange: result.serifRange,
     elements: result.elements,
     overlays: result.overlays,
     warnings: result.warnings,
@@ -250,4 +255,27 @@ function readJson(file) {
 
 function isPlainObject(value) {
   return value !== null && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype;
+}
+
+// 入力だけを署名に含め、生成済みの still メタデータで自身を無効化しない。
+// base を渡せばそのクリップだけを見る（全 1000 件近くを stat すると 1 回 60ms ほど掛かるため）。
+export function stillFileStamp(root = { dataDir, videosDir, cacheRoot }, base = null) {
+  if (!fs.existsSync(root.dataDir)) {
+    return [];
+  }
+  const names = base ? [`${base}.json`] : fs.readdirSync(root.dataDir).filter((name) => name.endsWith('.json')).sort();
+  return names.flatMap((name) => {
+    const jsonPath = path.join(root.dataDir, name);
+    const data = readJson(jsonPath);
+    return [jsonPath, path.join(root.videosDir, name.replace(/\.json$/u, '.mp4')),
+      path.join(root.cacheRoot, String(data?.videoId || ''), name.replace(/\.json$/u, '.mp4'))]
+      .map((file) => {
+        try {
+          const stat = fs.statSync(file);
+          return [file, stat.mtimeMs, stat.size];
+        } catch {
+          return [file, null, null];
+        }
+      });
+  });
 }

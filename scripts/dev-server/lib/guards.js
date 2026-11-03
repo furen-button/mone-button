@@ -6,7 +6,8 @@ const PRESET_NAME_PATTERN = /^config(-[a-z0-9][a-z0-9-]{0,40})?\.json$/;
 const OUTPUT_BASE_PATTERN = /^(?!\.)[\p{L}\p{N}_.\- ]{1,200}$/u;
 const CLIP_BASE_PATTERN = /^[\w-]+$/;
 
-export function checkLocalRequest({ method, remoteAddress, host, origin, secFetchSite, contentType }) {
+// allowContentTypes は JSON 以外を受ける経路（動画のアップロード）だけが渡す。前方一致で比べる。
+export function checkLocalRequest({ method, remoteAddress, host, origin, secFetchSite, contentType, allowContentTypes = null }) {
   if (!LOOPBACK_ADDRESSES.has(String(remoteAddress || ''))) {
     return { ok: false, status: 403, reason: 'remote address is not loopback' };
   }
@@ -25,8 +26,15 @@ export function checkLocalRequest({ method, remoteAddress, host, origin, secFetc
     return { ok: false, status: 403, reason: 'cross-site request rejected' };
   }
 
-  if (method === 'POST' && !String(contentType || '').startsWith('application/json')) {
-    return { ok: false, status: 415, reason: 'content-type must be application/json' };
+  if (method === 'POST') {
+    const type = String(contentType || '');
+    if (allowContentTypes) {
+      if (!allowContentTypes.some((prefix) => type.startsWith(prefix))) {
+        return { ok: false, status: 415, reason: `content-type must be one of ${allowContentTypes.join(', ')}` };
+      }
+    } else if (!type.startsWith('application/json')) {
+      return { ok: false, status: 415, reason: 'content-type must be application/json' };
+    }
   }
 
   return { ok: true };

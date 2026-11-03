@@ -199,7 +199,7 @@ function walkSchema(root: JsonObject, node: unknown, basePath: string[], keys: S
     const childPath = [...basePath, key]
     keys.add(pathKey(childPath))
     const kind = classify(child, childPath, root)
-    if (kind === 'object' || kind === 'box') {
+    if (kind === 'object' || kind === 'box' || (kind === 'nullable' && asRecord(derefSchema(child, root).node.properties))) {
       walkSchema(root, child, childPath, keys)
     }
   }

@@ -4,7 +4,7 @@ import { formatTimestamp, stripEmphasis } from './ass.js';
 
 // 出力は 3 系統。用途ごとに文字数上限も分割方針も違うため 1 ファイルにまとめない。
 //   <name>.comment.txt … 固定コメント用のクリップ単位一覧
-//   <name>.youtube.txt … 概要欄にそのまま貼る本文（チャプター + チャプターごとの出典）
+//   <name>.youtube.txt … 概要欄にそのまま貼る本文（チャプター + 動画ごとの出典）
 //   <name>.meta.json   … タイトル案 / タグ / チャプター配列。将来の Data API 自動化用
 
 // YouTube のチャプターは先頭 0:00 必須 / 3 つ以上 / 各区間 10 秒以上。
@@ -82,7 +82,7 @@ export function buildChapters(entries, totalSec, options = {}) {
   return { chapters, warnings: [] };
 }
 
-// セリフごとのチャプター。見出しはまとめたセリフを「 / 」でつなぎ、出典用にクリップの URL を持つ。
+// セリフごとのチャプター。見出しはまとめたセリフを「 / 」でつなぎ、meta.json 用にクリップの URL を持つ。
 // labels はチャプター先頭のクリップ名（base）で見出しを上書きする。
 function buildClipChapters(entries, totalSec, minSec, labels) {
   return groupClipChapters(entries, totalSec, minSec).map((group, i) => {
@@ -129,18 +129,32 @@ function clipChapterLabel(group, labels) {
   if (override) {
     return override;
   }
-  const serifs = group.entries.map((entry) => entry.serif).filter(Boolean);
-  return serifs.length > 0 ? serifs.join(' / ') : chapterLabelFor(group.entries[0].title);
+  return serifLabel(group.entries);
 }
 
-// 概要欄の出典（by: clip）。チャプターと同じまとまりごとに、見出しとタイムスタンプ付き URL を並べる。
-// チャプターが 3 個未満で省かれても出典は残すため、チャプターとは別に組み立てる。
-export function buildClipSources(entries, totalSec, options = {}) {
-  const minSec = Number(options.minSec ?? 10);
-  const labels = options.labels || {};
-  return groupClipChapters(entries, totalSec, minSec).map((group) => ({
-    label: clipChapterLabel(group, labels),
-    urls: group.entries.map((entry) => entry.clipUrl).filter(Boolean),
+// まとめたセリフを「 / 」でつなぐ。セリフが 1 つも無ければ配信タイトルから作る。
+function serifLabel(entries) {
+  const serifs = entries.map((entry) => entry.serif).filter(Boolean);
+  return serifs.length > 0 ? serifs.join(' / ') : chapterLabelFor(entries[0].title);
+}
+
+// 概要欄の出典（by: clip）。動画ごとに 1 つにまとめて初登場の位置に置き、見出しはその動画のセリフを
+// 「 / 」でつなぐ。URL は初登場のクリップのタイムスタンプ付き URL だけにする。離れた位置で
+// 再登場したクリップも同じまとまりに入れる。チャプターとは切り方が違い、チャプターが 3 個未満で
+// 省かれても出典は残す。
+export function buildClipSources(entries) {
+  const groups = new Map();
+  for (const [i, entry] of entries.entries()) {
+    // videoId の無いクリップは同じ動画か判断できないので 1 件ずつにする。
+    const key = entry.videoId || `#${i}`;
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+    groups.get(key).push(entry);
+  }
+  return [...groups.values()].map((group) => ({
+    label: serifLabel(group),
+    url: group.find((entry) => entry.clipUrl)?.clipUrl || '',
   }));
 }
 
@@ -213,7 +227,7 @@ export function buildSources(entries) {
 }
 
 // 概要欄本文。設定が空の節は見出しごと落とす。
-// clipSources があればチャプターごとの出典（見出し + タイムスタンプ付き URL）、無ければ配信一覧を出す。
+// clipSources があれば動画ごとの出典（見出し + タイムスタンプ付き URL）、無ければ配信一覧を出す。
 // 出典の見出しには時刻を付けない。行頭の時刻は YouTube がチャプターとして読み取ってしまうため。
 export function renderYoutubeDescription({ chapters, sources, clipSources = [], summary }) {
   const blocks = [];
@@ -232,7 +246,7 @@ export function renderYoutubeDescription({ chapters, sources, clipSources = [], 
     blocks.push(['▼チャプター', ...lines].join('\n'));
   }
   if (clipSources.length > 0) {
-    const groups = clipSources.map((s) => [s.label, ...s.urls].filter(Boolean).join('\n'));
+    const groups = clipSources.map((s) => [s.label, s.url].filter(Boolean).join('\n'));
     blocks.push(`▼出典\n${groups.join('\n\n')}`);
   } else if (sources.length > 0) {
     const lines = sources.flatMap((s) => [s.title, s.url].filter(Boolean));
@@ -327,7 +341,7 @@ export function writeSummary({ videoOutPath, entries, totalSec, config }) {
   warnings.push(...chapterResult.warnings);
 
   const sources = buildSources(entries);
-  const clipSources = chapterOptions.by === 'stream' ? [] : buildClipSources(entries, totalSec, chapterOptions);
+  const clipSources = chapterOptions.by === 'stream' ? [] : buildClipSources(entries);
   const maxChars = Number(summary.maxChars ?? 5000);
 
   const youtube = renderYoutubeDescription({

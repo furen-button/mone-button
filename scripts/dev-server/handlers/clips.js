@@ -70,6 +70,7 @@ export function clipInfo(clip) {
   const data = clip.data || {};
   return {
     base: clip.base,
+    updatedAt: clip.filePath && fs.existsSync(clip.filePath) ? fs.statSync(clip.filePath).mtimeMs : 0,
     videoId: clip.videoId,
     serif: typeof data.serif === 'string' ? data.serif : '',
     ruby: typeof data.ruby === 'string' ? data.ruby : '',

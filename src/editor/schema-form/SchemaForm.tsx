@@ -93,7 +93,9 @@ function renderField({ node, path, rootPath, expansion, root }: RenderArgs): Rea
     return (
       <FieldFrame key={path.join('.')} path={path} schema={schema}>
         <NullableField path={path} innerKind={innerKind} innerSchema={innerSchema}>
-          {renderScalarControl(innerKind, innerSchema, path)}
+          {innerKind === 'object'
+            ? renderField({ node: innerSchema, path, rootPath, expansion, root })
+            : renderScalarControl(innerKind, innerSchema, path)}
         </NullableField>
       </FieldFrame>
     )

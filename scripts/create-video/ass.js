@@ -2,6 +2,9 @@ import { ALIGN, assOverrideColor, rgbToAssBgr } from './config.js';
 
 // ボックス高さ算出とフォント自動縮小で共有する行送り係数。
 const LINE_HEIGHT = 1.25;
+// libass で Hiragino を描いたときの全角 1 字の実測幅（fs 比。W9 の 6 字で 0.65、card.js の endscreen も 0.66）。
+// 行ごとに幅へ合わせる space-lines だけが使う。既存の矩形推定は QC 向けに広め（1 字 = fs）のまま。
+const GLYPH_RATIO = 0.66;
 const KINSOKU_BACKTRACK_LIMIT = 4;
 const KINSOKU_MIN_TAIL_UNITS = 6;
 const KINSOKU_TAIL_MOVE_LIMIT = 6;
@@ -331,6 +334,29 @@ export function fitSingleLineTitle({ format, date, title, style, width, height }
   return { text, size: minFs, truncated: true };
 }
 
+// Shorts はタイトル20文字×最大2行 + 最下行に日付。末尾の演者表記は chapterLabelFor と同じ規則。
+export function fitShortsTitle({ title, date, style, width }) {
+  const text = stripEmoji(String(title || ''))
+    .replace(/\s*(?:【[^】]*】|『[^』]*』)\s*$/, '').trim()
+    .replace(/\s*\r?\n\s*/g, ' ');
+  const parts = text.replaceAll('【', '\n【').replaceAll('】', '】\n').split('\n').map((part) => part.trim()).filter(Boolean);
+  const titleLines = [];
+  for (const part of parts) {
+    const chars = [...part];
+    for (let start = 0; start < chars.length; start += 20) {
+      titleLines.push(chars.slice(start, start + 20).join(''));
+    }
+  }
+  if (titleLines.length > 2) {
+    titleLines[1] = `${[...titleLines[1]].slice(0, 19).join('')}…`;
+  }
+  const marginH = Math.round(width * (style.marginH ?? 0.035));
+  const size = Math.max(1, Math.floor((width - 2 * marginH) * 0.97 / 20));
+  // 帯は動画の最下部に置くので、日付は帯の最下行（＝動画の最下部）にする（ユーザー指定）。
+  const dateLine = formatDate(date).replaceAll('-', '/');
+  return { text: [...titleLines.slice(0, 2), dateLine].join('\n'), size };
+}
+
 export function resolveTitleText({ clip, config, titleOverride }) {
   const meta = clip?.meta || {};
   const videoId = clip?.videoId || clip?.data?.videoId || meta.videoId;
@@ -489,6 +515,18 @@ function dialogue({ layer = 1, start = '0:00:00.00', end = '9:59:59.99', text })
 // 同じ Layer の Dialogue は記述順に描かれるので、内側（本文の塗りが最後に乗る）を最後に出す。
 // 影は最外層だけに付ける。outlines が無ければ従来どおり 1 行だけ出す。
 function textDialogues(el, width, height) {
+  if (el.lineSizes) {
+    return variableLineLayout(el, width, height).flatMap((line, index) => textDialogues({
+      ...el,
+      text: line.text,
+      size: line.size,
+      lineSizes: null,
+      align: 'center',
+      textPos: { x: line.x + line.width / 2, y: line.y + line.height / 2 },
+      box: { enabled: false },
+      emphasis: lineEmphasis(el, index),
+    }, width, height));
+  }
   const outlines = normalizeOutlines(el.outlines);
   if (outlines.length === 0) {
     return [textDialogue(el, width, height)];
@@ -531,6 +569,9 @@ function textDialogue(el, width, height) {
     `\\1c${assOverrideColor(el.color || 'FFFFFF')}`,
   ];
 
+  if (el.layout === 'space-lines' || el.layout === 'date-title') {
+    overrides.push('\\q2');
+  }
   if (el.font) {
     overrides.push(`\\fn${el.font}`);
   }
@@ -599,8 +640,10 @@ function titleBarRect(el, width, height) {
   // 最低高さ（画面高さ比、既定 0.07）。1 行の細い帯にしたいプリセットは box.minHeight で下げる。
   const minHeight = Number(el.box.minHeight ?? 0.07);
   const boxHeight = Math.max(boxHeightFor(countLines(el.text), fs, pad, border), Math.round(height * minHeight));
-  el.textPos = { x: width / 2, y: boxHeight / 2 };
-  return { x: 0, y: 0, width, height: boxHeight };
+  const offset = Math.round(height * (Number(el.box.offsetY) || 0));
+  const y = el.box.anchor === 'bottom' ? height - boxHeight - offset : offset;
+  el.textPos = { x: width / 2, y: y + boxHeight / 2 };
+  return { x: 0, y, width, height: boxHeight };
 }
 
 export function textBoxRect(el, width, height) {
@@ -615,7 +658,8 @@ export function textBoxRect(el, width, height) {
     && (el.marginL !== marginH || el.marginR !== marginH);
   const boxWidth = el.box.width
     || (asymmetric ? Math.round(width - el.marginL - el.marginR) : Math.round(width - marginH * 2));
-  const boxHeight = el.box.height || boxHeightFor(lines, fs, pad, border);
+  const textHeight = el.lineSizes ? el.lineSizes.reduce((sum, size) => sum + size * LINE_HEIGHT, 0) : lines * fs * LINE_HEIGHT;
+  const boxHeight = el.box.height || (el.lineSizes ? textHeight + 2 * (pad + border) : boxHeightFor(lines, fs, pad, border));
   const align = el.align || 'bottom-center';
   let x = marginH;
   let y = height - marginV - boxHeight;
@@ -643,7 +687,14 @@ export function elementRect(el, width, height) {
 }
 
 export function elementTextRect(el, width, height) {
-  if (!el) return null;
+  if (!el) {
+    return null;
+  }
+  if (el.lineSizes) {
+    const lines = variableLineLayout(el, width, height);
+    const rect = lines.reduce((block, line) => block ? unionRects(block, line) : line, null);
+    return rect ? rectForOutput(rect) : null;
+  }
   if (el.box?.enabled && !el.textPos) {
     if (el.name === 'title') {
       titleBarRect(el, width, height);
@@ -678,6 +729,13 @@ export function elementTextRect(el, width, height) {
 // （3 行 serif の 2 行目が最も広く、time に近いのは短い 3 行目という実例があった）。
 // ASS の中央寄せ（\an5）は行ごとに中央へ寄せるため、行単位の矩形が実際の描画と一致する。
 export function elementTextLineRects(el, width, height) {
+  if (el?.lineSizes) {
+    return variableLineLayout(el, width, height).map((line) => rectForOutput({
+      ...line,
+      y: line.y + (line.height - line.size) / 2,
+      height: line.size,
+    }));
+  }
   const block = elementTextRect(el, width, height);
   if (!block) {
     return [];
@@ -714,6 +772,66 @@ export function elementTextLineRects(el, width, height) {
     rects.push(rectForOutput(progressBarRect(el, width, height)));
   }
   return rects;
+}
+
+// 行サイズと位置は描画・QC・stillの矩形で共有する。各行を独立した中央アンカーで描く。
+function variableLineLayout(el, width, height) {
+  if (el.box?.enabled && !el.textPos) {
+    textBoxRect(el, width, height);
+  }
+  const texts = String(el.text).split('\n');
+  const blockHeight = el.lineSizes.reduce((sum, size) => sum + size * LINE_HEIGHT, 0);
+  const pos = el.textPos || alignedPosition(el.align, width, height, el.marginH, el.marginV);
+  const anchor = el.box?.enabled ? ALIGN.center : alignCode(el.align);
+  let y = pos.y;
+  if ([4, 5, 6].includes(anchor)) {
+    y -= blockHeight / 2;
+  } else if ([1, 2, 3].includes(anchor)) {
+    y -= blockHeight;
+  }
+  return texts.map((text, index) => {
+    const size = el.lineSizes[index];
+    const lineWidth = Math.max(1, measureWidth(text) * size * GLYPH_RATIO / 0.97);
+    let x = pos.x;
+    if ([8, 5, 2].includes(anchor)) {
+      x -= lineWidth / 2;
+    } else if ([9, 6, 3].includes(anchor)) {
+      x -= lineWidth;
+    }
+    const line = { text, size, x, y, width: lineWidth, height: size * LINE_HEIGHT };
+    y += line.height;
+    return line;
+  });
+}
+
+// 元本文の強調区間を各行へ写す。半角スペースを落とした箇所や同じ語の再登場も元位置で区別する。
+function lineEmphasis(el, index) {
+  if (!el.emphasis?.spans?.length) {
+    return null;
+  }
+  const lines = el.text.split('\n');
+  const start = lines.slice(0, index).reduce((sum, line) => sum + [...line].length + 1, 0);
+  const positions = mapWrappedToPlain(el.text, el.emphasis.plain).slice(start, start + [...lines[index]].length);
+  const spans = [];
+  for (const [offset, position] of positions.entries()) {
+    const span = el.emphasis.spans.find((entry) => position >= entry.start && position < entry.end);
+    if (span) {
+      spans.push({ start: offset, end: offset + 1, color: span.color });
+    }
+  }
+  return { ...el.emphasis, plain: lines[index], spans };
+}
+
+function fitSpaceLines(text, { baseFs, width, marginL, marginR, budget }) {
+  const lines = text.split(/[ \r\n]+/).filter(Boolean);
+  const available = Math.max(1, width - marginL - marginR);
+  // 同じ画面のセリフは全行を同じ大きさにする（ユーザー指定）。最も長い行が幅に収まる大きさに揃え、
+  // 合計の高さが範囲を超えたら全行を同じだけ縮める。
+  const widest = Math.max(0.5, ...lines.map((line) => measureWidth(line)));
+  const byWidth = Math.floor(available * 0.97 / (widest * GLYPH_RATIO));
+  const byHeight = Math.floor(budget / (lines.length * LINE_HEIGHT));
+  const size = Math.max(1, Math.min(baseFs, byWidth, byHeight));
+  return { text: lines.join('\n'), sizes: lines.map(() => size) };
 }
 
 export function lineBreakViolations(text) {
@@ -842,13 +960,23 @@ export function makeTextElement({ name, text, style, width, height, duration, in
   const marginR = overrides.marginR ?? marginH;
   let fs = baseFs;
   // serif だけ強調記法（{語} / {語|RRGGBB}）を解く。折り返し・縮小・矩形の計測は記号を除いた本文で行う。
-  const emphasis = name === 'serif' ? parseEmphasis(stripEmoji(text)) : null;
-  const stripped = emphasis ? emphasis.plain : stripEmoji(text);
-  let wrapped = wrapText(stripped, maxUnitsFor(width, marginL, marginR, fs));
+  const cleaned = name === 'serif' && style.layout === 'space-lines'
+    ? String(text).replace(/\p{Extended_Pictographic}/gu, '').replace(/[️‍\u{1F3FB}-\u{1F3FF}]/gu, '')
+    : stripEmoji(text);
+  const emphasis = name === 'serif' ? parseEmphasis(cleaned) : null;
+  const stripped = emphasis ? emphasis.plain : cleaned;
+  const spaceLines = name === 'serif' && style.layout === 'space-lines'
+    ? fitSpaceLines(stripped, { baseFs, width, marginL, marginR, budget: Math.round(height * (overrides.maxHeight ?? style.maxHeight ?? 0.3)) })
+    : null;
+  if (spaceLines && spaceLines.sizes.length === 0) {
+    return null;
+  }
+  const fixedLines = name === 'title' && style.layout === 'date-title';
+  let wrapped = spaceLines?.text ?? (fixedLines ? stripped : wrapText(stripped, maxUnitsFor(width, marginL, marginR, fs)));
 
   // 高さ上限に収める自動縮小。実際の折り返し結果を測り、収まる最大の整数 fs を選ぶ。
   // ボックスが無い場合は余白・枠を 0 として行数×行送りだけで測る。
-  if (style.autoShrink) {
+  if (style.autoShrink && !spaceLines && !fixedLines) {
     const lines = countLines(wrapped);
     if (lines > 1) {
       const minFs = Math.min(baseFs, fontSize(style.minSize ?? 0.05, height));
@@ -887,6 +1015,13 @@ export function makeTextElement({ name, text, style, width, height, duration, in
     karaoke: Boolean(style.karaoke),
     ...overrides,
   };
+  if (spaceLines) {
+    element.layout = 'space-lines';
+    element.karaoke = false;
+    element.lineSizes = spaceLines.sizes;
+  } else if (fixedLines) {
+    element.layout = 'date-title';
+  }
   if (Array.isArray(style.outlines) && element.outlines === undefined) {
     element.outlines = style.outlines;
   }

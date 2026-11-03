@@ -23,7 +23,7 @@ function walkFields(schema, visitor, node = schema, fieldPath = []) {
     const childPath = [...fieldPath, key];
     visitor(child, childPath);
     const kind = classifySchema(child, childPath, schema);
-    if (kind === 'object' || kind === 'box') {
+    if (kind === 'object' || kind === 'box' || (kind === 'nullable' && derefSchema(child, schema).node.properties)) {
       walkFields(schema, visitor, child, childPath);
     }
   }
@@ -45,6 +45,33 @@ describe('schema walk classification', () => {
     });
 
     assert.deepEqual(unknown, []);
+  });
+
+  it('Shorts の reframe と nullable split の内側まで分類する', () => {
+    const schema = readSchema();
+    const fields = new Map();
+    walkFields(schema, (node, path) => fields.set(path.join('.'), classifySchema(node, path, schema)));
+    assert.equal(fields.get('effects.camera.enabled'), 'boolean');
+    assert.equal(fields.get('effects.reframe'), 'object');
+    assert.equal(fields.get('effects.reframe.frames'), 'number');
+    assert.equal(fields.get('effects.reframe.pick'), 'enum');
+    assert.equal(fields.get('effects.reframe.target'), 'object');
+    assert.equal(fields.get('effects.reframe.target.y'), 'number');
+    assert.equal(fields.get('effects.reframe.maxZoom'), 'number');
+    assert.equal(fields.get('effects.reframe.minFaceHeight'), 'number');
+    assert.equal(fields.get('effects.reframe.fill'), 'enum');
+    assert.equal(fields.get('telops.title.layout'), 'enum');
+    assert.equal(fields.get('telops.serif.layout'), 'enum');
+    assert.equal(fields.get('telops.title.box.anchor'), 'enum');
+    assert.equal(fields.get('telops.serif.faceRange'), 'object');
+    assert.equal(fields.get('telops.serif.faceRange.enabled'), 'boolean');
+    assert.equal(fields.get('telops.serif.faceRange.minHeight'), 'number');
+    assert.equal(fields.get('telops.serif.faceRange.maxHeight'), 'number');
+    assert.equal(fields.get('telops.serif.faceRange.fallbackBottom'), 'number');
+    assert.equal(fields.get('effects.reframe.x'), 'nullable');
+    assert.equal(fields.get('output.split'), 'nullable');
+    assert.equal(fields.get('output.split.by'), 'enum');
+    assert.equal(fields.get('output.split.minSec'), 'number');
   });
 
   it('keeps the special createVideo controls on their dedicated kinds', () => {

@@ -72,6 +72,7 @@ export function PreviewPanel({ presetName, onSavePreset, onClipDataSaved }: Prev
       name: presetName,
       draft: context.draft,
       kind,
+      clipUpdatedAt: clip?.updatedAt,
       clipBase: needsClip && clip ? clip.base : undefined,
       at,
       title: needsClip && title ? title : undefined,

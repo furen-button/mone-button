@@ -15,6 +15,7 @@ const KILL_GRACE_MS = 5000;
 const SCRIPTS = {
   build: 'scripts/create-video/index.js',
   qc: 'scripts/create-video/qc/index.js',
+  crop: 'scripts/create-video/crop-export.js',
 };
 const managers = new Set();
 

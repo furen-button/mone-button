@@ -79,6 +79,7 @@ export type QcResult = {
 }
 
 export type PreflightClip = {
+  updatedAt: number
   base: string
   videoId: string
   duration: number
@@ -119,6 +120,7 @@ export type PreflightState = {
 export type Rect = { x: number; y: number; w: number; h: number }
 
 export type ClipInfo = {
+  updatedAt: number
   base: string
   videoId: string
   serif: string
@@ -180,6 +182,7 @@ export type StillMeta = {
 }
 
 export type StillRequest = {
+  clipUpdatedAt?: number
   name: string
   draft: JsonObject
   kind?: StillKind
@@ -238,7 +241,7 @@ export type JobState = 'running' | 'done' | 'error' | 'cancelled'
 
 export type JobSummary = {
   id: string
-  kind: 'build' | 'qc'
+  kind: 'build' | 'qc' | 'crop'
   name: string
   state: JobState
   command: string
@@ -293,4 +296,6 @@ export type ClipDataSave = {
   ruby?: string
   memo?: string
   categories?: string[]
+  // 切り出しツールのキーフレーム。effects.camera[aspect] だけを書き換え、keyframes: null で消す。
+  camera?: { aspect: string; keyframes: unknown[] | null }
 }

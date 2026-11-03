@@ -36,6 +36,7 @@ export const DEFAULTS = {
     name: null,
     resolution: '1280x720',
     fps: 30,
+    split: null,
   },
   source: 'existing',
   normalizeCache: true,
@@ -57,6 +58,7 @@ export const DEFAULTS = {
       format: null,
       // true で 1 行に収まるまで minSize へ縮め、それでも入らなければタイトル末尾を「…」で省く。
       singleLine: false,
+      layout: 'default',
       color: 'FFFFFF',
       box: { enabled: true, fill: '2E9B0E', pad: 12 },
       fade: [200, 200],
@@ -97,6 +99,8 @@ export const DEFAULTS = {
       shadow: 2,
       fade: [150, 150],
       karaoke: false,
+      layout: 'wrap',
+      faceRange: { enabled: false, top: 0.02, minHeight: 0.12, maxHeight: 0.30, fallbackBottom: 0.24 },
       // serif の {語} を描く色。{語|RRGGBB} と書けばその色が優先される。
       emphasis: { color: 'FFD800' },
       // 顔検出でセリフボックスが演者の顔と重なるクリップだけ、顔の無い側へ寄せて幅を狭める。
@@ -280,6 +284,21 @@ export const DEFAULTS = {
     },
   },
   effects: {
+    camera: { enabled: true },
+    reframe: {
+      enabled: false,
+      zoom: 1,
+      frames: 3,
+      pick: 'largest',
+      target: { x: 0.5, y: 0.45 },
+      maxZoom: 3,
+      minFaceHeight: 0,
+      fill: 'blur',
+      x: null,
+      y: null,
+      python: 'python3',
+      cascade: null,
+    },
     zoom: {
       enabled: false,
       mode: 'punch',
@@ -522,6 +541,10 @@ function cliConfig(opts) {
     out.effects = { ...(out.effects || {}), zoom: { enabled: zoom } };
   }
 
+  const camera = optBool(opts, 'camera');
+  if (camera !== undefined) {
+    out.effects = { ...(out.effects || {}), camera: { enabled: camera } };
+  }
   const enhance = optBool(opts, 'enhance');
   if (enhance !== undefined) {
     out.effects = { ...(out.effects || {}), enhance: { enabled: enhance } };
@@ -599,6 +622,62 @@ function validateConfig(config) {
     errors.push('select.exclude は配列で指定してください。');
   }
 
+  const split = config.output.split;
+  if (split != null && (typeof split !== 'object' || split.by !== 'stream' || !Number.isFinite(split.minSec) || split.minSec < 0)) {
+    errors.push('output.split は {by: "stream", minSec: 0以上の有限数} または null で指定してください。');
+  }
+  if (typeof config.effects?.camera?.enabled !== 'boolean') {
+    errors.push('effects.camera.enabled は boolean で指定してください。');
+  }
+  const reframe = config.effects?.reframe;
+  if (!reframe || typeof reframe.enabled !== 'boolean' || !Number.isFinite(reframe.zoom) || reframe.zoom < 1 || reframe.zoom > 3
+      || !Number.isInteger(reframe.frames) || reframe.frames < 1) {
+    errors.push('effects.reframe は enabled(boolean), zoom(1〜3), frames(1以上の整数) を指定してください。');
+  }
+  for (const axis of ['x', 'y']) {
+    if (reframe?.[axis] != null && (!Number.isFinite(reframe[axis]) || reframe[axis] < 0 || reframe[axis] > 1)) {
+      errors.push(`effects.reframe.${axis} は null または 0〜1 で指定してください。`);
+    }
+  }
+  if (!['largest', 'right'].includes(reframe?.pick)) {
+    errors.push('effects.reframe.pick は largest / right で指定してください。');
+  }
+  if (!['blur', 'black'].includes(reframe?.fill)) {
+    errors.push('effects.reframe.fill は blur / black で指定してください。');
+  }
+  for (const [key, min, max] of [['maxZoom', 1, 3], ['minFaceHeight', 0, 1]]) {
+    if (!Number.isFinite(reframe?.[key]) || reframe[key] < min || reframe[key] > max) {
+      errors.push(`effects.reframe.${key} は ${min}〜${max} で指定してください。`);
+    }
+  }
+  for (const [axis, max] of [['x', 1], ['y', 0.5]]) {
+    const value = reframe?.target?.[axis];
+    if (!Number.isFinite(value) || value < 0 || value > max) {
+      errors.push(`effects.reframe.target.${axis} は 0〜${max} で指定してください。`);
+    }
+  }
+  for (const [name, layouts] of [['title', ['default', 'date-title']], ['serif', ['wrap', 'space-lines']]]) {
+    if (!layouts.includes(config.telops[name]?.layout)) {
+      errors.push(`telops.${name}.layout が不正です。`);
+    }
+  }
+  const faceRange = config.telops.serif.faceRange;
+  if (!faceRange || typeof faceRange.enabled !== 'boolean') {
+    errors.push('telops.serif.faceRange.enabled は boolean で指定してください。');
+  }
+  for (const key of ['top', 'minHeight', 'maxHeight', 'fallbackBottom']) {
+    if (!Number.isFinite(faceRange?.[key]) || faceRange[key] < 0 || faceRange[key] > 1) {
+      errors.push(`telops.serif.faceRange.${key} は 0〜1 で指定してください。`);
+    }
+  }
+  if (faceRange && (faceRange.minHeight <= 0 || faceRange.maxHeight < faceRange.minHeight || faceRange.top + faceRange.maxHeight > 1
+      || faceRange.fallbackBottom <= faceRange.top)) {
+    errors.push('telops.serif.faceRange は 0 < minHeight <= maxHeight、top + maxHeight <= 1、top < fallbackBottom にしてください。');
+  }
+  const anchor = config.telops.title.box?.anchor;
+  if (anchor !== undefined && !['top', 'bottom'].includes(anchor)) {
+    errors.push('telops.title.box.anchor は top / bottom で指定してください。');
+  }
   validateAligns(config, errors);
   validateColors(config, errors);
   validateTitleOverrides(config, errors);

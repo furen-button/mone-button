@@ -76,3 +76,60 @@ describe('loadConfig', () => {
     assert.equal(loadConfig(['--config', nullRestore, '--videoId', 'abc123']).effects.enhance.restore, null);
   });
 });
+
+
+describe('Shorts settings', () => {
+  it('Shorts と既定の設定、CLI part を読み込む', () => {
+    const shorts = loadConfig(['--config', 'scripts/create-video/config-shorts.json', '--part', '3']);
+    assert.equal(shorts.effects.reframe.enabled, true);
+    assert.equal(shorts.effects.reframe.frames, 3);
+    assert.equal(shorts.effects.reframe.zoom, 1);
+    assert.deepEqual(shorts.output.split, { by: 'stream', minSec: 10 });
+    assert.equal(shorts.output.resolution, '1080x1920');
+    assert.equal(shorts.__meta.cli.part, '3');
+    const legacy = loadConfig(['--config', writeTempConfig({}), '--videoId', 'abc123']);
+    assert.equal(legacy.effects.reframe.enabled, false);
+    assert.equal(legacy.output.split, null);
+    assert.equal(legacy.effects.reframe.pick, 'largest');
+    assert.deepEqual(legacy.effects.reframe.target, { x: 0.5, y: 0.45 });
+    assert.equal(legacy.effects.reframe.maxZoom, 3);
+    assert.equal(legacy.effects.reframe.minFaceHeight, 0);
+    assert.equal(legacy.telops.serif.layout, 'wrap');
+    assert.equal(legacy.telops.title.layout, 'default');
+    assert.equal(shorts.effects.reframe.pick, 'right');
+    assert.equal(shorts.effects.reframe.maxZoom, 1.8);
+    assert.deepEqual(shorts.effects.reframe.target, { x: 0.5, y: 0.46 });
+    assert.equal(shorts.effects.reframe.minFaceHeight, 0.26);
+    assert.equal(shorts.telops.title.layout, 'date-title');
+    assert.equal(shorts.telops.serif.layout, 'space-lines');
+    assert.equal(shorts.telops.serif.faceRange.enabled, true);
+    assert.equal(shorts.telops.serif.marginH, 50 / 1080);
+    assert.equal(shorts.telops.title.box.offsetY, 0);
+    assert.equal(shorts.telops.title.box.anchor, 'bottom');
+    assert.equal(legacy.telops.serif.faceRange.enabled, false);
+  });
+  it('faceRange とタイトルの anchor を検証する', () => {
+    for (const faceRange of [{ top: -0.1 }, { maxHeight: 0.1 }, { minHeight: 0 }, { top: 0.9 }, { fallbackBottom: 0.01 }, { enabled: 'true' }]) {
+      assert.throws(() => loadConfig(['--config', writeTempConfig({ telops: { serif: { faceRange } } }), '--videoId', 'abc123']), /faceRange/u);
+    }
+    assert.throws(() => loadConfig(['--config', writeTempConfig({ telops: { title: { box: { anchor: 'middle' } } } }), '--videoId', 'abc123']), /anchor/u);
+  });
+
+  it('不正な split/reframe を拒否する', () => {
+    for (const split of [false, {}, { by: 'clip', minSec: 10 }, { by: 'stream', minSec: -1 }, { by: 'stream', minSec: '10' }]) {
+      assert.throws(() => loadConfig(['--config', writeTempConfig({ output: { split } }), '--videoId', 'abc123']), /output.split/);
+    }
+    for (const reframe of [{ zoom: 0.9 }, { zoom: 4 }, { frames: 0 }, { frames: 1.5 }, { x: 2 }, { enabled: 'true' }, { pick: 'left' }, { fill: 'white' }, { target: { y: 0.6 } }, { target: { x: -0.1 } }, { maxZoom: 0.9 }, { maxZoom: 4 }, { minFaceHeight: -1 }, { minFaceHeight: 2 }]) {
+      assert.throws(() => loadConfig(['--config', writeTempConfig({ effects: { reframe } }), '--videoId', 'abc123']), /effects.reframe/);
+    }
+  });
+});
+
+describe('camera の設定', () => {
+  it('既定 true、CLI の kill switch、boolean 検証', () => {
+    const file = writeTempConfig({ select: { videoId: 'abc123' } });
+    assert.equal(loadConfig(['--config', file]).effects.camera.enabled, true);
+    assert.equal(loadConfig(['--config', file, '--no-camera']).effects.camera.enabled, false);
+    assert.throws(() => loadConfig(['--config', writeTempConfig({ effects: { camera: { enabled: 'bad' } } })]), /camera/u);
+  });
+});

@@ -5,6 +5,7 @@ export type LocalRequestInput = {
   origin?: string;
   secFetchSite?: string;
   contentType?: string;
+  allowContentTypes?: string[] | null;
 };
 
 export type LocalRequestResult =

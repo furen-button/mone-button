@@ -8,6 +8,7 @@ import { resolveWhisperConfig, toRuby, transcribeFile } from '../scripts/dev-ser
 import { assertLocalRequest, readBody, sendJson } from './lib/dev-http'
 import { TrimValidationError, createExcerptPlan, createTrimPlan, parseTrimPayload } from '../scripts/dev-server/lib/trim.js'
 import { normalizeReview } from '../scripts/dev-server/lib/clip-review.js'
+import { applyCameraPatch } from '../scripts/create-video/camera.js'
 
 // dev サーバ専用: public/data/*.json の serif/ruby/memo/categories を書き戻すミドルウェアと、
 // クリップ（json + mp4）の削除・トリム・切り出しと、ローカル音声の文字起こし・読み生成、
@@ -40,6 +41,8 @@ type SavePayload = {
   memo?: unknown
   categories?: unknown
   review?: unknown
+  // 切り出しツールのキーフレーム。{ aspect, keyframes } で effects.camera[aspect] だけを書き換える（null で消す）。
+  camera?: unknown
 }
 
 // fileBaseName を検証し public/data 直下の既存 json パスを返す。不正時はレスポンスを返して null。
@@ -235,7 +238,16 @@ async function handleSave(req: IncomingMessage, res: ServerResponse): Promise<vo
       return
     }
 
-    const current = JSON.parse(fs.readFileSync(filePath, 'utf8')) as Record<string, unknown>
+    let current = JSON.parse(fs.readFileSync(filePath, 'utf8')) as Record<string, unknown>
+
+    if (payload.camera !== undefined) {
+      const patched = applyCameraPatch(current, payload.camera as { aspect: string; keyframes: unknown })
+      if (patched.error !== undefined) {
+        sendJson(res, 400, { error: patched.error })
+        return
+      }
+      current = patched.data
+    }
 
     for (const field of EDITABLE_STRING_FIELDS) {
       const value = payload[field]

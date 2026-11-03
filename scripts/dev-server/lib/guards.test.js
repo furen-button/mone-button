@@ -52,6 +52,22 @@ describe('checkLocalRequest', () => {
       ok: true,
     });
   });
+
+  it('accepts other content-types only on routes that opt in', () => {
+    const allowContentTypes = ['video/', 'application/octet-stream'];
+    assert.equal(checkLocalRequest(request({ method: 'POST', contentType: 'video/mp4' })).status, 415);
+    assert.deepEqual(checkLocalRequest(request({ method: 'POST', contentType: 'video/mp4', allowContentTypes })), { ok: true });
+    assert.deepEqual(
+      checkLocalRequest(request({ method: 'POST', contentType: 'application/octet-stream', allowContentTypes })),
+      { ok: true },
+    );
+    assert.equal(checkLocalRequest(request({ method: 'POST', contentType: 'text/plain', allowContentTypes })).status, 415);
+    // loopback 以外は許可リストがあっても拒否する。
+    assert.equal(
+      checkLocalRequest(request({ method: 'POST', contentType: 'video/mp4', allowContentTypes, remoteAddress: '10.0.0.5' })).status,
+      403,
+    );
+  });
 });
 
 describe('presetFileName', () => {

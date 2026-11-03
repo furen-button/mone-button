@@ -92,6 +92,7 @@ npm run import   # sync → extract → download を一括実行
 | `config-hq.json` | **公開用 高画質のひな形**。`source cache` 1080p + zoom punch + 顔回避 + Anime4K 補正 + カード/OP/ED。`--videoId` で配信を指定する |
 | `config-category.json` | **カテゴリ横断まとめのひな形**。`select.mode category`（既定は「やられ」）。OP タイトルはカテゴリ名から自動生成される |
 | `config-kirinuki.json` | **切り抜き風のひな形**。紫の 1 行帯（配信タイトル、左に日付・右に元動画時刻。進行表示は無し）+ ボックス無しの二重縁取りセリフ + 配信が変わる所だけホイップパン + ED はピンクの肉球背景の 10 秒エンドカード動画（`endcaps.ending.video` = `assets/create-video/endcard-pink-04-pop-bg035.mp4`。gitignore 済みの素材で、無ければ 20 秒のエンドスクリーンを生成する）。OP・区切りカード・zoom 無し、`source cache` + Anime4K。`select.mode category`（既定は「やられ」） |
+| `config-shorts.json` | **Shorts 用**。1080×1920 / 30fps、元映像の顔中心を縦に切り出し + Anime4K CNN 拡大。紫帯とピンク二重縁取り、配信が変わる所だけホイップパン。配信単位で短尺をまとめて分割（既定「やられ」）、OP・カード・ED 無し。`output/shorts/` に出力 |
 
 ```
 npm run createVideo -- --videoId gr9WJDYS_u0
@@ -101,12 +102,12 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 - `--mode videoId` / `--mode category` / `--mode files` に対応。既定は `videoId`。
 - 既定出力は `output/<YYYY-MM-DD>-<videoId>-combined.mp4`。`--out` または config の `output.name` で上書き可。
 - 併せて YouTube 公開用のメタデータを 3 系統書き出す（実装は `summary.js`、設定は `summary.*`）。時刻は各クリップのブロック先頭（区切りカードがあればその開始）を実尺の積み上げから算出する。
-  - `output/<name>.youtube.txt` … 概要欄本文。チャプター + チャプターごとの出典（タイムスタンプ付き URL）+ 導入文 + 非公式表記。`summary.siteUrl` などが未設定の節は見出しごと省く
+  - `output/<name>.youtube.txt` … 概要欄本文。チャプター + 動画ごとの出典（タイムスタンプ付き URL）+ 導入文 + 非公式表記。`summary.siteUrl` などが未設定の節は見出しごと省く
   - `output/<name>.comment.txt` … 固定コメント用のクリップ単位一覧。1 クリップ = `[動画内での時間] [serif]` / `[元動画タイトル]` / `[clipUrl]` の 2〜3 行で、タイトルは直前と同じなら省略する。`summary.maxChars`（既定 5000）を超えると `.comment-1.txt` … へ分割し、各塊の先頭では必ずタイトルを出す
   - `output/<name>.meta.json` … タイトル案 / タグ / チャプター配列 / 出典。将来の Data API 自動化用
-- チャプターは既定（`summary.chapters.by: clip`）でセリフ（クリップ）ごとに切る。YouTube の要件（先頭 0:00 必須 / 3 つ以上 / 各 10 秒以上）に合わせ、先頭は 0:00 から測り、`summary.chapters.minSec`（10 以上。YouTube の要件より短くはできない）に届くまで後続のクリップを前から順にまとめ、末尾だけ短く残ったら直前へ寄せる。見出しはまとめたセリフを「 / 」でつなぐ（セリフが無ければ配信タイトル）。出典はチャプターの下に同じまとまりごとに、見出し（時刻なし。行頭の時刻は YouTube がチャプターと読み取るため）+ 各クリップのタイムスタンプ付き URL を並べ、チャプターが 3 個未満で省かれても出典は残す。`summary.chapters.labels` はチャプター先頭のクリップ名（base）で見出しを上書きする。meta.json のチャプターには `bases` と `urls` が入り、QC の `probe_chapter_time` は先頭クリップのブロック先頭と突き合わせる。
+- チャプターは既定（`summary.chapters.by: clip`）でセリフ（クリップ）ごとに切る。YouTube の要件（先頭 0:00 必須 / 3 つ以上 / 各 10 秒以上）に合わせ、先頭は 0:00 から測り、`summary.chapters.minSec`（10 以上。YouTube の要件より短くはできない）に届くまで後続のクリップを前から順にまとめ、末尾だけ短く残ったら直前へ寄せる。見出しはまとめたセリフを「 / 」でつなぐ（セリフが無ければ配信タイトル）。出典はチャプターとは別に、元動画（videoId）ごとに 1 つにまとめて初登場の順に並べる。離れた位置で再登場したクリップも同じまとまりに入れ、見出し（時刻なし。行頭の時刻は YouTube がチャプターと読み取るため）はその動画のセリフを「 / 」でつなぎ、URL は初登場のクリップのタイムスタンプ付き URL を 1 本だけ出す。チャプターが 3 個未満で省かれても出典は残す。`summary.chapters.labels` はチャプター先頭のクリップ名（base）でチャプターの見出しだけを上書きする（出典の見出しには効かない）。meta.json のチャプターには `bases` と `urls` が入り、QC の `probe_chapter_time` は先頭クリップのブロック先頭と突き合わせる。
 - `summary.chapters.by: stream` は従来の配信単位。直前のクリップと videoId が変わった位置で切り、`minSec` 未満の区間は隣へ吸収し、3 個未満になったら警告して概要欄から省く。ラベルは配信タイトルの `【】` `『』` を整形して使い、`summary.chapters.labels` で `videoId` または `videoId#2`（同じ配信の 2 回目の登場）を指定して上書きできる。出典は配信一覧。
-- `by: clip` の出典はクリップ数に比例して長くなる（25 クリップで約 2200 文字、99 クリップで約 9400 文字）。概要欄が `summary.maxChars`（既定 5000 = YouTube の上限）を超えると警告だけ出る。
+- `by: clip` のチャプターはクリップ数に、出典は元動画の本数に比例して長くなる（やられ 25 クリップ・7 本で概要欄 約 1400 文字、侍 73 クリップ・55 本で約 4300 文字。名場面集 #1 の 99 クリップ・14 本は出典だけで約 2900 文字）。概要欄が `summary.maxChars`（既定 5000 = YouTube の上限）を超えると警告だけ出る。
 - クリップ、カード、OP/ED はすべて h264/yuv420p/30fps + aac/44100/stereo に正規化してから concat する。署名が揃えば映像は `concat` デムクサで copy、音声は AAC プライミングの累積音ズレを避けるため各セグメントから直接 concat フィルタで再エンコードする（`concat-vcopy`）。署名不一致なら全再エンコードの concat filter に fallback。
 - 音声は常に `AUDIO_RESAMPLE`（`aresample=44100:async=1:min_hard_comp=0.001:first_pts=0`、`ffmpeg.js`）で通す。yt-dlp の区間切り出しで作った **96kHz 音声のソースには数十 ms の pts の穴**（タイムスタンプだけ飛んでサンプルが無い）が混ざり、`async` 無しだと穴が AAC パケット 1 個の長い duration として残る。プレイヤーは pts を尊重するので穴以降の音声が遅れ、連結でクリップごとに積み上がる（2026-09 の 109 クリップ動画で 599ms）。`min_hard_comp` を 1ms に下げるのは、`async=1` だけだと既定 0.1 秒未満の穴が埋まらず、穴を捨てて音声が早まるため。44.1kHz のソースには穴は無い。
 - `execClip` の音声に `apad` + `-shortest` を足してはいけない。`encodeArgs` の `-r`（CFR）と組み合わさると `-shortest` が効かず、無限長になった音声に映像フレームが追従してセグメントが際限なく伸びる（映像 11 秒に対し音声 79 秒、完成動画 147 秒→876 秒を実測）。
@@ -170,6 +171,41 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 - 高画質DLは音量正規化・音声尺合わせの前に映像ストリーム尺をトリム期待尺と比較する（ffprobe がある場合）。250ms を超えて短ければ途中ファイルを削除して一度だけ再 DL し、再び短ければキャッシュを削除して生成を停止する。既存キャッシュの再利用時はこの DL 検査を行わない。
 - 高画質DLには yt-dlp が必要。`--source cache` の音量正規化には `ffmpeg-normalize` が必要（不在時は警告して生DLを使用）。映像は copy で高画質のまま、音声のみ正規化する。サムネイルは `cache/createVideo/thumbnails/` にキャッシュする。
 
+### 縦切り出しと分割（Shorts）
+
+```
+PATH=/opt/homebrew/bin:$PATH npm run createVideo -- --config scripts/create-video/config-shorts.json --part 1 --qc
+PATH=/opt/homebrew/bin:$PATH npm run createVideo -- --config scripts/create-video/config-shorts.json --category 侍 --qc
+```
+
+- `effects.reframe` は既定 `enabled: false`。元映像の座標系でクリップ全体から等間隔に `frames`（既定3）枚を抽出し、フレームごとに選んだ顔の中心を各軸の中央値でまとめる。顔の高さの中央値（元高さ比）も `faceHeight` に残す。`detectFaceRects` / `detect_anime_face.py` を共有し、`allFaces: true` のときだけフレームごとの全候補を返す（既存のzoom・顔回避の呼び出しは最大顔のまま）。
+- `pick`（既定 `largest`）は `right` なら最大顔（面積）の高さの50%以上の候補から中心xが最も右の顔を選ぶ。Shortsプリセットは全クリップで演者が右側にいるため `right`。全体設定の `x/y`（既定null、0〜1）は顔未検出時の予備位置で、両方無ければ中央。Shortsは `x: 0.92 / y: 0.72`。Detroitの右端で顔が切れるクリップをstillで確認して採用した。`python` は既定 `python3`、`cascade` は既定null。cv2入りのPythonをPATHで選び、マシン固有のパスは設定に保存しない。
+- `target`（既定 `{x:0.5,y:0.45}`）は出力上の顔中心の目標位置（xは0〜1、yは0〜0.5）。倍率は **max(zoom下限, targetに顔を置いて枠が元映像内に収まる最小倍率, minFaceHeightに届く倍率)** を1〜`maxZoom`に制限する。`zoom`は既定1、`maxZoom`は既定3（ともに1〜3）、`minFaceHeight`は既定0（顔サイズによる追加ズーム無し）。顔未検出・手動位置では顔サイズ条件を使わない。Shortsは **target=(0.5,0.46)、maxZoom=1.8、minFaceHeight=0.26**。指定10クリップのstillで、前回より少し下・中央より上に顔が来ることを確認した。拡大上限1.8は維持する。
+- 上限で枠が収まらなければ横だけ元映像内にクランプし、縦は顔の目標高さを守る。`fill`（既定 `blur`、`blur | black`）で縦の不足を埋める。blurは元映像全体をcoverで敷き、1/4出力サイズでboxblurして少し暗くし、拡大した背景に前景をoverlayする。blackはpad。前景は枠と元映像の重なりだけをcropし、fps → restore → CNN upscale → ASS → whipの順。`reframeFilters` が本番・still（先頭trim付きの-vf）・QCで共有され、QCと補正無効時の前景拡大はLanczos。背景と前景のfpsも揃える。旧横動画のフィルタ順は変えない。
+- クリップJSONの `effects.reframe: false` で個別OFF、`{"x":0.8,"y":0.7,"zoom":1.2}` で手動焦点と倍率の下限を指定（全体OFFでも有効）。zoomのみなら検出を継承。reframe中は `effects.zoom` と `effects.avoidFace` / `telops.serif.avoidFace` を警告してスキップする。個別OFFのクリップは従来のscale+padへ戻る。
+- `output.split` は既定null。`{"by":"stream","minSec":10}` で、選択・除外・並び替え・limit 後のクリップ列を**連続する**同じ videoId の塊へ分け、合計尺が minSec 未満なら次の塊を足し、短い末尾だけ直前へ寄せる。尺は各 `endTime - startTime` の和で、OP/カード/ED は含まない。離れた位置で再登場する配信は別の塊。全体が短ければ1本になる。
+- `<name>-01.mp4`, `-02.mp4` …（1本だけでも `-01`）とし、render.json / youtube.txt / comment.txt / meta.json / QC も同じ連番名で各パートへ出す。自動名の基準日は選択全体の先頭で固定。`--out` のファイル名にも連番を挿入する。`--part N` は分割後の1始まり番号を選び、他パートを描画しない（split 無効・範囲外はエラー）。ffmpeg の解決は全パートを通じて1回。
+- `telops.title.layout` は既定 `default`（従来のformat/singleLine）、Shortsは `date-title`。末尾の【…】/『…』をchapterLabelForの最初の置換と同じ規則で取り、タイトル最大2行＋最下行に日付YYYY/MM/DDの1行にする（帯を最下部に置くので、日付が動画の最下部に来る。ユーザー指定）。【の直前・】の直後で改行し、それぞれを20コードポイントごとに折る。2行を超えたら2行目を最大19文字＋…にする。このモードはsize/minSize/autoShrink/format/singleLineを使わず、20全角文字が内幅へ収まる最大サイズを算出する（1080幅・左右3.5%=38pxずつで48px）。`box.anchor` は既定 `top`、Shortsは **bottom**。`box.offsetY:0` はユーザー指定のまま保ち、`minHeight:0.11 / pad:8` で帯の下端を出力下端に付ける（高さ211px、上端1709px）。offsetYは指定した端からの距離で、anchor未指定の上端配置は変えない。日付を帯の1行目に置くので独立したdateは非表示。元動画時刻・進行表示も非表示。
+- `telops.serif.layout` は既定 `wrap`（既存のwrapText/autoShrink）、Shortsは `space-lines`。半角スペースと手動改行のみで分け（連続区切りの空行は捨てる）、全角空白を区切りへ変換しない。同じ画面のセリフは全行を同じ大きさにする（ユーザー指定）。最も長い行が内幅に収まる大きさ（上限size）に揃え、合計行送りがmaxHeightを超えたら全行を同じだけ縮める。行の幅はlibassで描くHiraginoの実測（全角1字≈fs×0.66、`GLYPH_RATIO`）で見積もる（「1字=fs」の推定だと実際は約2/3の幅にしかならない）。minSize・自動折り返し・禁則での送り・karaokeは使わない。行ごとのDialogueでも強調記法・outlines・fadeを維持し、行サイズと位置は描画・矩形・QCで共有する。意図した行数や禁則はL0で警告せず、画面外・衝突は検査する。
+- Shortsのセリフは **marginH=50/1080（各50px、内幅980px）/ size:0.5（上限960px）**、配色は config-kirinuki と同じピンク文字 FF4FA0＋白縁 9px＋紫 6B3FA0 の外縁 4px＋影 3（白＋濃紫の太縁も試したが、ユーザーの判断でこの配色に戻した）。トランジションの SE は鳴らさない（`transitions.se.enabled:false`、ホイップパンの映像は残す）。`telops.serif.faceRange`（既定enabled:false）で上端〜前髪付近に収める。Shortsは `enabled:true / top:0.02 / minHeight:0.12 / maxHeight:0.30 / fallbackBottom:0.24`。顔の枠の上端をreframeの元座標から実出力へ写し、topからそこまでの高さを12〜30%に制限する。reframeなし・顔未検出・手動焦点で顔サイズ不明のときは固定2〜24%。範囲内で上下中央に置き、合計行送りが範囲を超えると全行を同率縮小する（fitSpaceLinesの0.97の余裕は維持）。狭い範囲を最低12%に広げた場合は前髪への軽い重なりを許す。rangeを`serifOverrides`と同じく共有描画計画から渡し、`serifRange`としてセグメントとstillのJSONへ残す。描画・manifestの行別矩形・QCは同じ計画を使う。描画前のL0は未検出相当の固定範囲で検査する。
+- 2026-11-01のデータで、やられ25クリップ→7本（11.01〜51.13秒）、侍73クリップ→23本（10.20〜37.54秒）。本数はクリップの追加で変わるので、`split.test.js` は本数を固定せず「漏れなく分ける・各パートが minSec 以上」だけを実データで確かめる。
+
+### クリップごとのキーフレーム切り出し（effects.camera）
+
+```
+npm run cropVideo -- --input <mp4> --camera <keyframes.json> --aspect 9:16 --size 1080x1920 --scaler anime4k|lanczos [--out output/crop/x.mp4]
+npm run cropVideo -- --clip <base> --aspect 9:16      # public/data のキーフレームと高画質キャッシュで書き出す
+```
+
+- クリップ JSON の `effects.camera` に縦横比（`"9:16"` / `"16:9"` / `"1:1"`）ごとのキーフレーム列 `[{ t, x, y, zoom, ease }]` を持つ。`t` は mp4 先頭からの秒、`x` / `y` は枠の中心（元映像の幅・高さ比）、`zoom` はその縦横比で元映像に収まる最大の枠を 1 とした倍率（1〜4）、`ease` はそのキーフレームから次までの動き（`smooth` 既定 / `linear` / `cut` = 次の時刻まで止めて切り替え）。中心は線形、倍率は対数で補間し、枠は毎フレーム元映像の内側に収める。最初より前・最後より後は端の枠のまま。ふつうは切り出しツール（crop.html）で作って保存する。
+- createVideo は出力サイズの比で該当するキーフレーム列を選び、あればそのクリップでは reframe・zoom・顔回避を使わない（ログに出す）。無ければ従来どおり。`effects.camera.enabled: false` / `--no-camera` で全体を止められる。拡大方法は JSON に持たず、プリセットの `effects.enhance` に従う。
+- 描画は `libplacebo` の `crop_x/y/w/h` に時刻 `t` の式を渡す（フレームごとに評価、小数位置なのでゆっくり寄ってもガタつかない。Anime4K の Upscale_CNN_x2 もそのまま効く。静的 crop との差は PSNR 75.6 dB、CNN 無しとは 35.7 dB）。式は `camera.js` の小さな AST から ffmpeg の文字列（`exprToString`）と JS の評価（`evalExpr`）を作り、`cameraRectAt`（プレビュー・QC・fallback が使う）と一致することをテストで確かめる。書き出した mp4 の各時刻のフレームは、`cameraRectAt` で求めた静的な枠と PSNR 46〜49 dB（crf18 の床）、0.1 秒ずらすと動いている区間で 15〜18 dB。
+- libplacebo が使えないときは `sendcmd` で `crop` の w/h/x/y を毎フレーム変えて `scale=lanczos`（整数 px）にし、QC が `camera_fallback` を warn で出す。`sendcmd` で libplacebo の crop を変える方法は通らなかった（Filter not found）。
+- 元映像の大きさは回転と SAR を考えた表示サイズ（`ffmpeg.js` の `displayVideoSize`）。ブラウザの `videoWidth` / `videoHeight` と同じ座標になる。
+- 波形トリム・切り出しで先頭を切ると、切った位置と新しい末尾に補間したキーフレームを足して `t` をずらす（`shiftCamera`。`effects.zoom.at` は従来どおり補正しない）。
+- `cropVideo` は任意の mp4 を同じフィルタで書き出す（fps は元のまま、h264 crf18、音声は `-map 0:a?` で aac）。`--scaler anime4k` は 720p 未満の入力にも Anime4K を掛ける。進捗は `🎬 [<pct>/100] 描画中: <name>` と `✅ 完成: <path>` で出し、設定エディタのジョブ表示がそのまま読める。1080p 7.5 秒の 9:16 書き出しは Anime4K で約 7.6 秒、Lanczos で約 4.4 秒（2026-11-01 実測）。
+- render.json のセグメントに `camera`（縦横比・キーフレーム・元寸法・`backend` = libplacebo / sendcmd・fallback）が残る。QC の pHash は `-ss` を `-i` の前に置いて `t` が 0 から始まるため、式ではなく比較時刻の `cameraRectAt` で求めた静的な crop で同じ構図を作る。セリフの範囲（faceRange）は顔が分からないので固定範囲になる。
+
 ### 静止画プレビュー（still）
 
 ```
@@ -183,14 +219,14 @@ npm run -s still -- --videoId gr9WJDYS_u0 --limit 3 --still 'card:#2'   # 区切
 npm run -s still -- --videoId gr9WJDYS_u0 --limit 3 --still opening     # OP（ED は ending）
 ```
 
-- 本番と同じ `planClipRender → buildAss → subtitles` を通し、1 フレームだけ PNG に焼く。
+- 本番と同じ `planClipRender → buildAss → subtitles` を通し、1 フレームだけ PNG に焼く。reframe は既定で設定どおり適用し、顔検出・crop・Anime4K 拡大も共有する。`--part N --still '#1'` はそのパートの先頭。part 指定無しの `#N` は選択全体の順番で、番号表示・トランジションは所属パート内の条件に揃える。`--print-ass` は従来どおり検出・動画フィルタを実行しない。
 - 区切りカード（`card:<base>` / `card:#N`）と OP / ED（`opening` / `ending`）も同じ考え方で、`planCardRender` と `buildCardVideoGraph` を本番（`card.js`）と共有する。背景・サムネイル・ASS の入力は本番と同一で、音声グラフだけ外す。`endcaps.*.video` に完成動画が指定されていればその動画から抜く。サムネイルはキャッシュ済みのものだけを使い、未取得なら `thumbnail_missing` を出して背景だけで描く。
 - `-ss` は `-i` の後に置く。libass と zoom の PTS を本番フィルタチェーンと揃えるため。`-vf` 経路では `trim=start=<t-0.5 秒を 1/fps に切り下げ>` を本番チェーンの前に置き、それより前のフレームはデコードだけで捨てる（pts は保たれるので PNG は全フレーム処理と md5 一致。zoom punch の `filter_complex` は `setpts=PTS-STARTPTS` があるため前置しない）。
 - 既定では zoom・顔回避は OFF で、テロップ位置は不変。`--zoom` `--avoid-face` で opt-in でき、顔検出が走ると +2〜3 秒ほど掛かる。
 - `source: cache` のキャッシュミスでも yt-dlp は起動しない。期待パスを `source_missing` warning に出す。
 - 256x144 の既存 mp4 を 1080p へ拡大する場合は `source_upscaled` を出す。
 - 出力は既定で `cache/createVideo/preview/<preset>/`。単体 still は `<base>-t<sec>.png`、シートは `sheet-<n>x<cols>.png`。
-- `--json` は 1 行 JSON。主要キーは `ok,out,assPath,at,requestedAt,index,total,clip,size,source,zoom,avoidFace,enhance,elements,overlays,warnings,key,ms`。
+- `--json` は 1 行 JSON。主要キーは `ok,out,assPath,at,requestedAt,index,total,clip,size,source,zoom,avoidFace,enhance,reframe,camera,elements,overlays,warnings,key,ms`。
 - 2026-09-11 実測（1080p 出力）: ffmpeg 単体 約 0.6 秒、`renderStill` を同一プロセスで繰り返すと約 0.7 秒/枚（`resolveFfmpeg` はプロセス内で 1 回だけ）、CLI は node 起動込みで約 0.9 秒。`config-mone` の `--zoom --avoid-face` は顔検出込みで約 3.7 秒。3 セルの `--sheet 3` と `--frames 4` はどちらも約 1.2 秒。
 - 本番との一致は「完成セグメントから抜いたフレームとの PSNR」で確認する。値は内容依存で、既定プリセットは 41 dB、zoom 全編は 37 dB。どちらも静止画を x264 crf23 で往復させた圧縮の床（39 dB / 36 dB）と同じ帯にあり、t±1 フレームとは 8 dB 以上離れる。ASS は `--print-ass` で本番 `clip-NNNN.ass` と完全一致する。
 - カード / OP / ED も同様に、既定プリセットで 39.3 / 41.3 / 43.4 dB（それぞれの圧縮床は 40.8 / 42.7 / 44.9 dB）。ASS は本番 `card-NNNN.ass` / `opening.ass` / `ending.ass` と完全一致する。カードは背景がほぼ静止しているため t±1 フレームでも PSNR が下がらず、一致の根拠は ASS の一致と圧縮床との距離で見る。
@@ -220,6 +256,8 @@ npm run createVideo -- --videoId xxx --qc   # 生成前 L0 + 生成後 L1
 - ASS 出力は `scripts/create-video/__fixtures__/ass-golden.json` で固定している（3 プリセット × `public/data` 全クリップのハッシュ + 要注意 15 件の全文）。テロップ描画を意図的に変えたときは `npm run golden:ass` で更新する。`wrap-golden.json` は別物で再生成禁止。
 - 音量の目標は **-23 LUFS ±2**（取り込み側の `ffmpeg-normalize` が EBU R128 / -23 LUFS で揃えるため）。YouTube 基準に寄せたい場合は `config.qc.thresholds.integratedLufsMin/Max` を変更する。
 - 区切りカード・OP・ED は静止画背景で無音なため、manifest がある場合はフリーズ・無音・音量差の検査をクリップ区間だけに限定する。
+- `reframe` は枠（はみ出し込みのframe）・重なりのcrop・元寸法・焦点の出所（face/manual/config/center）・顔高さ比faceHeight・pick・target・zoom・zoomReason（min/center/face size/cap）・zoomNeeded・fill（未使用null）・前景の出力矩形・fallbackを各セグメントに残す。顔未検出は `reframe_face_fallback` warn、余白使用は `reframe_fill` info。pHashは共有のreframeFiltersで同じ構図を再現する。serifRangeがある新構図では範囲下端＋2.5%より下（最小25%）〜75%を比較し、上のセリフと下のタイトルを避ける。比較余地が5%未満ならinfoでskipする。旧構図の範囲は維持する。space-linesのテロップにはlineSizes/lineRectsも残す。
+- `camera` は縦横比・キーフレーム・元寸法・backend・fallback を各セグメントに残す。libplacebo が使えず sendcmd + Lanczos で切り出したクリップは `camera_fallback` warn。
 - `effects.enhance` を設定したのに libplacebo 不可やシェーダ欠落で補正なしになったクリップは `enhance_fallback` を warn にする。manifest のセグメントに `enhance`（`applied` / `restore` / `upscale` / `from`、または `fallback` と `reason`）が残る。
 - テロップの衝突は重なり面積比（既定 0.2）で判定する。文字矩形の幅は `charWidth` 推定で実測より広く出るため、端が触れただけでは error にしない。
 
@@ -244,6 +282,7 @@ http://localhost:5173/mone-button/editor.html?tab=preview&preset=config-mone.jso
 - 設定フォームの種類は `$defs` の名前で決まる（`scripts/dev-server/lib/schema-walk.js` と `src/editor/schema-form/resolveSchema.ts` の `SPECIAL_DEFS`）。縁取りの配列（`$defs/outlines`）は 1 層 1 行の専用欄、`transitions` は「効果」タブに出る。オブジェクトの配列を新しく足すときは専用の種類を作らないと `schema walk classification` のテストが落ちる
 - 保存は **`raw ∪ dirty`**（触った項目だけをファイルへ当てる）。解決済み全体や DEFAULTS からの差分は書かない。空 patch の保存は無変更。検証失敗でも保存は止めない
 - 未保存の draft は `cache/createVideo/editor/<preset>.draft.json` に書き、検証（`runPreflight`）とプレビュー（`renderStill`）はそれを `--config` で読む。ビルドは保存済みプリセットで走る
+- still / シートのキャッシュキーには入力ファイル（クリップ JSON・`public/videos`・高画質キャッシュ）の mtime と size が入る（`stillFileStamp`。クリップとカードはそのクリップだけ、OP / ED とシートは全件）。エディタ側の LRU もクリップの更新時刻で外すので、波形トリムや保存の後に古い画像は返らない
 - API は `/__cv/*`（`plugins/vite-plugin-create-video.ts` → `scripts/dev-server/handlers/*.js`）。ハンドラは遅延 import なので **`scripts/dev-server/**` や `scripts/create-video/**` を直したら dev サーバを再起動する**（`r` + Enter）
 - ガード: ループバック以外・Origin 不一致・`Sec-Fetch-Site: cross-site` は 403、プリセット名は `config-*.json` のみ、`/file` は kind ごとに基底ディレクトリ固定、ビルドオプションは allowlist。子プロセスは detached でグループ化し、cancel / サーバ close / Ctrl-C でまとめて止める。残った場合は `pkill -f create-video/index.js`
 - テストは `scripts/dev-server/**/*.test.js`（`npm test` に含まれる）。ブラウザ操作テストは無いので、UI は headless Chrome のスクリーンショットで確認する（`?tab=` / `?preset=` / `?job=` / `?kind=` で初期状態を指定できる）
@@ -260,6 +299,7 @@ npm run shots                                # config-matome-01.json の 5 タ�
 npm run shots -- --preset config-mone.json --tab preview,build
 npm run shots -- --tab preview --kind card       # 区切りカードのプレビュー
 npm run shots -- --strict                    # コンソールに深刻な出力があれば exit 1
+npm run shots -- --page crop --clip <base> --at 1.5   # 切り出しツール（crop.html）
 ```
 
 - 実装は `scripts/ui/shots.mjs` と `scripts/ui/cdp.mjs`（Node 組み込みの WebSocket だけで CDP を話す。依存は増やさない）。
@@ -268,6 +308,29 @@ npm run shots -- --strict                    # コンソールに深刻な出力
 - dev サーバが動いていなければ自分で `npm run dev` を起動し、撮り終えたら止める。
 - 出力は `cache/ui-shots/<preset>-<tab>.png` と `<preset>-console.log`（gitignore 済み）。
 - `console.error` / 例外 / `net::ERR` / `Failed to load resource` / React の `Warning:` を要注意として数える。1 枚あたり約 2.8 秒。
+
+## 切り出しツール（crop.html、dev 専用）
+
+任意の動画をドロップし、元映像の上の枠とキーフレームで切り出し・拡大する。dev サーバ専用で、`vite build` には入らない。
+
+```
+npm run crop                # /mone-button/crop.html を開く
+http://localhost:5173/mone-button/crop.html?clip=<base>&at=1.5&aspect=9:16
+```
+
+- dev サイトからも開ける。DEV ツールバー（並び替えの下）に「切り出しツール」「設定エディタ」、クリップ編集モーダルのファイル名の下に「切り出しツールで開く」（`crop.html?clip=<base>`）があり、どちらも別タブで開く
+
+- 画面: 左に元映像と切り出し枠（中をドラッグで移動、四隅のドラッグとホイールで倍率、外を押すとそこへ中心を移す。枠の外は暗くする）、右に完成形の目安（ブラウザの拡大）、下にタイムライン（◆ = キーフレーム、帯の色 = 区間の動き。帯を押してシーク、◆ を横にドラッグで時刻変更）、数値欄、書き出し、クリップ。縦横比 9:16 / 16:9 / 1:1 ごとにキーフレームを別に持つ
+- 枠を動かす・数値を変えると、再生位置のキーフレームを書き換える（無ければその時刻に差し込む）。再生中に枠を触ると止める。キーボード: Space 再生 / K 追加 / Delete 削除 / ←→ 1 フレーム（Shift で 1 秒）/ [ ] 前後のキーフレーム
+- 読み込んだ動画はすぐ object URL で表示し、裏で `POST /__cv/crop/upload` に本文のまま送る（`cache/crop/uploads/`、上限 4GB、新しい 10 本だけ残す）。ファイル名が `public/data` のクリップ名なら照合し、保存済みのキーフレームを読み込む。サーバ上に同じ大きさの元動画（高画質キャッシュ・`public/videos`）があればアップロードを省く
+- 「高画質で確認」（`POST /__cv/crop/still`）は本番と同じ拡大で 1 枚だけ描く（`-ss` を `-i` の前に置き、枠は時刻で求めた静的な値。1080×1920 の Anime4K で約 1.2 秒）。「書き出す」（`POST /__cv/crop/export`）はキーフレームを `cache/crop/jobs/` に書いて `cropVideo` を走らせ、`output/crop/<名前>-<縦横比>-<日時>.mp4` に出す。ビルドと同じ JobManager を共有するので、どちらかの実行中にもう片方を始めると 409（画面で知らせる）。ログ・キャンセルは `/build/<id>/*`
+- クリップと照合できたら「クリップに保存（縦横比）」で `/__data/save` に `camera: { aspect, keyframes }` を送り、`effects.camera[aspect]` だけを書き換える（`keyframes: null` で消し、空になった `camera` / `effects` も消す）。保存すると createVideo の本番・still・QC にも効く
+- 元動画はブラウザに実パスを渡さず `upload:<id>` / `cache:<base>` / `public:<base>` で指す（`scripts/dev-server/lib/crop-source.js`）。`/file?kind=crop-source`（Range 対応）と `kind=crop`（書き出し結果）で配る
+- プラグインは経路を先に決め、`rawBody: true` の経路（アップロード）だけ JSON の解析を飛ばして `video/*` と `application/octet-stream` を許す。loopback・Origin・Sec-Fetch の検査は他の経路と同じ
+- 実装は `src/crop/`（`CropApp` / `SourceView` / `OutputPreview` / `Timeline` / `KeyframeFields` / `ExportPanel` / `ClipPanel`）と `scripts/dev-server/handlers/crop.js`。枠の計算はブラウザも `scripts/create-video/camera.js` を import して本番と同じ式を使う
+- UI の確認は `npm run shots -- --page crop --clip <base> --at 1.5 --aspect 9:16`
+
+詳細は docs/tasks/11-01-crop-camera.md を参照。
 
 ## ドキュメント管理
 

@@ -214,9 +214,10 @@ export function transformRectThroughZoom(rect, { zoom, size }) {
   return { x: Math.round(x0), y: Math.round(y0), w: Math.round(x1 - x0), h: Math.round(y1 - y0) };
 }
 
-// 指定時刻のフレームから最大の顔を 1 つずつ拾い、scale+pad 済み出力座標の矩形（px）で返す。
-// cv2 やモデルが無い、顔が無いときは空配列。ズームの焦点検出と同じ検出器を使う。
-export async function detectFaceRects({ tools, focus, sourceMp4, size, workDir, times }) {
+// 指定時刻の各フレームから最大の顔を1つ返す。既定は scale+pad 後、sourceCoordinates は元映像の座標（px）。
+// allFaces はフレームごとの全候補（矩形配列の配列）を返す。既存の呼び出し側は最大顔のまま。
+// cv2 やモデルが無いときは空配列。ズームの焦点検出と同じ検出器を使う。
+export async function detectFaceRects({ tools, focus, sourceMp4, size, workDir, times, sourceCoordinates = false, allFaces = false }) {
   const python = String(focus?.python || 'python3');
   if (!hasCv2(python)) {
     warnCv2();
@@ -226,14 +227,15 @@ export async function detectFaceRects({ tools, focus, sourceMp4, size, workDir, 
   if (!cascade) {
     return [];
   }
-  const framePaths = extractPaddedFrames({ ffmpeg: tools.ffmpeg, sourceMp4, times, size, workDir, subdir: 'face-rects' });
+  const framePaths = extractPaddedFrames({ ffmpeg: tools.ffmpeg, sourceMp4, times, size, workDir, subdir: sourceCoordinates ? 'reframe-faces' : 'face-rects', sourceCoordinates });
   if (framePaths.length === 0) {
     return [];
   }
   try {
     const scriptPath = path.join(moduleDir, 'detect_anime_face.py');
     const out = execFileSync(python, [scriptPath, '--cascade', cascade, ...framePaths], { encoding: 'utf8' });
-    return largestFaces(JSON.parse(out));
+    const detections = JSON.parse(out);
+    return allFaces ? detections.map((item) => validFaces(item.faces)) : largestFaces(detections);
   } catch (err) {
     if (err.status === 2) {
       warnCv2();
@@ -242,14 +244,16 @@ export async function detectFaceRects({ tools, focus, sourceMp4, size, workDir, 
   }
 }
 
+function validFaces(faces) {
+  return (Array.isArray(faces) ? faces : [])
+    .map((entry) => ({ x: Number(entry.x), y: Number(entry.y), w: Number(entry.w), h: Number(entry.h) }))
+    .filter((entry) => [entry.x, entry.y, entry.w, entry.h].every(Number.isFinite) && entry.w > 0 && entry.h > 0);
+}
+
 function largestFaces(detections) {
   const rects = [];
   for (const item of detections) {
-    const faces = Array.isArray(item.faces) ? item.faces : [];
-    const face = faces
-      .map((entry) => ({ x: Number(entry.x), y: Number(entry.y), w: Number(entry.w), h: Number(entry.h) }))
-      .filter((entry) => [entry.x, entry.y, entry.w, entry.h].every(Number.isFinite) && entry.w > 0 && entry.h > 0)
-      .sort((a, b) => b.w * b.h - a.w * a.h)[0];
+    const face = validFaces(item.faces).sort((a, b) => b.w * b.h - a.w * a.h)[0];
     if (face) {
       rects.push(face);
     }
@@ -388,7 +392,7 @@ function extractFocusFrames({ ffmpeg, sourceMp4, zoomStart, size, workDir, frame
 }
 
 // 出力と同じ scale+pad を掛けたフレームを指定時刻で抜く。顔検出はこの座標系で行う。
-function extractPaddedFrames({ ffmpeg, sourceMp4, times, size, workDir, subdir }) {
+function extractPaddedFrames({ ffmpeg, sourceMp4, times, size, workDir, subdir, sourceCoordinates = false }) {
   const frameDir = path.join(workDir, subdir);
   fs.mkdirSync(frameDir, { recursive: true });
   const out = [];
@@ -401,11 +405,11 @@ function extractPaddedFrames({ ffmpeg, sourceMp4, times, size, workDir, subdir }
         '-v', 'error',
         '-i', sourceMp4,
         '-ss', formatSeconds(at),
-        '-vf', [
+        '-vf', (sourceCoordinates ? ['setsar=1'] : [
           `scale=${size.width}:${size.height}:force_original_aspect_ratio=decrease`,
           `pad=${size.width}:${size.height}:(ow-iw)/2:(oh-ih)/2`,
           'setsar=1',
-        ].join(','),
+        ]).join(','),
         '-frames:v', '1',
         outPath,
       ], { stdio: 'ignore' });

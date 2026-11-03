@@ -219,15 +219,15 @@ export function probeVideoStream(ffprobe, filePath) {
   const raw = execFileSync(ffprobe, [
     '-v', 'error',
     '-select_streams', 'v:0',
-    '-show_entries', 'stream=width,height,r_frame_rate',
+    '-show_entries', 'stream=width,height,r_frame_rate,sample_aspect_ratio:stream_side_data=rotation:format=duration',
     '-of', 'json',
     filePath,
   ], { encoding: 'utf8' });
   const stream = (JSON.parse(raw).streams || [])[0] || {};
   const [num, den] = String(stream.r_frame_rate || '0/1').split('/').map(Number);
   return {
-    width: Number(stream.width) || 0,
-    height: Number(stream.height) || 0,
+    ...displayVideoSize(stream),
+    duration: Number(JSON.parse(raw).format?.duration) || 0,
     fps: den ? num / den : 0,
   };
 }
@@ -273,4 +273,13 @@ export function probeDuration(ffprobe, filePath) {
 
 export function subtitlesFilter(assPath, fontsDir) {
   return `subtitles=filename='${escapeFilterPath(assPath)}':fontsdir='${escapeFilterPath(fontsDir)}'`;
+}
+
+// ffmpeg の自動回転後・SAR 適用後の表示寸法。スマホ動画もブラウザと同じ座標にする。
+export function displayVideoSize(stream) {
+  const [num, den] = String(stream.sample_aspect_ratio || '1:1').split(':').map(Number);
+  const width = Math.round(Number(stream.width) * (den && num ? num / den : 1));
+  const height = Number(stream.height) || 0;
+  const rotation = Number(stream.side_data_list?.find((item) => item.rotation !== undefined)?.rotation) || 0;
+  return Math.abs(rotation % 180) === 90 ? { width: height, height: width } : { width, height };
 }

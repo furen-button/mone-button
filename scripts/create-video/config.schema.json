@@ -75,6 +75,33 @@
           "default": "1280x720",
           "description": "出力解像度（WxH）。例: 1920x1080。CLI の --resolution で上書き可。"
         },
+        "split": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "default": null,
+          "description": "連続する同じ配信を単位に分割。minSec 未満は次へ、末尾だけ短ければ直前へまとめる。--part N で1本だけ再生成。",
+          "additionalProperties": false,
+          "required": [
+            "by",
+            "minSec"
+          ],
+          "properties": {
+            "by": {
+              "type": "string",
+              "enum": [
+                "stream"
+              ],
+              "default": "stream"
+            },
+            "minSec": {
+              "type": "number",
+              "minimum": 0,
+              "default": 10
+            }
+          }
+        },
         "fps": {
           "type": "number",
           "exclusiveMinimum": 0,
@@ -114,6 +141,7 @@
           "additionalProperties": false,
           "description": "上部のタイトルバー。",
           "properties": {
+            "layout": { "type": "string", "enum": ["default", "date-title"], "default": "default", "description": "date-title は日付1行＋タイトル最大2行（末尾省略）。末尾の演者表記を落とし、【の直前・】の直後と20文字ごとに改行する。20文字が内幅に収まる最大サイズにする。format/singleLine/autoShrink より優先。" },
             "enabled": { "type": "boolean", "default": true, "description": "表示するか。CLI の --title/--no-title は別途タイトル文言/表示を制御。" },
             "align": { "$ref": "#/$defs/align" },
             "size": { "$ref": "#/$defs/size" },
@@ -512,7 +540,7 @@
               "type": "string",
               "enum": ["clip", "stream"],
               "default": "clip",
-              "description": "チャプターの切り方。clip はセリフごと（見出しはまとめたセリフを「 / 」でつなぎ、出典はチャプターごとのタイムスタンプ付き URL）、stream は直前のクリップと videoId が変わった位置（見出しは配信タイトル、出典は配信一覧）。"
+              "description": "チャプターの切り方。clip はセリフごと（見出しはまとめたセリフを「 / 」でつなぎ、出典は元動画ごとに初登場のタイムスタンプ付き URL）、stream は直前のクリップと videoId が変わった位置（見出しは配信タイトル、出典は配信一覧）。"
             },
             "minSec": {
               "type": "number",
@@ -608,6 +636,80 @@
       "additionalProperties": false,
       "description": "動画クリップに適用する演出。今回の zoom はパンチイン用で、将来のズームアウト/モノクロ化などのオチ演出は sibling キーとして追加する。",
       "properties": {
+        "camera": {
+          "type": "object",
+          "title": "キーフレーム切り出し",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean", "default": true, "title": "クリップのカメラを使う" }
+          }
+        },
+        "reframe": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "元映像の顔中心で出力アスペクトへ切り出す。zoom/avoidFace は警告してスキップ。クリップ effects.reframe の false で無効、{x,y,zoom} で手動指定。",
+          "properties": {
+            "pick": { "type": "string", "enum": ["largest", "right"], "default": "largest", "description": "right は各フレームの最大顔の半分以上の高さがある候補のうち、一番右の中心を選ぶ。" },
+            "target": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "出力上の顔中心の目標位置。上端/左端0、下端/右端1。y は中央以下の値にする。",
+              "properties": {
+                "x": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.5 },
+                "y": { "type": "number", "minimum": 0, "maximum": 0.5, "default": 0.45 }
+              }
+            },
+            "maxZoom": { "type": "number", "minimum": 1, "maximum": 3, "default": 3, "description": "自動ズームの上限。上限でも枠が縦にはみ出すと fill で埋める。" },
+            "minFaceHeight": { "type": "number", "minimum": 0, "maximum": 1, "default": 0, "description": "顔の最低高さ（出力高さ比）。0 で顔サイズによる追加ズーム無し。検出失敗・手動位置では適用しない。" },
+            "fill": { "type": "string", "enum": ["blur", "black"], "default": "blur", "description": "枠が上下にはみ出した余白。blur は元映像全体を cover してぼかし、少し暗く敷く。black は黒で埋める。" },
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "zoom": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 3,
+              "default": 1
+            },
+            "frames": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 3
+            },
+            "x": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 1,
+              "default": null,
+              "description": "顔未検出時の焦点（元映像の幅比）。x/y とも指定しない場合は中央。"
+            },
+            "y": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 1,
+              "default": null,
+              "description": "顔未検出時の焦点（元映像の高さ比）。"
+            },
+            "python": {
+              "type": "string",
+              "default": "python3"
+            },
+            "cascade": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "default": null
+            }
+          }
+        },
         "zoom": {
           "type": "object",
           "additionalProperties": false,
@@ -727,6 +829,8 @@
       "additionalProperties": false,
       "description": "背景ボックス。塗り・枠・角丸・透明度を持つ矩形を要素の背面に描く。",
       "properties": {
+        "anchor": { "type": "string", "enum": ["top", "bottom"], "default": "top", "description": "タイトル帯を付ける端。bottomで下端に付ける。offsetYは指定した端からの距離（高さ比）。既定topで従来どおり。" },
+        "offsetY": { "type": "number", "minimum": 0, "maximum": 1, "default": 0, "description": "タイトル帯の指定端からの距離（画面高さ比）。既定0。anchor未指定なら従来の上端位置。" },
         "enabled": { "type": "boolean", "default": true, "description": "ボックスを描くか。" },
         "fill": { "$ref": "#/$defs/color", "description": "塗り色（RGB hex）。" },
         "border": { "$ref": "#/$defs/color", "description": "枠色（RGB hex）。borderWidth>0 のとき描画。" },
@@ -764,6 +868,19 @@
       "additionalProperties": false,
       "description": "セリフ（メインの発話ボックス）のスタイル。telops.serif と cards.serif が共有。",
       "properties": {
+        "faceRange": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "space-lines のセリフを上端〜顔の枠の上端へ収め、範囲内で上下中央に置く。高さ・位置は出力高さ比。検出失敗やreframe無しでは固定範囲を使う。",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "top": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.02 },
+            "minHeight": { "type": "number", "exclusiveMinimum": 0, "maximum": 1, "default": 0.12, "description": "範囲の最低高さ。顔の枠の上端が近すぎるときはここまで広げる。" },
+            "maxHeight": { "type": "number", "exclusiveMinimum": 0, "maximum": 1, "default": 0.30, "description": "範囲の高さの上限。topとの和は1以下。" },
+            "fallbackBottom": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.24, "description": "顔が不明なときの固定範囲の下端。topより大きくする。" }
+          }
+        },
+        "layout": { "type": "string", "enum": ["wrap", "space-lines"], "default": "wrap", "description": "space-lines は半角スペースと手動改行だけで行を分け、全行を最も長い行が幅に収まる同じ大きさにする（上限size）。合計がmaxHeightを超えたら全行を同じだけ縮小。自動折り返し・禁則・minSize・karaokeは使わない。" },
         "enabled": { "type": "boolean", "default": true, "description": "表示するか。CLI の --serif/--no-serif でも制御。" },
         "align": { "$ref": "#/$defs/align" },
         "size": { "$ref": "#/$defs/size" },
