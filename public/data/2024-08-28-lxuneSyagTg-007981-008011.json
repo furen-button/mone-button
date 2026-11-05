@@ -1,0 +1,37 @@
+{
+  "videoId": "lxuneSyagTg",
+  "serif": "高価なものなくて 後悔しちゃったね",
+  "ruby": "こうかなものなくてこうかいしちゃったね",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=lxuneSyagTg&t=7990s",
+  "memo": "yt-comment-archiver: ライブチャット「がはは」「ダジャレだよ……」「ダジャレかと思った」「ダジャレじゃん…」「(ダジャレでした)」「ダジャレスルーするとはエグいぞもねち・・・」「ダジャレにマジレス笑笑」 @2:13:21",
+  "liveChat": {
+    "message": "がはは",
+    "at": 8001,
+    "streamStartedAt": "2024-08-28T21:00:41+09:00"
+  },
+  "trimming": {
+    "startTime": 7990.428157216495,
+    "endTime": 7993.443621134021,
+    "duration": 3.015463917525773,
+    "original": {
+      "startTime": 7981,
+      "endTime": 8011,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "lxuneSyagTg",
+      "title": "【あつまれどうぶつの森#8】夜のchillあつ森🌃DL同時視聴m(__)m【にじさんじ/梢桃音】",
+      "duration": 9077,
+      "thumbnail": "https://i.ytimg.com/vi/lxuneSyagTg/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240828",
+      "viewCount": 13775,
+      "url": "https://www.youtube.com/watch?v=lxuneSyagTg"
+    }
+  }
+}

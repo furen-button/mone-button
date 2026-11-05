@@ -1,0 +1,37 @@
+{
+  "videoId": "NbCacDfj1-I",
+  "serif": "鳥を取り逃した",
+  "ruby": "とりをとりにがした",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=NbCacDfj1-I&t=6761s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハハッ」「ｶﾞﾊﾊ」「ガハハ！」「ガハハ」「ガハハ」「ガハハ！もねゴンは面白いぜ！」「サイに続いてトリでもダジャレとか・・・もねち寒いよ」 @1:52:49",
+  "liveChat": {
+    "message": "ガハハハッ",
+    "at": 6769,
+    "streamStartedAt": "2025-12-27T20:00:05+09:00"
+  },
+  "trimming": {
+    "startTime": 6761.166789396171,
+    "endTime": 6764.5950846833575,
+    "duration": 3.4282952871870407,
+    "original": {
+      "startTime": 6749,
+      "endTime": 6779,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "NbCacDfj1-I",
+      "title": "【スーパードンキーコング2】#17   夜のさっくさくドンキー￤ かぜのこうざんから🍌🦍【にじさんじ/梢桃音】",
+      "duration": 17264,
+      "thumbnail": "https://i.ytimg.com/vi/NbCacDfj1-I/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20251227",
+      "viewCount": 12687,
+      "url": "https://www.youtube.com/watch?v=NbCacDfj1-I"
+    }
+  }
+}

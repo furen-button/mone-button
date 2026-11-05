@@ -1,0 +1,38 @@
+{
+  "videoId": "01W-2BtWTq0",
+  "serif": "ぶつかりに来たんですか ぶつかり稽古ってことですか",
+  "ruby": "ぶつかりにきたんですかぶつかりけいこってことですか",
+  "categories": [
+    "ガハハ",
+    "やられ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=01W-2BtWTq0&t=31201s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ｶﾞﾊﾊ」「ガハハ」「ｶﾞﾊﾊﾊﾊ」「ガハハ！！！！！」「がはは」」「ガハハ」「ガハハ」 @8:40:10",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 31210,
+    "streamStartedAt": "2025-05-02T13:00:43+09:00"
+  },
+  "trimming": {
+    "startTime": 31201.1775128866,
+    "endTime": 31211.721281296024,
+    "duration": 10.543768409425624,
+    "original": {
+      "startTime": 31190,
+      "endTime": 31220,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "01W-2BtWTq0",
+      "title": "【枠ちぎれるまで】超魔界村 ¦ 3日間でクリアチャレンジ #1日目  ＧＷの挑戦開始✨ 【にじさんじ/梢桃音】",
+      "duration": 42554,
+      "thumbnail": "https://i.ytimg.com/vi/01W-2BtWTq0/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250502",
+      "viewCount": 99841,
+      "url": "https://www.youtube.com/watch?v=01W-2BtWTq0"
+    }
+  }
+}

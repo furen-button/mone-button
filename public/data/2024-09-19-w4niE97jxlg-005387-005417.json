@@ -1,0 +1,37 @@
+{
+  "videoId": "w4niE97jxlg",
+  "serif": "この石なんかすごく 意志が強いな",
+  "ruby": "このいしなんかすごくいしがつよいな",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=w4niE97jxlg&t=5398s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハハ」「ガハハハハ」「がははははは」「がはははははっはははははｈ」「がははっ」「がはは」「ダジャレ言ってないではよ進もうw」「二文字ダジャレはレギュレーション違反」 @1:30:07",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 5407,
+    "streamStartedAt": "2024-09-19T12:00:38+09:00"
+  },
+  "trimming": {
+    "startTime": 5398.61933910162,
+    "endTime": 5404.648195876289,
+    "duration": 6.028856774668631,
+    "original": {
+      "startTime": 5387,
+      "endTime": 5417,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "w4niE97jxlg",
+      "title": "【スーパーマリオヨッシーアイランド#10】完全初見🦖ヨッシーの時間だよよしお！【にじさんじ/梢桃音】",
+      "duration": 8984,
+      "thumbnail": "https://i.ytimg.com/vi/w4niE97jxlg/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240919",
+      "viewCount": 12600,
+      "url": "https://www.youtube.com/watch?v=w4niE97jxlg"
+    }
+  }
+}

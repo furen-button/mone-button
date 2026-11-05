@@ -1,0 +1,37 @@
+{
+  "videoId": "I2p_Zvcnn8c",
+  "serif": "フシギダネがいない？ それは不思議だね",
+  "ruby": "ふしぎだねがいないそれはふしぎだね",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=I2p_Zvcnn8c&t=9743s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハハ」「がははは」「ガハハハ」「がはは」「ガハハ」「ガハハハハハ」「ガハハ…」「ガハハハ」「ガハハ」「ガハハハ」「ガハハ」 @2:42:31",
+  "liveChat": {
+    "message": "がははは",
+    "at": 9751,
+    "streamStartedAt": "2024-08-23T21:00:31+09:00"
+  },
+  "trimming": {
+    "startTime": 9743.544412739322,
+    "endTime": 9748.59987113402,
+    "duration": 5.055458394698087,
+    "original": {
+      "startTime": 9731,
+      "endTime": 9761,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "I2p_Zvcnn8c",
+      "title": "【ポケットモンスター Let's Go! ピカチュウ#１】生まれて初めてのポケモン！わくわくが始まる予感⚡【にじさんじ/梢桃音】",
+      "duration": 15401,
+      "thumbnail": "https://i.ytimg.com/vi/I2p_Zvcnn8c/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240823",
+      "viewCount": 73033,
+      "url": "https://www.youtube.com/watch?v=I2p_Zvcnn8c"
+    }
+  }
+}

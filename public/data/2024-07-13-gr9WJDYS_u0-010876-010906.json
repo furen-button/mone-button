@@ -1,0 +1,37 @@
+{
+  "videoId": "gr9WJDYS_u0",
+  "serif": "肝臓に気をつけないと いかんぞう",
+  "ruby": "かんぞうにきをつけないといかんぞう",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=gr9WJDYS_u0&t=10889s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ！」「ガハハ！」「がはは」「ガハハ」「ダジャレのレパートリー増えたね」「座布団なし」「ガハハ」「ダジャレ効果か」 @3:01:36",
+  "liveChat": {
+    "message": "ガハハ！",
+    "at": 10896,
+    "streamStartedAt": "2024-07-13T12:00:48+09:00"
+  },
+  "trimming": {
+    "startTime": 10889.272735640649,
+    "endTime": 10901.840620397643,
+    "duration": 12.567884756995582,
+    "original": {
+      "startTime": 10876,
+      "endTime": 10906,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "gr9WJDYS_u0",
+      "title": "【クリア耐久】スーパーマリオブラザーズ🍄🌟そろそろ終止符を…打たなくては！【にじさんじ/梢桃音】",
+      "duration": 29991,
+      "thumbnail": "https://i.ytimg.com/vi/gr9WJDYS_u0/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240713",
+      "viewCount": 44018,
+      "url": "https://www.youtube.com/watch?v=gr9WJDYS_u0"
+    }
+  }
+}

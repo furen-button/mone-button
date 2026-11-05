@@ -1,0 +1,37 @@
+{
+  "videoId": "gc2-u-eVm1w",
+  "serif": "仕様はどうしようもない。",
+  "ruby": "しようはどうしようもない",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=gc2-u-eVm1w&t=7531s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ」「ガハハ」「:_ノーマルもねゴン:ガハハ！」「ガハハ」「ガハハ」「がはは？」 @2:05:40",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 7540,
+    "streamStartedAt": "2025-12-04T12:01:07+09:00"
+  },
+  "trimming": {
+    "startTime": 7531.946739230486,
+    "endTime": 7533.5588871502205,
+    "duration": 1.6121479197349018,
+    "original": {
+      "startTime": 7520,
+      "endTime": 7550,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "gc2-u-eVm1w",
+      "title": "【スーパードンキーコング2】#13  昼のドンキーきりっとドンキー￤ 今度こそおばけロープのもりから🍌🦍【にじさんじ/梢桃音】",
+      "duration": 8297,
+      "thumbnail": "https://i.ytimg.com/vi/gc2-u-eVm1w/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20251204",
+      "viewCount": 10795,
+      "url": "https://www.youtube.com/watch?v=gc2-u-eVm1w"
+    }
+  }
+}

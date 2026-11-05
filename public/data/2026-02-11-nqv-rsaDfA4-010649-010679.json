@@ -1,0 +1,37 @@
+{
+  "videoId": "nqv-rsaDfA4",
+  "serif": "村に塀で囲いができたんだって へーかっこいい",
+  "ruby": "むらにへいでかこいができたんだってへーかっこいい",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=nqv-rsaDfA4&t=10658s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ！」「ガハハ」「ガハハ」「ガハハ！！！」 @2:57:49",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 10669,
+    "streamStartedAt": "2026-02-11T12:01:09+09:00"
+  },
+  "trimming": {
+    "startTime": 10658.192056332842,
+    "endTime": 10663.807909149484,
+    "duration": 5.6158528166421195,
+    "original": {
+      "startTime": 10649,
+      "endTime": 10679,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "nqv-rsaDfA4",
+      "title": "【 Minecraft 】レンガをたくさん作りたい！！！【にじさんじ/梢桃音】",
+      "duration": 13058,
+      "thumbnail": "https://i.ytimg.com/vi/nqv-rsaDfA4/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260211",
+      "viewCount": 13953,
+      "url": "https://www.youtube.com/watch?v=nqv-rsaDfA4"
+    }
+  }
+}

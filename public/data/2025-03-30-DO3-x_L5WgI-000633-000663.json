@@ -1,0 +1,37 @@
+{
+  "videoId": "DO3-x_L5WgI",
+  "serif": "星ほしい",
+  "ruby": "ほしほしい",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=DO3-x_L5WgI&t=645s",
+  "memo": "yt-comment-archiver: ライブチャット「がはは」「ガハハ」「がはは」「ｶﾞﾊﾊ」「ガハハ」「ガハハ」「がはは」「ガハハ！」「ガははッ！」「ガハハ」「ガハハ」 @0:10:53",
+  "liveChat": {
+    "message": "がはは",
+    "at": 653,
+    "streamStartedAt": "2025-03-30T12:05:05+09:00"
+  },
+  "trimming": {
+    "startTime": 645.8578332106039,
+    "endTime": 650.59227724595,
+    "duration": 4.7344440353460975,
+    "original": {
+      "startTime": 633,
+      "endTime": 663,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "DO3-x_L5WgI",
+      "title": "【星のカービィ3】#1 完全初見🔰カービィさんよろしくね！わくわくっ🩷【にじさんじ/梢桃音】",
+      "duration": 11797,
+      "thumbnail": "https://i.ytimg.com/vi/DO3-x_L5WgI/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250330",
+      "viewCount": 18565,
+      "url": "https://www.youtube.com/watch?v=DO3-x_L5WgI"
+    }
+  }
+}

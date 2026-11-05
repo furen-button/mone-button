@@ -1,0 +1,37 @@
+{
+  "videoId": "ykKVfw_vsHI",
+  "serif": "どうだろうね 銅だけに",
+  "ruby": "どうだろうねどうだけに",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=ykKVfw_vsHI&t=2989s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「仕事戻る前にダジャレぶつけてごめんね、もねちが」 @0:49:58",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 2998,
+    "streamStartedAt": "2026-01-26T12:06:31+09:00"
+  },
+  "trimming": {
+    "startTime": 2989.8483638622974,
+    "endTime": 2993.066791697349,
+    "duration": 3.2184278350515445,
+    "original": {
+      "startTime": 2978,
+      "endTime": 3008,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "ykKVfw_vsHI",
+      "title": "【 Minecraft 】泥製造機を作ってみたい！！🧱🧱【にじさんじ/梢桃音】",
+      "duration": 6945,
+      "thumbnail": "https://i.ytimg.com/vi/ykKVfw_vsHI/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260126",
+      "viewCount": 11286,
+      "url": "https://www.youtube.com/watch?v=ykKVfw_vsHI"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "NbCacDfj1-I",
+  "serif": "サイこのままこっちでいいのか お茶の子さいさいってね",
+  "ruby": "さいこのままこっちでいいのかおちゃのこさいさいってね",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=NbCacDfj1-I&t=3719s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ？」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハー」 @1:02:10",
+  "liveChat": {
+    "message": "ガハハ？",
+    "at": 3730,
+    "streamStartedAt": "2025-12-27T20:00:05+09:00"
+  },
+  "trimming": {
+    "startTime": 3719.5506949558176,
+    "endTime": 3727.0748573269516,
+    "duration": 7.52416237113402,
+    "original": {
+      "startTime": 3710,
+      "endTime": 3740,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "NbCacDfj1-I",
+      "title": "【スーパードンキーコング2】#17   夜のさっくさくドンキー￤ かぜのこうざんから🍌🦍【にじさんじ/梢桃音】",
+      "duration": 17264,
+      "thumbnail": "https://i.ytimg.com/vi/NbCacDfj1-I/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20251227",
+      "viewCount": 12687,
+      "url": "https://www.youtube.com/watch?v=NbCacDfj1-I"
+    }
+  }
+}

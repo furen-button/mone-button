@@ -1,0 +1,37 @@
+{
+  "videoId": "tIl2s0QRfNs",
+  "serif": "花王の洗剤買おうって 気持ちになりますな",
+  "ruby": "かおうのせんざいかおうってきもちになりますな",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=tIl2s0QRfNs&t=10060s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ」「ガハハ」「がはは」「ガハハ」「:_ノーマルもねゴン:ガハハ」 @2:47:50",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 10070,
+    "streamStartedAt": "2025-08-23T21:01:30+09:00"
+  },
+  "trimming": {
+    "startTime": 10060.14888622975,
+    "endTime": 10066.226412923417,
+    "duration": 6.07752669366716,
+    "original": {
+      "startTime": 10050,
+      "endTime": 10080,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "tIl2s0QRfNs",
+      "title": "【しずかなおそうじ】しずかにおだやかにお掃除しますよ～☺️👻【にじさんじ/梢桃音】",
+      "duration": 10825,
+      "thumbnail": "https://i.ytimg.com/vi/tIl2s0QRfNs/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250823",
+      "viewCount": 12560,
+      "url": "https://www.youtube.com/watch?v=tIl2s0QRfNs"
+    }
+  }
+}

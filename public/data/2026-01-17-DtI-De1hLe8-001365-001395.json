@@ -1,0 +1,38 @@
+{
+  "videoId": "DtI-De1hLe8",
+  "serif": "その笑い方しちゃダメ",
+  "ruby": "そのわらいかたしちゃだめ",
+  "categories": [
+    "笑い声",
+    "コラボ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=DtI-De1hLe8&t=1373s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハハハ」「ガハハ」「ガハハ」「:_ノーマルもねゴン:ガハハ！」「ガハハハ」「ガハハ」「ガハハ」「がはは！」「ガハハ！」「ガハハ」「がははw」「ガハハ」「ガハハ」 @0:23:05",
+  "liveChat": {
+    "message": "ガハハハハ",
+    "at": 1385,
+    "streamStartedAt": "2026-01-17T22:00:31+09:00"
+  },
+  "trimming": {
+    "startTime": 1373.0957750368188,
+    "endTime": 1383.1091793998528,
+    "duration": 10.013404363033874,
+    "original": {
+      "startTime": 1365,
+      "endTime": 1395,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "DtI-De1hLe8",
+      "title": "【雀魂】強制鳴き麻雀🀄ぽぽぽぽぽぽぽぽぽぽぽぽんっ！！！【にじさんじ/梢桃音視点】",
+      "duration": 7279,
+      "thumbnail": "https://i.ytimg.com/vi/DtI-De1hLe8/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260117",
+      "viewCount": 10669,
+      "url": "https://www.youtube.com/watch?v=DtI-De1hLe8"
+    }
+  }
+}

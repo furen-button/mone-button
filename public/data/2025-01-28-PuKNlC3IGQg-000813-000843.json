@@ -1,0 +1,37 @@
+{
+  "videoId": "PuKNlC3IGQg",
+  "serif": "風水師の噴水",
+  "ruby": "ふんすいしのふんすいすごいひさらちゃんの",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=PuKNlC3IGQg&t=824s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ダジャレ！？」「ガハハ」「ガハハハ！」「ガハハ」「がはは！」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「がはは」「ガハハ」「風水師の噴水？！ガハハ」 @0:13:53",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 833,
+    "streamStartedAt": "2025-01-28T12:00:58+09:00"
+  },
+  "trimming": {
+    "startTime": 824.5627301178204,
+    "endTime": 829.1383928571429,
+    "duration": 4.575662739322533,
+    "original": {
+      "startTime": 813,
+      "endTime": 843,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "PuKNlC3IGQg",
+      "title": "【Minecraft】はじめての #にじ若手女子マイクラ ✨【にじさんじ/梢桃音】",
+      "duration": 22759,
+      "thumbnail": "https://i.ytimg.com/vi/PuKNlC3IGQg/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250128",
+      "viewCount": 77544,
+      "url": "https://www.youtube.com/watch?v=PuKNlC3IGQg"
+    }
+  }
+}

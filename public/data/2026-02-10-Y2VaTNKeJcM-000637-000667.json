@@ -1,0 +1,37 @@
+{
+  "videoId": "Y2VaTNKeJcM",
+  "serif": "この石 意志持ってるね",
+  "ruby": "このいしいしもってるね",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=Y2VaTNKeJcM&t=649s",
+  "memo": "yt-comment-archiver: ライブチャット「がはは」「ガハハ」「ガハハ」「がははは」「ガハハ」「がはは」「ガハハ」「ガハハ」「もねゴン達が代わりに笑ってあげよう『ガハハ』」 @0:10:57",
+  "liveChat": {
+    "message": "がはは",
+    "at": 657,
+    "streamStartedAt": "2026-02-10T12:00:56+09:00"
+  },
+  "trimming": {
+    "startTime": 649.637783044919,
+    "endTime": 654.2412325110456,
+    "duration": 4.603449466126657,
+    "original": {
+      "startTime": 637,
+      "endTime": 667,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "Y2VaTNKeJcM",
+      "title": "【Embrace the Brilliance】キラキラしたものたくさん作ろ💎✨【にじさんじ/梢桃音】",
+      "duration": 11099,
+      "thumbnail": "https://i.ytimg.com/vi/Y2VaTNKeJcM/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260210",
+      "viewCount": 11728,
+      "url": "https://www.youtube.com/watch?v=Y2VaTNKeJcM"
+    }
+  }
+}

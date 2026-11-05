@@ -1,0 +1,37 @@
+{
+  "videoId": "ign8x-RB0K8",
+  "serif": "香屋のお香を 部屋に置こうね",
+  "ruby": "こうやのおこうをへやにおこうね",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=ign8x-RB0K8&t=6296s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ！！！」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「がはは」「ガハハハ！」「ガハハ」「ガハハ」「ガハハハ」「ガハハ」「ガハハ」 @1:45:04",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 6304,
+    "streamStartedAt": "2025-11-11T12:00:27+09:00"
+  },
+  "trimming": {
+    "startTime": 6296.690940261414,
+    "endTime": 6302.495259572901,
+    "duration": 5.8043193114874825,
+    "original": {
+      "startTime": 6284,
+      "endTime": 6314,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "ign8x-RB0K8",
+      "title": "【昼雑】ぽやぽやの昼☀️まったり過ごそう【にじさんじ/梢桃音】#shorts",
+      "duration": 7470,
+      "thumbnail": "https://i.ytimg.com/vi/ign8x-RB0K8/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20251111",
+      "viewCount": 13380,
+      "url": "https://www.youtube.com/watch?v=ign8x-RB0K8"
+    }
+  }
+}

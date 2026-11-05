@@ -1,0 +1,37 @@
+{
+  "videoId": "tIl2s0QRfNs",
+  "serif": "ねえE出てきてよ E出てきてくれたっていいじゃん Eだけにさ",
+  "ruby": "ねえEでてきてよEでてきてくれたっていいじゃんEだけにさ",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=tIl2s0QRfNs&t=3680s",
+  "memo": "yt-comment-archiver: ライブチャット「がはは」「ガハハ」「:_ノーマルもねゴン:ｶﾞﾊﾊ」「ガハハ！:face-blue-smiling:」「が、がはは」「ガハハ」 @1:01:34",
+  "liveChat": {
+    "message": "がはは",
+    "at": 3694,
+    "streamStartedAt": "2025-08-23T21:01:30+09:00"
+  },
+  "trimming": {
+    "startTime": 3680.8671184646537,
+    "endTime": 3689.0167410714284,
+    "duration": 8.149622606774669,
+    "original": {
+      "startTime": 3674,
+      "endTime": 3704,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "tIl2s0QRfNs",
+      "title": "【しずかなおそうじ】しずかにおだやかにお掃除しますよ～☺️👻【にじさんじ/梢桃音】",
+      "duration": 10825,
+      "thumbnail": "https://i.ytimg.com/vi/tIl2s0QRfNs/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250823",
+      "viewCount": 12560,
+      "url": "https://www.youtube.com/watch?v=tIl2s0QRfNs"
+    }
+  }
+}

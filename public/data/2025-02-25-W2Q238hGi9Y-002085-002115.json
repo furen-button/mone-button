@@ -1,0 +1,37 @@
+{
+  "videoId": "W2Q238hGi9Y",
+  "serif": "もねちいつも滑ってるもんね そうなんだよね 何やっても滑ってるから",
+  "ruby": "もねちいつもすべってるもんねそうなんだよねなにやってもすべってるから",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=W2Q238hGi9Y&t=2094s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ」「ｶﾞﾊﾊﾊ」「ｶﾞﾊﾊ」「ガハハ」 @0:35:05",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 2105,
+    "streamStartedAt": "2025-02-25T12:00:25+09:00"
+  },
+  "trimming": {
+    "startTime": 2094.5869385125184,
+    "endTime": 2101.5477724594994,
+    "duration": 6.960833946980856,
+    "original": {
+      "startTime": 2085,
+      "endTime": 2115,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "W2Q238hGi9Y",
+      "title": "【スーパーマリオブラザーズ３】#7 完全初見🔰ワールド５から！サクサクマリオにしてみせるっ！【にじさんじ/梢桃音】",
+      "duration": 7795,
+      "thumbnail": "https://i.ytimg.com/vi/W2Q238hGi9Y/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250225",
+      "viewCount": 12625,
+      "url": "https://www.youtube.com/watch?v=W2Q238hGi9Y"
+    }
+  }
+}

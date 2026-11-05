@@ -1,0 +1,37 @@
+{
+  "videoId": "akyRMr_TqNw",
+  "serif": "チルが散る",
+  "ruby": "ちるがちる",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=akyRMr_TqNw&t=11051s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ」「ガハハ」「..........がはは」 @3:04:16",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 11056,
+    "streamStartedAt": "2024-11-03T22:59:46+09:00"
+  },
+  "trimming": {
+    "startTime": 11051.53295287187,
+    "endTime": 11054.424153166421,
+    "duration": 2.89120029455081,
+    "original": {
+      "startTime": 11036,
+      "endTime": 11066,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "akyRMr_TqNw",
+      "title": "【縦型雑談】おやすみ前にお話ししよ🌙【にじさんじ/梢桃音】",
+      "duration": 13174,
+      "thumbnail": "https://i.ytimg.com/vi/akyRMr_TqNw/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241103",
+      "viewCount": 18378,
+      "url": "https://www.youtube.com/watch?v=akyRMr_TqNw"
+    }
+  }
+}

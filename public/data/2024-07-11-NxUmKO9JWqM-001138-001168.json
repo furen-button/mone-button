@@ -1,0 +1,37 @@
+{
+  "videoId": "NxUmKO9JWqM",
+  "serif": "布団が吹っ飛んだ みたいな アルミ缶の上にあるみかん みたいな",
+  "ruby": "ふとんがふっとんだみたいなあるみかんのうえにあるみかんみたいな",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=NxUmKO9JWqM&t=1150s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ！」「ダジャレすらもチルい」「ガハハ！！」「ダジャレで認知シャッフル睡眠法を！？」「ガハハ！」 @0:19:18",
+  "liveChat": {
+    "message": "ガハハ！",
+    "at": 1158,
+    "streamStartedAt": "2024-07-11T22:00:51+09:00"
+  },
+  "trimming": {
+    "startTime": 1150.8916605301915,
+    "endTime": 1156.922588365243,
+    "duration": 6.030927835051546,
+    "original": {
+      "startTime": 1138,
+      "endTime": 1168,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "NxUmKO9JWqM",
+      "title": "【LAPIDARY: Jewel Craft Simulator】夜のチル配信💎キラキラした宝石たくさん作ろ【にじさんじ/梢桃音】",
+      "duration": 7425,
+      "thumbnail": "https://i.ytimg.com/vi/NxUmKO9JWqM/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240711",
+      "viewCount": 9939,
+      "url": "https://www.youtube.com/watch?v=NxUmKO9JWqM"
+    }
+  }
+}

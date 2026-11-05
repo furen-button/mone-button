@@ -1,0 +1,37 @@
+{
+  "videoId": "JxAfwQZescw",
+  "serif": "最近太った？ なんてエマには言エマせん！",
+  "ruby": "さいきんふとったなんてえまにはげんえません",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=JxAfwQZescw&t=4088s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「……ガハハ」「ガハハ」「もねちのダジャレは？？」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ！」「ガハハハ」「ガハハ…」 @1:08:15",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 4095,
+    "streamStartedAt": "2025-08-09T12:00:33+09:00"
+  },
+  "trimming": {
+    "startTime": 4088.471557437408,
+    "endTime": 4095.6034264543446,
+    "duration": 7.131869016936671,
+    "original": {
+      "startTime": 4075,
+      "endTime": 4105,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "JxAfwQZescw",
+      "title": "【ドラゴンクエストXI　過ぎ去りし時を求めて S】#２完全初見 ナプガーナ密林を目指して！【にじさんじ/梢桃音】",
+      "duration": 15024,
+      "thumbnail": "https://i.ytimg.com/vi/JxAfwQZescw/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250809",
+      "viewCount": 29500,
+      "url": "https://www.youtube.com/watch?v=JxAfwQZescw"
+    }
+  }
+}

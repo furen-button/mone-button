@@ -1,0 +1,37 @@
+{
+  "videoId": "8aIMXls5S6M",
+  "serif": "ヒトはこの辺りから 一味違う生き物に",
+  "ruby": "ひとはこのあたりからひとあじちがういきものに",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=8aIMXls5S6M&t=3441s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ！」「ガハハ」「がはは」「ガハハ」「ガハハ！」「ガハハ」「ガハハ」「ガハハ」「ガハハ」 @0:57:31",
+  "liveChat": {
+    "message": "ガハハ！",
+    "at": 3451,
+    "streamStartedAt": "2025-10-08T08:00:58+09:00"
+  },
+  "trimming": {
+    "startTime": 3441.5158090942564,
+    "endTime": 3449.3233615611193,
+    "duration": 7.8075524668630365,
+    "original": {
+      "startTime": 3431,
+      "endTime": 3461,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "8aIMXls5S6M",
+      "title": "【あつまれどうぶつの森】#17 朝活あつ森🏝️世界を平らにしたりする！【にじさんじ/梢桃音】",
+      "duration": 12132,
+      "thumbnail": "https://i.ytimg.com/vi/8aIMXls5S6M/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20251008",
+      "viewCount": 12839,
+      "url": "https://www.youtube.com/watch?v=8aIMXls5S6M"
+    }
+  }
+}

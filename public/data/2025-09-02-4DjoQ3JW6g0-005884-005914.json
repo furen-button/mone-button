@@ -1,0 +1,37 @@
+{
+  "videoId": "4DjoQ3JW6g0",
+  "serif": "それはシャアないね。",
+  "ruby": "それはしゃあないね",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=4DjoQ3JW6g0&t=5895s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ！！」「ガハハ…」「ガハハ」「ガハハ」「ガハハ」「がはは」「山田くん、首を刎ねなさい」「ガハハ」「迷惑行為か？そのダジャレ」「ガハハ」 @1:38:24",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 5904,
+    "streamStartedAt": "2025-09-02T12:00:45+09:00"
+  },
+  "trimming": {
+    "startTime": 5895.241888346834,
+    "endTime": 5905.685382916053,
+    "duration": 10.44349456921944,
+    "original": {
+      "startTime": 5884,
+      "endTime": 5914,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "4DjoQ3JW6g0",
+      "title": "【昼雑】月見バーガー始まってるじゃん！！食べないと！！(使命感)🌕🍔【にじさんじ/梢桃音】",
+      "duration": 7158,
+      "thumbnail": "https://i.ytimg.com/vi/4DjoQ3JW6g0/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250902",
+      "viewCount": 13562,
+      "url": "https://www.youtube.com/watch?v=4DjoQ3JW6g0"
+    }
+  }
+}

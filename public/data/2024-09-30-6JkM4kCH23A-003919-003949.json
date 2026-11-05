@@ -1,0 +1,37 @@
+{
+  "videoId": "6JkM4kCH23A",
+  "serif": "ねーねーねーねーねーねー",
+  "ruby": "ねーねーねーねーねーねー",
+  "categories": [
+    "世界"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=6JkM4kCH23A&t=3921s",
+  "memo": "yt-comment-archiver: ライブチャット「ｶﾞﾊﾊ」「ガハハ」「ｶﾞﾊﾊ」「がはは」「ガ、ガハハ」「ガハハ」「ガハハ！」「がはははは」「ガハハ」「ガハハ」 @1:05:39",
+  "liveChat": {
+    "message": "ｶﾞﾊﾊ",
+    "at": 3939,
+    "streamStartedAt": "2024-09-30T22:00:52+09:00"
+  },
+  "trimming": {
+    "startTime": 3921.5363586156113,
+    "endTime": 3928.472339837997,
+    "duration": 6.935981222385862,
+    "original": {
+      "startTime": 3919,
+      "endTime": 3949,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "6JkM4kCH23A",
+      "title": "【しょぼんのるきみん！】鬼畜ゲーって聞いたけどニコニコクリアしちゃうもんね！！！(´・ω・`)【にじさんじ/梢桃音】",
+      "duration": 14475,
+      "thumbnail": "https://i.ytimg.com/vi/6JkM4kCH23A/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240930",
+      "viewCount": 28253,
+      "url": "https://www.youtube.com/watch?v=6JkM4kCH23A"
+    }
+  }
+}

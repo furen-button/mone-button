@@ -1,0 +1,37 @@
+{
+  "videoId": "4ZKAXmqsJTs",
+  "serif": "納豆チョコにつけるなんて どうなっとう？",
+  "ruby": "なっとうちょこにつけるなんてどうなっとう",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=4ZKAXmqsJTs&t=912s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハw」「ガハハ」「ガハハ」「ガハハ:_ノーマルもねゴン:」「ガハハ！」 @0:15:17",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 917,
+    "streamStartedAt": "2026-02-13T12:01:18+09:00"
+  },
+  "trimming": {
+    "startTime": 912.4716840022091,
+    "endTime": 916.5642719072165,
+    "duration": 4.092587905007367,
+    "original": {
+      "startTime": 897,
+      "endTime": 927,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "4ZKAXmqsJTs",
+      "title": "【戦】一番チョコのお供にふさわしいのは誰なのか決める戦い🍫【にじさんじ/梢桃音】",
+      "duration": 6056,
+      "thumbnail": "https://i.ytimg.com/vi/4ZKAXmqsJTs/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260213",
+      "viewCount": 10410,
+      "url": "https://www.youtube.com/watch?v=4ZKAXmqsJTs"
+    }
+  }
+}

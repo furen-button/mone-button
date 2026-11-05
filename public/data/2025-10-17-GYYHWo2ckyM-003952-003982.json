@@ -1,0 +1,37 @@
+{
+  "videoId": "GYYHWo2ckyM",
+  "serif": "星が欲しい",
+  "ruby": "ほしがほしい",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=GYYHWo2ckyM&t=3964s",
+  "memo": "yt-comment-archiver: ライブチャット「がはははは」「ガハハ」「ガハハ」「ｶﾞﾊﾊ」「ガハハ」「ガハハ」 @1:06:12",
+  "liveChat": {
+    "message": "がはははは",
+    "at": 3972,
+    "streamStartedAt": "2025-10-17T12:01:21+09:00"
+  },
+  "trimming": {
+    "startTime": 3964.6807575478647,
+    "endTime": 3968.436280375552,
+    "duration": 3.7555228276877752,
+    "original": {
+      "startTime": 3952,
+      "endTime": 3982,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "GYYHWo2ckyM",
+      "title": "【スーパードンキーコング2】#5 ラトリーに大へんしんから🍌🦍🐍【にじさんじ/梢桃音】",
+      "duration": 7744,
+      "thumbnail": "https://i.ytimg.com/vi/GYYHWo2ckyM/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20251017",
+      "viewCount": 9124,
+      "url": "https://www.youtube.com/watch?v=GYYHWo2ckyM"
+    }
+  }
+}

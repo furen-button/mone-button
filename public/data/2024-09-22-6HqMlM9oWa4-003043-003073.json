@@ -1,0 +1,37 @@
+{
+  "videoId": "6HqMlM9oWa4",
+  "serif": "上からウェーイって マウント取って",
+  "ruby": "うえからうぇーい",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=6HqMlM9oWa4&t=3056s",
+  "memo": "yt-comment-archiver: ライブチャット「今のだじゃれ」「がはは」「今もしかしてダジャレを……？？？」「ガハハ」「ガハハ」「ガハハ」「今のダジャレも解説してもらっていい？」 @0:51:03",
+  "liveChat": {
+    "message": "今のだじゃれ",
+    "at": 3063,
+    "streamStartedAt": "2024-09-22T10:01:20+09:00"
+  },
+  "trimming": {
+    "startTime": 3056.6296483799706,
+    "endTime": 3061.7893501472754,
+    "duration": 5.1597017673048615,
+    "original": {
+      "startTime": 3043,
+      "endTime": 3073,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "6HqMlM9oWa4",
+      "title": "【あつまれどうぶつの森#９】朝のあつ森！お話しながら家具とかたくさん作りたい🏝️✨【にじさんじ/梢桃音】",
+      "duration": 7338,
+      "thumbnail": "https://i.ytimg.com/vi/6HqMlM9oWa4/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240922",
+      "viewCount": 11038,
+      "url": "https://www.youtube.com/watch?v=6HqMlM9oWa4"
+    }
+  }
+}

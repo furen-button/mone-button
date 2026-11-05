@@ -1,0 +1,37 @@
+{
+  "videoId": "wCXvY_iHjM0",
+  "serif": "チョコをちょこっと あげちゃおうね",
+  "ruby": "ちょこをちょこっとあげちゃおうね",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=wCXvY_iHjM0&t=262s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ！」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハッ」「ガハハハハ！」「ガハハ！」「ガハハ？」「ガハハ」「ガハハ」「もねちのガハハが聞ける喜びに感謝を:folded_hands:」 @0:04:29",
+  "liveChat": {
+    "message": "ガハハ！",
+    "at": 269,
+    "streamStartedAt": "2026-02-14T12:03:15+09:00"
+  },
+  "trimming": {
+    "startTime": 262.9901854749632,
+    "endTime": 268.83368234536084,
+    "duration": 5.843496870397644,
+    "original": {
+      "startTime": 249,
+      "endTime": 279,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "wCXvY_iHjM0",
+      "title": "【本紹介】出会えて良かった本をみんなと共有したいんだ！📚【にじさんじ/梢桃音】",
+      "duration": 5258,
+      "thumbnail": "https://i.ytimg.com/vi/wCXvY_iHjM0/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260214",
+      "viewCount": 11643,
+      "url": "https://www.youtube.com/watch?v=wCXvY_iHjM0"
+    }
+  }
+}

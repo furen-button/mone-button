@@ -1,0 +1,37 @@
+{
+  "videoId": "auB9tDKAjB4",
+  "serif": "千回 油をツンツンせんかい",
+  "ruby": "せんかいあぶらをつんつんせんかい",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=auB9tDKAjB4&t=7798s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ」「:_ノーマルもねゴン:ガハハ」「ガハハ」 @2:10:03",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 7803,
+    "streamStartedAt": "2025-04-06T22:01:06+09:00"
+  },
+  "trimming": {
+    "startTime": 7798.096649484536,
+    "endTime": 7805.816181885125,
+    "duration": 7.719532400589101,
+    "original": {
+      "startTime": 7783,
+      "endTime": 7813,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "auB9tDKAjB4",
+      "title": "【ラーメンあぶら集め】深夜のラーメン🍜罪深味🌃まったりお話しましょ【にじさんじ/梢桃音】",
+      "duration": 11722,
+      "thumbnail": "https://i.ytimg.com/vi/auB9tDKAjB4/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250406",
+      "viewCount": 15534,
+      "url": "https://www.youtube.com/watch?v=auB9tDKAjB4"
+    }
+  }
+}

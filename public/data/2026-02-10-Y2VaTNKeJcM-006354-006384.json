@@ -1,0 +1,37 @@
+{
+  "videoId": "Y2VaTNKeJcM",
+  "serif": "そういうのはほっとけ ほとけだけに",
+  "ruby": "そういうのはほっとけほとけだけに",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=Y2VaTNKeJcM&t=6367s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ！」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ！」「もねちの代わりに笑っとくよ！ガハハ」 @1:46:14",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 6374,
+    "streamStartedAt": "2026-02-10T12:00:56+09:00"
+  },
+  "trimming": {
+    "startTime": 6367.544734904271,
+    "endTime": 6372.862700202504,
+    "duration": 5.317965298232695,
+    "original": {
+      "startTime": 6354,
+      "endTime": 6384,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "Y2VaTNKeJcM",
+      "title": "【Embrace the Brilliance】キラキラしたものたくさん作ろ💎✨【にじさんじ/梢桃音】",
+      "duration": 11099,
+      "thumbnail": "https://i.ytimg.com/vi/Y2VaTNKeJcM/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260210",
+      "viewCount": 11728,
+      "url": "https://www.youtube.com/watch?v=Y2VaTNKeJcM"
+    }
+  }
+}

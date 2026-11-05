@@ -1,0 +1,37 @@
+{
+  "videoId": "wCXvY_iHjM0",
+  "serif": "氷菓は 評価いいぞ！！",
+  "ruby": "ひょうかはひょうかいいぞ",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=wCXvY_iHjM0&t=3487s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「グァハハは」「ガハハ」「ガハハ」「ガハハ！実際評価いいんよなww」「ガハハ！」「ガハハ」「ガハハ」「ガハハ…」 @0:58:20",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 3500,
+    "streamStartedAt": "2026-02-14T12:03:15+09:00"
+  },
+  "trimming": {
+    "startTime": 3487.104427466863,
+    "endTime": 3495.370719808542,
+    "duration": 8.266292341678941,
+    "original": {
+      "startTime": 3480,
+      "endTime": 3510,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "wCXvY_iHjM0",
+      "title": "【本紹介】出会えて良かった本をみんなと共有したいんだ！📚【にじさんじ/梢桃音】",
+      "duration": 5258,
+      "thumbnail": "https://i.ytimg.com/vi/wCXvY_iHjM0/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260214",
+      "viewCount": 11643,
+      "url": "https://www.youtube.com/watch?v=wCXvY_iHjM0"
+    }
+  }
+}

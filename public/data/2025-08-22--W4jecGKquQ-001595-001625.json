@@ -1,0 +1,37 @@
+{
+  "videoId": "-W4jecGKquQ",
+  "serif": "そこが底だと思うなよ",
+  "ruby": "そこがそこだとおもうなよ",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=-W4jecGKquQ&t=1600s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ！」「ガハハ！」「ガハハ」「がははは」「ガハハ」「ｶﾞﾊﾊ」「ガハハ」「ガハハ」「ｶﾞﾊﾊ」「ガハハハ」「今のってダジャレですか」 @0:26:55",
+  "liveChat": {
+    "message": "ガハハ！",
+    "at": 1615,
+    "streamStartedAt": "2025-08-22T12:00:17+09:00"
+  },
+  "trimming": {
+    "startTime": 1600.582370673785,
+    "endTime": 1611.2089239690722,
+    "duration": 10.626553295287184,
+    "original": {
+      "startTime": 1595,
+      "endTime": 1625,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "-W4jecGKquQ",
+      "title": "【初代メトロイド】#８  シリーズ完全初見🔰ハイジャンプを探す👾【にじさんじ/梢桃音】",
+      "duration": 16086,
+      "thumbnail": "https://i.ytimg.com/vi/-W4jecGKquQ/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250822",
+      "viewCount": 12848,
+      "url": "https://www.youtube.com/watch?v=-W4jecGKquQ"
+    }
+  }
+}

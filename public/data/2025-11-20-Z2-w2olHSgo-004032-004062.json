@@ -1,0 +1,37 @@
+{
+  "videoId": "Z2-w2olHSgo",
+  "serif": "画面も暗いし世界も暗い みんなもっと笑って",
+  "ruby": "がめんもくらいしせかいもくらいみんなもっとわらって",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=Z2-w2olHSgo&t=4040s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「がはは」「がはは！」「ガハハハハハ」「ガハハ」「ガハハ」 @1:07:32",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 4052,
+    "streamStartedAt": "2025-11-20T22:00:17+09:00"
+  },
+  "trimming": {
+    "startTime": 4040.406951859352,
+    "endTime": 4046.8810866163476,
+    "duration": 6.47413475699558,
+    "original": {
+      "startTime": 4032,
+      "endTime": 4062,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "Z2-w2olHSgo",
+      "title": "【 Minecraft 】深夜のネザー冒険🔥慎重に行く【にじさんじ/梢桃音】",
+      "duration": 7806,
+      "thumbnail": "https://i.ytimg.com/vi/Z2-w2olHSgo/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20251120",
+      "viewCount": 8191,
+      "url": "https://www.youtube.com/watch?v=Z2-w2olHSgo"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "5AOexQErsrs",
+  "serif": "血行が結構よくなった",
+  "ruby": "けっこうがけっこうよくなった",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=5AOexQErsrs&t=6943s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハハ」「がはははは」「ガハハ」「ガハハ」「ｶﾞﾊﾊ」「ｶﾞﾊﾊ」「ガハハ」 @1:55:47",
+  "liveChat": {
+    "message": "ガハハハ",
+    "at": 6947,
+    "streamStartedAt": "2025-03-05T18:00:30+09:00"
+  },
+  "trimming": {
+    "startTime": 6943.638899116348,
+    "endTime": 6952.680458394698,
+    "duration": 9.041559278350515,
+    "original": {
+      "startTime": 6927,
+      "endTime": 6957,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "5AOexQErsrs",
+      "title": "【ゼルダの伝説時のオカリナ】#6 シリーズ完全初見🔰大人になったよ！森の神殿から🌳✨【にじさんじ/梢桃音】",
+      "duration": 7750,
+      "thumbnail": "https://i.ytimg.com/vi/5AOexQErsrs/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250305",
+      "viewCount": 10719,
+      "url": "https://www.youtube.com/watch?v=5AOexQErsrs"
+    }
+  }
+}
