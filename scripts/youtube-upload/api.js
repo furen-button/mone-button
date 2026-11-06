@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import { createRecord, recordErrors, writeRecord } from './record.js';
 
 const NO_RETRY = { retry: false };
+const FAILURE_HISTORY = 10;
 
 export async function getChannel(client) {
   const { data } = await client.channels.list({ part: ['snippet'], mine: true }, NO_RETRY);
@@ -12,9 +13,40 @@ export async function getChannel(client) {
 }
 
 // Google の例外はリクエスト本文や認証ヘッダーを含み得るため、そのまま出力しない。
-export function apiFailure(stage, error) {
+// 応答本文の reason と文言、通信エラーのコードだけを取り出す。
+export function failureDetail(error) {
   const status = error?.response?.status;
-  return new Error(`${stage} に失敗しました${Number.isInteger(status) ? `（HTTP ${status}）` : ''}。upload.json と Studio を確認してください。`);
+  const data = error?.response?.data;
+  const body = isPlainObject(data) ? data.error : undefined;
+  let reasons = [];
+  let message;
+  if (typeof body === 'string') {
+    // OAuth の token 更新の失敗は { error: 'invalid_grant', error_description } で返る。
+    reasons = [body];
+    message = data.error_description;
+  } else if (isPlainObject(body)) {
+    reasons = Array.isArray(body.errors) ? body.errors.map((item) => item?.reason) : [];
+    message = body.message;
+  }
+  return {
+    status: Number.isInteger(status) ? status : null,
+    reasons: [...new Set(reasons.filter((reason) => typeof reason === 'string' && /^[\w.-]{1,64}$/u.test(reason)))],
+    message: typeof message === 'string' && message.trim() ? message.replace(/\s+/gu, ' ').trim().slice(0, 300) : null,
+    code: typeof error?.code === 'string' && /^E[A-Z0-9_]{1,40}$/u.test(error.code) ? error.code : null,
+  };
+}
+
+export function apiFailure(stage, error) {
+  const detail = { stage, ...failureDetail(error) };
+  const labels = [detail.status === null ? null : `HTTP ${detail.status}`, ...detail.reasons, detail.code].filter(Boolean);
+  const response = detail.message ? `応答: 「${detail.message}」。` : '';
+  const failure = new Error(`${stage} に失敗しました${labels.length > 0 ? `（${labels.join(' / ')}）` : ''}。${response}upload.json と Studio を確認してください。`);
+  failure.detail = detail;
+  return failure;
+}
+
+function isPlainObject(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
 export async function uploadPlan(plan, { client, channelId, retryVideo = false, noThumbnail = false, noComment = false }) {
@@ -39,6 +71,18 @@ export async function uploadPlan(plan, { client, channelId, retryVideo = false, 
   }
   const record = plan.record ? structuredClone(plan.record) : createRecord(plan, channel.id);
   const save = () => writeRecord(plan.videoPath, record);
+  // 失敗の理由は送り直しが成功した後も調べられるよう、直近の履歴として残す。
+  const fail = (stage, error) => {
+    const failure = apiFailure(stage, error);
+    const history = Array.isArray(record.failures) ? record.failures : [];
+    record.failures = [...history, { ...failure.detail, at: new Date().toISOString() }].slice(-FAILURE_HISTORY);
+    try {
+      save();
+    } catch {
+      // 記録が書けなくても、API の失敗のほうを伝える。
+    }
+    return failure;
+  };
   if (record.steps.video !== 'done') {
     // 送信中の終了でも不確実な結果を自動再送しないよう、通信前に failed を残す。
     record.steps.video = 'failed';
@@ -58,7 +102,7 @@ export async function uploadPlan(plan, { client, channelId, retryVideo = false, 
       record.steps.video = 'done';
       save();
     } catch (error) {
-      throw apiFailure('動画送信（自動再送なし）', error);
+      throw fail('動画送信（自動再送なし）', error);
     } finally {
       body.destroy();
     }
@@ -73,7 +117,7 @@ export async function uploadPlan(plan, { client, channelId, retryVideo = false, 
           media: { mimeType: plan.thumbnail.mimeType, body } }, NO_RETRY);
         record.steps.thumbnail = 'done';
       } catch (error) {
-        throw apiFailure('サムネイル送信', error);
+        throw fail('サムネイル送信', error);
       } finally {
         body.destroy();
       }
@@ -106,7 +150,7 @@ export async function uploadPlan(plan, { client, channelId, retryVideo = false, 
             record.commentIds.push(data.id);
           }
         } catch (error) {
-          throw apiFailure('コメント送信', error);
+          throw fail('コメント送信', error);
         }
         // 返信の途中で失敗しても投稿済みのコメントは繰り返さない。
         save();
