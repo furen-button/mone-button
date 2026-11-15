@@ -15,7 +15,7 @@ import {
   readJson,
   root,
 } from './project.js';
-import { framePadding, correlate, measure, wavBuffer } from './audio.js';
+import { framePadding, correlate, measure, wavBuffer, resolveTools } from './audio.js';
 import { unitsOf, validateUnits } from './units.js';
 import { buildScore, laughBars, chooseOctave, videoSlots } from './score.js';
 import { midiBuffer, vlq } from './midi.js';
@@ -23,6 +23,15 @@ import { premiereXml, markers, pathUrl } from './premiere-xml.js';
 import { importBoundaries, pitchNotes } from './samples.js';
 import { videoFilter } from './render-video.js';
 const { project: p, melody, boundaries } = loadProject();
+// 外部コマンドを使う検査は、コマンドが無い環境（CI の ubuntu には ffmpeg・rubberband・xmllint が無い）では飛ばす。
+const NO_XMLLINT =
+  spawnSync('xmllint', ['--version'], { stdio: 'ignore' }).status === 0 ? false : 'xmllint がありません';
+let NO_TOOLS = false;
+try {
+  resolveTools();
+} catch (error) {
+  NO_TOOLS = error.message;
+}
 function fixtureSamples() {
   const reference = readJson(new URL('./__fixtures__/proto-02-score.json', import.meta.url));
   return Object.fromEntries(
@@ -187,7 +196,7 @@ test('映像は累積フレーム境界で連続する・効果を焼く', () =>
   assert.ok(videoFilter(p, { zoom: 1.4, hflip: true }).includes('scale=2688:1512'));
   assert.ok(videoFilter(p, { zoom: 1, hflip: true }).endsWith('hflip'));
 });
-test('FCP7 XML のトラック・イベント・マーカー・参照・位置の構造', () => {
+test('FCP7 XML のトラック・イベント・マーカー・参照・位置の構造', { skip: NO_XMLLINT }, () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'otomad-xml-'));
   try {
     const s = scoreFixture();
@@ -359,9 +368,11 @@ test('YIN は試作と同じフレーム数を使い、余りのフレームを�
 test(
   '実素材の音節 f0 から求めた移調量も試作の小数2桁記録に一致',
   {
-    skip: !Object.values(p.voices).every((v) =>
-      fs.existsSync(path.join(root, 'public/videos', v.base + '.mp4')),
-    ),
+    skip:
+      NO_TOOLS ||
+      !Object.values(p.voices).every((v) =>
+        fs.existsSync(path.join(root, 'public/videos', v.base + '.mp4')),
+      ),
   },
   async () => {
     const { decode, resolveTools } = await import('./audio.js');

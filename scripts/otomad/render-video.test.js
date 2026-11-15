@@ -7,7 +7,15 @@ import { loadProject } from './project.js';
 import { resolveTools, run, writeWav } from './audio.js';
 import { renderVideo, probe } from './render-video.js';
 
-test('実映像の連結: 色メタデータが違ってもプリロールを含む総フレーム数を保つ', () => {
+// ffmpeg などの外部コマンドが無い環境（CI の ubuntu）では飛ばす。
+let noTools = false;
+try {
+  resolveTools();
+} catch (error) {
+  noTools = error.message;
+}
+
+test('実映像の連結: 色メタデータが違ってもプリロールを含む総フレーム数を保つ', { skip: noTools }, () => {
   const tools = resolveTools();
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'otomad-video-'));
   try {
