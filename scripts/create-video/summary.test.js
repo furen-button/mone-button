@@ -427,6 +427,22 @@ describe('アップロード用タイトル', () => {
     assert.ok(result.upload.title.endsWith('…末尾'));
   });
 
+  it('{serifs} は全クリップのセリフを / でつなぎ、超過時は末尾のセリフから丸ごと外す', () => {
+    const config = { upload: { title: '{serifs}【梢桃音/にじさんじ切り抜き】' } };
+    const entries = [
+      entry(0, 'a', 'A', '{天才|FF0000}侍'), entry(5, 'a', 'A', ''), entry(9, 'a', 'A', 'うそうそ\n侍'), entry(12, 'b', 'B', '天才侍'),
+    ];
+    assert.equal(resolveUpload({ entries, config }).upload.title, '天才侍 / うそうそ 侍 / 天才侍【梢桃音/にじさんじ切り抜き】');
+    const long = [entry(0, 'a', 'A', '声'.repeat(40)), entry(5, 'a', 'A', '音'.repeat(40)), entry(9, 'a', 'A', '侍')];
+    assert.equal(resolveUpload({ entries: long, config }).upload.title, `${'声'.repeat(40)} / ${'音'.repeat(40)}【梢桃音/にじさんじ切り抜き】`);
+    const longer = [entry(0, 'a', 'A', '声'.repeat(60)), entry(5, 'a', 'A', '音'.repeat(40))];
+    assert.equal(resolveUpload({ entries: longer, config }).upload.title, `${'声'.repeat(60)}【梢桃音/にじさんじ切り抜き】`);
+    const huge = [entry(0, 'a', 'A', '声'.repeat(120)), entry(5, 'a', 'A', '音')];
+    const title = resolveUpload({ entries: huge, config }).upload.title;
+    assert.equal([...title].length, 100);
+    assert.equal(title, `${'声'.repeat(84)}…【梢桃音/にじさんじ切り抜き】`);
+  });
+
   it('繰り返した変数も数え、固定部分の超過と禁止文字を警告する', () => {
     const result = resolveUpload({ entries: [entry(0, 'a', 'A', '声'.repeat(100))], config: { upload: { title: '{serif}/{serif}' } } });
     assert.ok([...result.upload.title].length <= 100);
