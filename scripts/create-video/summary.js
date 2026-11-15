@@ -310,19 +310,29 @@ export function renderCommentList(entries, maxChars) {
 }
 
 // 長さ調整は差し込み値だけに行い、ひな形の固定部分を保つ。
+// {serifs} は全クリップのセリフを「 / 」でつなぐ（公開済みの Shorts のタイトルの付け方）。
+// 100 文字を超えたら末尾のセリフから丸ごと外し、1 つでも収まらなければその末尾を「…」で詰める。
 export function resolveUpload({ entries, config = {}, part = 1, parts = 1 }) {
   const upload = config.upload || {};
   const first = entries[0] || {};
+  const plainSerif = (serif) => stripEmphasis(serif || '').replace(/\s*\n\s*/gu, ' ').trim();
+  const serifs = entries.map((entry) => plainSerif(entry.serif)).filter(Boolean);
   const values = {
     category: (config.select?.categories || []).join('・'),
     title: chapterLabelFor(first.title),
     date: formatDate(first.uploadDate || '').replaceAll('-', '/'),
-    serif: stripEmphasis(first.serif || '').replace(/\s*\n\s*/gu, ' ').trim(),
+    serif: plainSerif(first.serif),
+    serifs: serifs.join(' / '),
     n: entries.length, part, parts,
   };
   const template = upload.title || '';
-  const render = () => template.replace(/\{(category|title|date|serif|n|part|parts)\}/gu, (_, key) => values[key]);
-  for (const key of ['serif', 'title']) {
+  const render = () => template.replace(/\{(category|title|date|serifs|serif|n|part|parts)\}/gu, (_, key) => values[key]);
+  if (template.includes('{serifs}')) {
+    for (let count = serifs.length - 1; count >= 1 && [...render()].length > 100; count--) {
+      values.serifs = serifs.slice(0, count).join(' / ');
+    }
+  }
+  for (const key of ['serifs', 'serif', 'title']) {
     const original = [...values[key]];
     let keep = original.length - 1;
     while ([...render()].length > 100 && template.includes(`{${key}}`) && keep >= 0) {

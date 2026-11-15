@@ -480,7 +480,7 @@
         "title": {
           "type": ["string", "null"],
           "default": null,
-          "description": "タイトルのひな形。{category} {title} {date} {serif} {n} {part} {parts} を置換し、100 文字を超えたらセリフ、配信タイトルの順に詰める。未指定時は upload の --title で指定する。"
+          "description": "タイトルのひな形。{category} {title} {date} {serif} {serifs} {n} {part} {parts} を置換し、100 文字を超えたら全セリフ（末尾のセリフから外す）、先頭のセリフ、配信タイトルの順に詰める。{serifs} は全クリップのセリフを「 / 」でつなぐ。未指定時は upload の --title で指定する。"
         },
         "categoryId": {
           "type": "string",
