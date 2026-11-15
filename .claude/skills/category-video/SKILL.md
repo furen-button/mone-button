@@ -60,7 +60,7 @@ QC の読み方（侍で判断した前例）:
 - `frames_freeze_in_clip` … 配信の画面自体が止まっていることがある。キャッシュ元で freezedetect して同じなら問題なし
 - `loudness_segment_range`（warn）… 1 秒前後の短いクリップの頭に配信切り替えの SE（`transitions.se`、volume 0.5）が重なると、そのクリップだけ 1.5〜2 LU 上がる。異議ありでは素材はどれも -23 LUFS 前後で、完成動画の差は 4.5 LU だった。SE を下げるかはユーザー判断
 - 概要欄が 5000 字を超える警告 … 侍では設定を変えず、投稿時に出典を手で詰めた
-- Shorts のアップロード用タイトルは先頭クリップのセリフ（`{serif}`）なので、同じセリフで始まるパートは同名になる。アップロード前に伝える
+- Shorts のアップロード用タイトルは、パート内の全セリフを「 / 」でつなぐ（`{serifs}`。公開済みの Shorts の付け方に合わせた）。100 文字を超えると末尾のセリフから外れるので、アップロード前に dry-run でタイトルを見せる
 - 判断が要るもの（誤検知として受け入れるか、キャッシュを撮り直すか）は、止めてユーザーに聞く
 
 ## 4. サムネイル下書き（横のみ）
@@ -81,7 +81,15 @@ node .claude/skills/category-video/scripts/thumb-draft.mjs \
 - mp4 の隣に `<base>.thumbnail.json` と `<base>.thumbnail.jpg` を保存する（`--no-save` で JSON だけ）
 - 保存した JPEG を Read で確認して見せる。仕上げはユーザーが `thumb.html?base=<base>` で調整して「保存」する
 
-## 5. 報告とあと片付け
+## 5. アップロード（頼まれたときだけ）
+
+- 先に `npm run upload -- --video <mp4> --dry-run` で事前検査とタイトルを見せる。Shorts は glob（`'output/shorts/<name>-*.mp4'`）でまとめて渡せる
+- 概要欄が 5,000 バイトを超えたら、侍・異議ありと同じく `▼出典` の節をセリフの見出しなしの URL だけにする。元は `<name>.youtube.txt.bak` に残す
+- QC の error を目視で誤検知と確かめ、ユーザーが了承したら `--allow-qc-error` を付ける
+- 非公開の動画にはコメントできない（`commentThreads.insert` が HTTP 403 forbidden）。Shorts は `--no-comment` で上げる。横の固定コメントは、Studio で公開に切り替えてから同じコマンドを再実行して投稿する（upload は未完了の段から再開する）
+- 10 本前後を続けて上げると HTTP 400 で止まったことがある。止まったら翌日に同じコマンドで続きから上げる
+
+## 6. 報告とあと片付け
 
 - 出力ファイル、総尺、Shorts の本数、QC の error / warn と判断が要る点、サムネイルの画像を報告する
 - 新しいプリセット（`config-<slug>.json` / `config-shorts-<slug>.json`）はコミット候補。コミットはユーザーに頼まれてから
