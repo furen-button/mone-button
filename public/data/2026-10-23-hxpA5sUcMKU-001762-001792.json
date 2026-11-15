@@ -1,0 +1,37 @@
+{
+  "videoId": "hxpA5sUcMKU",
+  "serif": "ロードをきれいにする労働",
+  "ruby": "ろーどをきれいにするろうどう",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=hxpA5sUcMKU&t=1772s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ」「ｶﾞﾊﾊ:_ノーマルもねゴン:」「ガハハ」「ガハハ」 @0:29:42",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 1782,
+    "streamStartedAt": "2026-10-23T12:01:34+09:00"
+  },
+  "trimming": {
+    "startTime": 1772.5796667893962,
+    "endTime": 1779.4355670103093,
+    "duration": 6.85590022091311,
+    "original": {
+      "startTime": 1762,
+      "endTime": 1792,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "hxpA5sUcMKU",
+      "title": "【ぽこ あ ポケモン】昼のぽこポケ☕町をきれいにしましょうね【にじさんじ/梢桃音】",
+      "duration": 17586,
+      "thumbnail": "https://i.ytimg.com/vi/hxpA5sUcMKU/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20261023",
+      "viewCount": 25759,
+      "url": "https://www.youtube.com/watch?v=hxpA5sUcMKU"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "H_EOMm2V4Xg",
+  "serif": "みつを3つ見つける",
+  "ruby": "みつを3つみつける",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=H_EOMm2V4Xg&t=6016s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ」「ガハハハ」「ガハハ」 @1:40:25",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 6025,
+    "streamStartedAt": "2026-10-14T23:00:38+09:00"
+  },
+  "trimming": {
+    "startTime": 6016.979466858789,
+    "endTime": 6022.697001080692,
+    "duration": 5.717534221902017,
+    "original": {
+      "startTime": 6005,
+      "endTime": 6035,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "H_EOMm2V4Xg",
+      "title": "【ぽこ あ ポケモン】夜のまったりチルぽこあ🌃【にじさんじ/梢桃音】",
+      "duration": 11913,
+      "thumbnail": "https://i.ytimg.com/vi/H_EOMm2V4Xg/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20261014",
+      "viewCount": 28488,
+      "url": "https://www.youtube.com/watch?v=H_EOMm2V4Xg"
+    }
+  }
+}

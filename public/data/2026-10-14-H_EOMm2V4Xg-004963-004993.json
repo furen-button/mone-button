@@ -1,0 +1,37 @@
+{
+  "videoId": "H_EOMm2V4Xg",
+  "serif": "傲慢な村長は尊重せんぞ",
+  "ruby": "ごうまんなそんちょうはそんちょうせんぞ",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=H_EOMm2V4Xg&t=4972s",
+  "memo": "yt-comment-archiver: ライブチャット「がはは」「ガハハ」「ガハハ」「ガハハ」「ガハハハ」 @1:23:03",
+  "liveChat": {
+    "message": "がはは",
+    "at": 4983,
+    "streamStartedAt": "2026-10-14T23:00:38+09:00"
+  },
+  "trimming": {
+    "startTime": 4972.033231268011,
+    "endTime": 4982.176873198847,
+    "duration": 10.143641930835734,
+    "original": {
+      "startTime": 4963,
+      "endTime": 4993,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "H_EOMm2V4Xg",
+      "title": "【ぽこ あ ポケモン】夜のまったりチルぽこあ🌃【にじさんじ/梢桃音】",
+      "duration": 11913,
+      "thumbnail": "https://i.ytimg.com/vi/H_EOMm2V4Xg/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20261014",
+      "viewCount": 28488,
+      "url": "https://www.youtube.com/watch?v=H_EOMm2V4Xg"
+    }
+  }
+}

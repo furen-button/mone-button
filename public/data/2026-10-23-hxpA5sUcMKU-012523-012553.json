@@ -1,0 +1,37 @@
+{
+  "videoId": "hxpA5sUcMKU",
+  "serif": "ライコウの来航",
+  "ruby": "らいこうのらいこう",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=hxpA5sUcMKU&t=12537s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ」「がはは」「ガハハ」 @3:29:03",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 12543,
+    "streamStartedAt": "2026-10-23T12:01:34+09:00"
+  },
+  "trimming": {
+    "startTime": 12537.713503313696,
+    "endTime": 12540.30061418734,
+    "duration": 2.5871108736423047,
+    "original": {
+      "startTime": 12523,
+      "endTime": 12553,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "hxpA5sUcMKU",
+      "title": "【ぽこ あ ポケモン】昼のぽこポケ☕町をきれいにしましょうね【にじさんじ/梢桃音】",
+      "duration": 17586,
+      "thumbnail": "https://i.ytimg.com/vi/hxpA5sUcMKU/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20261023",
+      "viewCount": 25759,
+      "url": "https://www.youtube.com/watch?v=hxpA5sUcMKU"
+    }
+  }
+}

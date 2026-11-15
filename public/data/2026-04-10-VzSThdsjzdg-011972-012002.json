@@ -1,0 +1,37 @@
+{
+  "videoId": "VzSThdsjzdg",
+  "serif": "ぞうさんを増産",
+  "ruby": "ぞうさんをぞうさん",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=VzSThdsjzdg&t=11987s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハハハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ｶﾞﾊﾊ」「ｶﾞﾊﾊ」「ガハハ」「ダジャレも増産されてる」「がはは」「同じダジャレが二回…来るぞ」「ガハハハッ！」 @3:19:52",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 11992,
+    "streamStartedAt": "2026-04-10T12:00:30+09:00"
+  },
+  "trimming": {
+    "startTime": 11987.637196244477,
+    "endTime": 11996.791973490426,
+    "duration": 9.154777245949925,
+    "original": {
+      "startTime": 11972,
+      "endTime": 12002,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "VzSThdsjzdg",
+      "title": "【遊戯王マスターデュエル】初心者🔰┆パック開封＆千年エクゾディアデッキ作りたい【梢桃音/にじさんじ】",
+      "duration": 14177,
+      "thumbnail": "https://i.ytimg.com/vi/VzSThdsjzdg/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260410",
+      "viewCount": 35359,
+      "url": "https://www.youtube.com/watch?v=VzSThdsjzdg"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "U9hW-0n_QY4",
+  "serif": "メガネに目がねぇ",
+  "ruby": "めがねにめがねぇ",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=U9hW-0n_QY4&t=688s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ」「ガハハ」「:_ノーマルもねゴン:ガハハ！」「ガハハ」「ガハハ」「ガハハ！」「ガハハw」「ガハハ」「ガハハ」 @0:11:36",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 696,
+    "streamStartedAt": "2026-05-28T12:02:23+09:00"
+  },
+  "trimming": {
+    "startTime": 688.4044729496895,
+    "endTime": 690.216462505818,
+    "duration": 1.8119895561284225,
+    "original": {
+      "startTime": 676,
+      "endTime": 706,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "U9hW-0n_QY4",
+      "title": "【スイカゲームぷらねっと】まったりスイカを作る昼🍉🍉🍉【にじさんじ/梢桃音】",
+      "duration": 9702,
+      "thumbnail": "https://i.ytimg.com/vi/U9hW-0n_QY4/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260528",
+      "viewCount": 13216,
+      "url": "https://www.youtube.com/watch?v=U9hW-0n_QY4"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "Hde0wHvZrjw",
+  "serif": "いくらはいくらですか？",
+  "ruby": "いくらはいくらですか",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=Hde0wHvZrjw&t=5319s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ｶﾞﾊﾊ」「ダジャレか」「ｶﾞﾊﾊ」「ガハハ！」「ガハハ」「ガハハ」「ガハハ」「ガハハ:face_with_tears_of_joy:」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ぱぱちダジャレEND」「山田くん梢さんに座布団差し上げてw」 @1:28:53",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 5333,
+    "streamStartedAt": "2026-08-03T12:00:55+09:00"
+  },
+  "trimming": {
+    "startTime": 5319.942092939481,
+    "endTime": 5329.466363472622,
+    "duration": 9.52427053314121,
+    "original": {
+      "startTime": 5313,
+      "endTime": 5343,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "Hde0wHvZrjw",
+      "title": "【たこ焼き#９】夏はたこ焼きの季節🐙【にじさんじ/梢桃音】",
+      "duration": 5553,
+      "thumbnail": "https://i.ytimg.com/vi/Hde0wHvZrjw/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260803",
+      "viewCount": 10311,
+      "url": "https://www.youtube.com/watch?v=Hde0wHvZrjw"
+    }
+  }
+}

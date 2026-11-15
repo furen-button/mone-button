@@ -1,0 +1,37 @@
+{
+  "videoId": "P_XCcfK0ifs",
+  "serif": "ハラバイ巡査は？ キモチよさそうに寝てたな ハラバイで",
+  "ruby": "はらばいじゅんさはきもちよさそうにねてたなはらばいで",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=P_XCcfK0ifs&t=10836s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハハ」「がはは」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「フ、ガハハ」 @3:00:46",
+  "liveChat": {
+    "message": "ガハハハ",
+    "at": 10846,
+    "streamStartedAt": "2026-05-10T12:00:52+09:00"
+  },
+  "trimming": {
+    "startTime": 10836.3408044919,
+    "endTime": 10843.360318483063,
+    "duration": 7.019513991163475,
+    "original": {
+      "startTime": 10826,
+      "endTime": 10856,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "P_XCcfK0ifs",
+      "title": "【逆転裁判 蘇る逆転】完全初見￤５話3日目法廷前半から！開廷だ～！！！※ネタバレ注意【にじさんじ/梢桃音】",
+      "duration": 14507,
+      "thumbnail": "https://i.ytimg.com/vi/P_XCcfK0ifs/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260510",
+      "viewCount": 13007,
+      "url": "https://www.youtube.com/watch?v=P_XCcfK0ifs"
+    }
+  }
+}

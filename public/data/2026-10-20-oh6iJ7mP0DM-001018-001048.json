@@ -1,0 +1,37 @@
+{
+  "videoId": "oh6iJ7mP0DM",
+  "serif": "イヤホンなくすとさ いやー本当に悲しいよね",
+  "ruby": "いやほんなくすとさいやーほんとうにかなしいよね",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=oh6iJ7mP0DM&t=1028s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ」「ガハハ！:_ノーマルもねゴン:」「ガハハ」「ガハハ」「ガハハ」「がはは」「ガハハ」「ガハハ」 @0:17:18",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 1038,
+    "streamStartedAt": "2026-10-20T22:14:21+09:00"
+  },
+  "trimming": {
+    "startTime": 1028.5679307805597,
+    "endTime": 1035.9188144329896,
+    "duration": 7.350883652430044,
+    "original": {
+      "startTime": 1018,
+      "endTime": 1048,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "oh6iJ7mP0DM",
+      "title": "【縦】やけ酒だよ【にじさんじ/梢桃音】",
+      "duration": 15607,
+      "thumbnail": "https://i.ytimg.com/vi/oh6iJ7mP0DM/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20261020",
+      "viewCount": 29328,
+      "url": "https://www.youtube.com/watch?v=oh6iJ7mP0DM"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "qVQ7KOUpUSU",
+  "serif": "不死だけど節々が痛くてのぉ",
+  "ruby": "ふしだけどふしぶしがいたくてのぉ",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=qVQ7KOUpUSU&t=3105s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ:rolling_on_the_floor_laughing:」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「最近ダジャレへの応答が面倒になってない？」 @0:51:51",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 3111,
+    "streamStartedAt": "2026-09-17T12:01:04+09:00"
+  },
+  "trimming": {
+    "startTime": 3105.0071145533143,
+    "endTime": 3112.565201729107,
+    "duration": 7.558087175792508,
+    "original": {
+      "startTime": 3091,
+      "endTime": 3121,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "qVQ7KOUpUSU",
+      "title": "【食】はじめてのビリヤニ🍛🥄【にじさんじ/梢桃音】",
+      "duration": 7704,
+      "thumbnail": "https://i.ytimg.com/vi/qVQ7KOUpUSU/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260917",
+      "viewCount": 22213,
+      "url": "https://www.youtube.com/watch?v=qVQ7KOUpUSU"
+    }
+  }
+}

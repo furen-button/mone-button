@@ -1,0 +1,37 @@
+{
+  "videoId": "rPfIpDhEsA4",
+  "serif": "獺祭しか知らない大学生 だっさいよなぁ",
+  "ruby": "だっさいしかしらないだいがくせいだっさいよなぁ",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=rPfIpDhEsA4&t=9187s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ！」「ガハハ」「ガハハ…」「ガハハ！」「ガハハ」「ガハハ！ガハハ…」 @2:33:14",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 9194,
+    "streamStartedAt": "2026-07-29T22:08:43+09:00"
+  },
+  "trimming": {
+    "startTime": 9187.953424153166,
+    "endTime": 9194.3826859352,
+    "duration": 6.4292617820324,
+    "original": {
+      "startTime": 9174,
+      "endTime": 9204,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "rPfIpDhEsA4",
+      "title": "【雑談】もねんちゅと晩酌したいんちゅ達はこちらへ【にじさんじ/梢桃音】",
+      "duration": 14260,
+      "thumbnail": "https://i.ytimg.com/vi/rPfIpDhEsA4/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260729",
+      "viewCount": 15818,
+      "url": "https://www.youtube.com/watch?v=rPfIpDhEsA4"
+    }
+  }
+}

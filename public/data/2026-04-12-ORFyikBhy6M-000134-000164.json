@@ -1,0 +1,37 @@
+{
+  "videoId": "ORFyikBhy6M",
+  "serif": "オクレてごめーん！ ゆるしてオクレー",
+  "ruby": "おくれてごめーんゆるしておくれー",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=ORFyikBhy6M&t=144s",
+  "memo": "yt-comment-archiver: ライブチャット「がはは」「がはは」「ガハハ」「ガハハ」「ガハハ」「ガハハ」 @0:02:34",
+  "liveChat": {
+    "message": "がはは",
+    "at": 154,
+    "streamStartedAt": "2026-04-12T09:04:42+09:00"
+  },
+  "trimming": {
+    "startTime": 144.69219440353461,
+    "endTime": 149.83808910162003,
+    "duration": 5.145894698085419,
+    "original": {
+      "startTime": 134,
+      "endTime": 164,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "ORFyikBhy6M",
+      "title": "【逆転裁判 蘇る逆転】完全初見￤4話から！御剣になにがあったんだ！！！※ネタバレ注意【にじさんじ/梢桃音】",
+      "duration": 7369,
+      "thumbnail": "https://i.ytimg.com/vi/ORFyikBhy6M/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260412",
+      "viewCount": 15653,
+      "url": "https://www.youtube.com/watch?v=ORFyikBhy6M"
+    }
+  }
+}

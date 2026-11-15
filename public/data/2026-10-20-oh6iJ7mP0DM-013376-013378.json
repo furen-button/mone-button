@@ -1,0 +1,37 @@
+{
+  "videoId": "oh6iJ7mP0DM",
+  "serif": "むむむむむむーん",
+  "ruby": "むむむむむむーん",
+  "categories": [
+    "SE"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=oh6iJ7mP0DM&t=13376s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ！:_ノーマルもねゴン:」「ガハハ」「ガハハ」「ガハハのハ」「ガハハ…寝るか！」 @3:43:14",
+  "liveChat": {
+    "message": "ガハハ！:_ノーマルもねゴン:",
+    "at": 13394,
+    "streamStartedAt": "2026-10-20T22:14:21+09:00"
+  },
+  "trimming": {
+    "startTime": 13376.925717967599,
+    "endTime": 13378.934136087364,
+    "duration": 2.008418119764819,
+    "original": {
+      "startTime": 13374,
+      "endTime": 13404,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "oh6iJ7mP0DM",
+      "title": "【縦】やけ酒だよ【にじさんじ/梢桃音】",
+      "duration": 15607,
+      "thumbnail": "https://i.ytimg.com/vi/oh6iJ7mP0DM/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20261020",
+      "viewCount": 29328,
+      "url": "https://www.youtube.com/watch?v=oh6iJ7mP0DM"
+    }
+  }
+}

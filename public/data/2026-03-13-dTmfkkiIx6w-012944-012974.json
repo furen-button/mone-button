@@ -1,0 +1,37 @@
+{
+  "videoId": "dTmfkkiIx6w",
+  "serif": "カナリィにかなり興味がある",
+  "ruby": "かなりぃにかなりきょうみがある",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=dTmfkkiIx6w&t=12956s",
+  "memo": "yt-comment-archiver: ライブチャット「:_ノーマルもねゴン:ガハハ！」「ガハハ」「がははは」「ガハハ」「ガハハ」「ガハハ」「ガハハ」 @3:36:04",
+  "liveChat": {
+    "message": ":_ノーマルもねゴン:ガハハ！",
+    "at": 12964,
+    "streamStartedAt": "2026-03-13T12:00:29+09:00"
+  },
+  "trimming": {
+    "startTime": 12956.1875,
+    "endTime": 12959.728322901325,
+    "duration": 3.540822901325477,
+    "original": {
+      "startTime": 12944,
+      "endTime": 12974,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "dTmfkkiIx6w",
+      "title": "【Pokémon LEGENDS Z-A】#4 メガ進化の秘密に迫る！！！【にじさんじ/梢桃音】",
+      "duration": 16869,
+      "thumbnail": "https://i.ytimg.com/vi/dTmfkkiIx6w/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260313",
+      "viewCount": 13676,
+      "url": "https://www.youtube.com/watch?v=dTmfkkiIx6w"
+    }
+  }
+}
