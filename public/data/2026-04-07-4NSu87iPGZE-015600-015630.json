@@ -1,0 +1,37 @@
+{
+  "videoId": "4NSu87iPGZE",
+  "serif": "うますぎ！ 馬だけに！",
+  "ruby": "うますぎうまだけに",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=4NSu87iPGZE&t=15615s",
+  "memo": "yt-comment-archiver: ライブチャット「がはは」「ガハハ…」「ガハハ」「ガハハ」「ガハハ」「がはは」「ガハハｗ」「ｶﾞﾊﾊﾊ」「ガハハ」「ガハハ」「ガハハ」「そのハンマーで今ダジャレ言った人を叩いてもいい？」「もっとガハハ長くして」 @4:20:20",
+  "liveChat": {
+    "message": "がはは",
+    "at": 15620,
+    "streamStartedAt": "2026-04-07T17:01:30+09:00"
+  },
+  "trimming": {
+    "startTime": 15615.246167102932,
+    "endTime": 15620.605656664213,
+    "duration": 5.359489561280375,
+    "original": {
+      "startTime": 15600,
+      "endTime": 15630,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "4NSu87iPGZE",
+      "title": "【ドラゴンクエストⅪ過ぎ去りし時を求めて S】邪神倒す準備しよう！！！【にじさんじ/梢桃音】",
+      "duration": 22131,
+      "thumbnail": "https://i.ytimg.com/vi/4NSu87iPGZE/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260407",
+      "viewCount": 17245,
+      "url": "https://www.youtube.com/watch?v=4NSu87iPGZE"
+    }
+  }
+}

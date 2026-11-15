@@ -1,0 +1,37 @@
+{
+  "videoId": "a8GcF0bXVG4",
+  "serif": "雷おこしを食べにお越しください",
+  "ruby": "かみなりおこしをたべにおこしください",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=a8GcF0bXVG4&t=13648s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「:_ノーマルもねゴン:ガハハ！」「ガハハ」「ガハハハハハ」「ガハハ！」「ガハハ」「ガハハ」「ガハハ…」「ガハハ:_ノーマルもねゴン::_ノーマルもねゴン:」「ガハハ」「ガハハ？」 @3:47:42",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 13662,
+    "streamStartedAt": "2026-09-15T22:31:19+09:00"
+  },
+  "trimming": {
+    "startTime": 13648.574926362298,
+    "endTime": 13652.442286450663,
+    "duration": 3.867360088365242,
+    "original": {
+      "startTime": 13642,
+      "endTime": 13672,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "a8GcF0bXVG4",
+      "title": "【晩酌】おやすみ前にちるちる酒飲み雑談🌃🍶【にじさんじ/梢桃音】",
+      "duration": 15075,
+      "thumbnail": "https://i.ytimg.com/vi/a8GcF0bXVG4/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260915",
+      "viewCount": 32752,
+      "url": "https://www.youtube.com/watch?v=a8GcF0bXVG4"
+    }
+  }
+}

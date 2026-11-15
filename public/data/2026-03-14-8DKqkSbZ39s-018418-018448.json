@@ -1,0 +1,36 @@
+{
+  "videoId": "8DKqkSbZ39s",
+  "serif": "\"ちょこっとですが\" ちょこっとありがとう チョコをちょこっとね",
+  "ruby": "ちょこっとですがちょこっとありがとうちょこをちょこっとね",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=8DKqkSbZ39s&t=18430s",
+  "memo": "yt-comment-archiver: ライブチャット「がはは」「ｶﾞﾊﾊ」「ガハハ」「ｶﾞﾊﾊ」「がはは」「ｶﾞﾊﾊって言わないの草」「ガハハッ」「ｶﾞﾊﾊ」「ガハハ」 @5:07:18",
+  "liveChat": {
+    "message": "がはは",
+    "at": 18438
+  },
+  "trimming": {
+    "startTime": 18430.01836340206,
+    "endTime": 18434.786634756994,
+    "duration": 4.7682713549337254,
+    "original": {
+      "startTime": 18418,
+      "endTime": 18448,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "8DKqkSbZ39s",
+      "title": "【Pokémon LEGENDS Z-A】#5 カナリィちゃんと戦うよ⚡⚡【にじさんじ/梢桃音】",
+      "duration": 18622,
+      "thumbnail": "https://i.ytimg.com/vi/8DKqkSbZ39s/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260314",
+      "viewCount": 11713,
+      "url": "https://www.youtube.com/watch?v=8DKqkSbZ39s"
+    }
+  }
+}

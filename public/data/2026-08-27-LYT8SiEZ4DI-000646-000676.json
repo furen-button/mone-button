@@ -1,0 +1,37 @@
+{
+  "videoId": "LYT8SiEZ4DI",
+  "serif": "アサシンにやられるのは いつか分かる？ 正解は朝！ 「朝、しんでる」から！",
+  "ruby": "あさしんにやられるのはいつかわかるせいかいはあさあさしんでるから",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=LYT8SiEZ4DI&t=659s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」 @0:11:06",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 666,
+    "streamStartedAt": "2026-08-27T20:00:24+09:00"
+  },
+  "trimming": {
+    "startTime": 659.1351314841498,
+    "endTime": 667.5989733429395,
+    "duration": 8.463841858789625,
+    "original": {
+      "startTime": 646,
+      "endTime": 676,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "LYT8SiEZ4DI",
+      "title": "【初代ルイージマンション】完全初見👀兄さんどこどこどこどこ！？【にじさんじ/梢桃音】",
+      "duration": 15666,
+      "thumbnail": "https://i.ytimg.com/vi/LYT8SiEZ4DI/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260827",
+      "viewCount": 38282,
+      "url": "https://www.youtube.com/watch?v=LYT8SiEZ4DI"
+    }
+  }
+}

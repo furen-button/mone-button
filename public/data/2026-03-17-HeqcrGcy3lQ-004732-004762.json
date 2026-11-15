@@ -1,0 +1,37 @@
+{
+  "videoId": "HeqcrGcy3lQ",
+  "serif": "虫は無視",
+  "ruby": "むしはむし",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=HeqcrGcy3lQ&t=4744s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ！」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハより低レベルそうな反応だ…」「ガハハって笑って」 @1:19:12",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 4752,
+    "streamStartedAt": "2026-03-17T12:01:37+09:00"
+  },
+  "trimming": {
+    "startTime": 4744.916513254787,
+    "endTime": 4758.283136966126,
+    "duration": 13.366623711340203,
+    "original": {
+      "startTime": 4732,
+      "endTime": 4762,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "HeqcrGcy3lQ",
+      "title": "【Pokémon LEGENDS Z-A】#6.5 酔ってしまったので雑談枠になりました🙏🏻【にじさんじ/梢桃音】",
+      "duration": 6971,
+      "thumbnail": "https://i.ytimg.com/vi/HeqcrGcy3lQ/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260317",
+      "viewCount": 7409,
+      "url": "https://www.youtube.com/watch?v=HeqcrGcy3lQ"
+    }
+  }
+}

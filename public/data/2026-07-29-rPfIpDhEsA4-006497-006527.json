@@ -1,0 +1,37 @@
+{
+  "videoId": "rPfIpDhEsA4",
+  "serif": "笑点のダジャレに焦点当てて",
+  "ruby": "しょうてんのだじゃれにしょうてんあてて",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=rPfIpDhEsA4&t=6508s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ！！」「ダジャレ言った時に鳴らす音楽トーナメントする？？」「ガハハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「今のダジャレ何点だった？」 @1:48:37",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 6517,
+    "streamStartedAt": "2026-07-29T22:08:43+09:00"
+  },
+  "trimming": {
+    "startTime": 6508.017350883652,
+    "endTime": 6518.4437592047125,
+    "duration": 10.42640832106038,
+    "original": {
+      "startTime": 6497,
+      "endTime": 6527,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "rPfIpDhEsA4",
+      "title": "【雑談】もねんちゅと晩酌したいんちゅ達はこちらへ【にじさんじ/梢桃音】",
+      "duration": 14260,
+      "thumbnail": "https://i.ytimg.com/vi/rPfIpDhEsA4/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260729",
+      "viewCount": 15818,
+      "url": "https://www.youtube.com/watch?v=rPfIpDhEsA4"
+    }
+  }
+}

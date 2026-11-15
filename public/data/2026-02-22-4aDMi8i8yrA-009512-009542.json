@@ -1,0 +1,37 @@
+{
+  "videoId": "4aDMi8i8yrA",
+  "serif": "人生には3つの坂がある 上り坂と下り坂とまさか",
+  "ruby": "じんせいには3つのさかがあるのぼりざかとくだりざかとまさか",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=4aDMi8i8yrA&t=9514s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ」「ｶﾞﾊﾊ」「ｶﾞﾊﾊ！」「ｶﾞﾊﾊ」 @2:38:52",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 9532,
+    "streamStartedAt": "2026-02-22T12:01:37+09:00"
+  },
+  "trimming": {
+    "startTime": 9514.67857142857,
+    "endTime": 9527.166375184095,
+    "duration": 12.487803755522828,
+    "original": {
+      "startTime": 9512,
+      "endTime": 9542,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "4aDMi8i8yrA",
+      "title": "【Euro Truck Simulator 2】休日のドキドキドライブ会場はこちら🫶🏻🩷【にじさんじ/梢桃音】",
+      "duration": 12247,
+      "thumbnail": "https://i.ytimg.com/vi/4aDMi8i8yrA/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260222",
+      "viewCount": 17278,
+      "url": "https://www.youtube.com/watch?v=4aDMi8i8yrA"
+    }
+  }
+}

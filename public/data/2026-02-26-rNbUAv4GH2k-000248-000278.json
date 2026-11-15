@@ -1,0 +1,37 @@
+{
+  "videoId": "rNbUAv4GH2k",
+  "serif": "もねちあげるよ 新造の心臓を",
+  "ruby": "もねちあげるよしんぞうのしんぞうを",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=rNbUAv4GH2k&t=258s",
+  "memo": "yt-comment-archiver: ライブチャット「がはは」「がはは」「グァハハ」「ガハハw」「ガハハ」「ガハハ！」「ガハハ」「ガハハ！」「ガハハ！」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」 @0:04:28",
+  "liveChat": {
+    "message": "がはは",
+    "at": 268,
+    "streamStartedAt": "2026-02-26T18:01:13+09:00"
+  },
+  "trimming": {
+    "startTime": 258.8785898379971,
+    "endTime": 266.6195231958763,
+    "duration": 7.740933357879232,
+    "original": {
+      "startTime": 248,
+      "endTime": 278,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "rNbUAv4GH2k",
+      "title": "【雑談】ついに明日は3Dお披露目！緊張しすぎて心臓口から出てきそう😃💗【にじさんじ/梢桃音】",
+      "duration": 5441,
+      "thumbnail": "https://i.ytimg.com/vi/rNbUAv4GH2k/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260226",
+      "viewCount": 15987,
+      "url": "https://www.youtube.com/watch?v=rNbUAv4GH2k"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "qVQ7KOUpUSU",
+  "serif": "一斗缶で作るときは 安全に配慮してねって 言っとかんと危ないからな",
+  "ruby": "いっとかんでつくるときはあんぜんにはいりょしてねっていっとかんとあぶないからな",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=qVQ7KOUpUSU&t=1462s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」「ガハハ」 @0:24:34",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 1474,
+    "streamStartedAt": "2026-09-17T12:01:04+09:00"
+  },
+  "trimming": {
+    "startTime": 1462.4009112665685,
+    "endTime": 1468.8163659793815,
+    "duration": 6.415454712812961,
+    "original": {
+      "startTime": 1454,
+      "endTime": 1484,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "qVQ7KOUpUSU",
+      "title": "【食】はじめてのビリヤニ🍛🥄【にじさんじ/梢桃音】",
+      "duration": 7704,
+      "thumbnail": "https://i.ytimg.com/vi/qVQ7KOUpUSU/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260917",
+      "viewCount": 22213,
+      "url": "https://www.youtube.com/watch?v=qVQ7KOUpUSU"
+    }
+  }
+}

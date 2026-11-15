@@ -8,7 +8,7 @@
     "check:i18n": "node scripts/check-i18n.mjs",
     "build": "npm run check:i18n && tsc -b && vite build",
     "lint": "eslint .",
-    "test": "node --test scripts/*.test.js scripts/create-video/*.test.js scripts/create-video/qc/*.test.js scripts/create-video/qc/checks/*.test.js scripts/dev-server/lib/*.test.js scripts/dev-server/handlers/*.test.js scripts/youtube-upload/*.test.js",
+    "test": "node --test scripts/*.test.js scripts/create-video/*.test.js scripts/create-video/qc/*.test.js scripts/create-video/qc/checks/*.test.js scripts/dev-server/lib/*.test.js scripts/dev-server/handlers/*.test.js scripts/youtube-upload/*.test.js scripts/otomad/*.test.js",
     "golden:ass": "node scripts/create-video/golden-ass.mjs",
     "preview": "vite preview",
     "editor": "vite --open /mone-button/editor.html",
@@ -25,7 +25,8 @@
     "still": "node scripts/create-video/preview.js",
     "shots": "node scripts/ui/shots.mjs",
     "cropVideo": "node scripts/create-video/crop-export.js",
-    "thumb": "vite --open /mone-button/thumb.html"
+    "thumb": "vite --open /mone-button/thumb.html",
+    "otomad": "node scripts/otomad/index.js"
   },
   "dependencies": {
     "firebase": "^13.1.0",

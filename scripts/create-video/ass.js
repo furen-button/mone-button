@@ -338,7 +338,59 @@ export function fitSingleLineTitle({ format, date, title, style, width, height }
   return { text, size: minFs, truncated: true };
 }
 
-// Shorts はタイトル20文字×最大2行 + 最下行に日付。末尾の演者表記は chapterLabelFor と同じ規則。
+const SHORTS_TITLE_UNITS = 20;
+
+// 半角の英字・数字（ラテン文字の語を作る文字）。Shorts タイトルではこの並びの途中で折らない。
+function isLatinWordChar(ch) {
+  return ch !== undefined && ch.codePointAt(0) <= 0x2ff && /[\p{L}\p{N}]/u.test(ch);
+}
+
+// 幅（charWidth: 全角 1・半角 0.5）が units を超えない範囲で text の先頭を取る。
+function takeUnits(text, units) {
+  let out = '';
+  let width = 0;
+  for (const ch of text) {
+    if (width + charWidth(ch) > units) {
+      break;
+    }
+    out += ch;
+    width += charWidth(ch);
+  }
+  return out;
+}
+
+// Shorts タイトルの 1 行の切れ目（chars の添字）。幅 units に収まるところまで詰め、
+// 英数字の語の途中や行頭禁則の文字（】など）の前に当たったら、行内の最後の空白で折る。
+// 空白が無ければ、そのどちらにも当たらない位置まで 1 字ずつ戻す。
+function shortsTitleBreak(chars, units) {
+  let width = 0;
+  let cut = 0;
+  while (cut < chars.length && width + charWidth(chars[cut]) <= units) {
+    width += charWidth(chars[cut]);
+    cut++;
+  }
+  if (cut === 0) {
+    return 1;
+  }
+  const badBreak = (at) => (isLatinWordChar(chars[at - 1]) && isLatinWordChar(chars[at]))
+    || LINE_START_KINSOKU_CHARS.has(chars[at]);
+  if (cut >= chars.length || !badBreak(cut)) {
+    return cut;
+  }
+  for (let at = cut - 1; at > 0; at--) {
+    if (chars[at] === ' ' && !LINE_START_KINSOKU_CHARS.has(chars[at + 1])) {
+      return at;
+    }
+  }
+  for (let at = cut - 1; at > 0; at--) {
+    if (!badBreak(at)) {
+      return at;
+    }
+  }
+  return cut;
+}
+
+// Shorts はタイトル幅20（全角20文字）×最大2行 + 最下行に日付。末尾の演者表記は chapterLabelFor と同じ規則。
 export function fitShortsTitle({ title, date, style, width }) {
   const text = stripEmoji(String(title || ''))
     .replace(/\s*(?:【[^】]*】|『[^』]*』)\s*$/, '').trim()
@@ -346,13 +398,21 @@ export function fitShortsTitle({ title, date, style, width }) {
   const parts = text.replaceAll('【', '\n【').replaceAll('】', '】\n').split('\n').map((part) => part.trim()).filter(Boolean);
   const titleLines = [];
   for (const part of parts) {
-    const chars = [...part];
-    for (let start = 0; start < chars.length; start += 20) {
-      titleLines.push(chars.slice(start, start + 20).join(''));
+    let chars = [...part];
+    while (chars.length > 0) {
+      const cut = shortsTitleBreak(chars, SHORTS_TITLE_UNITS);
+      const line = chars.slice(0, cut).join('').trim();
+      if (line) {
+        titleLines.push(line);
+      }
+      chars = chars.slice(cut);
+      while (chars[0] === ' ') {
+        chars.shift();
+      }
     }
   }
   if (titleLines.length > 2) {
-    titleLines[1] = `${[...titleLines[1]].slice(0, 19).join('')}…`;
+    titleLines[1] = `${takeUnits(titleLines[1], SHORTS_TITLE_UNITS - 1).trimEnd()}…`;
   }
   const marginH = Math.round(width * (style.marginH ?? 0.035));
   const size = Math.max(1, Math.floor((width - 2 * marginH) * 0.97 / 20));

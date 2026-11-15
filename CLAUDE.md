@@ -188,7 +188,7 @@ PATH=/opt/homebrew/bin:$PATH npm run createVideo -- --config scripts/create-vide
 - クリップJSONの `effects.reframe: false` で個別OFF、`{"x":0.8,"y":0.7,"zoom":1.2}` で手動焦点と倍率の下限を指定（全体OFFでも有効）。zoomのみなら検出を継承。reframe中は `effects.zoom` と `effects.avoidFace` / `telops.serif.avoidFace` を警告してスキップする。個別OFFのクリップは従来のscale+padへ戻る。
 - `output.split` は既定null。`{"by":"stream","minSec":10}` で、選択・除外・並び替え・limit 後のクリップ列を**連続する**同じ videoId の塊へ分け、合計尺が minSec 未満なら次の塊を足し、短い末尾だけ直前へ寄せる。尺は各 `endTime - startTime` の和で、OP/カード/ED は含まない。離れた位置で再登場する配信は別の塊。全体が短ければ1本になる。
 - `<name>-01.mp4`, `-02.mp4` …（1本だけでも `-01`）とし、render.json / youtube.txt / comment.txt / meta.json / QC も同じ連番名で各パートへ出す。自動名の基準日は選択全体の先頭で固定。`--out` のファイル名にも連番を挿入する。`--part N` は分割後の1始まり番号を選び、他パートを描画しない（split 無効・範囲外はエラー）。ffmpeg の解決は全パートを通じて1回。
-- `telops.title.layout` は既定 `default`（従来のformat/singleLine）、Shortsは `date-title`。末尾の【…】/『…』をchapterLabelForの最初の置換と同じ規則で取り、タイトル最大2行＋最下行に日付YYYY/MM/DDの1行にする（帯を最下部に置くので、日付が動画の最下部に来る。ユーザー指定）。【の直前・】の直後で改行し、それぞれを20コードポイントごとに折る。2行を超えたら2行目を最大19文字＋…にする。このモードはsize/minSize/autoShrink/format/singleLineを使わず、20全角文字が内幅へ収まる最大サイズを算出する（1080幅・左右3.5%=38pxずつで48px）。`box.anchor` は既定 `top`、Shortsは **bottom**。`box.offsetY:0` はユーザー指定のまま保ち、`minHeight:0.11 / pad:8` で帯の下端を出力下端に付ける（高さ211px、上端1709px）。offsetYは指定した端からの距離で、anchor未指定の上端配置は変えない。日付を帯の1行目に置くので独立したdateは非表示。元動画時刻・進行表示も非表示。
+- `telops.title.layout` は既定 `default`（従来のformat/singleLine）、Shortsは `date-title`。末尾の【…】/『…』をchapterLabelForの最初の置換と同じ規則で取り、タイトル最大2行＋最下行に日付YYYY/MM/DDの1行にする（帯を最下部に置くので、日付が動画の最下部に来る。ユーザー指定）。【の直前・】の直後で改行し、それぞれを幅20（`charWidth`。全角1・半角0.5）ごとに折る。英数字の語の途中や行頭禁則の文字（】など）の前に当たったら行内の最後の空白で折り、空白が無ければ当たらない位置まで戻す（「【Detroit: Become Hum / an】」のような割れ方を避ける）。2行を超えたら2行目を幅19以内＋…にする。このモードはsize/minSize/autoShrink/format/singleLineを使わず、20全角文字が内幅へ収まる最大サイズを算出する（1080幅・左右3.5%=38pxずつで48px）。`box.anchor` は既定 `top`、Shortsは **bottom**。`box.offsetY:0` はユーザー指定のまま保ち、`minHeight:0.11 / pad:8` で帯の下端を出力下端に付ける（高さ211px、上端1709px）。offsetYは指定した端からの距離で、anchor未指定の上端配置は変えない。日付を帯の1行目に置くので独立したdateは非表示。元動画時刻・進行表示も非表示。
 - `telops.serif.layout` は既定 `wrap`（既存のwrapText/autoShrink）、Shortsは `space-lines`。半角スペースと手動改行のみで分け（連続区切りの空行は捨てる）、全角空白を区切りへ変換しない。同じ画面のセリフは全行を同じ大きさにする（ユーザー指定）。最も長い行が内幅に収まる大きさ（上限size）に揃え、合計行送りがmaxHeightを超えたら全行を同じだけ縮める。行の幅はlibassで描くHiraginoの実測（全角1字≈fs×0.66、`GLYPH_RATIO`）で見積もる（「1字=fs」の推定だと実際は約2/3の幅にしかならない）。minSize・自動折り返し・禁則での送り・karaokeは使わない。行ごとのDialogueでも強調記法・outlines・fadeを維持し、行サイズと位置は描画・矩形・QCで共有する。意図した行数や禁則はL0で警告せず、画面外・衝突は検査する。
 - Shortsのセリフは **marginH=50/1080（各50px、内幅980px）/ size:0.5（上限960px）**、配色は config-kirinuki と同じピンク文字 FF4FA0＋白縁 9px＋紫 6B3FA0 の外縁 4px＋影 3（白＋濃紫の太縁も試したが、ユーザーの判断でこの配色に戻した）。トランジションの SE は鳴らさない（`transitions.se.enabled:false`、ホイップパンの映像は残す）。`telops.serif.faceRange`（既定enabled:false）で上端〜前髪付近に収める。Shortsは `enabled:true / top:0.02 / minHeight:0.12 / maxHeight:0.30 / fallbackBottom:0.24`。顔の枠の上端をreframeの元座標から実出力へ写し、topからそこまでの高さを12〜30%に制限する。reframeなし・顔未検出・手動焦点で顔サイズ不明のときは固定2〜24%。範囲内で上下中央に置き、合計行送りが範囲を超えると全行を同率縮小する（fitSpaceLinesの0.97の余裕は維持）。狭い範囲を最低12%に広げた場合は前髪への軽い重なりを許す。rangeを`serifOverrides`と同じく共有描画計画から渡し、`serifRange`としてセグメントとstillのJSONへ残す。描画・manifestの行別矩形・QCは同じ計画を使う。描画前のL0は未検出相当の固定範囲で検査する。
 - 2026-11-01のデータで、やられ25クリップ→7本（11.01〜51.13秒）、侍73クリップ→23本（10.20〜37.54秒）。本数はクリップの追加で変わるので、`split.test.js` は本数を固定せず「漏れなく分ける・各パートが minSec 以上」だけを実データで確かめる。
@@ -374,6 +374,27 @@ http://localhost:5173/mone-button/crop.html?clip=<base>&at=1.5&aspect=9:16
 - 切り抜きは正方形で切られているので、白フチは画像の矩形の内側だけに描く（切り口に白い線を出さない）。
 
 詳細・判断・検証残件は docs/tasks/11-02-thumbnail.md を参照。
+
+## 音MAD の素材出力（otomad）
+
+曲に合わせて声を音程合わせした音MAD を、Premiere Pro で仕上げるための素材一式として `output/otomad/assets-NN/`（既存の最大番号 + 1）に書き出す。最初のプロジェクトは天国と地獄（`assets/create-video/aux-enfers.mp3`、ポケットサウンド）の山場。
+
+```
+npm run otomad                                   # 既定プロジェクト tengoku-to-jigoku
+npm run otomad -- --no-download --no-pitch-pack --candidates 2   # 軽い確認用
+npm run otomad -- --import-boundaries output/otomad/assets-01    # 手で直した音節境界を取り込む
+```
+
+- 入力は `scripts/otomad/projects/<name>/` の project.json（拍・範囲・区間ごとの声・笑い声の小節の規則・句末アクセント・候補数・出力 1920x1080 60fps 48kHz）、melody.json（主旋律）、boundaries.json（手で決めた音節境界。public/videos の mp4 先頭からの秒）、plan.md（AI の編集方針）。拍 b の時刻 = offsetSec + b × 60 / bpm（天国と地獄は 168 BPM・0.045 秒・2 拍/小節）。旋律と拍は 2026-11-11 に一度だけ解析した値（essentia Melodia + basic-pitch。ツールの実行には Python は要らない）。
+- 出力: README.md（Premiere での手順）、編集方針.md、`premiere/<name>.xml`（FCP7 XML。V1 映像、A1 曲、A2 旋律の声、A3 句末アクセント、A4 声の完成ミックス＝無効、小節・句頭・演出のマーカー）、beats/、melody/（json・csv・mid・正弦波 guide.wav）、score/（譜面）、audio/（backing・voice-mix・mix・events/）、video/cut/（拍に合わせて切った高画質映像）、video/preview.mp4（AI 案の通し。反転と中心ズームを焼く）、samples/（カテゴリごとの候補。clip.mp4・clip-hold.mp4・clip.wav・spectrogram.png・units.json・units/・units-clean/・pitch/<音名>.wav）。全 1 回で約 7 分・約 260MB。
+- **声の頭はサンプル単位で拍に合わせる**。FCP XML はクリップ位置がフレーム単位なので、events の各 WAV の先頭に「直前のフレーム境界から声の頭までの無音」を足し、フレーム境界に置く。子音は最大 60ms 拍の前に出し、母音の始まりを拍に乗せる。
+- 声は rubberband（`-3 -F`、R3・フォルマント保持）で音節ごとに音高を変える。f0 は YIN。オクターブは声ごとにずらし量の中央値が最小になる -24/-12/0、笑い声だけ音ごと。長さは次の音の頭まで（最大 1 拍）。
+- samples の clip.mp4 は高画質キャッシュを 1920x1080・60fps 一定に変換したもの（キャッシュは 30/60fps が混在し、XML の in/out の解釈がぶれるため）。元動画が足りない所は Time Remap ではなく最後のフレームを止めた clip-hold.mp4 を置く。高画質と public/videos の時間差は音声の相互相関で測り、声は高画質の音声から切る（境界と clip.wav は public/videos 基準のまま）。
+- 候補の高画質は createVideo と同じ `downloadHighQuality(normalize: true)` で、各カテゴリ上位 `downloadPerCategory`（5）件と使う素材だけ取る。音節の自動区切り（source: auto）は精度が低いので、使う素材は boundaries.json に手で決めた境界を入れる。「ガハハ」カテゴリの声は本人の笑い声ではなくダジャレ（チャットの反応が「ガハハ」）。「自立侍」は連濁して「じりつざむらい」。
+- ffmpeg は `FFMPEG_BIN` があればそれ、無ければ createVideo の `resolveFfmpeg`（ffmpeg-full）。ffmpeg-full なら spectrogram に音節と秒数の文字を描く。rubberband・xmllint が必要。
+- テストは `scripts/otomad/*.test.js`（`npm test` に含まれる）。Premiere Pro 本体での XML の読み込みは未確認。
+
+詳細・判断・検証結果は docs/tasks/11-11-otomad-assets.md を参照。
 
 ## ドキュメント管理
 
