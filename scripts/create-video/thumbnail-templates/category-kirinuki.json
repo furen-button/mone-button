@@ -1,0 +1,206 @@
+{
+  "version": 1,
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "layers": [
+    {
+      "id": "bg",
+      "type": "image",
+      "x": 640,
+      "y": 360,
+      "rotation": 0,
+      "opacity": 1,
+      "hidden": false,
+      "locked": false,
+      "slot": "frame",
+      "scale": 1,
+      "fit": "cover",
+      "flipX": false,
+      "filter": {
+        "blur": 0,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "shade",
+      "type": "rect",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "opacity": 1,
+      "hidden": true,
+      "locked": false,
+      "w": 1000,
+      "h": 720,
+      "radius": 0,
+      "fill": {
+        "type": "linear",
+        "from": "#2A1446F0",
+        "to": "#2A144600",
+        "angle": 90
+      }
+    },
+    {
+      "id": "purple",
+      "type": "rect",
+      "x": 711.7067834782817,
+      "y": 567.0275761973875,
+      "rotation": 0,
+      "opacity": 0.25,
+      "hidden": false,
+      "locked": false,
+      "w": 419,
+      "h": 165.49902467916243,
+      "radius": 0,
+      "fill": {
+        "type": "linear",
+        "from": "#6B3FA0",
+        "to": "#FF4FA0",
+        "angle": 90
+      }
+    },
+    {
+      "id": "mone",
+      "type": "image",
+      "x": 345.89985486211896,
+      "y": 360,
+      "rotation": 0,
+      "opacity": 1,
+      "hidden": false,
+      "locked": false,
+      "slot": "face",
+      "scale": 0.5720880608682023,
+      "fit": "free",
+      "flipX": false,
+      "outline": {
+        "width": 10,
+        "color": "#FFFFFF"
+      },
+      "shadow": {
+        "blur": 18,
+        "x": 0,
+        "y": 8,
+        "color": "#00000080"
+      },
+      "filter": {
+        "blur": 0,
+        "brightness": 1
+      }
+    },
+    {
+      "id": "name",
+      "type": "text",
+      "x": 955.7619738751814,
+      "y": 48.50507982583454,
+      "rotation": 29,
+      "opacity": 1,
+      "hidden": false,
+      "locked": false,
+      "text": "梢桃音",
+      "font": "Rampart One",
+      "weight": 400,
+      "size": 103.18456011541112,
+      "color": "#FF4FA0",
+      "emphasisColor": "#FFD800",
+      "outlines": [
+        {
+          "width": 12,
+          "color": "#FFFFFF"
+        },
+        {
+          "width": 8,
+          "color": "#6B3FA0"
+        }
+      ],
+      "lineHeight": 1.1,
+      "letterSpacing": 0,
+      "align": "left"
+    },
+    {
+      "id": "matome",
+      "type": "text",
+      "x": 722.8519593613933,
+      "y": 643.0406386066765,
+      "rotation": 0,
+      "opacity": 1,
+      "hidden": false,
+      "locked": false,
+      "text": "まとめ",
+      "font": "RocknRoll One",
+      "weight": 400,
+      "size": 131.05635568505818,
+      "color": "#ffffff",
+      "emphasisColor": "#ffffff",
+      "outlines": [
+        {
+          "width": 12,
+          "color": "#000000"
+        }
+      ],
+      "lineHeight": 1.1,
+      "letterSpacing": 0,
+      "align": "left"
+    },
+    {
+      "id": "sub",
+      "type": "text",
+      "x": 606.574746008708,
+      "y": 445.55730692829206,
+      "rotation": 10,
+      "opacity": 1,
+      "hidden": false,
+      "locked": false,
+      "text": "〜category〜",
+      "font": "Reggae One",
+      "weight": 400,
+      "size": 87.47111245339936,
+      "color": "#FF4FA0",
+      "emphasisColor": "#FFD800",
+      "outlines": [
+        {
+          "width": 12,
+          "color": "#FFFFFF"
+        },
+        {
+          "width": 8,
+          "color": "#6B3FA0"
+        }
+      ],
+      "lineHeight": 1.1,
+      "letterSpacing": 0,
+      "align": "left"
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "x": 768.7300435413646,
+      "y": 286.12334466414103,
+      "rotation": 10,
+      "opacity": 1,
+      "hidden": false,
+      "locked": false,
+      "slot": "title",
+      "text": "カテゴリ",
+      "font": "Reggae One",
+      "weight": 400,
+      "size": 302.42539971047233,
+      "color": "#FF4FA0",
+      "emphasisColor": "#FFD800",
+      "outlines": [
+        {
+          "width": 12,
+          "color": "#FFFFFF"
+        },
+        {
+          "width": 8,
+          "color": "#6B3FA0"
+        }
+      ],
+      "lineHeight": 1.1,
+      "letterSpacing": 0,
+      "align": "left"
+    }
+  ]
+}
