@@ -18,6 +18,7 @@ function fixture(t) {
     description: '概要', thumbnail: { path: image, mimeType: 'image/png', bytes: 10 }, comments: ['本文1', '本文2', '本文3'] });
   const calls = [];
   let fail;
+  let failError;
   const method = (name, response) => async (args, options) => {
     calls.push({ name, args, options });
     if (name === 'videos.insert') {
@@ -29,7 +30,7 @@ function fixture(t) {
       }
     }
     if (fail === name) {
-      throw { response: { status: 503 }, message: 'fake-secret-in-request' };
+      throw failError ?? { response: { status: 503 }, message: 'fake-secret-in-request' };
     }
     return { data: response };
   };
@@ -40,7 +41,7 @@ function fixture(t) {
     commentThreads: { insert: method('commentThreads.insert', { snippet: { topLevelComment: { id: 'top-comment-id' } } }) },
     comments: { insert: method('comments.insert', { id: 'reply-id' }) },
   };
-  return { plan, client, calls, setFailure: (name) => { fail = name; } };
+  return { plan, client, calls, setFailure: (name, error = null) => { fail = name; failError = error; } };
 }
 
 const options = { channelId: 'UCtest' };
@@ -141,4 +142,54 @@ test('API エラーにリクエストや token の詳細を含めない', () => 
   const error = apiFailure('送信', { message: 'fake-secret', response: { status: 401, data: 'fake-secret' } });
   assert.match(error.message, /HTTP 401/u);
   assert.ok(!error.message.includes('fake-secret'));
+});
+
+const uploadLimitError = {
+  message: 'fake-secret-in-request',
+  config: { headers: { Authorization: 'Bearer fake-secret-token' }, data: 'fake-secret-body' },
+  response: { status: 400, data: { error: { code: 400, message: 'The user has exceeded the number of videos they may upload.',
+    errors: [{ reason: 'uploadLimitExceeded', domain: 'youtube.video', message: 'The user has exceeded the number of videos they may upload.' }] } } },
+};
+
+test('API エラーは応答の reason と文言だけを出す', () => {
+  const youtube = apiFailure('動画送信', uploadLimitError);
+  assert.match(youtube.message, /（HTTP 400 \/ uploadLimitExceeded）/u);
+  assert.match(youtube.message, /応答: 「The user has exceeded the number of videos they may upload\.」/u);
+  assert.ok(!youtube.message.includes('fake-secret'));
+  assert.deepEqual(youtube.detail, { stage: '動画送信', status: 400, reasons: ['uploadLimitExceeded'],
+    message: 'The user has exceeded the number of videos they may upload.', code: null });
+
+  const oauth = apiFailure('チャンネル確認', { response: { status: 400, data: { error: 'invalid_grant', error_description: 'Token has been expired or revoked.' } } });
+  assert.match(oauth.message, /（HTTP 400 \/ invalid_grant）。応答: 「Token has been expired or revoked\.」/u);
+
+  const network = apiFailure('動画送信', { code: 'ECONNRESET', message: 'socket hang up fake-secret' });
+  assert.match(network.message, /（ECONNRESET）/u);
+  assert.ok(!network.message.includes('fake-secret'));
+});
+
+test('失敗の理由を upload.json の failures に残し、送り直しの成功後も消さない', async (t) => {
+  const f = fixture(t);
+  f.setFailure('videos.insert', uploadLimitError);
+  await assert.rejects(uploadPlan(f.plan, { client: f.client, ...options }), /uploadLimitExceeded/u);
+  const record = readRecord(f.plan.videoPath);
+  assert.equal(record.steps.video, 'failed');
+  assert.equal(record.failures.length, 1);
+  assert.deepEqual({ ...record.failures[0], at: undefined }, { stage: '動画送信（自動再送なし）', status: 400, reasons: ['uploadLimitExceeded'],
+    message: 'The user has exceeded the number of videos they may upload.', code: null, at: undefined });
+  assert.ok(!Number.isNaN(Date.parse(record.failures[0].at)));
+  assert.ok(!JSON.stringify(record).includes('fake-secret'));
+  f.setFailure(null);
+  const result = await uploadPlan({ ...f.plan, record }, { client: f.client, ...options, retryVideo: true });
+  assert.equal(result.steps.video, 'done');
+  assert.equal(readRecord(f.plan.videoPath).failures.length, 1);
+});
+
+test('failures は直近 10 件だけ残す', async (t) => {
+  const f = fixture(t);
+  f.setFailure('videos.insert', uploadLimitError);
+  await assert.rejects(uploadPlan(f.plan, { client: f.client, ...options }));
+  for (let i = 0; i < 11; i++) {
+    await assert.rejects(uploadPlan({ ...f.plan, record: readRecord(f.plan.videoPath) }, { client: f.client, ...options, retryVideo: true }));
+  }
+  assert.equal(readRecord(f.plan.videoPath).failures.length, 10);
 });

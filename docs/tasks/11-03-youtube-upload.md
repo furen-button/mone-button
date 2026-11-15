@@ -138,6 +138,7 @@ videos.insert の本文:
 - 公式ライブラリの動画送信は 1 回のリクエストで送る（`uploadType=multipart`）。途中から再開する仕組み（resumable）は持っていない（`googleapis-common` 9 の `build/src/apirequest.js` で確認）。現在の mp4 は 7〜128MB なので、一括送信で足りる。
 - 動画の送信中に失敗しても**自動では送り直さない**。サーバ側では受け取れていて、送り直すと同じ動画が 2 本できることがあるため。upload.json の `steps.video` に `"failed"` を残して止める。送信前にこの状態を書き込むので、送信中のプロセス終了でも再送には明示指定が必要になる。Studio で動画ができていないことを確かめてから `--retry-video` で送り直す。
 - サムネイルとコメントの段で失敗した場合は videoId が upload.json に残る。再実行すると、終わっていない段から続ける。
+- 失敗の理由は、例外から HTTP ステータス・応答の `error.errors[].reason`・`error.message`（OAuth の token 更新失敗なら `error` と `error_description`）・通信エラーのコード（`ECONNRESET` など）だけを取り出して、端末のメッセージと upload.json の `failures` に残す（`api.js` の `failureDetail`）。`failures` は直近 10 件の履歴で、送り直しが成功しても消さない。2026-11-03・04 に 10 本前後を続けて上げると `videos.insert` が HTTP 400 になったが、当時は理由を捨てていたため確かめられなかった。上限なら `uploadLimitExceeded` が残るはず。
 - mp4 を作り直して SHA-256 が変わった場合は、upload.json があれば止める。古い動画を Studio で消してから upload.json を消して上げ直す。
 
 ## upload.json
@@ -160,9 +161,21 @@ mp4 と同じ場所に `<name>.upload.json` を書く（git 管理外の `output
     "thumbnail": "done",
     "comment": "done"
   },
-  "commentIds": ["…"]
+  "commentIds": ["…"],
+  "failures": [
+    {
+      "stage": "動画送信（自動再送なし）",
+      "status": 400,
+      "reasons": ["uploadLimitExceeded"],
+      "message": "The user has exceeded the number of videos they may upload.",
+      "code": null,
+      "at": "2026-11-05T14:15:00.000Z"
+    }
+  ]
 }
 ```
+
+`failures` は失敗したことがある記録にだけ付く。
 
 ## タイトルのひな形
 
