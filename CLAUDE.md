@@ -375,6 +375,27 @@ http://localhost:5173/mone-button/crop.html?clip=<base>&at=1.5&aspect=9:16
 
 詳細・判断・検証残件は docs/tasks/11-02-thumbnail.md を参照。
 
+## 音MAD の素材出力（otomad）
+
+曲に合わせて声を音程合わせした音MAD を、Premiere Pro で仕上げるための素材一式として `output/otomad/assets-NN/`（既存の最大番号 + 1）に書き出す。最初のプロジェクトは天国と地獄（`assets/create-video/aux-enfers.mp3`、ポケットサウンド）の山場。
+
+```
+npm run otomad                                   # 既定プロジェクト tengoku-to-jigoku
+npm run otomad -- --no-download --no-pitch-pack --candidates 2   # 軽い確認用
+npm run otomad -- --import-boundaries output/otomad/assets-01    # 手で直した音節境界を取り込む
+```
+
+- 入力は `scripts/otomad/projects/<name>/` の project.json（拍・範囲・区間ごとの声・笑い声の小節の規則・句末アクセント・候補数・出力 1920x1080 60fps 48kHz）、melody.json（主旋律）、boundaries.json（手で決めた音節境界。public/videos の mp4 先頭からの秒）、plan.md（AI の編集方針）。拍 b の時刻 = offsetSec + b × 60 / bpm（天国と地獄は 168 BPM・0.045 秒・2 拍/小節）。旋律と拍は 2026-11-11 に一度だけ解析した値（essentia Melodia + basic-pitch。ツールの実行には Python は要らない）。
+- 出力: README.md（Premiere での手順）、編集方針.md、`premiere/<name>.xml`（FCP7 XML。V1 映像、A1 曲、A2 旋律の声、A3 句末アクセント、A4 声の完成ミックス＝無効、小節・句頭・演出のマーカー）、beats/、melody/（json・csv・mid・正弦波 guide.wav）、score/（譜面）、audio/（backing・voice-mix・mix・events/）、video/cut/（拍に合わせて切った高画質映像）、video/preview.mp4（AI 案の通し。反転と中心ズームを焼く）、samples/（カテゴリごとの候補。clip.mp4・clip-hold.mp4・clip.wav・spectrogram.png・units.json・units/・units-clean/・pitch/<音名>.wav）。全 1 回で約 7 分・約 260MB。
+- **声の頭はサンプル単位で拍に合わせる**。FCP XML はクリップ位置がフレーム単位なので、events の各 WAV の先頭に「直前のフレーム境界から声の頭までの無音」を足し、フレーム境界に置く。子音は最大 60ms 拍の前に出し、母音の始まりを拍に乗せる。
+- 声は rubberband（`-3 -F`、R3・フォルマント保持）で音節ごとに音高を変える。f0 は YIN。オクターブは声ごとにずらし量の中央値が最小になる -24/-12/0、笑い声だけ音ごと。長さは次の音の頭まで（最大 1 拍）。
+- samples の clip.mp4 は高画質キャッシュを 1920x1080・60fps 一定に変換したもの（キャッシュは 30/60fps が混在し、XML の in/out の解釈がぶれるため）。元動画が足りない所は Time Remap ではなく最後のフレームを止めた clip-hold.mp4 を置く。高画質と public/videos の時間差は音声の相互相関で測り、声は高画質の音声から切る（境界と clip.wav は public/videos 基準のまま）。
+- 候補の高画質は createVideo と同じ `downloadHighQuality(normalize: true)` で、各カテゴリ上位 `downloadPerCategory`（5）件と使う素材だけ取る。音節の自動区切り（source: auto）は精度が低いので、使う素材は boundaries.json に手で決めた境界を入れる。「ガハハ」カテゴリの声は本人の笑い声ではなくダジャレ（チャットの反応が「ガハハ」）。「自立侍」は連濁して「じりつざむらい」。
+- ffmpeg は `FFMPEG_BIN` があればそれ、無ければ createVideo の `resolveFfmpeg`（ffmpeg-full）。ffmpeg-full なら spectrogram に音節と秒数の文字を描く。rubberband・xmllint が必要。
+- テストは `scripts/otomad/*.test.js`（`npm test` に含まれる）。Premiere Pro 本体での XML の読み込みは未確認。
+
+詳細・判断・検証結果は docs/tasks/11-11-otomad-assets.md を参照。
+
 ## ドキュメント管理
 
 - docs/draft.md - 仕様元

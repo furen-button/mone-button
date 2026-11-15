@@ -1,0 +1,774 @@
+[
+ {
+  "beat": 104.0,
+  "dur": 0.75,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 0,
+  "semis": 4.11
+ },
+ {
+  "beat": 104.75,
+  "dur": 0.25,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 1,
+  "semis": 4.81
+ },
+ {
+  "beat": 105.0,
+  "dur": 0.75,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 2,
+  "semis": 5.62
+ },
+ {
+  "beat": 105.75,
+  "dur": 1.0,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 7,
+  "semis": -1.65
+ },
+ {
+  "beat": 106.75,
+  "dur": 1.0,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 7,
+  "semis": -1.65
+ },
+ {
+  "beat": 107.75,
+  "dur": 0.5,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 3,
+  "semis": 5.5
+ },
+ {
+  "beat": 108.25,
+  "dur": 0.5,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 4,
+  "semis": 4.03
+ },
+ {
+  "beat": 108.75,
+  "dur": 0.25,
+  "midi": 62,
+  "phrase": "laugh",
+  "unit": 5,
+  "semis": -5.35
+ },
+ {
+  "beat": 109.0,
+  "dur": 0.75,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 6,
+  "semis": 4.81
+ },
+ {
+  "beat": 109.75,
+  "dur": 0.25,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 0,
+  "semis": 4.11
+ },
+ {
+  "beat": 110.0,
+  "dur": 1.0,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 7,
+  "semis": -1.65
+ },
+ {
+  "beat": 111.0,
+  "dur": 1.0,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 7,
+  "semis": -1.65
+ },
+ {
+  "beat": 112.0,
+  "dur": 1.0,
+  "midi": 67,
+  "phrase": "futon",
+  "unit": 0,
+  "semis": 2.41
+ },
+ {
+  "beat": 114.0,
+  "dur": 0.5,
+  "midi": 69,
+  "phrase": "futon",
+  "unit": 1,
+  "semis": 4.69
+ },
+ {
+  "beat": 114.5,
+  "dur": 0.5,
+  "midi": 72,
+  "phrase": "futon",
+  "unit": 2,
+  "semis": 1.89
+ },
+ {
+  "beat": 115.0,
+  "dur": 0.5,
+  "midi": 71,
+  "phrase": "futon",
+  "unit": 3,
+  "semis": -0.29
+ },
+ {
+  "beat": 115.5,
+  "dur": 0.5,
+  "midi": 69,
+  "phrase": "futon",
+  "unit": 4,
+  "semis": -0.14
+ },
+ {
+  "beat": 116.0,
+  "dur": 1.0,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 7,
+  "semis": -1.65
+ },
+ {
+  "beat": 117.0,
+  "dur": 1.0,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 7,
+  "semis": -1.65
+ },
+ {
+  "beat": 118.0,
+  "dur": 1.0,
+  "midi": 74,
+  "phrase": "futon",
+  "unit": 5,
+  "semis": -0.31
+ },
+ {
+  "beat": 119.0,
+  "dur": 0.5,
+  "midi": 71,
+  "phrase": "futon",
+  "unit": 0,
+  "semis": 6.41
+ },
+ {
+  "beat": 119.5,
+  "dur": 0.5,
+  "midi": 72,
+  "phrase": "futon",
+  "unit": 1,
+  "semis": 7.69
+ },
+ {
+  "beat": 120.0,
+  "dur": 1.0,
+  "midi": 81,
+  "phrase": "laugh",
+  "unit": 7,
+  "semis": 5.35
+ },
+ {
+  "beat": 121.0,
+  "dur": 1.0,
+  "midi": 81,
+  "phrase": "laugh",
+  "unit": 7,
+  "semis": 5.35
+ },
+ {
+  "beat": 122.0,
+  "dur": 0.5,
+  "midi": 69,
+  "phrase": "futon",
+  "unit": 2,
+  "semis": -1.11
+ },
+ {
+  "beat": 122.5,
+  "dur": 1.0,
+  "midi": 66,
+  "phrase": "futon",
+  "unit": 3,
+  "semis": -5.29
+ },
+ {
+  "beat": 123.5,
+  "dur": 1.0,
+  "midi": 66,
+  "phrase": "futon",
+  "unit": 4,
+  "semis": -3.14
+ },
+ {
+  "beat": 125.5,
+  "dur": 0.5,
+  "midi": 67,
+  "phrase": "futon",
+  "unit": 5,
+  "semis": -7.31
+ },
+ {
+  "beat": 126.0,
+  "dur": 1.0,
+  "midi": 62,
+  "phrase": "futon",
+  "unit": 0,
+  "semis": -2.59
+ },
+ {
+  "beat": 128.0,
+  "dur": 1.0,
+  "midi": 55,
+  "phrase": "samurai",
+  "unit": 0,
+  "semis": -2.15
+ },
+ {
+  "beat": 129.5,
+  "dur": 0.5,
+  "midi": 55,
+  "phrase": "samurai",
+  "unit": 1,
+  "semis": -2.51
+ },
+ {
+  "beat": 130.0,
+  "dur": 0.5,
+  "midi": 57,
+  "phrase": "samurai",
+  "unit": 2,
+  "semis": 0.38
+ },
+ {
+  "beat": 130.5,
+  "dur": 0.5,
+  "midi": 60,
+  "phrase": "samurai",
+  "unit": 3,
+  "semis": 3.26
+ },
+ {
+  "beat": 131.0,
+  "dur": 1.0,
+  "midi": 59,
+  "phrase": "samurai",
+  "unit": 4,
+  "semis": 4.64
+ },
+ {
+  "beat": 132.0,
+  "dur": 1.0,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 7,
+  "semis": -1.65
+ },
+ {
+  "beat": 133.0,
+  "dur": 1.0,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 7,
+  "semis": -1.65
+ },
+ {
+  "beat": 134.0,
+  "dur": 1.0,
+  "midi": 62,
+  "phrase": "samurai",
+  "unit": 5,
+  "semis": 5.26
+ },
+ {
+  "beat": 135.0,
+  "dur": 0.25,
+  "midi": 59,
+  "phrase": "samurai",
+  "unit": 0,
+  "semis": 1.85
+ },
+ {
+  "beat": 135.25,
+  "dur": 0.25,
+  "midi": 59,
+  "phrase": "samurai",
+  "unit": 1,
+  "semis": 1.49
+ },
+ {
+  "beat": 135.5,
+  "dur": 0.5,
+  "midi": 60,
+  "phrase": "samurai",
+  "unit": 2,
+  "semis": 3.38
+ },
+ {
+  "beat": 136.0,
+  "dur": 1.0,
+  "midi": 81,
+  "phrase": "laugh",
+  "unit": 7,
+  "semis": 5.35
+ },
+ {
+  "beat": 137.0,
+  "dur": 1.0,
+  "midi": 81,
+  "phrase": "laugh",
+  "unit": 7,
+  "semis": 5.35
+ },
+ {
+  "beat": 138.0,
+  "dur": 0.5,
+  "midi": 57,
+  "phrase": "samurai",
+  "unit": 3,
+  "semis": 0.26
+ },
+ {
+  "beat": 138.5,
+  "dur": 0.25,
+  "midi": 60,
+  "phrase": "samurai",
+  "unit": 4,
+  "semis": 5.64
+ },
+ {
+  "beat": 138.75,
+  "dur": 0.25,
+  "midi": 60,
+  "phrase": "samurai",
+  "unit": 5,
+  "semis": 3.26
+ },
+ {
+  "beat": 139.0,
+  "dur": 1.0,
+  "midi": 59,
+  "phrase": "samurai",
+  "unit": 0,
+  "semis": 1.85
+ },
+ {
+  "beat": 140.5,
+  "dur": 0.5,
+  "midi": 62,
+  "phrase": "samurai",
+  "unit": 1,
+  "semis": 4.49
+ },
+ {
+  "beat": 141.0,
+  "dur": 0.25,
+  "midi": 57,
+  "phrase": "samurai",
+  "unit": 2,
+  "semis": 0.38
+ },
+ {
+  "beat": 141.25,
+  "dur": 0.75,
+  "midi": 57,
+  "phrase": "samurai",
+  "unit": 3,
+  "semis": 0.26
+ },
+ {
+  "beat": 142.0,
+  "dur": 1.0,
+  "midi": 55,
+  "phrase": "samurai",
+  "unit": 4,
+  "semis": 0.64
+ },
+ {
+  "beat": 143.0,
+  "dur": 1.0,
+  "midi": 50,
+  "phrase": "samurai",
+  "unit": 5,
+  "semis": -6.74
+ },
+ {
+  "beat": 144.0,
+  "dur": 1.0,
+  "midi": 67,
+  "phrase": "umeshu",
+  "unit": 0,
+  "semis": -2.7
+ },
+ {
+  "beat": 146.0,
+  "dur": 0.5,
+  "midi": 69,
+  "phrase": "umeshu",
+  "unit": 1,
+  "semis": -0.7
+ },
+ {
+  "beat": 146.5,
+  "dur": 0.25,
+  "midi": 72,
+  "phrase": "umeshu",
+  "unit": 2,
+  "semis": 1.91
+ },
+ {
+  "beat": 146.75,
+  "dur": 0.25,
+  "midi": 72,
+  "phrase": "umeshu",
+  "unit": 3,
+  "semis": 2.65
+ },
+ {
+  "beat": 147.0,
+  "dur": 0.25,
+  "midi": 71,
+  "phrase": "umeshu",
+  "unit": 4,
+  "semis": 1.39
+ },
+ {
+  "beat": 147.25,
+  "dur": 0.25,
+  "midi": 71,
+  "phrase": "umeshu",
+  "unit": 5,
+  "semis": 1.21
+ },
+ {
+  "beat": 147.5,
+  "dur": 0.25,
+  "midi": 69,
+  "phrase": "umeshu",
+  "unit": 0,
+  "semis": -0.7
+ },
+ {
+  "beat": 147.75,
+  "dur": 0.25,
+  "midi": 69,
+  "phrase": "umeshu",
+  "unit": 1,
+  "semis": -0.7
+ },
+ {
+  "beat": 148.0,
+  "dur": 1.0,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 7,
+  "semis": -1.65
+ },
+ {
+  "beat": 149.0,
+  "dur": 1.0,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 7,
+  "semis": -1.65
+ },
+ {
+  "beat": 150.0,
+  "dur": 0.5,
+  "midi": 67,
+  "phrase": "umeshu",
+  "unit": 2,
+  "semis": -3.09
+ },
+ {
+  "beat": 150.5,
+  "dur": 1.0,
+  "midi": 67,
+  "phrase": "umeshu",
+  "unit": 3,
+  "semis": -2.35
+ },
+ {
+  "beat": 151.5,
+  "dur": 0.5,
+  "midi": 67,
+  "phrase": "umeshu",
+  "unit": 4,
+  "semis": -2.61
+ },
+ {
+  "beat": 152.0,
+  "dur": 1.0,
+  "midi": 81,
+  "phrase": "laugh",
+  "unit": 7,
+  "semis": 5.35
+ },
+ {
+  "beat": 153.0,
+  "dur": 1.0,
+  "midi": 81,
+  "phrase": "laugh",
+  "unit": 7,
+  "semis": 5.35
+ },
+ {
+  "beat": 154.0,
+  "dur": 0.25,
+  "midi": 69,
+  "phrase": "umeshu",
+  "unit": 5,
+  "semis": -0.79
+ },
+ {
+  "beat": 154.25,
+  "dur": 0.25,
+  "midi": 69,
+  "phrase": "umeshu",
+  "unit": 0,
+  "semis": -0.7
+ },
+ {
+  "beat": 154.5,
+  "dur": 1.0,
+  "midi": 66,
+  "phrase": "umeshu",
+  "unit": 1,
+  "semis": -3.7
+ },
+ {
+  "beat": 158.5,
+  "dur": 1.0,
+  "midi": 66,
+  "phrase": "umeshu",
+  "unit": 2,
+  "semis": -4.09
+ },
+ {
+  "beat": 161.5,
+  "dur": 0.5,
+  "midi": 55,
+  "phrase": "samurai",
+  "unit": 0,
+  "semis": -2.15
+ },
+ {
+  "beat": 162.0,
+  "dur": 0.5,
+  "midi": 57,
+  "phrase": "samurai",
+  "unit": 1,
+  "semis": -0.51
+ },
+ {
+  "beat": 162.5,
+  "dur": 0.5,
+  "midi": 60,
+  "phrase": "samurai",
+  "unit": 2,
+  "semis": 3.38
+ },
+ {
+  "beat": 163.0,
+  "dur": 0.25,
+  "midi": 59,
+  "phrase": "samurai",
+  "unit": 3,
+  "semis": 2.26
+ },
+ {
+  "beat": 163.25,
+  "dur": 0.25,
+  "midi": 59,
+  "phrase": "samurai",
+  "unit": 4,
+  "semis": 4.64
+ },
+ {
+  "beat": 163.5,
+  "dur": 0.5,
+  "midi": 57,
+  "phrase": "samurai",
+  "unit": 5,
+  "semis": 0.26
+ },
+ {
+  "beat": 164.0,
+  "dur": 0.75,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 1,
+  "semis": 4.81
+ },
+ {
+  "beat": 164.75,
+  "dur": 0.25,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 2,
+  "semis": 5.62
+ },
+ {
+  "beat": 165.0,
+  "dur": 0.75,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 3,
+  "semis": 5.5
+ },
+ {
+  "beat": 165.75,
+  "dur": 0.25,
+  "midi": 74,
+  "phrase": "laugh",
+  "unit": 4,
+  "semis": 4.03
+ },
+ {
+  "beat": 166.0,
+  "dur": 0.25,
+  "midi": 62,
+  "phrase": "samurai",
+  "unit": 0,
+  "semis": 4.85
+ },
+ {
+  "beat": 166.25,
+  "dur": 0.75,
+  "midi": 62,
+  "phrase": "samurai",
+  "unit": 1,
+  "semis": 4.49
+ },
+ {
+  "beat": 167.0,
+  "dur": 0.5,
+  "midi": 59,
+  "phrase": "samurai",
+  "unit": 2,
+  "semis": 2.38
+ },
+ {
+  "beat": 167.5,
+  "dur": 0.5,
+  "midi": 60,
+  "phrase": "samurai",
+  "unit": 3,
+  "semis": 3.26
+ },
+ {
+  "beat": 168.0,
+  "dur": 1.0,
+  "midi": 81,
+  "phrase": "laugh",
+  "unit": 7,
+  "semis": 5.35
+ },
+ {
+  "beat": 169.0,
+  "dur": 1.0,
+  "midi": 81,
+  "phrase": "laugh",
+  "unit": 7,
+  "semis": 5.35
+ },
+ {
+  "beat": 170.0,
+  "dur": 1.0,
+  "midi": 57,
+  "phrase": "samurai",
+  "unit": 4,
+  "semis": 2.64
+ },
+ {
+  "beat": 171.25,
+  "dur": 0.25,
+  "midi": 54,
+  "phrase": "samurai",
+  "unit": 5,
+  "semis": -2.74
+ },
+ {
+  "beat": 171.5,
+  "dur": 1.0,
+  "midi": 54,
+  "phrase": "samurai",
+  "unit": 0,
+  "semis": -3.15
+ },
+ {
+  "beat": 172.5,
+  "dur": 0.5,
+  "midi": 55,
+  "phrase": "samurai",
+  "unit": 1,
+  "semis": -2.51
+ },
+ {
+  "beat": 173.0,
+  "dur": 1.0,
+  "midi": 57,
+  "phrase": "samurai",
+  "unit": 2,
+  "semis": 0.38
+ },
+ {
+  "beat": 174.0,
+  "dur": 1.0,
+  "midi": 55,
+  "phrase": "samurai",
+  "unit": 3,
+  "semis": -1.74
+ },
+ {
+  "beat": 175.5,
+  "dur": 0.5,
+  "midi": 55,
+  "phrase": "samurai",
+  "unit": 4,
+  "semis": 0.64
+ },
+ {
+  "beat": 124,
+  "dur": null,
+  "midi": null,
+  "phrase": "hentai",
+  "unit": null
+ },
+ {
+  "beat": 140.0,
+  "dur": null,
+  "midi": null,
+  "phrase": "hentai",
+  "unit": null
+ },
+ {
+  "beat": 156,
+  "dur": null,
+  "midi": null,
+  "phrase": "hentai",
+  "unit": null
+ },
+ {
+  "beat": 176,
+  "dur": null,
+  "midi": null,
+  "phrase": "hentai",
+  "unit": null
+ }
+]

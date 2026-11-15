@@ -1,0 +1,86 @@
+{
+  "name": "tengoku-to-jigoku",
+  "title": "天国と地獄（山場）",
+  "audio": "assets/create-video/aux-enfers.mp3",
+  "beat": {
+    "bpm": 168,
+    "offsetSec": 0.045,
+    "beatsPerBar": 2,
+    "note": "拍 b（4 分音符、0 始まり）の時刻 = offsetSec + b × 60 / bpm。位相は旋律帯の立ち上がりと basic-pitch の音の頭で決めた（2026-11-11）。"
+  },
+  "range": { "fromBar": 52, "toBar": 89 },
+  "sections": [
+    { "fromBar": 52, "toBar": 56, "name": "導入", "voice": "laugh" },
+    { "fromBar": 56, "toBar": 64, "name": "1 句目", "voice": "futon" },
+    { "fromBar": 64, "toBar": 72, "name": "2 句目", "voice": "samurai" },
+    { "fromBar": 72, "toBar": 80, "name": "3 句目", "voice": "umeshu" },
+    { "fromBar": 80, "toBar": 89, "name": "4 句目", "voice": "samurai" }
+  ],
+  "laughBars": {
+    "voice": "laugh",
+    "phraseStartBar": 56,
+    "phraseLength": 8,
+    "barInPhrase": [2, 4],
+    "note": "句の 3・5 小節目（ソーソー／レーレー）で、2 音以上がすべて同じ高さの小節を笑い声にする。導入（sections の voice）とは別。"
+  },
+  "accents": [
+    { "bar": 62, "beatInBar": 0, "voice": "hentai", "units": [0, 1] },
+    { "bar": 70, "beatInBar": 0, "voice": "hentai", "units": [0, 1] },
+    { "bar": 78, "beatInBar": 0, "voice": "hentai", "units": [0, 1] },
+    { "bar": 88, "beatInBar": 0, "voice": "hentai", "units": [0, 1] }
+  ],
+  "voices": {
+    "laugh": {
+      "label": "笑い声",
+      "category": "笑い声",
+      "base": "2026-07-14-guWCbwvEsPQ-006164-006168",
+      "mode": "percussive",
+      "longUnit": 7,
+      "longNoteSec": 0.3,
+      "note": "短い「は」（0〜6）を順に使い、0.3 秒以上の音は長い「はー」（7）。オクターブは音ごとに素材に近い方を選ぶ。"
+    },
+    "futon": {
+      "label": "布団が吹っ飛んだ",
+      "category": "ガハハ",
+      "base": "2026-01-25-r9nast8PwPA-035686-035687",
+      "mode": "lyric"
+    },
+    "samurai": {
+      "label": "自立侍",
+      "category": "侍",
+      "base": "2025-12-26-VKGBfta2pR0-005750-005810",
+      "mode": "lyric"
+    },
+    "umeshu": {
+      "label": "梅酒がうめえ",
+      "category": "ガハハ",
+      "base": "2024-12-19-NDd90D4vM3I-002462-002492",
+      "mode": "lyric"
+    },
+    "hentai": {
+      "label": "へんたい",
+      "category": "へんたい",
+      "base": "2025-01-11-Z-PB9v3m3rM-001678-001699",
+      "mode": "accent"
+    }
+  },
+  "candidates": {
+    "categories": ["侍", "ガハハ", "へんたい", "笑い声"],
+    "perCategory": 12,
+    "pitchPackPerCategory": 5,
+    "downloadPerCategory": 5,
+    "maxClipSec": 4.5
+  },
+  "output": {
+    "dir": "output/otomad",
+    "prefix": "assets-",
+    "width": 1920,
+    "height": 1080,
+    "fps": 60,
+    "sampleRate": 48000,
+    "voiceTransposeChoices": [-24, -12, 0],
+    "maxStretch": 2.0,
+    "preRollMaxSec": 0.06,
+    "trackGain": 0.45
+  }
+}
