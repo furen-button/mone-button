@@ -40,6 +40,20 @@ describe('Shorts title', () => {
     assert.deepEqual(fit.text.split('\n'), [`【${'あ'.repeat(19)}`, `${'あ'.repeat(6)}】…`, '2024/07/13']);
   });
 
+  it('半角は全角の半分の幅で数え、英数字の語の途中と】の前では折らない', () => {
+    const fit = title => fitShortsTitle({ title, date: '20250710', style: titleStyle, width: 1080 }).text.split('\n');
+    assert.deepEqual(fit('【Detroit: Become Human】#２ 完全初見デトロイト 共存の道を目指して！【にじさんじ/梢桃音】'),
+      ['【Detroit: Become Human】', '#２ 完全初見デトロイト 共存の道を目指…', '2025/07/10']);
+    // 】が行頭に来るなら、行内の最後の空白で折る
+    assert.deepEqual(fit('【小学生で知りたい法律 こども裁判クイズ】本編'),
+      ['【小学生で知りたい法律', 'こども裁判クイズ】…', '2025/07/10']);
+    // 空白の無い英単語が幅を超えたら、語の先頭まで戻して折る
+    assert.deepEqual(fit(`${'あ'.repeat(15)}Supercalifragilistic`),
+      ['あ'.repeat(15), 'Supercalifragilistic', '2025/07/10']);
+    // 空白も語の切れ目も無ければ、】を行頭に出さないよう 1 字前で折る
+    assert.deepEqual(fit(`【${'あ'.repeat(19)}】本編`), [`【${'あ'.repeat(18)}`, 'あ】…', '2025/07/10']);
+  });
+
   it('タイトル帯を下端へ付け、上端配置とoffsetYを維持する', () => {
     const cfg = loadConfig(['--config', 'scripts/create-video/config-shorts.json']);
     const clip = { data: {}, meta: { title: '【題】本文', uploadDate: '20240713' }, startTime: 0, endTime: 2 };
