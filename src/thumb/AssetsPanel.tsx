@@ -149,7 +149,7 @@ export function AssetsPanel({
       {tab === 'font' &&
         FONTS.map((font) => (
           <p key={font.family}>
-            <a href={font.specimen} target="_blank" rel="noreferrer">
+            <a href={font.specimen} target="_blank" rel="noreferrer" style={{ fontFamily: `"${font.family}"` }}>
               {font.family}
             </a>
             <small>

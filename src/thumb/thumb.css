@@ -224,6 +224,51 @@ section {
   min-height: 110px;
   resize: vertical;
 }
+.th-fontPicker {
+  margin-bottom: 10px;
+}
+.th-fontList {
+  position: relative;
+  max-height: 320px;
+  overflow: auto;
+  border: 1px solid #574265;
+  border-radius: 6px;
+}
+.th-fontList h4 {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 6px 9px;
+  background: #231c2d;
+  color: #ee91c2;
+  font-size: 12px;
+}
+.th-fontList button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border-radius: 0;
+  border-color: transparent;
+}
+.th-fontList button[aria-pressed='true'] {
+  border-color: #ee91c2;
+}
+.th-fontList button:focus-visible {
+  outline: 2px solid #f5a8d2;
+  outline-offset: -2px;
+}
+.th-fontSample {
+  display: block;
+  font-size: 20px;
+  overflow-wrap: anywhere;
+}
+.th-fontNote {
+  display: inline-block;
+  padding: 1px 4px;
+  border: 1px solid #574265;
+  border-radius: 4px;
+}
 .th-pair {
   display: flex;
   gap: 10px;

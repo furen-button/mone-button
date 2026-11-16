@@ -1,6 +1,6 @@
 import type { Layer } from '../../scripts/create-video/thumbnail.js'
 import { FONT_WEIGHTS } from '../../scripts/create-video/thumbnail.js'
-import { FONTS } from './fonts'
+import { FontPicker } from './FontPicker'
 import type { Edit } from './Stage'
 export function PropertiesPanel({ layer, onEdit, onRemove }: { layer?: Layer; onEdit: Edit; onRemove: () => void }) {
   if (!layer) {
@@ -72,14 +72,7 @@ export function PropertiesPanel({ layer, onEdit, onRemove }: { layer?: Layer; on
               文字（改行・{'{強調}'}・{'{色|FF0000}'}）
               <textarea maxLength={2000} value={l.text} onChange={(e) => edit({ text: e.target.value })} />
             </label>
-            <label>
-              フォント
-              <select value={l.font} onChange={(e) => edit({ font: e.target.value, weight: 400 })}>
-                {FONTS.map((font) => (
-                  <option key={font.family}>{font.family}</option>
-                ))}
-              </select>
-            </label>
+            <FontPicker key={l.id} layer={l} onEdit={onEdit} />
             <label>
               太さ
               <select value={l.weight} onChange={(e) => edit({ weight: Number(e.target.value) })}>
