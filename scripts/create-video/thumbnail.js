@@ -11,6 +11,25 @@ export const FONT_WEIGHTS = {
   'Zen Maru Gothic': [300, 400, 500, 700, 900],
   'Noto Sans JP': Array.from({ length: 9 }, (_, i) => (i + 1) * 100),
   'Kaisei Decol': [400, 500, 700],
+  // 汎用のゴシック体（2026-11-16 追加。根拠は docs/tasks/11-02-thumbnail.md）。
+  'M PLUS 1p': [100, 300, 400, 500, 700, 800, 900],
+  'M PLUS 2': Array.from({ length: 9 }, (_, i) => (i + 1) * 100),
+  'Zen Kaku Gothic New': [300, 400, 500, 700, 900],
+  'Zen Kaku Gothic Antique': [300, 400, 500, 700, 900],
+  'BIZ UDPGothic': [400, 700],
+  'Murecho': Array.from({ length: 9 }, (_, i) => (i + 1) * 100),
+  'IBM Plex Sans JP': [100, 200, 300, 400, 500, 600, 700],
+  'Sawarabi Gothic': [400],
+  // バラエティのテロップ向き（2026-11-16 追加）。Darumadrop One / Rock 3D はかなと英数字だけ（漢字 0 字）、
+  // Chokokutai も漢字 1 字だけで、漢字はブラウザの代替フォントで描かれる。かなや数字の見出し向き。
+  'Train One': [400],
+  'Hachi Maru Pop': [400],
+  'Yusei Magic': [400],
+  'Kaisei Tokumin': [400, 500, 700, 800],
+  'Yuji Boku': [400],
+  'Darumadrop One': [400],
+  'Rock 3D': [400],
+  'Chokokutai': [400],
 };
 
 export function parseAssetRef(value) {

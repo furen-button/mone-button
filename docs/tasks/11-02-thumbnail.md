@@ -59,6 +59,32 @@
 | Noto Sans JP | 100〜900（100刻み） | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/notosansjp/METADATA.pb) |
 | Kaisei Decol | 400,500,700 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/kaiseidecol/METADATA.pb) |
 
+2026-11-16、汎用のゴシック体を 8 種足した。上と同じく `ofl/<family>/METADATA.pb` で license（全て OFL）・japanese subset・weight を確認した。M PLUS 2 と Murecho は可変軸 100〜900 から 100 刻みを使う。Kosugi は `apache/`（Apache License 2.0）にあるので、OFL だけの方針に合わせて入れていない。M PLUS 1 は M PLUS 1p とほぼ同じ字形なので 1p だけにした。Google Fonts 以外のフォント（源暎・モボ/モガ・闘龍・勘亭流・ホラー体）も規約を調べたが、ユーザーの判断で Google Fonts だけにした。
+
+| family | 使用する太さ | license / 確認資料 |
+|---|---|---|
+| M PLUS 1p | 100,300,400,500,700,800,900 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/mplus1p/METADATA.pb) |
+| M PLUS 2 | 100〜900（100刻み） | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/mplus2/METADATA.pb) |
+| Zen Kaku Gothic New | 300,400,500,700,900 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/zenkakugothicnew/METADATA.pb) |
+| Zen Kaku Gothic Antique | 300,400,500,700,900 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/zenkakugothicantique/METADATA.pb) |
+| BIZ UDPGothic | 400,700 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/bizudpgothic/METADATA.pb) |
+| Murecho | 100〜900（100刻み） | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/murecho/METADATA.pb) |
+| IBM Plex Sans JP | 100,200,300,400,500,600,700 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexsansjp/METADATA.pb) |
+| Sawarabi Gothic | 400 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/sawarabigothic/METADATA.pb) |
+
+同日、バラエティのテロップ向きを 8 種足した（確認方法は同じ、全て OFL・japanese subset あり）。収録する漢字は google/fonts の TTF の cmap（format 4 / 12）を読んで数えた（css2 の unicode-range は範囲でまとめて書かれるので、字の有無の判定には使えない。最初はそれで見積もって数を誤った）。Darumadrop One・Rock 3D はかなと英数字だけで漢字が無く（全角の「！」も無い）、Chokokutai も漢字は 1 字だけ。漢字はブラウザの代替フォントで描かれて見た目が混ざるので、かなや数字の見出し（「ガハハ」「204」など）に使う。Mochiy Pop P One は既存の Mochiy Pop One の字間を詰めた版なので入れていない。Zen Tokyo Zoo は japanese subset が無いので対象外。
+
+| family | 使用する太さ | 漢字（cmap） | license / 確認資料 |
+|---|---|---|---|
+| Train One | 400 | 2,966 字 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/trainone/METADATA.pb) |
+| Hachi Maru Pop | 400 | 6,682 字 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/hachimarupop/METADATA.pb) |
+| Yusei Magic | 400 | 6,687 字 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/yuseimagic/METADATA.pb) |
+| Kaisei Tokumin | 400,500,700,800 | 6,713 字 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/kaiseitokumin/METADATA.pb) |
+| Yuji Boku | 400 | 6,746 字 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/yujiboku/METADATA.pb) |
+| Darumadrop One | 400 | 0 字（かな・英数字のみ） | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/darumadropone/METADATA.pb) |
+| Rock 3D | 400 | 0 字（かな・英数字のみ） | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/rock3d/METADATA.pb) |
+| Chokokutai | 400 | 1 字 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/chokokutai/METADATA.pb) |
+
 ## 検証結果
 
 - `PATH=/opt/homebrew/bin:$PATH npm test`: **347件成功、失敗0、skip0**。ASS / wrapのgoldenは変更なし。

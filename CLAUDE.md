@@ -367,7 +367,7 @@ http://localhost:5173/mone-button/crop.html?clip=<base>&at=1.5&aspect=9:16
 - 切り抜き風3テンプレート（左タイトル / 帯とコマ / 中央と左右の顔）から始め、レイヤーを移動・拡大・回転・並べ替え・複製・非表示・ロックできる。文字・図形の追加、画像差し替え、テンプレート保存に対応。矢印1px（Shiftで10px）、Delete、⌘Z / ⌘⇧Z。右下の再生時間領域は表示切替できる。
 - コマは高画質キャッシュのみ。Anime4Kを要求し、Vulkanや描画が失敗したらLanczosへ戻して画面で知らせる。最大2560×1440のRGB PNG。recipeをプロジェクトに保存するのでキャッシュ削除後も再生成できる。
 - もねの透過切り抜きは94枚。rating順・種類フィルタ付き、一覧は256pxプレビュー。アップロード画像はPNG / JPEG / WebP（20MiBまで）をoutput/thumbnail-assetsに保持。
-- Google Fontsの日本語OFLフォント10種を使用（太さと公式metadataの根拠はタスク文書）。各familyのCSSと実文字列のfontロードを待って描く。文字の強調はASSと同じ `{語}` / `{語|RRGGBB}`。多重縁取り、画像の白フチ・影・反転・ぼかし・明るさ、矩形のグラデーションに対応。
+- Google Fontsの日本語OFLフォント26種を使用（2026-11-16 に汎用のゴシック体 8 種とバラエティ向き 8 種を追加。太さと公式metadataの根拠はタスク文書）。Darumadrop One・Rock 3D はかなと英数字だけ、Chokokutai も漢字 1 字だけで、漢字は代替フォントで描かれる（かなや数字の見出し向き）。Google Fonts 以外は入れない（ユーザー判断）。各familyのCSSと実文字列のfontロードを待って描く。文字の強調はASSと同じ `{語}` / `{語|RRGGBB}`。多重縁取り、画像の白フチ・影・反転・ぼかし・明るさ、矩形のグラデーションに対応。
 - 保存はmp4の隣の `<base>.thumbnail.jpg` / `.png` と `.thumbnail.json`。出力なしはoutput/thumbnailsへ。JPEGは0.92から品質を下げて2MiB以内に収め、PNGの超過はエラーにする。表示と保存は同じrenderProjectを使う。
 - 実装はsrc/thumbとscripts/dev-server/handlers/thumb.js。共有形式の検証はscripts/create-video/thumbnail.js、強調解析はemphasis.js。サムネイルのAPI・kind・キャッシュはthumbnail名に統一し、従来の配信サムネイルkind=thumbとは区別する。
 - POSTの画像経路だけraw MIME型を指定する。上限付き書き込みはcropと共通。一時ファイルからrenameし、容量超過・中断で既存データを壊さない。テンプレートはscripts/create-video/thumbnail-templatesのJSONでgit管理する。
