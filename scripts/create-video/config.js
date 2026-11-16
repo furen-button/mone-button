@@ -100,6 +100,9 @@ export const DEFAULTS = {
       fade: [150, 150],
       karaoke: false,
       layout: 'wrap',
+      // クリップ（base）ごとの align 上書き。セリフが画面の要素と被るクリップだけ位置を変える。
+      // プリセット単位で持つので、同じクリップでも見た目の違う別のプリセット（Shorts など）には効かない。
+      alignOverrides: {},
       faceRange: { enabled: false, top: 0.02, minHeight: 0.12, maxHeight: 0.30, fallbackBottom: 0.24 },
       // serif の {語} を描く色。{語|RRGGBB} と書けばその色が優先される。
       emphasis: { color: 'FFD800' },
@@ -824,6 +827,16 @@ function validateAligns(config, errors) {
   ];
   for (const [name, value] of checks) {
     if (!ALIGN[value]) errors.push(`${name} が不正です: ${value}`);
+  }
+  const overrides = config.telops.serif.alignOverrides ?? {};
+  if (!isPlainObject(overrides)) {
+    errors.push('telops.serif.alignOverrides はクリップ名（base）をキーにしたオブジェクトで指定してください。');
+    return;
+  }
+  for (const [base, value] of Object.entries(overrides)) {
+    if (!ALIGN[value]) {
+      errors.push(`telops.serif.alignOverrides.${base} が不正です: ${value}`);
+    }
   }
 }
 

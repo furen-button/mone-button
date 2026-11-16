@@ -120,6 +120,7 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 - `wrapText` は行頭禁則（句読点、終わり括弧、小書き仮名など）と行末禁則（始め括弧）を分割位置の後退で避ける。ぶら下げは使わない。`maxUnits < 4` では禁則と泣き別れ回避を無効化し、行数が増える場合も禁則より行数維持を優先する。折り返し後は各行の行頭・行末の空白を落とす（`\an5` の中央寄せでは行端の空白がその行だけ中心をずらすため）。`serif` の半角空白は折り返し位置の指定として扱い、空白で折った最終行が短いときの泣き別れ回避は、1 文字ずつではなく空白区切りの語ごと前の行から送る（語の途中では割らない。送ると前の行のほうが短くなる場合や、収まらない場合は送らない）。
 - `autoShrink` は実際に折り返した行数から `boxHeightFor(lines, fs, pad, border)` を測り、二分探索で高さ上限に収まる最大の整数フォントサイズを選ぶ。`minSize` が `size` より大きい場合でも拡大しない。ボックスが無いときは `pad`・`border` を 0 として行数×行送りだけで測る。
 - `telops.*.outlines`（`[{ width, color }, ...]` 内側→外側）で二重縁取りにできる。外側ほど太い `\bord` の同じ本文を外側から同じ Layer に重ね（同 Layer は記述順に描かれる）、影は最外層だけに付ける。未指定なら従来どおり 1 行。
+- `telops.serif.alignOverrides`（`{ "<base>": "center" }`）で、セリフが画面の要素（コラボ相手の立ち絵など）と被るクリップだけ align を変えられる。プリセットに書くので、同じクリップでも Shorts など見た目の違うプリセットには効かない（public/data と ASS golden も変わらない）。描画・矩形（manifest・QC）・still は同じ要素を共有する。
 - `serif` の強調記法: `{語}` は `telops.serif.emphasis.color`（既定 `FFD800`）、`{語|RRGGBB}` はその色で描く。閉じていない括弧・空の括弧は従来どおり文字（全角 ｛｝）。折り返し・autoShrink・QC の矩形は記号を除いた本文で測り、`wrapText` 自体は変えない（`wrap-golden.json` を守るため、記号除去 → 折り返し → 色の再適用の順）。強調は `serif` という名前のテロップ（クリップのセリフ・区切りカードの nextSerif）だけで解く。概要欄・固定コメント・ED の一覧・Web サイト（`src/voiceData.ts`）では記号だけを落とす。
 - `telops.title.format` に `{date}`（YYYY/MM/DD）と `{title}` を書くと日付と配信タイトルを 1 本の文言にする（`telops.date.enabled: false` と併用）。`singleLine: true` で `marginH` の内側に 1 行で収まるまで `size` から `minSize` へ縮め、それでも入らなければタイトル末尾を「…」で省く。`--title` / `overrides` はタイトル部分だけを置き換える。帯の最低高さは `box.minHeight`（既定 0.07）で下げられる。
 

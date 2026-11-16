@@ -36,6 +36,20 @@ describe('loadConfig', () => {
     );
   });
 
+  it('telops.serif.alignOverrides は 9 方位の値だけを受け付ける', () => {
+    const load = (value) => loadConfig(['--config', writeTempConfig(value), '--videoId', 'abc123']);
+    assert.deepEqual(load({}).telops.serif.alignOverrides, {});
+    assert.equal(load({ telops: { serif: { alignOverrides: { clip: 'center' } } } }).telops.serif.alignOverrides.clip, 'center');
+    assert.throws(
+      () => load({ telops: { serif: { alignOverrides: { clip: 'middle' } } } }),
+      /telops\.serif\.alignOverrides\.clip が不正です: middle/u,
+    );
+    assert.throws(
+      () => load({ telops: { serif: { alignOverrides: ['center'] } } }),
+      /telops\.serif\.alignOverrides はクリップ名/u,
+    );
+  });
+
   it('--title の \\n エスケープを改行として受け取る', () => {
     const config = writeTempConfig({});
     assert.equal(loadConfig(['--config', config, '--videoId', 'abc123', '--title', '上段\\n下段']).titleOverride, '上段\n下段');
