@@ -36,11 +36,11 @@ export function failureDetail(error) {
   };
 }
 
-export function apiFailure(stage, error) {
+export function apiFailure(stage, error, recordFile = 'upload.json') {
   const detail = { stage, ...failureDetail(error) };
   const labels = [detail.status === null ? null : `HTTP ${detail.status}`, ...detail.reasons, detail.code].filter(Boolean);
   const response = detail.message ? `応答: 「${detail.message}」。` : '';
-  const failure = new Error(`${stage} に失敗しました${labels.length > 0 ? `（${labels.join(' / ')}）` : ''}。${response}upload.json と Studio を確認してください。`);
+  const failure = new Error(`${stage} に失敗しました${labels.length > 0 ? `（${labels.join(' / ')}）` : ''}。${response}${recordFile} と Studio を確認してください。`);
   failure.detail = detail;
   return failure;
 }
