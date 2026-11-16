@@ -33,5 +33,11 @@
       "viewCount": 33132,
       "url": "https://www.youtube.com/watch?v=kgGbUQ0fQqg"
     }
+  },
+  "effects": {
+    "reframe": {
+      "x": 0.34,
+      "y": 0.6
+    }
   }
 }
