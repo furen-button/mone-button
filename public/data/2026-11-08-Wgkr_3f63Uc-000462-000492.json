@@ -1,0 +1,37 @@
+{
+  "videoId": "Wgkr_3f63Uc",
+  "serif": "今日もイカした配信 ジュースグイっと飲みたいね！ 昼間から如何ともしがたいか…？",
+  "ruby": "きょうもいかしたはいしんじゅーすぐいっとのみたいねひるまからいかともしがたいか",
+  "categories": [
+    "ガハハ"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=Wgkr_3f63Uc&t=465s",
+  "memo": "yt-comment-archiver: ライブチャット「ガハハ」「ガハハ」「ガハハ:rolling_on_the_floor_laughing:」「ガハハ」「ダジャレもう飽きた？」 @0:08:02",
+  "liveChat": {
+    "message": "ガハハ",
+    "at": 482,
+    "streamStartedAt": "2026-11-08T12:02:41+09:00"
+  },
+  "trimming": {
+    "startTime": 465.6450754139244,
+    "endTime": 478.1301129418262,
+    "duration": 12.485037527901785,
+    "original": {
+      "startTime": 462,
+      "endTime": 492,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "Wgkr_3f63Uc",
+      "title": "【食】ささやかにイカたべる【にじさんじ/梢桃音】",
+      "duration": 6835,
+      "thumbnail": "https://i.ytimg.com/vi/Wgkr_3f63Uc/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20261108",
+      "viewCount": 18925,
+      "url": "https://www.youtube.com/watch?v=Wgkr_3f63Uc"
+    }
+  }
+}
