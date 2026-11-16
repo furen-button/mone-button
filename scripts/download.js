@@ -3,7 +3,15 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { execFileSync } from 'child_process';
 
-import { isDownloadTooShort, probeStreamDurations } from './create-video/assets.js';
+import {
+  DOWNLOAD_TIMEOUT_MS,
+  FFMPEG_INPUT_ARGS,
+  isDownloadTooShort,
+  probeStreamDurations,
+} from './create-video/assets.js';
+
+// ffmpeg の読み取りタイムアウトと yt-dlp 1 回の上限は、createVideo の高画質 DL と共有する（定義は assets.js）。
+export { DOWNLOAD_TIMEOUT_MS, FFMPEG_INPUT_ARGS };
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,20 +30,6 @@ export const YTDLP_FORMAT = [
   'best',
 ].join('/');
 
-// 区間 DL では yt-dlp が ffmpeg に googlevideo の URL を直接読ませる。素の ffmpeg は読み取りタイムアウトが
-// 無いのでサーバが無応答だと永久に固まり、途中で接続が切れると映像だけ短いファイルを成功扱いで残す。
-// 20 秒無応答で切って Range で続きから再接続させる（5 秒だと遅いサーバの初回応答が間に合わず諦める）。
-export const FFMPEG_INPUT_ARGS = [
-  '-reconnect', '1',
-  '-reconnect_streamed', '1',
-  '-reconnect_on_network_error', '1',
-  '-reconnect_delay_max', '10',
-  '-rw_timeout', '20000000',
-].join(' ');
-
-// yt-dlp 1 回の上限。遅いサーバでも 30 秒クリップは 5 分程度で終わる。
-// SIGINT なのは、yt-dlp が KeyboardInterrupt で ffmpeg に q を送って止めるため（SIGTERM だと ffmpeg が孤児として残る）。
-export const DOWNLOAD_TIMEOUT_MS = 15 * 60 * 1000;
 export const DOWNLOAD_ATTEMPTS = 2;
 
 /**

@@ -4,7 +4,12 @@ import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 
-import { DOWNLOAD_SHORT_TOLERANCE_MS, downloadHighQuality, isDownloadTooShort } from './assets.js';
+import {
+  DOWNLOAD_SHORT_TOLERANCE_MS,
+  FFMPEG_INPUT_ARGS,
+  downloadHighQuality,
+  isDownloadTooShort,
+} from './assets.js';
 
 describe('DL 尺の判定', () => {
   it('許容を超えて短い映像を検出する', () => {
@@ -48,14 +53,31 @@ function withDownloadTools(durations, run) {
       throw new Error('途中ファイルが残っています');
     }
     fs.writeFileSync(counter, String(attempt + 1));
-    fs.writeFileSync(out, String(${JSON.stringify(durations)}[attempt]));
+    fs.writeFileSync(counter + '.args', JSON.stringify(process.argv.slice(2)));
+    const value = String(${JSON.stringify(durations)}[attempt]);
+    // 'fail' は googlevideo の HTTP 403 などで途中ファイルだけ残して異常終了する DL。
+    if (value === 'fail') {
+      fs.writeFileSync(out + '.part', 'partial');
+      process.exit(1);
+    }
+    // 'hang' は googlevideo が無応答で ffmpeg が固まり、終わらない DL。
+    if (value === 'hang') {
+      fs.writeFileSync(out + '.part', 'partial');
+      setTimeout(() => {}, 60000);
+      return;
+    }
+    fs.writeFileSync(out, value);
     fs.writeFileSync(out + '.part', 'partial');
     fs.writeFileSync(out.replace(/\\.mp4$/, '.f137.mp4.part'), 'partial');
   `);
   const ffprobe = writeTool('ffprobe', `
     const fs = require('node:fs');
-    const duration = Number(fs.readFileSync(process.argv.at(-1)));
-    console.log(JSON.stringify({ streams: [{ codec_type: 'video', duration }, { codec_type: 'audio', duration: 8 }] }));
+    const raw = fs.readFileSync(process.argv.at(-1), 'utf8');
+    // 'novideo' は映像が 0 フレームで返り、映像ストリームが読めない DL。
+    const streams = raw === 'novideo'
+      ? [{ codec_type: 'audio', duration: 8 }]
+      : [{ codec_type: 'video', duration: Number(raw) }, { codec_type: 'audio', duration: 8 }];
+    console.log(JSON.stringify({ streams }));
   `);
   process.env.PATH = `${dir}${path.delimiter}${oldPath}`;
   try {
@@ -87,10 +109,76 @@ describe('downloadHighQuality', () => {
     });
   });
 
-  it('正常な DL は一度で終わる', () => {
+  it('映像ストリームが読めない DL は途中ファイルを削除し、一度だけ再 DL する', () => {
+    withDownloadTools(['novideo', 8], ({ outputPath, ffprobe, counter }) => {
+      downloadHighQuality(clip, outputPath, { tools: { ffprobe } });
+      assert.equal(fs.readFileSync(counter, 'utf8'), '2');
+      assert.equal(fs.readFileSync(outputPath, 'utf8'), '8');
+    });
+  });
+
+  it('再 DL も映像ストリームが読めなければ日本語エラーを投げ、キャッシュと途中ファイルを残さない', () => {
+    withDownloadTools(['novideo', 'novideo'], ({ outputPath, ffprobe, counter }) => {
+      assert.throws(() => downloadHighQuality(clip, outputPath, { tools: { ffprobe } }), /映像・音声の尺を取得できません（clip）/u);
+      assert.equal(fs.readFileSync(counter, 'utf8'), '2');
+      assert.equal(fs.existsSync(outputPath), false);
+      assert.equal(fs.existsSync(`${outputPath}.part`), false);
+      assert.equal(fs.existsSync(outputPath.replace(/\.mp4$/u, '.f137.mp4.part')), false);
+    });
+  });
+
+  it('yt-dlp が異常終了したら途中ファイルを削除し、一度だけ再 DL する', () => {
+    withDownloadTools(['fail', 8], ({ outputPath, ffprobe, counter }) => {
+      downloadHighQuality(clip, outputPath, { tools: { ffprobe } });
+      assert.equal(fs.readFileSync(counter, 'utf8'), '2');
+      assert.equal(fs.readFileSync(outputPath, 'utf8'), '8');
+    });
+  });
+
+  it('ffprobe が無くても yt-dlp の異常終了は一度だけ再 DL する', () => {
+    withDownloadTools(['fail', 8], ({ outputPath, counter }) => {
+      downloadHighQuality(clip, outputPath);
+      assert.equal(fs.readFileSync(counter, 'utf8'), '2');
+      assert.equal(fs.readFileSync(outputPath, 'utf8'), '8');
+    });
+  });
+
+  it('再 DL も yt-dlp が異常終了したら終了コードを含む日本語エラーを投げ、途中ファイルを残さない', () => {
+    withDownloadTools(['fail', 'fail'], ({ outputPath, ffprobe, counter }) => {
+      assert.throws(() => downloadHighQuality(clip, outputPath, { tools: { ffprobe } }), /yt-dlp が異常終了しました（clip: 終了コード 1）/u);
+      assert.equal(fs.readFileSync(counter, 'utf8'), '2');
+      assert.equal(fs.existsSync(outputPath), false);
+      assert.equal(fs.existsSync(`${outputPath}.part`), false);
+    });
+  });
+
+  it('yt-dlp が上限時間で終わらなければ中断し、一度だけ再 DL する', () => {
+    withDownloadTools(['hang', 8], ({ outputPath, ffprobe, counter }) => {
+      // 中断した回の途中ファイルが残っていれば、偽の yt-dlp が 2 回目で失敗する。
+      downloadHighQuality(clip, outputPath, { tools: { ffprobe }, timeoutMs: 1500 });
+      assert.equal(fs.readFileSync(counter, 'utf8'), '2');
+      assert.equal(fs.readFileSync(outputPath, 'utf8'), '8');
+    });
+  });
+
+  it('再 DL も上限時間で終わらなければ中断した旨の日本語エラーを投げる', () => {
+    withDownloadTools(['hang', 'hang'], ({ outputPath, ffprobe, counter }) => {
+      assert.throws(
+        () => downloadHighQuality(clip, outputPath, { tools: { ffprobe }, timeoutMs: 1500 }),
+        /yt-dlp が異常終了しました（clip: 2 秒以内に終わらなかったので中断）/u,
+      );
+      assert.equal(fs.readFileSync(counter, 'utf8'), '2');
+      assert.equal(fs.existsSync(`${outputPath}.part`), false);
+    });
+  });
+
+  it('正常な DL は一度で終わり、ffmpeg に再接続と読み取りタイムアウトを渡す', () => {
     withDownloadTools([8], ({ outputPath, ffprobe, counter }) => {
       downloadHighQuality(clip, outputPath, { tools: { ffprobe } });
       assert.equal(fs.readFileSync(counter, 'utf8'), '1');
+      const args = JSON.parse(fs.readFileSync(`${counter}.args`, 'utf8'));
+      assert.equal(args[args.indexOf('--downloader-args') + 1], `ffmpeg_i:${FFMPEG_INPUT_ARGS}`);
+      assert.match(FFMPEG_INPUT_ARGS, /-rw_timeout 20000000$/u);
     });
   });
 

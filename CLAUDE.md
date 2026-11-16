@@ -171,7 +171,7 @@ npm run createVideo -- --videoId gr9WJDYS_u0
 - テロップ焼き込みには `subtitles`(libass) 対応の ffmpeg が必要。通常の Homebrew `ffmpeg` は非対応のため `brew install ffmpeg-full` を導入する（keg-only。既存 ffmpeg は壊さない）。スクリプトが `/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg` を自動検出し、`FFMPEG_BIN` 環境変数で上書きも可。
 - 区切りカードの背景/SE/BGM は `assets/create-video/` の素材を参照する。欠落時は該当機能をスキップして続行する。
 - `--enhance` は `libplacebo` フィルタ入りの ffmpeg（`ffmpeg-full`）と Vulkan ドライバが必要。macOS では `brew install molten-vk`（無いと `VK_ERROR_INCOMPATIBLE_DRIVER` で補正だけスキップされる）。シェーダは初回に bloc97/Anime4K の release zip（GLSL テキスト）を `cache/createVideo/tools/anime4k/glsl/` へ自動取得し、連結したプリセットを同所の `.presets/` に置く。
-- 高画質DLは音量正規化・音声尺合わせの前に映像ストリーム尺をトリム期待尺と比較する（ffprobe がある場合）。250ms を超えて短ければ途中ファイルを削除して一度だけ再 DL し、再び短ければキャッシュを削除して生成を停止する。既存キャッシュの再利用時はこの DL 検査を行わない。
+- 高画質DLは音量正規化・音声尺合わせの前に映像ストリーム尺をトリム期待尺と比較する（ffprobe がある場合）。250ms を超えて短い、映像・音声の尺が読めない（映像が 0 フレームのまま yt-dlp が成功扱いにすると、ffmpeg-normalize が空の映像を落として音声だけのキャッシュになる）、yt-dlp が異常終了した（googlevideo が一時的に HTTP 403 を返す）ときは、途中ファイルを削除して一度だけ再 DL し、再び失敗したらキャッシュを削除して生成を停止する（どれも 2026-11 のガハハで発生）。yt-dlp の ffmpeg には取り込み（`download.js`）と同じ再接続と 20 秒の読み取りタイムアウト（`FFMPEG_INPUT_ARGS`、定義は `assets.js`）を渡し、1 回 15 分（`DOWNLOAD_TIMEOUT_MS`）で SIGINT で中断して取り直す（無いと googlevideo の無応答で ffmpeg が永久に固まる。ガハハで 6 時間止まった）。既存キャッシュの再利用時はこの DL 検査を行わない。
 - 高画質DLには yt-dlp が必要。`--source cache` の音量正規化には `ffmpeg-normalize` が必要（不在時は警告して生DLを使用）。映像は copy で高画質のまま、音声のみ正規化する。サムネイルは `cache/createVideo/thumbnails/` にキャッシュする。
 
 ### 縦切り出しと分割（Shorts）
