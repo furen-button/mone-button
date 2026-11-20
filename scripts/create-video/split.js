@@ -1,7 +1,10 @@
 import path from 'path';
 
+const trimmedSec = (clips) => clips.reduce((sum, clip) => sum + (clip.endTime - clip.startTime), 0);
+
 // 選択・並び替え済みのクリップ列を、連続する同じ配信の塊に分ける（Shorts 用の output.split）。
 // 塊の合計尺（トリム尺）が minSec に届くまで次の塊とまとめ、末尾だけ短く残ったら直前へ寄せる。
+// targetSec があれば、塊を割らずに各パートの尺が targetSec に近くなる切り方を選ぶ（minSec 未満のパートは作らない）。
 // 同じ配信が離れた位置で再登場しても別の塊として扱う。
 export function splitClips(clips, split = null) {
   if (!split) {
@@ -14,6 +17,12 @@ export function splitClips(clips, split = null) {
       last.push(clip);
     } else {
       groups.push([clip]);
+    }
+  }
+  if (split.targetSec != null && groups.length > 0) {
+    const balanced = balanceGroups(groups, split.targetSec, split.minSec);
+    if (balanced) {
+      return balanced;
     }
   }
 
@@ -35,6 +44,39 @@ export function splitClips(clips, split = null) {
     } else {
       parts.push(pending);
     }
+  }
+  return parts;
+}
+
+// 塊の境目のどこで切るかを動的計画法で決め、(パート尺 - targetSec)² の和を最小にする。
+// 前から詰める方式だと余りが末尾の 1 本に溜まる（ガハハの 11 以降を 50 秒で分けると最後が 113 秒）ため。
+// どう切っても minSec 未満のパートが出る（全体が minSec 未満）なら null を返し、従来の分け方に任せる。
+function balanceGroups(groups, targetSec, minSec = 0) {
+  const durations = groups.map(trimmedSec);
+  const n = groups.length;
+  const cost = Array(n + 1).fill(Infinity);
+  const from = Array(n + 1).fill(-1);
+  cost[0] = 0;
+  for (let end = 1; end <= n; end++) {
+    let sec = 0;
+    for (let start = end - 1; start >= 0; start--) {
+      sec += durations[start];
+      if (sec < minSec || cost[start] === Infinity) {
+        continue;
+      }
+      const total = cost[start] + (sec - targetSec) ** 2;
+      if (total < cost[end]) {
+        cost[end] = total;
+        from[end] = start;
+      }
+    }
+  }
+  if (cost[n] === Infinity) {
+    return null;
+  }
+  const parts = [];
+  for (let end = n; end > 0; end = from[end]) {
+    parts.unshift(groups.slice(from[end], end).flat());
   }
   return parts;
 }

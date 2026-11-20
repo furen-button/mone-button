@@ -633,8 +633,9 @@ function validateConfig(config) {
   }
 
   const split = config.output.split;
-  if (split != null && (typeof split !== 'object' || split.by !== 'stream' || !Number.isFinite(split.minSec) || split.minSec < 0)) {
-    errors.push('output.split は {by: "stream", minSec: 0以上の有限数} または null で指定してください。');
+  if (split != null && (typeof split !== 'object' || split.by !== 'stream' || !Number.isFinite(split.minSec) || split.minSec < 0
+    || (split.targetSec != null && (!Number.isFinite(split.targetSec) || split.targetSec <= 0)))) {
+    errors.push('output.split は {by: "stream", minSec: 0以上の有限数, targetSec?: 正の有限数} または null で指定してください。');
   }
   if (typeof config.effects?.camera?.enabled !== 'boolean') {
     errors.push('effects.camera.enabled は boolean で指定してください。');

@@ -99,6 +99,15 @@
               "type": "number",
               "minimum": 0,
               "default": 10
+            },
+            "targetSec": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "exclusiveMinimum": 0,
+              "default": null,
+              "description": "各パートの目標尺（秒）。指定すると配信の塊を割らずに目標へ近い切り方を選び、余りが末尾に溜まらない。minSec 未満のパートは作らない。"
             }
           }
         },
