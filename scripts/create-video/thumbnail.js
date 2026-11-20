@@ -195,6 +195,19 @@ export function normalizeProject(value, { template = false } = {}) {
       out.weight = choice(l.weight, 400, FONT_WEIGHTS[out.font]);
       out.size = number(l.size, 100, 1, 600);
       out.color = color(l.color, '#FF4FA0');
+      if (l.gradient !== undefined) {
+        const g = object(l.gradient);
+        if (g.type !== 'linear') {
+          fail('線形グラデーションを指定してください。');
+        }
+        out.gradient = {
+          type: 'linear',
+          from: color(g.from, '#FFFFFF'),
+          to: color(g.to, out.color),
+          angle: number(g.angle, 0, -360, 360),
+          scope: choice(g.scope, 'line', ['line', 'block']),
+        };
+      }
       out.emphasisColor = color(l.emphasisColor, '#FFD800');
       if (l.outlines !== undefined && (!Array.isArray(l.outlines) || l.outlines.length > 8)) {
         fail('縁取りは最大8層です。');
