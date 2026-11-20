@@ -1,0 +1,37 @@
+{
+  "videoId": "rAj1JcLus6M",
+  "serif": "きゃわきゃわの歌",
+  "ruby": "きゃわきゃわのか",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=rAj1JcLus6M&t=8249s",
+  "memo": "yt-comment-archiver: ライブチャット「鼻歌可愛い」 コメント「2:17:26 きゃわきゃわの歌」 @2:17:26",
+  "liveChat": {
+    "message": "鼻歌可愛い",
+    "at": 8267,
+    "streamStartedAt": "2025-03-06T12:01:19+09:00"
+  },
+  "trimming": {
+    "startTime": 8249.942838733432,
+    "endTime": 8256.288567746686,
+    "duration": 6.345729013254786,
+    "original": {
+      "startTime": 8241,
+      "endTime": 8271,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "rAj1JcLus6M",
+      "title": "【Minecraft】#にじ若手女子マイクラ  昼活☀️骨の馬さんを捕まえに行くよ🐎【にじさんじ/梢桃音】",
+      "duration": 9200,
+      "thumbnail": "https://i.ytimg.com/vi/rAj1JcLus6M/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250306",
+      "viewCount": 15575,
+      "url": "https://www.youtube.com/watch?v=rAj1JcLus6M"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "VKGBfta2pR0",
+  "serif": "真っ赤なお鼻の",
+  "ruby": "まっかなおはなの",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=VKGBfta2pR0&t=7924s",
+  "memo": "yt-comment-archiver: ライブチャット「急に歌う人もいます」「急に歌うよ～」 @2:12:17",
+  "liveChat": {
+    "message": "急に歌う人もいます",
+    "at": 7937,
+    "streamStartedAt": "2025-12-26T21:01:02+09:00"
+  },
+  "trimming": {
+    "startTime": 7924.598030191458,
+    "endTime": 7928.193391016201,
+    "duration": 3.5953608247422686,
+    "original": {
+      "startTime": 7917,
+      "endTime": 7947,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "VKGBfta2pR0",
+      "title": "【日本事故物件監視協会2 -JSP2】事故物件を監視するお仕事するよ🥹【にじさんじ/梢桃音】",
+      "duration": 10158,
+      "thumbnail": "https://i.ytimg.com/vi/VKGBfta2pR0/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20251226",
+      "viewCount": 19383,
+      "url": "https://www.youtube.com/watch?v=VKGBfta2pR0"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "videoId": "aFVol8GUy74",
+  "serif": "お歌",
+  "ruby": "おうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=aFVol8GUy74&t=7069s",
+  "memo": "yt-comment-archiver: コメント「1:57:48 お歌」 @1:57:48",
+  "trimming": {
+    "startTime": 7069.472063696613,
+    "endTime": 7076.434278350515,
+    "duration": 6.962214653902799,
+    "original": {
+      "startTime": 7063,
+      "endTime": 7093,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "aFVol8GUy74",
+      "title": "【ゼルダの伝説時のオカリナ】#14 シリーズ完全初見🔰砂漠へレッツゴー！！！【にじさんじ/梢桃音】",
+      "duration": 12052,
+      "thumbnail": "https://i.ytimg.com/vi/aFVol8GUy74/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250325",
+      "viewCount": 13290,
+      "url": "https://www.youtube.com/watch?v=aFVol8GUy74"
+    }
+  }
+}

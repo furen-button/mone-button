@@ -1,0 +1,32 @@
+{
+  "videoId": "Ku3PM3zl2J8",
+  "serif": "この坂を登ったらの歌",
+  "ruby": "このさかをのぼったらのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=Ku3PM3zl2J8&t=3369s",
+  "memo": "yt-comment-archiver: コメント「55:58 お歌」 @0:55:58",
+  "trimming": {
+    "startTime": 3369.498067010309,
+    "endTime": 3373.102402430044,
+    "duration": 3.604335419734902,
+    "original": {
+      "startTime": 3353,
+      "endTime": 3383,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "Ku3PM3zl2J8",
+      "title": "【モンスターハンターワイルズ】#7 ゆるふわモンハン🍖🔰ストーリー進めようの回！！！【にじさんじ/梢桃音】",
+      "duration": 19377,
+      "thumbnail": "https://i.ytimg.com/vi/Ku3PM3zl2J8/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250403",
+      "viewCount": 14363,
+      "url": "https://www.youtube.com/watch?v=Ku3PM3zl2J8"
+    }
+  }
+}

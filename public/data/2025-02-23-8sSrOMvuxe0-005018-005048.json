@@ -1,0 +1,37 @@
+{
+  "videoId": "8sSrOMvuxe0",
+  "serif": "大嫌いの歌",
+  "ruby": "だいきらいのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=8sSrOMvuxe0&t=5024s",
+  "memo": "yt-comment-archiver: ライブチャット「お歌助かる」 コメント「1:23:43 大嫌いの歌」 @1:23:43",
+  "liveChat": {
+    "message": "お歌助かる",
+    "at": 5044,
+    "streamStartedAt": "2025-02-23T22:00:26+09:00"
+  },
+  "trimming": {
+    "startTime": 5024.038521723122,
+    "endTime": 5036.503543814433,
+    "duration": 12.465022091310749,
+    "original": {
+      "startTime": 5018,
+      "endTime": 5048,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "8sSrOMvuxe0",
+      "title": "【ゼルダの伝説時のオカリナ】#3 シリーズ完全初見🔰ドドンゴの洞窟で精霊の石を探そう！🪨⛰️【にじさんじ/梢桃音】",
+      "duration": 11040,
+      "thumbnail": "https://i.ytimg.com/vi/8sSrOMvuxe0/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250223",
+      "viewCount": 19015,
+      "url": "https://www.youtube.com/watch?v=8sSrOMvuxe0"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "BG_SD3Ky9tw",
+  "serif": "よくないよの歌",
+  "ruby": "よくないよのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=BG_SD3Ky9tw&t=17002s",
+  "memo": "yt-comment-archiver: ライブチャット「よくないよの歌」「良くないの歌助かる」 @4:43:35",
+  "liveChat": {
+    "message": "よくないよの歌",
+    "at": 17015,
+    "streamStartedAt": "2025-03-09T12:00:22+09:00"
+  },
+  "trimming": {
+    "startTime": 17002.112711708396,
+    "endTime": 17009.162601251843,
+    "duration": 7.049889543446244,
+    "original": {
+      "startTime": 16995,
+      "endTime": 17025,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "BG_SD3Ky9tw",
+      "title": "【スーパーマリオブラザーズ３】#9 完全初見🔰ワールド５空のステージから☁️マリオさん！今日も頑張って！【にじさんじ/梢桃音】",
+      "duration": 19964,
+      "thumbnail": "https://i.ytimg.com/vi/BG_SD3Ky9tw/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250309",
+      "viewCount": 22147,
+      "url": "https://www.youtube.com/watch?v=BG_SD3Ky9tw"
+    }
+  }
+}

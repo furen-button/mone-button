@@ -1,0 +1,37 @@
+{
+  "videoId": "n8Y7R-UtoEc",
+  "serif": "ポケモンセンターの歌",
+  "ruby": "ぽけもんせんたーのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=n8Y7R-UtoEc&t=8846s",
+  "memo": "yt-comment-archiver: ライブチャット「ポケセンの歌」「♪ポケモンセンターの歌」「ポケモンセンターの歌助かる」「おうたたすかる」「お歌たすかる」「もねちの歌」 @2:27:43",
+  "liveChat": {
+    "message": "ポケセンの歌",
+    "at": 8863,
+    "streamStartedAt": "2024-08-31T12:00:47+09:00"
+  },
+  "trimming": {
+    "startTime": 8846.862130047251,
+    "endTime": 8855.498840635739,
+    "duration": 8.636710588487972,
+    "original": {
+      "startTime": 8843,
+      "endTime": 8873,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "n8Y7R-UtoEc",
+      "title": "【ポケットモンスター Let's Go! ピカチュウ#２】ミリしらポケモン！コイキング強しは審議だしタケシがヒロインも疑ってるけど今日も楽しみ⚡【にじさんじ/梢桃音】",
+      "duration": 18115,
+      "thumbnail": "https://i.ytimg.com/vi/n8Y7R-UtoEc/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240831",
+      "viewCount": 64023,
+      "url": "https://www.youtube.com/watch?v=n8Y7R-UtoEc"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "videoId": "1epr2SMbjjQ",
+  "serif": "朝ごはんの歌",
+  "ruby": "あさごはんのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=1epr2SMbjjQ&t=32330s",
+  "memo": "yt-comment-archiver: コメント「8:58:48 朝ご飯の歌」 @8:58:48",
+  "trimming": {
+    "startTime": 32330.176224226805,
+    "endTime": 32341.154224963182,
+    "duration": 10.978000736377027,
+    "original": {
+      "startTime": 32323,
+      "endTime": 32353,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "1epr2SMbjjQ",
+      "title": "【9万人＆クリア耐久】2枠目！ロックマン2 Dr.ワイリーの謎 ¦ 初めてのロックマン！🎮【にじさんじ/梢桃音】",
+      "duration": 41168,
+      "thumbnail": "https://i.ytimg.com/vi/1epr2SMbjjQ/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250412",
+      "viewCount": 64754,
+      "url": "https://www.youtube.com/watch?v=1epr2SMbjjQ"
+    }
+  }
+}

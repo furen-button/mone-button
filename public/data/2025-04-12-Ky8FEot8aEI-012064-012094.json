@@ -1,0 +1,37 @@
+{
+  "videoId": "Ky8FEot8aEI",
+  "serif": "わからないの歌",
+  "ruby": "わからないのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=Ky8FEot8aEI&t=12067s",
+  "memo": "yt-comment-archiver: ライブチャット「わからないの歌たすかる」「わからないの歌たすかる」 @3:21:24",
+  "liveChat": {
+    "message": "わからないの歌たすかる",
+    "at": 12084,
+    "streamStartedAt": "2025-04-12T12:00:33+09:00"
+  },
+  "trimming": {
+    "startTime": 12067.686487481591,
+    "endTime": 12077.363862297496,
+    "duration": 9.677374815905743,
+    "original": {
+      "startTime": 12064,
+      "endTime": 12094,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "Ky8FEot8aEI",
+      "title": "【9万人＆クリア耐久】ロックマン2 Dr.ワイリーの謎 ¦ 初めてのロックマン！🎮【にじさんじ/梢桃音】",
+      "duration": 24664,
+      "thumbnail": "https://i.ytimg.com/vi/Ky8FEot8aEI/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250412",
+      "viewCount": 45901,
+      "url": "https://www.youtube.com/watch?v=Ky8FEot8aEI"
+    }
+  }
+}

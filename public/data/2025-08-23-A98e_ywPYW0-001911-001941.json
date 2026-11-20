@@ -1,0 +1,37 @@
+{
+  "videoId": "A98e_ywPYW0",
+  "serif": "おうた",
+  "ruby": "おうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=A98e_ywPYW0&t=1921s",
+  "memo": "yt-comment-archiver: ライブチャット「急に歌うよ〜」「お歌たすかる」 @0:32:11",
+  "liveChat": {
+    "message": "急に歌うよ〜",
+    "at": 1931,
+    "streamStartedAt": "2025-08-23T12:05:29+09:00"
+  },
+  "trimming": {
+    "startTime": 1921.4001748895435,
+    "endTime": 1947.3037157153212,
+    "duration": 25.9035408257778,
+    "original": {
+      "startTime": 1911,
+      "endTime": 1941,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "A98e_ywPYW0",
+      "title": "【ドラゴンクエストXI　過ぎ去りし時を求めて S】#7 完全初見 海底王国ムウレア出た所から！🐟【にじさんじ/梢桃音】",
+      "duration": 18832,
+      "thumbnail": "https://i.ytimg.com/vi/A98e_ywPYW0/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250823",
+      "viewCount": 18335,
+      "url": "https://www.youtube.com/watch?v=A98e_ywPYW0"
+    }
+  }
+}

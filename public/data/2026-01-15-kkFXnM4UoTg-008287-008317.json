@@ -1,0 +1,37 @@
+{
+  "videoId": "kkFXnM4UoTg",
+  "serif": "アルコールの歌",
+  "ruby": "あるこーるのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=kkFXnM4UoTg&t=8287s",
+  "memo": "yt-comment-archiver: ライブチャット「アルコールの歌」「アルコールンルンの歌」 @2:18:27",
+  "liveChat": {
+    "message": "アルコールの歌",
+    "at": 8307,
+    "streamStartedAt": "2026-01-15T18:00:32+09:00"
+  },
+  "trimming": {
+    "startTime": 8287.598536450663,
+    "endTime": 8313.241025405008,
+    "duration": 25.642488954344625,
+    "original": {
+      "startTime": 8287,
+      "endTime": 8317,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "kkFXnM4UoTg",
+      "title": "【利用規約に同意したい】同意してみせてやんよ！！！！！！！【にじさんじ/梢桃音】",
+      "duration": 27644,
+      "thumbnail": "https://i.ytimg.com/vi/kkFXnM4UoTg/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260115",
+      "viewCount": 37580,
+      "url": "https://www.youtube.com/watch?v=kkFXnM4UoTg"
+    }
+  }
+}

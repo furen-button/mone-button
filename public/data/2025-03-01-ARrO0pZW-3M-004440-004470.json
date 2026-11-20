@@ -1,0 +1,32 @@
+{
+  "videoId": "ARrO0pZW-3M",
+  "serif": "なんにもわかんないの歌",
+  "ruby": "なんにもわかんないのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=ARrO0pZW-3M&t=4444s",
+  "memo": "yt-comment-archiver: コメント「1:14:05 なんにもわかんないの歌」 @1:14:05",
+  "trimming": {
+    "startTime": 4444.6591955081,
+    "endTime": 4461.91734167894,
+    "duration": 17.258146170839467,
+    "original": {
+      "startTime": 4440,
+      "endTime": 4470,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "ARrO0pZW-3M",
+      "title": "【ゼルダの伝説時のオカリナ】#5 シリーズ完全初見🔰今日こそはジャブジャブ様のお腹にいる姫を救う👸✨【にじさんじ/梢桃音】",
+      "duration": 22070,
+      "thumbnail": "https://i.ytimg.com/vi/ARrO0pZW-3M/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250301",
+      "viewCount": 22887,
+      "url": "https://www.youtube.com/watch?v=ARrO0pZW-3M"
+    }
+  }
+}

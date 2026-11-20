@@ -1,0 +1,37 @@
+{
+  "videoId": "bNJZ1Mp85Gw",
+  "serif": "スカートひらりと 真っ逆さま",
+  "ruby": "すかーとひらりとまっさかさま",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=bNJZ1Mp85Gw&t=35477s",
+  "memo": "yt-comment-archiver: ライブチャット「おうたたすかる」「お歌たすかる」 @9:51:38",
+  "liveChat": {
+    "message": "おうたたすかる",
+    "at": 35498,
+    "streamStartedAt": "2025-05-03T13:00:17+09:00"
+  },
+  "trimming": {
+    "startTime": 35477.18952503682,
+    "endTime": 35484.17129970545,
+    "duration": 6.981774668630337,
+    "original": {
+      "startTime": 35478,
+      "endTime": 35508,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "bNJZ1Mp85Gw",
+      "title": "【枠ちぎれるまで】超魔界村 ¦ 3日間でクリアチャレンジ #2日目  魔界やばしすぎる！！3面から！！ 【にじさんじ/梢桃音】",
+      "duration": 42618,
+      "thumbnail": "https://i.ytimg.com/vi/bNJZ1Mp85Gw/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250503",
+      "viewCount": 64232,
+      "url": "https://www.youtube.com/watch?v=bNJZ1Mp85Gw"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "4D7qYRHKTPg",
+  "serif": "お歌",
+  "ruby": "おうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=4D7qYRHKTPg&t=407s",
+  "memo": "yt-comment-archiver: ライブチャット「お歌助かる」 コメント「6:41 お歌」 @0:06:41",
+  "liveChat": {
+    "message": "お歌助かる",
+    "at": 424,
+    "streamStartedAt": "2025-03-11T18:00:30+09:00"
+  },
+  "trimming": {
+    "startTime": 407.9845360824742,
+    "endTime": 413.51012518409425,
+    "duration": 5.52558910162003,
+    "original": {
+      "startTime": 396,
+      "endTime": 426,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "4D7qYRHKTPg",
+      "title": "【ゼルダの伝説時のオカリナ】#9 シリーズ完全初見🔰今日こそ炎の神殿クリアしたい🔥【にじさんじ/梢桃音】",
+      "duration": 15404,
+      "thumbnail": "https://i.ytimg.com/vi/4D7qYRHKTPg/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250311",
+      "viewCount": 17405,
+      "url": "https://www.youtube.com/watch?v=4D7qYRHKTPg"
+    }
+  }
+}

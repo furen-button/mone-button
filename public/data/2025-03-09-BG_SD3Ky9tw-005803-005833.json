@@ -1,0 +1,32 @@
+{
+  "videoId": "BG_SD3Ky9tw",
+  "serif": "おうた",
+  "ruby": "おうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=BG_SD3Ky9tw&t=5811s",
+  "memo": "yt-comment-archiver: コメント「1:36:48 おうた」 @1:36:48",
+  "trimming": {
+    "startTime": 5811.381581369661,
+    "endTime": 5814.7525773195875,
+    "duration": 3.3709959499263604,
+    "original": {
+      "startTime": 5803,
+      "endTime": 5833,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "BG_SD3Ky9tw",
+      "title": "【スーパーマリオブラザーズ３】#9 完全初見🔰ワールド５空のステージから☁️マリオさん！今日も頑張って！【にじさんじ/梢桃音】",
+      "duration": 19964,
+      "thumbnail": "https://i.ytimg.com/vi/BG_SD3Ky9tw/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250309",
+      "viewCount": 22147,
+      "url": "https://www.youtube.com/watch?v=BG_SD3Ky9tw"
+    }
+  }
+}

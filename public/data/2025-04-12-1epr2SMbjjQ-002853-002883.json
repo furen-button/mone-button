@@ -1,0 +1,32 @@
+{
+  "videoId": "1epr2SMbjjQ",
+  "serif": "ダイソーの歌",
+  "ruby": "だいそーのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=1epr2SMbjjQ&t=2869s",
+  "memo": "yt-comment-archiver: コメント「47:38 ダイソーの歌」 @0:47:38",
+  "trimming": {
+    "startTime": 2869.781111929308,
+    "endTime": 2882.706599779087,
+    "duration": 12.925487849779088,
+    "original": {
+      "startTime": 2853,
+      "endTime": 2883,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "1epr2SMbjjQ",
+      "title": "【9万人＆クリア耐久】2枠目！ロックマン2 Dr.ワイリーの謎 ¦ 初めてのロックマン！🎮【にじさんじ/梢桃音】",
+      "duration": 41168,
+      "thumbnail": "https://i.ytimg.com/vi/1epr2SMbjjQ/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250412",
+      "viewCount": 64754,
+      "url": "https://www.youtube.com/watch?v=1epr2SMbjjQ"
+    }
+  }
+}

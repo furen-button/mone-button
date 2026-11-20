@@ -1,0 +1,37 @@
+{
+  "videoId": "pp6_ox8oybk",
+  "serif": "レベルが上がらないの歌",
+  "ruby": "れべるがあがらないのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=pp6_ox8oybk&t=10583s",
+  "memo": "yt-comment-archiver: ライブチャット「レベルが上がらないの歌」「レベルが上がらないの歌」 @2:56:46",
+  "liveChat": {
+    "message": "レベルが上がらないの歌",
+    "at": 10606,
+    "streamStartedAt": "2024-10-14T14:30:46+09:00"
+  },
+  "trimming": {
+    "startTime": 10583.455587260678,
+    "endTime": 10591.153028350516,
+    "duration": 7.6974410898380015,
+    "original": {
+      "startTime": 10586,
+      "endTime": 10616,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "pp6_ox8oybk",
+      "title": "【２日間でクリア耐久１(４)枠目！】０から始める！！！！冒険！！！！！！涙 ドラゴンクエストⅡ悪霊の神々/DQ２【にじさんじ/梢桃音】",
+      "duration": 35323,
+      "thumbnail": "https://i.ytimg.com/vi/pp6_ox8oybk/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241014",
+      "viewCount": 81754,
+      "url": "https://www.youtube.com/watch?v=pp6_ox8oybk"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "mZavZqts110",
+  "serif": "ジャンプ台の歌",
+  "ruby": "じゃんぷだいのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=mZavZqts110&t=452s",
+  "memo": "yt-comment-archiver: ライブチャット「謎の歌タスカル」「お歌たすかる」 @0:07:49",
+  "liveChat": {
+    "message": "謎の歌タスカル",
+    "at": 469,
+    "streamStartedAt": "2026-04-05T17:08:31+09:00"
+  },
+  "trimming": {
+    "startTime": 452.36133100147276,
+    "endTime": 458.70913107511046,
+    "duration": 6.347800073637703,
+    "original": {
+      "startTime": 449,
+      "endTime": 479,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "mZavZqts110",
+      "title": "【#マリカにじさんじ杯】個人戦予選Dリーグ🚙傾かないで走り切る！！！！！！【にじさんじ/梢桃音】",
+      "duration": 8449,
+      "thumbnail": "https://i.ytimg.com/vi/mZavZqts110/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260405",
+      "viewCount": 21608,
+      "url": "https://www.youtube.com/watch?v=mZavZqts110"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "videoId": "8sSrOMvuxe0",
+  "serif": "飛ぶのが下手くそのお歌",
+  "ruby": "とぶのがへたくそのおうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=8sSrOMvuxe0&t=3914s",
+  "memo": "yt-comment-archiver: コメント「1:05:13 お歌助かる」 @1:05:13",
+  "trimming": {
+    "startTime": 3914.639819587629,
+    "endTime": 3918.5775957290134,
+    "duration": 3.93777614138439,
+    "original": {
+      "startTime": 3908,
+      "endTime": 3938,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "8sSrOMvuxe0",
+      "title": "【ゼルダの伝説時のオカリナ】#3 シリーズ完全初見🔰ドドンゴの洞窟で精霊の石を探そう！🪨⛰️【にじさんじ/梢桃音】",
+      "duration": 11040,
+      "thumbnail": "https://i.ytimg.com/vi/8sSrOMvuxe0/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250223",
+      "viewCount": 19015,
+      "url": "https://www.youtube.com/watch?v=8sSrOMvuxe0"
+    }
+  }
+}

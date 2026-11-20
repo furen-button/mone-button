@@ -1,0 +1,37 @@
+{
+  "videoId": "ZgfgdAl70LU",
+  "serif": "おけおけおっけーのお歌",
+  "ruby": "おけおけおっけーのおうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=ZgfgdAl70LU&t=8068s",
+  "memo": "yt-comment-archiver: ライブチャット「おけおけおっけーの歌助かる」「おっけーの歌」 @2:14:46",
+  "liveChat": {
+    "message": "おけおけおっけーの歌助かる",
+    "at": 8086,
+    "streamStartedAt": "2024-08-22T13:02:58+09:00"
+  },
+  "trimming": {
+    "startTime": 8068.191872238586,
+    "endTime": 8074.79993556701,
+    "duration": 6.608063328424154,
+    "original": {
+      "startTime": 8066,
+      "endTime": 8096,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "ZgfgdAl70LU",
+      "title": "【あつまれどうぶつの森#7】今日はサクッとあつ森！橋を作るために色々集めよ🏝️✨【にじさんじ/梢桃音】",
+      "duration": 9074,
+      "thumbnail": "https://i.ytimg.com/vi/ZgfgdAl70LU/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240822",
+      "viewCount": 10771,
+      "url": "https://www.youtube.com/watch?v=ZgfgdAl70LU"
+    }
+  }
+}

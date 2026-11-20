@@ -1,0 +1,37 @@
+{
+  "videoId": "YKHKUo6Nxe8",
+  "serif": "にじのむこうに",
+  "ruby": "にじのむこうに",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=YKHKUo6Nxe8&t=13884s",
+  "memo": "yt-comment-archiver: ライブチャット「おうた助かる」 コメント「3:51:24 お歌助かる2」「3:52:13 お歌助かる3」 @3:51:24",
+  "liveChat": {
+    "message": "おうた助かる",
+    "at": 13909,
+    "streamStartedAt": "2025-01-24T17:00:48+09:00"
+  },
+  "trimming": {
+    "startTime": 13884.38406664212,
+    "endTime": 13890.762932621503,
+    "duration": 6.378865979381443,
+    "original": {
+      "startTime": 13879,
+      "endTime": 13909,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "YKHKUo6Nxe8",
+      "title": "【ドラクエ３リメイク#12】いざ！バラモス城へ！！！⚔️🐲ドラゴンクエストⅢそして伝説へ…/DQ３※ネタバレ注意【にじさんじ/梢桃音】",
+      "duration": 18289,
+      "thumbnail": "https://i.ytimg.com/vi/YKHKUo6Nxe8/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250124",
+      "viewCount": 31735,
+      "url": "https://www.youtube.com/watch?v=YKHKUo6Nxe8"
+    }
+  }
+}

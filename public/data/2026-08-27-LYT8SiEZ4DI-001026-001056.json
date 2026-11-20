@@ -1,0 +1,37 @@
+{
+  "videoId": "LYT8SiEZ4DI",
+  "serif": "鼻歌",
+  "ruby": "はなうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=LYT8SiEZ4DI&t=1034s",
+  "memo": "yt-comment-archiver: ライブチャット「もねちの鼻歌もかわいいよ」「もねちの鼻歌タスカル」 @0:17:26",
+  "liveChat": {
+    "message": "もねちの鼻歌もかわいいよ",
+    "at": 1046,
+    "streamStartedAt": "2026-08-27T20:00:24+09:00"
+  },
+  "trimming": {
+    "startTime": 1034.3615611192931,
+    "endTime": 1041.1180504418262,
+    "duration": 6.756489322533138,
+    "original": {
+      "startTime": 1026,
+      "endTime": 1056,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "LYT8SiEZ4DI",
+      "title": "【初代ルイージマンション】完全初見👀兄さんどこどこどこどこ！？【にじさんじ/梢桃音】",
+      "duration": 15666,
+      "thumbnail": "https://i.ytimg.com/vi/LYT8SiEZ4DI/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260827",
+      "viewCount": 38282,
+      "url": "https://www.youtube.com/watch?v=LYT8SiEZ4DI"
+    }
+  }
+}

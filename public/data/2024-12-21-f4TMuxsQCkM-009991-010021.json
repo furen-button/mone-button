@@ -1,0 +1,32 @@
+{
+  "videoId": "f4TMuxsQCkM",
+  "serif": "おうた",
+  "ruby": "おうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=f4TMuxsQCkM&t=10011s",
+  "memo": "yt-comment-archiver: コメント「2:46:36 おうた」 @2:46:36",
+  "trimming": {
+    "startTime": 10011.968105670103,
+    "endTime": 10015.818897275405,
+    "duration": 3.8507916053019144,
+    "original": {
+      "startTime": 9991,
+      "endTime": 10021,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "f4TMuxsQCkM",
+      "title": "【ドラクエ３リメイク#３】勇者もねち朝から冒険⚔️🐲ドラゴンクエストⅢそして伝説へ…/DQ３※ネタバレ注意【にじさんじ/梢桃音】",
+      "duration": 10529,
+      "thumbnail": "https://i.ytimg.com/vi/f4TMuxsQCkM/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241221",
+      "viewCount": 14334,
+      "url": "https://www.youtube.com/watch?v=f4TMuxsQCkM"
+    }
+  }
+}

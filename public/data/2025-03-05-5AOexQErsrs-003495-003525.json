@@ -1,0 +1,37 @@
+{
+  "videoId": "5AOexQErsrs",
+  "serif": "オカリナのお歌",
+  "ruby": "おかりなのおうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=5AOexQErsrs&t=3504s",
+  "memo": "yt-comment-archiver: ライブチャット「お歌助かる」 コメント「58:20 お歌助かる」 @0:58:20",
+  "liveChat": {
+    "message": "お歌助かる",
+    "at": 3522,
+    "streamStartedAt": "2025-03-05T18:00:30+09:00"
+  },
+  "trimming": {
+    "startTime": 3504.4861469072166,
+    "endTime": 3513.6568022827687,
+    "duration": 9.170655375552283,
+    "original": {
+      "startTime": 3495,
+      "endTime": 3525,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "5AOexQErsrs",
+      "title": "【ゼルダの伝説時のオカリナ】#6 シリーズ完全初見🔰大人になったよ！森の神殿から🌳✨【にじさんじ/梢桃音】",
+      "duration": 7750,
+      "thumbnail": "https://i.ytimg.com/vi/5AOexQErsrs/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250305",
+      "viewCount": 10719,
+      "url": "https://www.youtube.com/watch?v=5AOexQErsrs"
+    }
+  }
+}
