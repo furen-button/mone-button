@@ -1,0 +1,234 @@
+{
+  "select": {
+    "mode": "category",
+    "videoId": null,
+    "order": "date",
+    "limit": null,
+    "categories": [
+      "ガハハ"
+    ],
+    "exclude": [
+      "2024-07-11-NxUmKO9JWqM-001138-001168",
+      "2024-07-13-gr9WJDYS_u0-010876-010906",
+      "2024-07-13-gr9WJDYS_u0-022292-022322",
+      "2024-07-20-J6_WAnzx6dc-004120-004150",
+      "2024-08-23-I2p_Zvcnn8c-009731-009761",
+      "2024-08-24-Ww5DHXpVHko-001879-001909",
+      "2024-08-28-lxuneSyagTg-001977-002007",
+      "2024-08-28-lxuneSyagTg-007981-008011",
+      "2024-08-31-n8Y7R-UtoEc-011915-011945",
+      "2024-09-10-fCVIs8sxsGo-002862-002892",
+      "2024-09-16-EEda8qPERKw-010522-010552",
+      "2024-09-19-w4niE97jxlg-005387-005417",
+      "2024-09-22-6HqMlM9oWa4-003043-003073",
+      "2024-11-03-akyRMr_TqNw-011036-011066",
+      "2024-12-04-TcOEA4GGgQw-006970-007000",
+      "2024-12-15-Tm4jdhely70-000851-000881",
+      "2024-12-19-NDd90D4vM3I-002462-002492",
+      "2024-12-19-3tN3Z9M5Esg-010767-010797",
+      "2024-12-21-f4TMuxsQCkM-003159-003189",
+      "2025-01-28-PuKNlC3IGQg-000813-000843",
+      "2025-01-28-PuKNlC3IGQg-008942-008972",
+      "2025-02-14-cA4oubtYI9U-000958-000988",
+      "2025-02-14-cA4oubtYI9U-007859-007866",
+      "2025-02-18-hJBUnjnrTjk-002014-002044",
+      "2025-02-18-xx5Qjk3EmBc-009252-009282",
+      "2025-02-25-W2Q238hGi9Y-002085-002115",
+      "2025-03-01-ARrO0pZW-3M-004732-004762",
+      "2025-03-04-HBM9iyYyEJ8-008306-008336",
+      "2025-03-05-5AOexQErsrs-006927-006957",
+      "2025-03-07-WhjF-E9l8H4-001927-001957",
+      "2025-03-15-lEbtSMAGbiQ-000306-000336",
+      "2025-03-16-9VBJFfN3Nus-018259-018289",
+      "2025-03-27-FWnNr8yfVeU-022165-022195",
+      "2025-03-28-A3RQSkdb3gE-003508-003538",
+      "2025-03-30-DO3-x_L5WgI-000633-000663",
+      "2025-04-06-auB9tDKAjB4-007783-007813",
+      "2025-04-12-1epr2SMbjjQ-017142-017172",
+      "2025-04-15-swFRsFgFmbY-012694-012724",
+      "2025-04-15-swFRsFgFmbY-021441-021471",
+      "2025-04-19-gngcICKa3IQ-001942-001972"
+    ]
+  },
+  "output": {
+    "resolution": "1080x1920",
+    "fps": 30,
+    "name": "output/shorts/2024-07-11-category-ガハハ-shorts-50s.mp4",
+    "dir": "output/shorts",
+    "split": {
+      "by": "stream",
+      "minSec": 20,
+      "targetSec": 50
+    }
+  },
+  "source": "cache",
+  "normalizeCache": true,
+  "font": "Hiragino Sans",
+  "fontsDir": "/System/Library/Fonts",
+  "telops": {
+    "title": {
+      "enabled": true,
+      "align": "top-center",
+      "size": 50,
+      "minSize": 50,
+      "marginH": 0.035,
+      "format": "{title}",
+      "singleLine": false,
+      "font": "Hiragino Sans W8",
+      "color": "FFFFFF",
+      "outlines": [
+        {
+          "width": 3,
+          "color": "3B2366"
+        }
+      ],
+      "box": {
+        "enabled": true,
+        "fill": "7E57C2",
+        "pad": 8,
+        "minHeight": 0.11,
+        "opacity": 1,
+        "offsetY": 0,
+        "anchor": "bottom"
+      },
+      "fade": [
+        0,
+        0
+      ],
+      "marginV": 0.1,
+      "layout": "date-title"
+    },
+    "date": {
+      "enabled": false,
+      "align": "top-left",
+      "size": 0.03,
+      "color": "FFFFFF",
+      "marginV": 0.0125
+    },
+    "time": {
+      "enabled": false,
+      "align": "top-right",
+      "size": 0.03,
+      "color": "FFFFFF",
+      "marginV": 0.0125
+    },
+    "serif": {
+      "enabled": true,
+      "align": "center",
+      "size": 0.5,
+      "font": "Hiragino Sans W9",
+      "autoShrink": true,
+      "minSize": 0.032,
+      "maxHeight": 0.3,
+      "marginH": 0.046296296296296294,
+      "marginV": 0.02,
+      "color": "FF4FA0",
+      "bold": false,
+      "shadow": 3,
+      "fade": [
+        80,
+        80
+      ],
+      "box": {
+        "enabled": false
+      },
+      "outlines": [
+        {
+          "width": 9,
+          "color": "FFFFFF"
+        },
+        {
+          "width": 4,
+          "color": "6B3FA0"
+        }
+      ],
+      "emphasis": {
+        "color": "FFD800"
+      },
+      "karaoke": false,
+      "avoidFace": {
+        "enabled": false
+      },
+      "layout": "space-lines",
+      "faceRange": {
+        "enabled": true,
+        "top": 0.02,
+        "minHeight": 0.12,
+        "maxHeight": 0.3,
+        "fallbackBottom": 0.24
+      }
+    },
+    "progress": {
+      "enabled": false
+    }
+  },
+  "cards": {
+    "enabled": false,
+    "se": {
+      "enabled": false
+    }
+  },
+  "endcaps": {
+    "opening": {
+      "enabled": false
+    },
+    "ending": {
+      "enabled": false
+    }
+  },
+  "transitions": {
+    "mode": "stream",
+    "type": "whip",
+    "duration": 0.5,
+    "se": {
+      "enabled": false,
+      "file": "assets/create-video/シーン切り替え1.mp3",
+      "volume": 0.5
+    }
+  },
+  "effects": {
+    "zoom": {
+      "enabled": false
+    },
+    "enhance": {
+      "enabled": true,
+      "restore": "Restore_CNN_M",
+      "upscale": "Upscale_CNN_x2_M",
+      "minSourceHeight": 720,
+      "required": false
+    },
+    "reframe": {
+      "enabled": true,
+      "zoom": 1,
+      "frames": 3,
+      "pick": "right",
+      "x": 0.92,
+      "y": 0.72,
+      "target": {
+        "x": 0.5,
+        "y": 0.46
+      },
+      "maxZoom": 1.8,
+      "minFaceHeight": 0.26,
+      "fill": "blur"
+    }
+  },
+  "summary": {
+    "intro": "にじさんじ所属・梢桃音さんの配信から名場面をまとめました。",
+    "notice": "※このチャンネルは非公式のファン制作です。",
+    "tags": [
+      "梢桃音",
+      "にじさんじ",
+      "切り抜き",
+      "名場面",
+      "まとめ",
+      "Shorts"
+    ],
+    "chapters": {
+      "enabled": false
+    }
+  },
+  "upload": {
+    "title": "{serifs}【梢桃音/にじさんじ切り抜き】"
+  }
+}
