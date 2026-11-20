@@ -1,6 +1,6 @@
 {
   "videoId": "kgGbUQ0fQqg",
-  "serif": "あのほこら壊したんか！ ほーこらあかん",
+  "serif": "あのほこら 壊したんか！ ほーこらあかん",
   "ruby": "あのほこらこわしたんかほーこらあかん",
   "categories": [
     "ガハハ"
@@ -32,6 +32,12 @@
       "uploadDate": "20260103",
       "viewCount": 33132,
       "url": "https://www.youtube.com/watch?v=kgGbUQ0fQqg"
+    }
+  },
+  "effects": {
+    "reframe": {
+      "x": 0.34,
+      "y": 0.6
     }
   }
 }

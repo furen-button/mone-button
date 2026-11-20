@@ -7,6 +7,7 @@ import { loadEnv } from './env.js';
 import { createApiClient, login } from './auth.js';
 import { loadPlan } from './plan.js';
 import { uploadPlan } from './api.js';
+import { runSourcePlaylists } from './playlist.js';
 
 export const STUDIO_CHECKLIST = `Studio で手作業すること:
 1. 公開前の最終確認: 二次創作ガイドライン、コラボ相手の条件、出典と非公式表記
@@ -20,6 +21,8 @@ export function parseOptions(args) {
     'dry-run': { type: 'boolean' }, title: { type: 'string' },
     'no-thumbnail': { type: 'boolean' }, 'no-comment': { type: 'boolean' }, 'retry-video': { type: 'boolean' },
     'allow-qc-error': { type: 'boolean' },
+    'source-playlist': { type: 'boolean' },
+    'playlist-privacy': { type: 'string' }, 'playlist-title': { type: 'string' },
   } });
   if (values.login && Object.keys(values).some((key) => key !== 'login')) {
     throw new Error('--login は単独で指定してください。');
@@ -27,7 +30,15 @@ export function parseOptions(args) {
   if (!values.login && !values.video?.length) {
     throw new Error('--video <mp4> または --login を指定してください。');
   }
+  if (values['playlist-privacy'] !== undefined && !['unlisted', 'public', 'private'].includes(values['playlist-privacy'])) {
+    throw new Error('--playlist-privacy は unlisted / public / private を指定してください。');
+  }
+  if (!values['source-playlist'] && (values['playlist-privacy'] !== undefined || values['playlist-title'] !== undefined)) {
+    throw new Error('--playlist-privacy / --playlist-title は --source-playlist と一緒に指定してください。');
+  }
   return { login: values.login, videos: values.video || [], dryRun: values['dry-run'], title: values.title,
+    sourcePlaylist: values['source-playlist'], playlistPrivacy: values['playlist-privacy'] ?? 'unlisted',
+    playlistTitle: values['playlist-title'],
     noThumbnail: values['no-thumbnail'], noComment: values['no-comment'], retryVideo: values['retry-video'],
     allowQcError: values['allow-qc-error'] };
 }
@@ -52,6 +63,10 @@ export async function main(args = process.argv.slice(2), root = path.resolve(pat
     return;
   }
   const videos = expandVideos(options.videos, root);
+  if (options.sourcePlaylist) {
+    await runSourcePlaylists(videos, { root, options, loadEnvironment, clientForEnv });
+    return;
+  }
   // 全候補を通信前に検査する。後ろの候補に error があっても先に送らない。
   const plans = [];
   let invalid = false;

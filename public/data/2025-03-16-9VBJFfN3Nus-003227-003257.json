@@ -1,0 +1,32 @@
+{
+  "videoId": "9VBJFfN3Nus",
+  "serif": "お歌",
+  "ruby": "おうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=9VBJFfN3Nus&t=3242s",
+  "memo": "yt-comment-archiver: コメント「53:52 お歌」 @0:53:52",
+  "trimming": {
+    "startTime": 3242.611653166421,
+    "endTime": 3252.2986929307804,
+    "duration": 9.687039764359351,
+    "original": {
+      "startTime": 3227,
+      "endTime": 3257,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "9VBJFfN3Nus",
+      "title": "【ゼルダの伝説時のオカリナ】#11 シリーズ完全初見🔰今日は水の神殿から！💧【にじさんじ/梢桃音】",
+      "duration": 24320,
+      "thumbnail": "https://i.ytimg.com/vi/9VBJFfN3Nus/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250316",
+      "viewCount": 23567,
+      "url": "https://www.youtube.com/watch?v=9VBJFfN3Nus"
+    }
+  }
+}

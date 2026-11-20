@@ -1,0 +1,36 @@
+{
+  "videoId": "r9nast8PwPA",
+  "serif": "まだ行けるの歌",
+  "ruby": "まだいけるのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=r9nast8PwPA&t=24377s",
+  "memo": "yt-comment-archiver: ライブチャット「おうたたすかる」「まだ行けるの歌」 @6:46:30",
+  "liveChat": {
+    "message": "おうたたすかる",
+    "at": 24390
+  },
+  "trimming": {
+    "startTime": 24377.904547128128,
+    "endTime": 24386.694817746687,
+    "duration": 8.790270618556697,
+    "original": {
+      "startTime": 24370,
+      "endTime": 24400,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "r9nast8PwPA",
+      "title": "【スーパードンキーコング2】最終回(たぶん)のずずずんドンキー￤ けっせん！キャプテンクルールから🍌🦍【にじさんじ/梢桃音】",
+      "duration": 37991,
+      "thumbnail": "https://i.ytimg.com/vi/r9nast8PwPA/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260125",
+      "viewCount": 44170,
+      "url": "https://www.youtube.com/watch?v=r9nast8PwPA"
+    }
+  }
+}

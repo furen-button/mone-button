@@ -1,0 +1,37 @@
+{
+  "videoId": "nEnEMA6lO3o",
+  "serif": "結んで開くだけの歌",
+  "ruby": "むすんでひらくだけのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=nEnEMA6lO3o&t=14141s",
+  "memo": "yt-comment-archiver: ライブチャット「お歌助かる」「結んで開くだけの歌」 @3:55:55",
+  "liveChat": {
+    "message": "お歌助かる",
+    "at": 14155,
+    "streamStartedAt": "2025-02-28T19:00:24+09:00"
+  },
+  "trimming": {
+    "startTime": 14141.237343519882,
+    "endTime": 14156.840712444771,
+    "duration": 15.603368924889544,
+    "original": {
+      "startTime": 14135,
+      "endTime": 14165,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "nEnEMA6lO3o",
+      "title": "【ゼルダの伝説時のオカリナ】#４ シリーズ完全初見🔰⛰️デスマウンテンの頂上へ！⛰️【にじさんじ/梢桃音】",
+      "duration": 18351,
+      "thumbnail": "https://i.ytimg.com/vi/nEnEMA6lO3o/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250228",
+      "viewCount": 18556,
+      "url": "https://www.youtube.com/watch?v=nEnEMA6lO3o"
+    }
+  }
+}

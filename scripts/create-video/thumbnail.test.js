@@ -3,6 +3,60 @@ import assert from 'node:assert/strict';
 import { normalizeProject, applyTemplate, parseAssetRef } from './thumbnail.js';
 import { thumbnailPathsFor } from './summary.js';
 const project = (layers) => ({ version: 1, size: { width: 1280, height: 720 }, layers });
+test('thumbnail: text gradient defaults and explicit values normalize', () => {
+  const normalize = (gradient) => normalizeProject(project([{ id: 't', type: 'text', gradient }])).layers[0];
+  assert.deepEqual(normalize({ type: 'linear' }).gradient, {
+    type: 'linear', from: '#FFFFFF', to: '#FF4FA0', angle: 0, scope: 'line',
+  });
+  for (const scope of ['line', 'block']) {
+    for (const angle of [-360, 90, 360]) {
+      const gradient = { type: 'linear', from: '#abcdef80', to: '#123456', angle, scope };
+      const layer = normalize(gradient);
+      assert.deepEqual(layer.gradient, gradient);
+      assert.equal(layer.color, '#FF4FA0');
+    }
+  }
+  assert.equal(
+    normalizeProject(project([{ id: 't', type: 'text', color: '#123456', gradient: { type: 'linear' } }]))
+      .layers[0].gradient.to,
+    '#123456',
+  );
+});
+test('thumbnail: rejects invalid text gradients', () => {
+  for (const gradient of [
+    null, [], 'linear', 1, {}, { type: 'radial' },
+    ...['red', '#FFF', '#GGGGGG', null, 123].flatMap((value) => [
+      { type: 'linear', from: value }, { type: 'linear', to: value },
+    ]),
+    ...[-361, 361, NaN, Infinity, '90', null].map((angle) => ({ type: 'linear', angle })),
+    ...['all', '', null, 1].map((scope) => ({ type: 'linear', scope })),
+  ]) {
+    assert.throws(() => normalizeProject(project([{ id: 't', type: 'text', gradient }])));
+  }
+});
+test('thumbnail: templates retain text gradients when applying slots', () => {
+  const gradient = { type: 'linear', from: '#FFFFFF', to: '#FF4FA0', angle: 45, scope: 'block' };
+  const template = project([{ id: 't', type: 'text', slot: 'title', gradient }]);
+  assert.deepEqual(normalizeProject(template, { template: true }).layers[0].gradient, gradient);
+  const applied = applyTemplate(template, { title: '題' });
+  assert.deepEqual(applied.layers[0].gradient, gradient);
+  assert.equal(applied.layers[0].text, '題');
+});
+test('thumbnail: legacy text output is unchanged and undefined patch removes gradient', () => {
+  const input = project([{ id: 't', type: 'text' }]);
+  const expected = project([{
+    id: 't', type: 'text', x: 640, y: 360, rotation: 0, opacity: 1, hidden: false, locked: false,
+    text: 'タイトル', font: 'Dela Gothic One', weight: 400, size: 100, color: '#FF4FA0',
+    emphasisColor: '#FFD800', outlines: [], lineHeight: 1.1, letterSpacing: 0, align: 'left',
+  }]);
+  assert.deepEqual(normalizeProject(input), expected);
+  assert.deepEqual(normalizeProject(input, { template: true }), expected);
+  const enabled = normalizeProject(project([{ ...input.layers[0], gradient: { type: 'linear' } }]));
+  const disabled = normalizeProject(project([{ ...enabled.layers[0], gradient: undefined }]));
+  assert.deepEqual(disabled, expected);
+  assert.equal(Object.hasOwn(disabled.layers[0], 'gradient'), false);
+  assert.equal(JSON.stringify(disabled).includes('gradient'), false);
+});
 test('thumbnail: validates bounds, types, ids and references', () => {
   for (const layer of [
     { id: 'x', type: 'text', size: NaN },

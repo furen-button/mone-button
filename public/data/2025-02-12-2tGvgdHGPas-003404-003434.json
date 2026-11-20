@@ -1,0 +1,32 @@
+{
+  "videoId": "2tGvgdHGPas",
+  "serif": "ファミレスBGM",
+  "ruby": "ふぁみれすBGM",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=2tGvgdHGPas&t=3410s",
+  "memo": "yt-comment-archiver: コメント「56:49 お歌助かる」 @0:56:49",
+  "trimming": {
+    "startTime": 3410.87523011782,
+    "endTime": 3414.413981958763,
+    "duration": 3.5387518409425622,
+    "original": {
+      "startTime": 3404,
+      "endTime": 3434,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "2tGvgdHGPas",
+      "title": "【ファミレスを享受せよ#２】今夜はムーンパレスで待ち合わせね！🌃🌕【にじさんじ/梢桃音】",
+      "duration": 11794,
+      "thumbnail": "https://i.ytimg.com/vi/2tGvgdHGPas/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250212",
+      "viewCount": 7416,
+      "url": "https://www.youtube.com/watch?v=2tGvgdHGPas"
+    }
+  }
+}

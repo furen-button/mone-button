@@ -1,0 +1,37 @@
+{
+  "videoId": "1XptZQpOVn8",
+  "serif": "ぬーぬーハミング",
+  "ruby": "ぬーぬーはみんぐ",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=1XptZQpOVn8&t=2306s",
+  "memo": "yt-comment-archiver: ライブチャット「お歌たすかる」「ぬーぬーハミングすき」 @0:38:42",
+  "liveChat": {
+    "message": "お歌たすかる",
+    "at": 2322,
+    "streamStartedAt": "2026-03-24T12:01:30+09:00"
+  },
+  "trimming": {
+    "startTime": 2306.0323545655374,
+    "endTime": 2318.6955081001474,
+    "duration": 12.66315353460972,
+    "original": {
+      "startTime": 2302,
+      "endTime": 2332,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "1XptZQpOVn8",
+      "title": "【タピオカ】たぴたぴしてもちもちになる雑談🧋【にじさんじ/梢桃音】",
+      "duration": 8044,
+      "thumbnail": "https://i.ytimg.com/vi/1XptZQpOVn8/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260324",
+      "viewCount": 10203,
+      "url": "https://www.youtube.com/watch?v=1XptZQpOVn8"
+    }
+  }
+}

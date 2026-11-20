@@ -1,0 +1,37 @@
+{
+  "videoId": "6xnWMVFpC9I",
+  "serif": "なげるかくどのお歌",
+  "ruby": "なげるかくどのおうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=6xnWMVFpC9I&t=4479s",
+  "memo": "yt-comment-archiver: ライブチャット「おうたたすかる」「お歌助かる」「お歌助かる」「生歌助かる:_ペンライト::_ペンライト::_ペンライト:」「おうたたすかる」「おうたたすかる」 @1:14:51",
+  "liveChat": {
+    "message": "おうたたすかる",
+    "at": 4491,
+    "streamStartedAt": "2024-09-26T12:00:26+09:00"
+  },
+  "trimming": {
+    "startTime": 4479.275266936672,
+    "endTime": 4491.986054860088,
+    "duration": 12.71078792341679,
+    "original": {
+      "startTime": 4471,
+      "endTime": 4501,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "6xnWMVFpC9I",
+      "title": "【スーパーマリオヨッシーアイランド#11】完全初見🦖今日もゆったりヨッシーやっていこう！！【にじさんじ/梢桃音】",
+      "duration": 8086,
+      "thumbnail": "https://i.ytimg.com/vi/6xnWMVFpC9I/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240926",
+      "viewCount": 8585,
+      "url": "https://www.youtube.com/watch?v=6xnWMVFpC9I"
+    }
+  }
+}

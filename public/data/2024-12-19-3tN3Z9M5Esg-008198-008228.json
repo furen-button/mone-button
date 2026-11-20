@@ -1,0 +1,37 @@
+{
+  "videoId": "3tN3Z9M5Esg",
+  "serif": "どうして酔い止め効かないの歌",
+  "ruby": "どうしてよいとめきかないのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=3tN3Z9M5Esg&t=8208s",
+  "memo": "yt-comment-archiver: ライブチャット「歌たすかる」「どうして酔い止め効かないの歌」 @2:16:58",
+  "liveChat": {
+    "message": "歌たすかる",
+    "at": 8218,
+    "streamStartedAt": "2024-12-19T12:01:25+09:00"
+  },
+  "trimming": {
+    "startTime": 8208.496824374079,
+    "endTime": 8221.247652798233,
+    "duration": 12.750828424153164,
+    "original": {
+      "startTime": 8198,
+      "endTime": 8228,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "3tN3Z9M5Esg",
+      "title": "【デビュー半年ありがとう耐久】金のコイキング出るまで🐟✨ ポケモンSV【にじさんじ/梢桃音】",
+      "duration": 33691,
+      "thumbnail": "https://i.ytimg.com/vi/3tN3Z9M5Esg/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241219",
+      "viewCount": 86634,
+      "url": "https://www.youtube.com/watch?v=3tN3Z9M5Esg"
+    }
+  }
+}

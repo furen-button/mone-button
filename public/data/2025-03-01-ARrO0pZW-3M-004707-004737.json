@@ -1,0 +1,37 @@
+{
+  "videoId": "ARrO0pZW-3M",
+  "serif": "ブーメランの歌",
+  "ruby": "ぶーめらんのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=ARrO0pZW-3M&t=4712s",
+  "memo": "yt-comment-archiver: ライブチャット「ブーメランの歌」「お歌助かる」 コメント「1:18:32 ブーメランの歌」 @1:18:32",
+  "liveChat": {
+    "message": "ブーメランの歌",
+    "at": 4726,
+    "streamStartedAt": "2025-03-01T12:00:19+09:00"
+  },
+  "trimming": {
+    "startTime": 4712.605209867452,
+    "endTime": 4719.2579160530195,
+    "duration": 6.652706185567013,
+    "original": {
+      "startTime": 4707,
+      "endTime": 4737,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "ARrO0pZW-3M",
+      "title": "【ゼルダの伝説時のオカリナ】#5 シリーズ完全初見🔰今日こそはジャブジャブ様のお腹にいる姫を救う👸✨【にじさんじ/梢桃音】",
+      "duration": 22070,
+      "thumbnail": "https://i.ytimg.com/vi/ARrO0pZW-3M/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250301",
+      "viewCount": 22887,
+      "url": "https://www.youtube.com/watch?v=ARrO0pZW-3M"
+    }
+  }
+}

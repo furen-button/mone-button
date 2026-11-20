@@ -1,0 +1,32 @@
+{
+  "videoId": "kAOfPFsMflQ",
+  "serif": "597のお歌",
+  "ruby": "597のおうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=kAOfPFsMflQ&t=8628s",
+  "memo": "yt-comment-archiver: コメント「2:23:37 お歌助かる」 @2:23:37",
+  "trimming": {
+    "startTime": 8628.027936303388,
+    "endTime": 8637.075018409425,
+    "duration": 9.047082106038292,
+    "original": {
+      "startTime": 8612,
+      "endTime": 8642,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "kAOfPFsMflQ",
+      "title": "【Minecraft】超初心者マイクラ🌳🔨まずは歩く練習を…！！！【にじさんじ/梢桃音】",
+      "duration": 12833,
+      "thumbnail": "https://i.ytimg.com/vi/kAOfPFsMflQ/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250123",
+      "viewCount": 22829,
+      "url": "https://www.youtube.com/watch?v=kAOfPFsMflQ"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "videoId": "CUQlG61XJ08",
+  "serif": "英語の歌",
+  "ruby": "えいごのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=CUQlG61XJ08&t=8926s",
+  "memo": "yt-comment-archiver: コメント「2:28:46 英語の歌」 @2:28:46",
+  "trimming": {
+    "startTime": 8926.998481222387,
+    "endTime": 8935.21092599411,
+    "duration": 8.21244477172312,
+    "original": {
+      "startTime": 8921,
+      "endTime": 8951,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "CUQlG61XJ08",
+      "title": "【10万人耐久】10万人達成するまでリングフィットアドベンチャーで運動だ！そして達成したら酒だ！【にじさんじ/梢桃音】",
+      "duration": 13959,
+      "thumbnail": "https://i.ytimg.com/vi/CUQlG61XJ08/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250515",
+      "viewCount": 59976,
+      "url": "https://www.youtube.com/watch?v=CUQlG61XJ08"
+    }
+  }
+}

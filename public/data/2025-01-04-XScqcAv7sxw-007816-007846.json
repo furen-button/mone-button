@@ -1,0 +1,37 @@
+{
+  "videoId": "XScqcAv7sxw",
+  "serif": "やばいかもの歌",
+  "ruby": "やばいかものうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=XScqcAv7sxw&t=7822s",
+  "memo": "yt-comment-archiver: ライブチャット「やばいかもの歌」「おうたたすかる」 @2:10:36",
+  "liveChat": {
+    "message": "やばいかもの歌",
+    "at": 7836,
+    "streamStartedAt": "2025-01-04T09:00:46+09:00"
+  },
+  "trimming": {
+    "startTime": 7822.41338365243,
+    "endTime": 7834.807989690722,
+    "duration": 12.394606038291604,
+    "original": {
+      "startTime": 7816,
+      "endTime": 7846,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "XScqcAv7sxw",
+      "title": "【星のカービィ64】2025年耐久初め🎍クリアまでやるよ🌟💓【にじさんじ/梢桃音】",
+      "duration": 42263,
+      "thumbnail": "https://i.ytimg.com/vi/XScqcAv7sxw/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250104",
+      "viewCount": 101488,
+      "url": "https://www.youtube.com/watch?v=XScqcAv7sxw"
+    }
+  }
+}

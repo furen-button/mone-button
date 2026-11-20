@@ -72,17 +72,39 @@ function drawText(ctx: CanvasRenderingContext2D, l: TextLayer) {
     accumulated += outline.width
     widths.push(accumulated * 2)
   }
-  const glyphs: { char: string; x: number; y: number; color: string }[] = []
+  function textGradient(box: Box) {
+    const g = l.gradient!
+    const rad = (g.angle * Math.PI) / 180
+    const dx = (Math.sin(rad) * box.w) / 2
+    const dy = (Math.cos(rad) * box.h) / 2
+    const cx = box.x + box.w / 2
+    const cy = box.y + box.h / 2
+    const gradient = ctx.createLinearGradient(cx - dx, cy - dy, cx + dx, cy + dy)
+    gradient.addColorStop(0, g.from)
+    gradient.addColorStop(1, g.to)
+    return gradient
+  }
+  // layerBox の高さには行送りの余白がある。塗りは middle 基準の文字サイズの範囲を使う。
+  const blockBox = layerBox(ctx, l, new Map())
+  const blockHeight = (lines.length - 1) * l.size * l.lineHeight + l.size
+  const blockGradient = l.gradient?.scope === 'block'
+    ? textGradient({ ...blockBox, y: -blockHeight / 2, h: blockHeight })
+    : undefined
+  const glyphs: { char: string; x: number; y: number; color: string | CanvasGradient }[] = []
   lines.forEach((line, row) => {
     const width = textWidth(ctx, l, line)
     let x = l.align === 'left' ? 0 : l.align === 'right' ? -width : -width / 2
+    const y = (row - (lines.length - 1) / 2) * l.size * l.lineHeight
+    const gradient = blockGradient ?? (l.gradient
+      ? textGradient({ x, y: y - l.size / 2, w: Math.max(1, width), h: l.size })
+      : undefined)
     for (const char of line) {
       const span = spans.find((s) => index >= s.start && index < s.end)
       glyphs.push({
         char,
         x,
-        y: (row - (lines.length - 1) / 2) * l.size * l.lineHeight,
-        color: span ? (span.color ? `#${span.color}` : l.emphasisColor) : l.color,
+        y,
+        color: span ? (span.color ? `#${span.color}` : l.emphasisColor) : gradient ?? l.color,
       })
       x += ctx.measureText(char).width + l.letterSpacing
       index++

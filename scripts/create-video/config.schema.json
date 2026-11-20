@@ -99,6 +99,15 @@
               "type": "number",
               "minimum": 0,
               "default": 10
+            },
+            "targetSec": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "exclusiveMinimum": 0,
+              "default": null,
+              "description": "各パートの目標尺（秒）。指定すると配信の塊を割らずに目標へ近い切り方を選び、余りが末尾に溜まらない。minSec 未満のパートは作らない。"
             }
           }
         },
@@ -911,6 +920,15 @@
         "layout": { "type": "string", "enum": ["wrap", "space-lines"], "default": "wrap", "description": "space-lines は半角スペースと手動改行だけで行を分け、全行を最も長い行が幅に収まる同じ大きさにする（上限size）。合計がmaxHeightを超えたら全行を同じだけ縮小。自動折り返し・禁則・minSize・karaokeは使わない。" },
         "enabled": { "type": "boolean", "default": true, "description": "表示するか。CLI の --serif/--no-serif でも制御。" },
         "align": { "$ref": "#/$defs/align" },
+        "alignOverrides": {
+          "type": "object",
+          "default": {},
+          "additionalProperties": {
+            "type": "string",
+            "enum": ["top-left", "top-center", "top-right", "middle-left", "center", "middle-right", "bottom-left", "bottom-center", "bottom-right"]
+          },
+          "description": "クリップ名（base）ごとの align 上書き。セリフが画面の要素と被るクリップだけ位置を変える。telops.serif のクリップのセリフだけに効く（区切りカードには効かない）。"
+        },
         "size": { "$ref": "#/$defs/size" },
         "font": { "$ref": "#/$defs/font" },
         "autoShrink": {

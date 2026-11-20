@@ -1,0 +1,32 @@
+{
+  "videoId": "1ucTRPes3r8",
+  "serif": "レポートの歌",
+  "ruby": "れぽーとのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=1ucTRPes3r8&t=14150s",
+  "memo": "yt-comment-archiver: コメント「3:55:45 レポートの歌」 @3:55:45",
+  "trimming": {
+    "startTime": 14150.42640832106,
+    "endTime": 14157.367912371134,
+    "duration": 6.94150405007364,
+    "original": {
+      "startTime": 14140,
+      "endTime": 14170,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "1ucTRPes3r8",
+      "title": "【ポケモンSV#5】朝からぽやっとポケモン！まずは次のスター団のアジトに行こ！！【にじさんじ/梢桃音】",
+      "duration": 22228,
+      "thumbnail": "https://i.ytimg.com/vi/1ucTRPes3r8/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20241124",
+      "viewCount": 32987,
+      "url": "https://www.youtube.com/watch?v=1ucTRPes3r8"
+    }
+  }
+}

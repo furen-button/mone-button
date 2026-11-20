@@ -1,0 +1,32 @@
+{
+  "videoId": "QYn5-E0Zo0s",
+  "serif": "ハープの歌",
+  "ruby": "はーぷのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=QYn5-E0Zo0s&t=3549s",
+  "memo": "yt-comment-archiver: コメント「59:05 お歌助かる」 @0:59:05",
+  "trimming": {
+    "startTime": 3549.8292525773195,
+    "endTime": 3555.8090942562594,
+    "duration": 5.979841678939618,
+    "original": {
+      "startTime": 3540,
+      "endTime": 3570,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "QYn5-E0Zo0s",
+      "title": "【ゼルダの伝説時のオカリナ】#8 シリーズ完全初見🔰炎の神殿攻略だ🔥【にじさんじ/梢桃音】",
+      "duration": 22484,
+      "thumbnail": "https://i.ytimg.com/vi/QYn5-E0Zo0s/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250308",
+      "viewCount": 20284,
+      "url": "https://www.youtube.com/watch?v=QYn5-E0Zo0s"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "videoId": "ign8x-RB0K8",
+  "serif": "緊張の歌",
+  "ruby": "きんちょうのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=ign8x-RB0K8&t=4896s",
+  "memo": "yt-comment-archiver: ライブチャット「これでデスメタルとか歌い出したら笑ってしまうが」 コメント「1:21:36 緊張の歌」 @1:21:36",
+  "liveChat": {
+    "message": "これでデスメタルとか歌い出したら笑ってしまうが",
+    "at": 4905,
+    "streamStartedAt": "2025-11-11T12:00:27+09:00"
+  },
+  "trimming": {
+    "startTime": 4896.807192320968,
+    "endTime": 4906.961655191458,
+    "duration": 10.154462870489692,
+    "original": {
+      "startTime": 4891,
+      "endTime": 4921,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "ign8x-RB0K8",
+      "title": "【昼雑】ぽやぽやの昼☀️まったり過ごそう【にじさんじ/梢桃音】#shorts",
+      "duration": 7470,
+      "thumbnail": "https://i.ytimg.com/vi/ign8x-RB0K8/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20251111",
+      "viewCount": 13380,
+      "url": "https://www.youtube.com/watch?v=ign8x-RB0K8"
+    }
+  }
+}

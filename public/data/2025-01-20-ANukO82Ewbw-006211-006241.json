@@ -1,0 +1,32 @@
+{
+  "videoId": "ANukO82Ewbw",
+  "serif": "なんで下手っぴなんだろうの歌",
+  "ruby": "なんでへたっぴなんだろうのか",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=ANukO82Ewbw&t=6217s",
+  "memo": "yt-comment-archiver: コメント「1:43:36 お歌助かる」 @1:43:36",
+  "trimming": {
+    "startTime": 6217.748205081001,
+    "endTime": 6232.030237481591,
+    "duration": 14.282032400589102,
+    "original": {
+      "startTime": 6211,
+      "endTime": 6241,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "ANukO82Ewbw",
+      "title": "【スーパーマリオブラザーズ３】#２完全初見🔰しっぽマリオは儚い……【にじさんじ/梢桃音】",
+      "duration": 11557,
+      "thumbnail": "https://i.ytimg.com/vi/ANukO82Ewbw/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250120",
+      "viewCount": 24404,
+      "url": "https://www.youtube.com/watch?v=ANukO82Ewbw"
+    }
+  }
+}

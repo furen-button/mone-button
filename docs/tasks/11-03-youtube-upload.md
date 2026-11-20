@@ -89,6 +89,29 @@ npm run upload -- --video 'output/shorts/2024-08-09-category-侍-shorts-*.mp4'
 | `--retry-video` | 前回の動画送信が失敗した状態から送り直す（後述） |
 | `--allow-qc-error` | qc.json の error を警告に下げて上げる。目視で誤検出と確かめたときだけ使う。upload.json に `qcErrorAllowed: true` を残す。形式不正の qc.json は下げない |
 
+## 出典の再生リストを作る
+
+概要欄に出典を並べきれない場合は、動画アップロードとは別に実行する。
+
+```sh
+npm run upload -- --video output/<name>.mp4 --source-playlist --dry-run
+npm run upload -- --video output/<name>.mp4 --source-playlist
+# 必要ならタイトルと公開範囲を指定する
+npm run upload -- --video output/<name>.mp4 --source-playlist --playlist-title '出典一覧' --playlist-privacy private
+```
+
+- `--source-playlist`: meta.json の `sources[].videoId` を初登場順に追加し、重複は除く。sources が無い・空なら止める。`--video` の glob・複数指定に対応し、1 本ずつ処理して失敗したら止まる。
+- `--playlist-privacy unlisted|public|private`: 既定は限定公開（`unlisted`）。
+- `--playlist-title <text>`: 既定は `【出典】<meta.upload.title>`。meta.upload.title が無ければ指定必須。
+
+meta.json は通常の upload と同じ探索順で読む。このモードは動画・サムネイル・コメントを送らず、upload.json も変更しない。概要欄・render・QC のファイルは不要。表示された再生リスト URL を概要欄に載せる作業は手動で行う。OAuth スコープは既存のまま。
+
+記録は mp4 の隣の `<name>.playlist.json`（version / video / channelId / playlistId / url / privacyStatus / title / createdAt / items / failures）。各 API 成功直後に保存する。items は videoId と playlistItemId の組、failures は upload.json と同形式で直近 10 件。送信前に認可チャンネル・設定・記録の channelId を照合する。
+
+割り当て超過などで止まると終了コードは非 0。同じコマンドを再実行すると、記録の playlistId を使い、`playlistItems.list` を全ページ取得して記録と照合し、未追加分だけを追加する。記録前に追加されていた項目も二重追加しない。全部入っていれば URL を表示して終わる。再開時のタイトル・公開範囲は記録の値を使い、既存リストは変更しない。
+
+`--dry-run` は認証情報を読まず通信もせず、タイトル・公開範囲・追加予定数・記録済み数を表示する。見積もりは **作成 50 + 未追加数 × 50 + list のページ数**（1 ページ最大 50 件、チャンネル確認の 1 unit は別途）。新規 159 本なら 8,000 units。再開時は作成分が 0 になり、list のページ数と未追加数は手元の記録からの概算になる。記録外の追加があれば実際の値は変わる。動画アップロードとは別の日にも実行できる。
+
 ## 付随ファイルの探し方
 
 mp4 の隣 → `output/` → `output/0_reviewed/` の順に探す（`scripts/dev-server/lib/thumbnail-paths.js` と同じ順）。実際に `0_reviewed/` には mp4・meta.json・youtube.txt・サムネイルだけを移していて、comment・render・qc は `output/` 直下に残っている例がある。
@@ -245,7 +268,6 @@ upload は終わりに次の確認項目を出す。
 ## 今回やらないこと
 
 - 予約公開（`status.publishAt`）
-- 再生リストへの追加
 - 設定エディタの概要欄タブからのアップロード
 - 複数チャンネルの切り替え
 - resumable upload（大きな動画で一括送信が失敗するようになったら検討する）

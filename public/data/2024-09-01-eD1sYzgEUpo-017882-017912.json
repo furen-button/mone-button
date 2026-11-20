@@ -1,0 +1,37 @@
+{
+  "videoId": "eD1sYzgEUpo",
+  "serif": "ちっちゃくなーれのお歌",
+  "ruby": "ちっちゃくなーれのおうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=eD1sYzgEUpo&t=17878s",
+  "memo": "yt-comment-archiver: ライブチャット「謎お歌たすかる」「謎の歌たすかる」「謎歌助かるから良いよ」 @4:58:22",
+  "liveChat": {
+    "message": "謎お歌たすかる",
+    "at": 17902,
+    "streamStartedAt": "2024-09-01T09:00:54+09:00"
+  },
+  "trimming": {
+    "startTime": 17878.788245581738,
+    "endTime": 17891.707060014727,
+    "duration": 12.918814432989695,
+    "original": {
+      "startTime": 17882,
+      "endTime": 17912,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "eD1sYzgEUpo",
+      "title": "【クリア耐久】星のカービィ スーパーデラックス💗終止符をここに！！！カービィと思いっきり遊ぶんだ✨【にじさんじ/梢桃音】",
+      "duration": 39244,
+      "thumbnail": "https://i.ytimg.com/vi/eD1sYzgEUpo/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20240901",
+      "viewCount": 66361,
+      "url": "https://www.youtube.com/watch?v=eD1sYzgEUpo"
+    }
+  }
+}

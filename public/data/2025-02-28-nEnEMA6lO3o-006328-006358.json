@@ -1,0 +1,37 @@
+{
+  "videoId": "nEnEMA6lO3o",
+  "serif": "希望の朝だ",
+  "ruby": "きぼうのあさだ",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=nEnEMA6lO3o&t=6333s",
+  "memo": "yt-comment-archiver: ライブチャット「お歌助かる」「おうた助かる」 @1:45:48",
+  "liveChat": {
+    "message": "お歌助かる",
+    "at": 6348,
+    "streamStartedAt": "2025-02-28T19:00:24+09:00"
+  },
+  "trimming": {
+    "startTime": 6333.161772827688,
+    "endTime": 6337.536542709868,
+    "duration": 4.374769882179675,
+    "original": {
+      "startTime": 6328,
+      "endTime": 6358,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "nEnEMA6lO3o",
+      "title": "【ゼルダの伝説時のオカリナ】#４ シリーズ完全初見🔰⛰️デスマウンテンの頂上へ！⛰️【にじさんじ/梢桃音】",
+      "duration": 18351,
+      "thumbnail": "https://i.ytimg.com/vi/nEnEMA6lO3o/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250228",
+      "viewCount": 18556,
+      "url": "https://www.youtube.com/watch?v=nEnEMA6lO3o"
+    }
+  }
+}

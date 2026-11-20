@@ -1,0 +1,32 @@
+{
+  "videoId": "ARrO0pZW-3M",
+  "serif": "いつも歌ってる初見さんの歌",
+  "ruby": "いつもうたってるはつみさんのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=ARrO0pZW-3M&t=17384s",
+  "memo": "yt-comment-archiver: コメント「4:49:39 いつも歌ってる所見さんの歌」 @4:49:39",
+  "trimming": {
+    "startTime": 17384.676316273933,
+    "endTime": 17394.65468519882,
+    "duration": 9.978368924889544,
+    "original": {
+      "startTime": 17374,
+      "endTime": 17404,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "ARrO0pZW-3M",
+      "title": "【ゼルダの伝説時のオカリナ】#5 シリーズ完全初見🔰今日こそはジャブジャブ様のお腹にいる姫を救う👸✨【にじさんじ/梢桃音】",
+      "duration": 22070,
+      "thumbnail": "https://i.ytimg.com/vi/ARrO0pZW-3M/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250301",
+      "viewCount": 22887,
+      "url": "https://www.youtube.com/watch?v=ARrO0pZW-3M"
+    }
+  }
+}

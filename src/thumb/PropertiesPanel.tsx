@@ -1,6 +1,6 @@
 import type { Layer } from '../../scripts/create-video/thumbnail.js'
 import { FONT_WEIGHTS } from '../../scripts/create-video/thumbnail.js'
-import { FONTS } from './fonts'
+import { FontPicker } from './FontPicker'
 import type { Edit } from './Stage'
 export function PropertiesPanel({ layer, onEdit, onRemove }: { layer?: Layer; onEdit: Edit; onRemove: () => void }) {
   if (!layer) {
@@ -72,14 +72,7 @@ export function PropertiesPanel({ layer, onEdit, onRemove }: { layer?: Layer; on
               文字（改行・{'{強調}'}・{'{色|FF0000}'}）
               <textarea maxLength={2000} value={l.text} onChange={(e) => edit({ text: e.target.value })} />
             </label>
-            <label>
-              フォント
-              <select value={l.font} onChange={(e) => edit({ font: e.target.value, weight: 400 })}>
-                {FONTS.map((font) => (
-                  <option key={font.family}>{font.family}</option>
-                ))}
-              </select>
-            </label>
+            <FontPicker key={l.id} layer={l} onEdit={onEdit} />
             <label>
               太さ
               <select value={l.weight} onChange={(e) => edit({ weight: Number(e.target.value) })}>
@@ -89,7 +82,44 @@ export function PropertiesPanel({ layer, onEdit, onRemove }: { layer?: Layer; on
               </select>
             </label>
             {numeric('文字サイズ', l.size, (size) => edit({ size }), 1, 600)}
-            {color('文字色', l.color, (value) => edit({ color: value }))}
+            <label>
+              <input
+                type="checkbox"
+                checked={!!l.gradient}
+                onChange={(e) => {
+                  // RGB の各成分が 240 以上なら白に近い色として、差が見える終了色にする。
+                  const nearWhite = [1, 3, 5].every((start) => parseInt(l.color.slice(start, start + 2), 16) >= 240)
+                  edit({
+                    gradient: e.target.checked
+                      ? { type: 'linear', from: '#FFFFFF', to: nearWhite ? '#FF4FA0' : l.color, angle: 0, scope: 'line' }
+                      : undefined,
+                  })
+                }}
+              />
+              グラデーション
+            </label>
+            {l.gradient
+              ? (() => {
+                  const gradient = l.gradient
+                  return (
+                    <>
+                      {color('開始色', gradient.from, (from) => edit({ gradient: { ...gradient, from } }))}
+                      {color('終了色', gradient.to, (to) => edit({ gradient: { ...gradient, to } }))}
+                      {numeric('角度', gradient.angle, (angle) => edit({ gradient: { ...gradient, angle } }), -360, 360)}
+                      <label>
+                        範囲
+                        <select
+                          value={gradient.scope}
+                          onChange={(e) => edit({ gradient: { ...gradient, scope: e.target.value as 'line' | 'block' } })}
+                        >
+                          <option value="line">行ごと</option>
+                          <option value="block">全体</option>
+                        </select>
+                      </label>
+                    </>
+                  )
+                })()
+              : color('文字色', l.color, (value) => edit({ color: value }))}
             {color('強調色', l.emphasisColor, (emphasisColor) => edit({ emphasisColor }))}
             {numeric('行送り', l.lineHeight, (lineHeight) => edit({ lineHeight }), 0.5, 3, 0.05)}
             {numeric('字間', l.letterSpacing, (letterSpacing) => edit({ letterSpacing }), -50, 100)}

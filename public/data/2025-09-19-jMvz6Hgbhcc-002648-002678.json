@@ -1,0 +1,32 @@
+{
+  "videoId": "jMvz6Hgbhcc",
+  "serif": "ごま塩の歌",
+  "ruby": "ごましおのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=jMvz6Hgbhcc&t=2654s",
+  "memo": "yt-comment-archiver: コメント「44:13 ごま塩の歌」 @0:44:13",
+  "trimming": {
+    "startTime": 2654.60530191458,
+    "endTime": 2664.2350423416788,
+    "duration": 9.629740427098676,
+    "original": {
+      "startTime": 2648,
+      "endTime": 2678,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "jMvz6Hgbhcc",
+      "title": "【おにぎり屋さんシミュレーター】もちもちもねち無限会社おにぎり支部🍙【にじさんじ/梢桃音】",
+      "duration": 9554,
+      "thumbnail": "https://i.ytimg.com/vi/jMvz6Hgbhcc/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250919",
+      "viewCount": 16764,
+      "url": "https://www.youtube.com/watch?v=jMvz6Hgbhcc"
+    }
+  }
+}

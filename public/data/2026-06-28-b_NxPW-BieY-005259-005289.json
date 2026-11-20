@@ -1,0 +1,37 @@
+{
+  "videoId": "b_NxPW-BieY",
+  "serif": "猫型ロボットの歌",
+  "ruby": "ねこがたろぼっとのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=b_NxPW-BieY&t=5251s",
+  "memo": "yt-comment-archiver: ライブチャット「たぬき仲間の歌」「たぬきの歌」 @1:27:59",
+  "liveChat": {
+    "message": "たぬき仲間の歌",
+    "at": 5279,
+    "streamStartedAt": "2026-06-28T10:00:47+09:00"
+  },
+  "trimming": {
+    "startTime": 5251.991301546392,
+    "endTime": 5269.275451030928,
+    "duration": 17.284149484536083,
+    "original": {
+      "startTime": 5259,
+      "endTime": 5289,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "b_NxPW-BieY",
+      "title": "【耐久】スーパーマリオブラザーズ 15万人orノーセーブクリア耐久🔥【にじさんじ/梢桃音】",
+      "duration": 41906,
+      "thumbnail": "https://i.ytimg.com/vi/b_NxPW-BieY/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20260628",
+      "viewCount": 98900,
+      "url": "https://www.youtube.com/watch?v=b_NxPW-BieY"
+    }
+  }
+}

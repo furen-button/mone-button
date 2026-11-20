@@ -1,0 +1,37 @@
+{
+  "videoId": "4D7qYRHKTPg",
+  "serif": "よしよしよしよし",
+  "ruby": "よしよしよしよし",
+  "categories": [
+    "世界"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=4D7qYRHKTPg&t=8370s",
+  "memo": "yt-comment-archiver: ライブチャット「もねちの歌」「王家マウントの歌」 @2:19:31",
+  "liveChat": {
+    "message": "もねちの歌",
+    "at": 8371,
+    "streamStartedAt": "2025-03-11T18:00:30+09:00"
+  },
+  "trimming": {
+    "startTime": 8370.644883512921,
+    "endTime": 8371.884558081738,
+    "duration": 1.239674568816734,
+    "original": {
+      "startTime": 8351,
+      "endTime": 8381,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "4D7qYRHKTPg",
+      "title": "【ゼルダの伝説時のオカリナ】#9 シリーズ完全初見🔰今日こそ炎の神殿クリアしたい🔥【にじさんじ/梢桃音】",
+      "duration": 15404,
+      "thumbnail": "https://i.ytimg.com/vi/4D7qYRHKTPg/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250311",
+      "viewCount": 17405,
+      "url": "https://www.youtube.com/watch?v=4D7qYRHKTPg"
+    }
+  }
+}

@@ -59,6 +59,32 @@
 | Noto Sans JP | 100〜900（100刻み） | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/notosansjp/METADATA.pb) |
 | Kaisei Decol | 400,500,700 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/kaiseidecol/METADATA.pb) |
 
+2026-11-16、汎用のゴシック体を 8 種足した。上と同じく `ofl/<family>/METADATA.pb` で license（全て OFL）・japanese subset・weight を確認した。M PLUS 2 と Murecho は可変軸 100〜900 から 100 刻みを使う。Kosugi は `apache/`（Apache License 2.0）にあるので、OFL だけの方針に合わせて入れていない。M PLUS 1 は M PLUS 1p とほぼ同じ字形なので 1p だけにした。Google Fonts 以外のフォント（源暎・モボ/モガ・闘龍・勘亭流・ホラー体）も規約を調べたが、ユーザーの判断で Google Fonts だけにした。
+
+| family | 使用する太さ | license / 確認資料 |
+|---|---|---|
+| M PLUS 1p | 100,300,400,500,700,800,900 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/mplus1p/METADATA.pb) |
+| M PLUS 2 | 100〜900（100刻み） | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/mplus2/METADATA.pb) |
+| Zen Kaku Gothic New | 300,400,500,700,900 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/zenkakugothicnew/METADATA.pb) |
+| Zen Kaku Gothic Antique | 300,400,500,700,900 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/zenkakugothicantique/METADATA.pb) |
+| BIZ UDPGothic | 400,700 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/bizudpgothic/METADATA.pb) |
+| Murecho | 100〜900（100刻み） | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/murecho/METADATA.pb) |
+| IBM Plex Sans JP | 100,200,300,400,500,600,700 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexsansjp/METADATA.pb) |
+| Sawarabi Gothic | 400 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/sawarabigothic/METADATA.pb) |
+
+同日、バラエティのテロップ向きを 8 種足した（確認方法は同じ、全て OFL・japanese subset あり）。収録する漢字は google/fonts の TTF の cmap（format 4 / 12）を読んで数えた（css2 の unicode-range は範囲でまとめて書かれるので、字の有無の判定には使えない。最初はそれで見積もって数を誤った）。Darumadrop One・Rock 3D はかなと英数字だけで漢字が無く（全角の「！」も無い）、Chokokutai も漢字は 1 字だけ。漢字はブラウザの代替フォントで描かれて見た目が混ざるので、かなや数字の見出し（「ガハハ」「204」など）に使う。Mochiy Pop P One は既存の Mochiy Pop One の字間を詰めた版なので入れていない。Zen Tokyo Zoo は japanese subset が無いので対象外。
+
+| family | 使用する太さ | 漢字（cmap） | license / 確認資料 |
+|---|---|---|---|
+| Train One | 400 | 2,966 字 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/trainone/METADATA.pb) |
+| Hachi Maru Pop | 400 | 6,682 字 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/hachimarupop/METADATA.pb) |
+| Yusei Magic | 400 | 6,687 字 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/yuseimagic/METADATA.pb) |
+| Kaisei Tokumin | 400,500,700,800 | 6,713 字 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/kaiseitokumin/METADATA.pb) |
+| Yuji Boku | 400 | 6,746 字 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/yujiboku/METADATA.pb) |
+| Darumadrop One | 400 | 0 字（かな・英数字のみ） | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/darumadropone/METADATA.pb) |
+| Rock 3D | 400 | 0 字（かな・英数字のみ） | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/rock3d/METADATA.pb) |
+| Chokokutai | 400 | 1 字 | OFL / [公式metadata](https://raw.githubusercontent.com/google/fonts/main/ofl/chokokutai/METADATA.pb) |
+
 ## 検証結果
 
 - `PATH=/opt/homebrew/bin:$PATH npm test`: **347件成功、失敗0、skip0**。ASS / wrapのgoldenは変更なし。
@@ -84,6 +110,15 @@
 - Anime4Kの復元と拡大はともにRGB24用フィルタを組む。利用不可だけでなく実描画失敗時もLanczosへ再試行し、その旨を返す。
 - 仕様末尾の `11-01-thumbnail.md` はファイル名の不一致と判断し、依頼で指定されたこの `11-02-thumbnail.md` を結果文書として更新した。
 
+## フォントを見本付きで選ぶ（2026-11-16）
+
+- プロパティ欄のフォントの select を、見本付きの一覧 `src/thumb/FontPicker.tsx` に置き換えた。種類（ゴシック / 丸ゴシック / 太字・見出し / 手書き・筆 / 明朝。未定義は「その他」）と「かな・英数字のみ」の注記は `src/thumb/fonts.ts` に持つ。
+- 各項目は、選んでいる文字の層の本文（強調記法を外し、改行を空白にした先頭 12 字。空なら「梢桃音 ガハハ 204」）をそのフォントと切り替え後の太さで描く。一覧は高さ 320px 程度でスクロールし、種類の見出しは sticky。開いたときに選択中の項目まで一覧の中だけをスクロールする。
+- 乗せる（mouseenter）・フォーカスで、初回に編集の `start`、以降 `move` でキャンバスに即反映（履歴に積まない）。クリック・Enter・Space は `move` → `end` で履歴 1 回。一覧から外れる・フォーカスが外へ出る・Esc は、確定済みの値へ `move` → `end`（同じ状態なので履歴は増えない）。マウスで乗せただけではフォーカスが一覧に無いので、Esc はプレビュー中だけ window で受ける。レイヤーの切り替え・ロックでは元に戻して終える。
+- フォントを替えたときの太さは、今の太さがあればそのまま、無ければ一番近いもの（同じ距離なら小さい方）。以前は一律 400 に戻していた。
+- 素材パネルの「フォント」タブも family 名をそのフォントで描く。
+- 確認（Chrome・CDP の実マウス・キー操作）: 26 種が 5 種類に分かれて出る、3 種に注記、Train One に乗せるとキャンバスが変わり確定表示は元のまま、一覧の外で元に戻る、Esc で元に戻る、クリックで確定し一覧から出ても戻らない、⌘Z 1 回で確定前に戻る。`npx tsc -b`・`npx eslint src/thumb`・サムネイル関連のテスト 37 件が通る。
+
 ## Chrome での実機確認（2026-11-02、ローカル・Vulkan あり）
 
 - 別ポートの dev サーバ（5199）で `thumb.html?base=2024-07-13-category-やられ-matome&template=…` を CDP で操作した。3 テンプレートとも 0.3〜2.8 秒で `data-ready` になり、コンソールのエラー 0
@@ -100,6 +135,16 @@
 - もねの切り抜きは正方形で切られているので、白フチが切り口（画像の端で体が切れている所）にも白い線を出していた → 縁取りを画像の矩形の内側だけに描く
 - 素材パネルが狭く「フォント」のタブ名が折り返していた → パネルを 300px にし、タブ名を折り返さない
 - レイヤー一覧の名前が slot の英語（frame / face）だった → 背景のコマ / もね / 図形 / タイトル
+
+## 文字色のグラデーション（2026-11-17）
+
+- 文字の層に任意の `gradient: { type: 'linear', from, to, angle, scope }` を追加した。`color` は単色用として保持する。共有の `normalizeProject` で検証し、テンプレートでも使用できる。省略値は開始色 `#FFFFFF`、終了色はその層の `color`、角度 0、範囲 `line`。角度は -360〜360、範囲は `line` / `block` のみ。
+- 本文の強調以外の字を CanvasGradient で塗る。強調色・個別指定色・縁取りは単色のまま。矩形と同じく、中心から sin / cos で端点を取り、0 度は上→下、90 度は左→右。
+- `setupText` は `textBaseline = 'middle'`、`textAlign = 'left'`。行ごとの横範囲は揃えを反映した行の開始 X と行幅、縦範囲は描画 Y ± 文字サイズ / 2 とした。行送りの余白は含めない。全体の横範囲は `layerBox` の最長行と同じ、縦範囲は先頭行の字の上端〜最終行の字の下端（高さは `(行数 - 1) × 文字サイズ × 行送り + 文字サイズ`）。選択枠の `layerBox` 自体は変更しない。
+- 文字色の「グラデーション」をオンにすると開始色・終了色・角度・範囲（行ごと / 全体）を表示し、単色の欄を隠す。初期値は白→現在の文字色、角度 0、行ごと。現在色の RGB 各成分が 240 以上なら白に近いと判定し、終了色を `#FF4FA0` にする。
+- オフは既存の edit に `{ gradient: undefined }` を渡す。patch のマージ後は通常編集・move とも必ず正規化され、`gradient !== undefined` の場合だけ出力するため、状態と保存 JSON からキーが消える。編集基盤の変更は不要。gradient のない既存データにはキーを追加しない。
+- 確認結果: `npx tsc -b`、`npx eslint src/thumb` は成功。`node --test scripts/create-video/thumbnail.test.js scripts/dev-server/handlers/thumb.test.js` は **13 件成功、失敗 0**。既定値・明示値・不正値拒否・テンプレート適用・旧形式の完全な出力・undefined patch によるキー削除を確認した。同梱 5 テンプレートは通常 / template 両モードで変更前の正規化結果と JSON が完全一致した。
+- Chrome での確認（別ポートの dev サーバ・CDP、保存は押さない）: 「ダジャレ」の層を 2 行（ダジャレ / 大連発）にして、オンでキャンバスが変わる、開始色・終了色・角度・範囲が出て文字色の欄が隠れる、範囲の既定は行ごと、全体に切り替えると描画が変わる（1 行目が白寄り・2 行目が色寄り）、角度 90 で左→右になる、オフで単色の描画と完全に一致する、強調だけの層（`{200}`）は掛けても描画が変わらない、の 10 項目が通った。npm test 全体は実行していない（public/data に作業中のクリップがあり ASS golden が変わるため）。
 
 ## 残件
 

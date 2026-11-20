@@ -1,0 +1,37 @@
+{
+  "videoId": "jMvz6Hgbhcc",
+  "serif": "梅ご飯の歌",
+  "ruby": "うめごはんのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=jMvz6Hgbhcc&t=5475s",
+  "memo": "yt-comment-archiver: ライブチャット「なんだその歌」「梅ご飯の歌」 @1:31:53",
+  "liveChat": {
+    "message": "なんだその歌",
+    "at": 5513,
+    "streamStartedAt": "2025-09-19T12:04:53+09:00"
+  },
+  "trimming": {
+    "startTime": 5475.67788107511,
+    "endTime": 5500.2424981590575,
+    "duration": 24.56461708394727,
+    "original": {
+      "startTime": 5493,
+      "endTime": 5523,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "jMvz6Hgbhcc",
+      "title": "【おにぎり屋さんシミュレーター】もちもちもねち無限会社おにぎり支部🍙【にじさんじ/梢桃音】",
+      "duration": 9554,
+      "thumbnail": "https://i.ytimg.com/vi/jMvz6Hgbhcc/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250919",
+      "viewCount": 16764,
+      "url": "https://www.youtube.com/watch?v=jMvz6Hgbhcc"
+    }
+  }
+}

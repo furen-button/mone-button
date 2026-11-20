@@ -1,0 +1,37 @@
+{
+  "videoId": "P3tZGw09UGo",
+  "serif": "セブンの歌",
+  "ruby": "せぶんのうた",
+  "categories": [
+    "お歌"
+  ],
+  "clipUrl": "https://youtube.com/watch?v=P3tZGw09UGo&t=3537s",
+  "memo": "yt-comment-archiver: ライブチャット「おうたたすかる」「お歌助かる」「お歌助かる」 コメント「59:40 ローソンの歌」 @0:59:19",
+  "liveChat": {
+    "message": "おうたたすかる",
+    "at": 3559,
+    "streamStartedAt": "2025-04-25T23:00:23+09:00"
+  },
+  "trimming": {
+    "startTime": 3537.58661634757,
+    "endTime": 3541.6907676730484,
+    "duration": 4.104151325478643,
+    "original": {
+      "startTime": 3539,
+      "endTime": 3569,
+      "duration": 30
+    }
+  },
+  "videoFile": {
+    "metadata": {
+      "videoId": "P3tZGw09UGo",
+      "title": "【かまいたちの夜】#2_2完全初見👻SFC実機でやるよ！ハッピーエンドどこだ！👓【にじさんじ/梢桃音】",
+      "duration": 14553,
+      "thumbnail": "https://i.ytimg.com/vi/P3tZGw09UGo/maxresdefault.jpg",
+      "uploader": "梢桃音 / Kozue Mone【にじさんじ】",
+      "uploadDate": "20250425",
+      "viewCount": 16057,
+      "url": "https://www.youtube.com/watch?v=P3tZGw09UGo"
+    }
+  }
+}

@@ -359,10 +359,12 @@ export function buildClipElements({ clip, index, total, config, size, titleOverr
     duration,
     overrides: { outline: 2, outlineColor: '000000', shadow: 1, shadowColor: '000000' },
   }));
+  const serifAlign = config.telops.serif.alignOverrides?.[clip.base];
   elements.push(makeTextElement({
     name: 'serif',
     text: clip.data.serif || '',
-    style: config.telops.serif,
+    // クリップごとの align 上書き（telops.serif.alignOverrides）。描画・矩形・QC はこの要素を共有する。
+    style: serifAlign ? { ...config.telops.serif, align: serifAlign } : config.telops.serif,
     width: size.width,
     height: size.height,
     duration,
