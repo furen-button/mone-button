@@ -873,6 +873,12 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
+.clip-edit-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
 .clip-edit-link {
   align-self: flex-start;
   color: #8a4fc4;

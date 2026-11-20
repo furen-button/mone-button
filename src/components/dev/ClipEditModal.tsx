@@ -25,6 +25,24 @@ type ClipEditModalProps = {
 
 type SaveStatus = 'idle' | 'saving' | 'error'
 
+// 元動画を今のトリム位置（秒は切り捨て）から開く URL。clipUrl は取り込み時の窓の先頭なので、トリム後はずれる。
+function sourceVideoUrl(clip: VoiceClip): string {
+  const videoId = encodeURIComponent(clip.videoId)
+  return `https://www.youtube.com/watch?v=${videoId}&t=${Math.floor(clip.trimming.startTime)}s`
+}
+
+// 1:02:03 / 4:05 の形にする（YouTube の表示と同じ）。
+function formatSourceTime(seconds: number): string {
+  const total = Math.floor(seconds)
+  const h = Math.floor(total / 3600)
+  const m = Math.floor((total % 3600) / 60)
+  const s = String(total % 60).padStart(2, '0')
+  if (h > 0) {
+    return `${h}:${String(m).padStart(2, '0')}:${s}`
+  }
+  return `${m}:${s}`
+}
+
 export function ClipEditModal({ clip, categorySuggestions, hasVideo, onDelete, onClose, onSaved }: ClipEditModalProps) {
   // 表示用に改行・強調記法を落とした serif ではなく JSON の値から始める。そのまま保存しても、
   // まとめ動画のテロップ用の改行と強調記法が消えないように。
@@ -256,15 +274,26 @@ export function ClipEditModal({ clip, categorySuggestions, hasVideo, onDelete, o
           <div className="clip-edit-header-text">
             <h2 className="clip-edit-title">クリップ編集 <span className="clip-edit-badge">DEV</span></h2>
             <p className="clip-edit-filename">{clip.fileBaseName}.json</p>
-            <a
-              className="clip-edit-link"
-              href={`${import.meta.env.BASE_URL}crop.html?clip=${encodeURIComponent(clip.fileBaseName)}`}
-              target="_blank"
-              rel="noopener"
-              title="このクリップのキーフレーム切り出し（effects.camera）を別タブで編集する"
-            >
-              🖼️ 切り出しツールで開く
-            </a>
+            <div className="clip-edit-links">
+              <a
+                className="clip-edit-link"
+                href={sourceVideoUrl(clip)}
+                target="_blank"
+                rel="noreferrer"
+                title={`${clip.videoFile.metadata.title}（今のトリム位置から再生）`}
+              >
+                ▶️ 元動画を開く（{formatSourceTime(clip.trimming.startTime)} から）
+              </a>
+              <a
+                className="clip-edit-link"
+                href={`${import.meta.env.BASE_URL}crop.html?clip=${encodeURIComponent(clip.fileBaseName)}`}
+                target="_blank"
+                rel="noopener"
+                title="このクリップのキーフレーム切り出し（effects.camera）を別タブで編集する"
+              >
+                🖼️ 切り出しツールで開く
+              </a>
+            </div>
           </div>
           <div className="clip-edit-header-actions">
             {status === 'error' ? <span className="clip-edit-header-status is-error">⚠ 保存に失敗しました</span> : null}
